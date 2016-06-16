@@ -191,6 +191,7 @@ namespace Infected
                 var value = t[1];
                 switch (txt)
                 {
+                    case "so":ADMIN.Call("playlocalsound", value);return false;
                     case "pos": moveBot(value); break;
 
                     case "bot": DeployBOTsByNUM(int.Parse(value)); return false;

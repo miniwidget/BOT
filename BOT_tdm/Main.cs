@@ -17,15 +17,7 @@ namespace Tdm
 
             #region Load Custom Setting from a set.txt file
 
-            string setFile = null;
-            if (TEST_)
-            {
-                setFile = "admin\\test\\TDM.txt";
-            }
-            else
-            {
-                setFile = "admin\\TDM.txt";
-            }
+            string setFile = GetPath("admin\\TDM.txt");
 
             int i;
 
@@ -76,9 +68,10 @@ namespace Tdm
                 }
             }
 
-            Server_SetDvar();
 
             #endregion
+
+            Server_SetDvar();
 
             PlayerConnecting += player =>
             {
@@ -111,9 +104,12 @@ namespace Tdm
             OnNotify("prematch_done", () =>
             {
                 PREMATCH_DONE = true;
-                Server_Hud();
-                if (DEPLAY_BOT_) deplayBOTs();
                 
+                if (DEPLAY_BOT_) deplayBOTs();
+
+                Server_Hud();
+                readMAP();
+
                 PlayerDisconnected += Tdm_PlayerDisConnected;
 
                 OnNotify("game_ended", (level) =>

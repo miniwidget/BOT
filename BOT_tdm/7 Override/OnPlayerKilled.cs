@@ -43,7 +43,7 @@ namespace Tdm
             B.temp_fire = false;
             B.death += 1;
         }
-        
+
         public override void OnPlayerDamage(Entity player, Entity inflictor, Entity attacker, int damage, int dFlags, string mod, string weapon, Vector3 point, Vector3 dir, string hitLoc)
         {
             //BOTs side
@@ -55,7 +55,7 @@ namespace Tdm
                     player.Health += damage;
                     return;
                 }
-                
+
             }
             if (isBotPlayer)
             {
@@ -73,9 +73,12 @@ namespace Tdm
                     }
                 }
                 return;
-            }else
+            }
+            else
             {
                 if (attacker == null) return;
+                var pe = player.EntRef; if (pe < 0 || pe > 18) return;
+                var ae = attacker.EntRef; if (ae < 0 || pe > 18) return;
                 if (H_FIELD[player.EntRef].TEAM == H_FIELD[attacker.EntRef].TEAM) player.Health += damage;
             }
 

@@ -71,7 +71,7 @@ namespace Infected
                         giveWeaponToInit(player,wep);
 
                         AfterDelay(500, () => giveRandomOffhandWeapon(player, H));
-                        AfterDelay(1500, () => player.Call(363, "^2[ ^7" + wep.Split('_')[1].ToUpper() + " ^2]"));
+                        AfterDelay(1500, () => player.Call(33344, "^2[ ^7" + wep.Split('_')[1].ToUpper() + " ^2]"));
                     }
                 }
                 else if (LIFE == -1)//change to AXIS

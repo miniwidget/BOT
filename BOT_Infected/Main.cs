@@ -29,15 +29,7 @@ namespace Infected
 
             #region Load Custom Setting from a set.txt file
 
-            string setFile = null;
-            if (TEST_)
-            {
-                setFile = "admin\\test\\INF.txt";
-            }
-            else
-            {
-                setFile = "admin\\INF.txt";
-            }
+            string setFile = GetPath("admin\\INF.txt");
 
             int i;
 
@@ -91,11 +83,11 @@ namespace Infected
                 }
             }
 
-            Server_SetDvar();
 
             #endregion
 
-            
+            Server_SetDvar();
+
             PlayerConnecting += player =>
             {
                 string name = player.Name;
@@ -131,6 +123,8 @@ namespace Infected
                 if (DEPLAY_BOT_) deplayBOTs();
 
                 PlayerDisconnected += Inf_PlayerDisConnected;
+
+                readMAP();
 
                 OnNotify("game_ended", (level) =>
                 {

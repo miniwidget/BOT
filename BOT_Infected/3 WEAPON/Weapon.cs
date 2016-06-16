@@ -37,7 +37,7 @@ namespace Infected
             player.TakeWeapon(player.CurrentWeapon);
             player.GiveWeapon(weapon);
             player.Call(33523, weapon); //givemaxammo
-            player.Call(363, "^2[ ^7" + weapon.Split('_')[1].ToUpper() + " ^2]");//iPrintlnBold
+            player.Call(33344, "^2[ ^7" + weapon.Split('_')[1].ToUpper() + " ^2]");//iPrintlnBold
             player.SwitchToWeaponImmediate(weapon);
         }
 

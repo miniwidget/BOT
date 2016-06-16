@@ -54,26 +54,29 @@ namespace Infected
                 CH.Alpha = alp_2;
                 CH.SetShader(P.PL[i] + "_upgrade", jm_, jm_);
                 CH.Call("moveovertime", f1); CH.X = X2_;
-            });
-            AfterDelay(t2, () =>
-            {
-                PH.X = k + (j * i);
-                PH.Y = Y1;
-                PH.Alpha = alp0;
-                PH.SetShader(P.PL[i], j, j);
 
-                CH.X = X2_;
-                CH.Y = Y2__;
-                CH.Alpha = alp__;
-                CH.SetShader(P.PL[i] + "_upgrade", jm__, jm__);
-                CH.Call("moveovertime", f1); CH.X = X2;
-            });
-            AfterDelay(t3, () =>
-            {
-                PH.Call(32897);
-                CH.Call(32897);
-            });
+                AfterDelay(t1, () =>
+                {
+                    PH.X = k + (j * i);
+                    PH.Y = Y1;
+                    PH.Alpha = alp0;
+                    PH.SetShader(P.PL[i], j, j);
 
+                    CH.X = X2_;
+                    CH.Y = Y2__;
+                    CH.Alpha = alp__;
+                    CH.SetShader(P.PL[i] + "_upgrade", jm__, jm__);
+                    CH.Call("moveovertime", f1); CH.X = X2;
+
+                    AfterDelay(t1, () =>
+                    {
+                        PH.Call(32897);
+                        CH.Call(32897);
+                    });
+                });
+          
+            });
+           
 
             string
                 say = null,
@@ -89,7 +92,7 @@ namespace Infected
                 perk2 = "specialty_twoprimaries";
                 perk3 = "specialty_overkillpro";
                 perk4 = P.CL[i];
-                say = "^2[^7 " + player.Name + " ^2] ^1SLEIGHT_OF_HAND PRO";
+                say = " ^2] SLEIGHT_OF_HAND PRO";
             }
             else if (i == 1)
             {
@@ -97,7 +100,7 @@ namespace Infected
                 perk2 = "specialty_autospot";
                 perk3 = "specialty_holdbreathwhileads";
                 perk4 = P.CL[i];
-                say = "^2[^7 " + player.Name + " ^2] ^1QUICKDRAW PRO";
+                say = " ^2] QUICKDRAW PRO";
             }
             else if (i == 2)
             {
@@ -106,7 +109,7 @@ namespace Infected
                 perk3 = "specialty_bulletaccuracy";
                 perk4 = "specialty_steadyaimpro";
                 perk5 = "specialty_fastsprintrecovery";
-                say = "^2[^7 " + player.Name + " ^2] ^1LONGERSPRINT PRO";
+                say = " ^2] LONGERSPRINT PRO";
             }
             else if (i == 3)
             {
@@ -115,7 +118,7 @@ namespace Infected
                 perk3 = P.CL[i];
                 perk4 = "specialty_fastermelee";
                 perk5 = "specialty_ironlungs";
-                say = "^2[^7 " + player.Name + " ^2] ^1STALKER PRO";
+                say = " ^2] STALKER PRO";
             }
             else if (i == 4)
             {
@@ -123,45 +126,45 @@ namespace Infected
                 perk2 = P.CL[i];
                 perk3 ="specialty_detectexplosive";
                 perk4 ="specialty_selectivehearing";
-                say = "^2[^7 " + player.Name + " ^2] ^1SCAVENGER PRO";
+                say = " ^2] SCAVENGER PRO";
             }
             else if (i == 5)
             {
                 perk1 ="specialty_paint_pro";
                 perk2 = P.CL[i];
-                say = "^2[^7 " + player.Name + " ^2] ^1PAINT PRO";
+                say = " ^2] PAINT PRO";
             }
             else if (i == 6)
             {
                 perk1 ="specialty_bulletdamage";
-                say = "^2[^7 " + player.Name + " ^2] ^1DEADSILENCE PRO";
+                say = " ^2] DEADSILENCE PRO";
             }
             else if (i == 7)
             {
                 perk1 ="specialty_fasterlockon";
                 perk2 ="specialty_armorpiercing";
-                say = "^2[^7 " + player.Name + " ^2] ^1BLINDEYE PRO";
+                say = " ^2] BLINDEYE PRO";
             }
             else if (i == 8)
             {
                 perk1 ="specialty_heartbreaker";
                 perk2 ="specialty_spygame";
                 perk3 ="specialty_empimmune";
-                say = "^2[^7 " + player.Name + " ^2] ^1ASSASSIN PRO";
+                say = " ^2] ASSASSIN PRO";
             }
             else if (i == 9)
             {
                 perk1 ="specialty_stun_resistance";
-                say = "^2[^7 " + player.Name + " ^2] ^1BLASTSHIELD PRO";
+                say = " ^2] BLASTSHIELD PRO";
             }
             else if (i == 10)
             {
                 perk1 ="specialty_rollover";
                 perk2 ="specialty_assists";
-                say = "^2[^7 " + player.Name + " ^2] ^1HARDLINE PRO";
+                say = " ^2] 1HARDLINE PRO";
             }
 
-            AfterDelay(100, () => Utilities.RawSayTo(player, say));
+            Utilities.RawSayTo(player, "^2[^7 " + player.Name +say);
 
             player.SetPerk(P.PL[i], true, false);
 

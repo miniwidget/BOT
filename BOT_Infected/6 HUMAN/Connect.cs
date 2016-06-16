@@ -50,6 +50,8 @@ namespace Infected
                 if (!HUMAN_CONNECTED_) HUMAN_CONNECTED_ = true;
                 print(name + " connected ♥");
                 Client_init_GAME_SET(player);
+                player.SpawnedPlayer += () => human_spawned(player);
+
             }
             else
             {

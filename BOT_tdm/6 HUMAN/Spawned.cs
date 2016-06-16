@@ -18,19 +18,20 @@ namespace Tdm
             H.USE_TANK = false;
 
             string team = player.GetField<string>("sessionteam");
+
             if (H.TEAM != null)
             {
                 if (H.TEAM != team)
                 {
                     if (team == "axis")
                     {
+                        H_ALLIES_LIST.Remove(player);
                         H_AXIS_LIST.Add(player);
-                        H_AXIS_LIST.Remove(player);
                     }
                     else
                     {
+                        H_ALLIES_LIST.Add(player);
                         H_AXIS_LIST.Remove(player);
-                        H_AXIS_LIST.Add(player);
                     }
                 }
             }
