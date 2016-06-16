@@ -17,7 +17,7 @@ namespace Infected
             string weapon = B.wep;
 
             int i = 0;
-            bot.OnInterval(FIRE_TIME, bb =>
+            OnInterval(FIRE_TIME, () =>
             {
                 if (i == 6 || B.target != null)
                 {
@@ -27,9 +27,9 @@ namespace Infected
                 var ho = target.Origin;
                 ho.Z -= 50;
 
-                Vector3 angle = Call<Vector3>(247, ho - bb.Origin);//vectortoangles
-                bb.Call(33531, angle);//SetPlayerAngles
-                bb.Call(33468, weapon, 5);//setweaponammoclip
+                Vector3 angle = Call<Vector3>(247, ho - bot.Origin);//vectortoangles
+                bot.Call(33531, angle);//SetPlayerAngles
+                bot.Call(33468, weapon, 5);//setweaponammoclip
                 i++;
                 return true;
             });
@@ -115,7 +115,7 @@ namespace Infected
                     if (i > 2 && i % 3 == 0)
                     {
                         attacker.Call(33466, "mp_killstreak_radar");//playlocalsound
-                        attacker.AfterDelay(100, a => Perk_Hud(attacker, i / 3));
+                        AfterDelay(100, () => Perk_Hud(attacker, i / 3));
                     }
                 }
             }

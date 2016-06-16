@@ -66,7 +66,7 @@ namespace Infected
             e.Call("iPrintlnBold", lists[i]);
             i++;
             if (i == lists.Length) return;
-            e.AfterDelay(4000, e1 =>
+            AfterDelay(4000, () =>
             {
                 roopMessage(e, i, lists);
             });

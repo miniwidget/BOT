@@ -38,6 +38,7 @@ namespace Infected
 
         #region human_spawned
 
+        bool LAST_BOT_SEARCH_ON;
         void human_spawned(Entity player)//LIFE 1 or 2
         {
             if (GAME_ENDED_) return;
@@ -65,8 +66,12 @@ namespace Infected
                         H.PERK = 2;
                         H.RESPAWN = false;
                         player.Call("iPrintlnBold", "^2[ ^7" + (LIFE + 1) + " LIFE ^2] MORE");
-                        giveWeaponTo(player, getRandomWeapon());
-                        player.AfterDelay(500, p => giveRandomOffhandWeapon(player, H));
+
+                        string wep = getRandomWeapon();
+                        giveWeaponToInit(player,wep);
+
+                        AfterDelay(500, () => giveRandomOffhandWeapon(player, H));
+                        AfterDelay(1500, () => player.Call(363, "^2[ ^7" + wep.Split('_')[1].ToUpper() + " ^2]"));
                     }
                 }
                 else if (LIFE == -1)//change to AXIS
@@ -86,6 +91,17 @@ namespace Infected
                     var aw = H.AX_WEP;
                     if (aw == 1)
                     {
+                        if(!HUMAN_AXIS_LIST.Contains(player)) HUMAN_AXIS_LIST.Add(player);
+
+                        if (!LAST_BOT_SEARCH_ON)
+                        {
+                            if (human_List.Count == 0)
+                            {
+                                LAST_BOT_SEARCH_ON = true;
+                                StartAllyBotSearch();
+                            }
+                        }
+                        
                         player.Call("iPrintlnBold", "^2[ ^7DISABLED ^2] Melee of the Infected");
                         H.PERK = 50;
                         AxisHud(player);
@@ -128,14 +144,14 @@ namespace Infected
             H_FIELD[dead.EntRef].AX_WEP = 2;
             dead.TakeWeapon(dead.CurrentWeapon);
             dead.GiveWeapon(DEAD_GUN);
-            dead.AfterDelay(100, d =>
+            AfterDelay(100, () =>
             {
                 dead.SwitchToWeaponImmediate(DEAD_GUN);
                 dead.Call("SetWeaponAmmoClip", DEAD_GUN, 3);
                 dead.Call("SetWeaponAmmoStock", DEAD_GUN, 0);
             });
 
-            dead.AfterDelay(t2, d => dead.Notify("open_"));
+            AfterDelay(t2, () => dead.Notify("open_"));
         }
 
         /// <summary>
@@ -222,7 +238,7 @@ namespace Infected
             }
 
             dead.GiveWeapon(deadManWeapon);
-            dead.AfterDelay(100, x =>
+            AfterDelay(100, () =>
             {
                 dead.SwitchToWeaponImmediate(deadManWeapon);
 

@@ -19,7 +19,7 @@ namespace Tdm
         {
             if (GAME_ENDED_) return;
 
-            if (i > 10 || i<0) return;
+            if (i > 10 || i < 0) return;
             i -= 1;
             //print(player.Name + " perk count : " + i);
 
@@ -41,7 +41,7 @@ namespace Tdm
             CH.Foreground = true;
             CH.SetShader(P.PL[i] + "_upgrade", jm, jm);
 
-            player.AfterDelay(t1, p =>
+            AfterDelay(t1, () =>
             {
                 PH.X = X2__;
                 PH.Y = Y2__;
@@ -54,9 +54,8 @@ namespace Tdm
                 CH.Alpha = alp_2;
                 CH.SetShader(P.PL[i] + "_upgrade", jm_, jm_);
                 CH.Call("moveovertime", f1); CH.X = X2_;
-
             });
-            player.AfterDelay(t2, p =>
+            AfterDelay(t2, () =>
             {
                 PH.X = k + (j * i);
                 PH.Y = Y1;
@@ -69,80 +68,109 @@ namespace Tdm
                 CH.SetShader(P.PL[i] + "_upgrade", jm__, jm__);
                 CH.Call("moveovertime", f1); CH.X = X2;
             });
-            player.AfterDelay(t3, p =>
+            AfterDelay(t3, () =>
             {
                 PH.Call(32897);
                 CH.Call(32897);
             });
 
-            //player.OnNotify("CLOSE_perk", entity => PH.Call(32897));
+
+            string
+                say = null,
+                perk1 = null,
+                perk2 = null,
+                perk3 = null,
+                perk4 = null,
+                perk5 = null;
 
             if (i == 0)
             {
-                player.SetPerk(P.PL[i], true, false); player.SetPerk("specialty_quickswap", true, false);
-                player.SetPerk("specialty_twoprimaries", true, false); player.SetPerk("specialty_overkillpro", true, false);
-                player.SetPerk(P.CL[i], true, false);
-                player.AfterDelay(100,p=>Utilities.RawSayTo(player, "^2[^7 " + player.Name + " ^2] ^1SLEIGHT_OF_HAND PRO"));
+                perk1 = "specialty_quickswap";
+                perk2 = "specialty_twoprimaries";
+                perk3 = "specialty_overkillpro";
+                perk4 = P.CL[i];
+                say = "^2[^7 " + player.Name + " ^2] ^1SLEIGHT_OF_HAND PRO";
             }
             else if (i == 1)
             {
-                player.SetPerk(P.PL[i], true, false); player.SetPerk("specialty_fastoffhand", true, false);
-                player.SetPerk("specialty_autospot", true, false); player.SetPerk("specialty_holdbreathwhileads", true, false);
-                player.SetPerk(P.CL[i], true, false);
-                player.AfterDelay(100, p => Utilities.RawSayTo(player, "^2[^7 " + player.Name + " ^2] ^1QUICKDRAW PRO"));
-
+                perk1 = "specialty_fastoffhand";
+                perk2 = "specialty_autospot";
+                perk3 = "specialty_holdbreathwhileads";
+                perk4 = P.CL[i];
+                say = "^2[^7 " + player.Name + " ^2] ^1QUICKDRAW PRO";
             }
             else if (i == 2)
             {
-                player.SetPerk(P.PL[i], true, false); player.SetPerk("specialty_fastmantle", true, false);
-                player.SetPerk(P.CL[i], true, false); player.SetPerk("specialty_bulletaccuracy", true, false); player.SetPerk("specialty_steadyaimpro", true, false); player.SetPerk("specialty_fastsprintrecovery", true, false);
-                player.AfterDelay(100, p => Utilities.RawSayTo(player, "^2[^7 " + player.Name + " ^2] ^1LONGERSPRINT PRO"));
+                perk1 = "specialty_fastmantle";
+                perk2 = P.CL[i];
+                perk3 = "specialty_bulletaccuracy";
+                perk4 = "specialty_steadyaimpro";
+                perk5 = "specialty_fastsprintrecovery";
+                say = "^2[^7 " + player.Name + " ^2] ^1LONGERSPRINT PRO";
             }
             else if (i == 3)
             {
-                player.SetPerk(P.PL[i], true, false); player.SetPerk("specialty_delaymine", true, false); player.SetPerk("specialty_marksman", true, false);
-                player.SetPerk(P.CL[i], true, false); player.SetPerk("specialty_fastermelee", true, false); player.SetPerk("specialty_ironlungs", true, false);
-                player.AfterDelay(100, p => Utilities.RawSayTo(player, "^2[^7 " + player.Name + " ^2] ^1STALKER PRO"));
-
+                perk1 = "specialty_delaymine";
+                perk2 = "specialty_marksman";
+                perk3 = P.CL[i];
+                perk4 = "specialty_fastermelee";
+                perk5 = "specialty_ironlungs";
+                say = "^2[^7 " + player.Name + " ^2] ^1STALKER PRO";
             }
             else if (i == 4)
             {
-                player.SetPerk(P.PL[i], true, false); player.SetPerk("specialty_extraammo", true, false);
-                player.SetPerk(P.CL[i], true, false); player.SetPerk("specialty_detectexplosive", true, false); player.SetPerk("specialty_selectivehearing", true, false);
-                player.AfterDelay(100, p => Utilities.RawSayTo(player, "^2[^7 " + player.Name + " ^2] ^1SCAVENGER PRO"));
-
+                perk1 = "specialty_extraammo";
+                perk2 = P.CL[i];
+                perk3 = "specialty_detectexplosive";
+                perk4 = "specialty_selectivehearing";
+                say = "^2[^7 " + player.Name + " ^2] ^1SCAVENGER PRO";
             }
             else if (i == 5)
             {
-                player.SetPerk(P.PL[i], true, false); player.SetPerk("specialty_paint_pro", true, false);
-                player.SetPerk(P.CL[i], true, false);
-                player.AfterDelay(100, p => Utilities.RawSayTo(player, "^2[^7 " + player.Name + " ^2] ^1PAINT PRO"));
+                perk1 = "specialty_paint_pro";
+                perk2 = P.CL[i];
+                say = "^2[^7 " + player.Name + " ^2] ^1PAINT PRO";
             }
             else if (i == 6)
             {
-                player.SetPerk(P.PL[i], true, false); player.SetPerk("specialty_bulletdamage", true, false);
-                player.AfterDelay(100, p => Utilities.RawSayTo(player, "^2[^7 " + player.Name + " ^2] ^1DEADSILENCE PRO"));
+                perk1 = "specialty_bulletdamage";
+                say = "^2[^7 " + player.Name + " ^2] ^1DEADSILENCE PRO";
             }
             else if (i == 7)
             {
-                player.SetPerk(P.PL[i], true, false); player.SetPerk("specialty_fasterlockon", true, false); player.SetPerk("specialty_armorpiercing", true, false);
-                player.AfterDelay(100, p => Utilities.RawSayTo(player, "^2[^7 " + player.Name + " ^2] ^1BLINDEYE PRO"));
+                perk1 = "specialty_fasterlockon";
+                perk2 = "specialty_armorpiercing";
+                say = "^2[^7 " + player.Name + " ^2] ^1BLINDEYE PRO";
             }
             else if (i == 8)
             {
-                player.SetPerk(P.PL[i], true, false); player.SetPerk("specialty_heartbreaker", true, false); player.SetPerk("specialty_spygame", true, false); player.SetPerk("specialty_empimmune", true, false);
-                player.AfterDelay(100, p => Utilities.RawSayTo(player, "^2[^7 " + player.Name + " ^2] ^1ASSASSIN PRO"));
+                perk1 = "specialty_heartbreaker";
+                perk2 = "specialty_spygame";
+                perk3 = "specialty_empimmune";
+                say = "^2[^7 " + player.Name + " ^2] ^1ASSASSIN PRO";
             }
             else if (i == 9)
             {
-                player.SetPerk(P.PL[i], true, false); player.SetPerk("specialty_stun_resistance", true, false);
-                player.AfterDelay(100, p => Utilities.RawSayTo(player, "^2[^7 " + player.Name + " ^2] ^1BLASTSHIELD PRO"));
+                perk1 = "specialty_stun_resistance";
+                say = "^2[^7 " + player.Name + " ^2] ^1BLASTSHIELD PRO";
             }
             else if (i == 10)
             {
-                player.SetPerk(P.PL[i], true, false); player.SetPerk("specialty_rollover", true, false); player.SetPerk("specialty_assists", true, false);
-                player.AfterDelay(100, p => Utilities.RawSayTo(player, "^2[^7 " + player.Name + " ^2] ^1HARDLINE PRO"));
+                perk1 = "specialty_rollover";
+                perk2 = "specialty_assists";
+                say = "^2[^7 " + player.Name + " ^2] ^1HARDLINE PRO";
             }
+
+            AfterDelay(100, () => Utilities.RawSayTo(player, say));
+
+            player.SetPerk(P.PL[i], true, false);
+
+            if (perk1 == null) return; player.SetPerk(perk1, true, false);
+            if (perk2 == null) return; player.SetPerk(perk2, true, false);
+            if (perk3 == null) return; player.SetPerk(perk3, true, false);
+            if (perk4 == null) return; player.SetPerk(perk4, true, false);
+            if (perk5 == null) return; player.SetPerk(perk5, true, false);
+
 
         }
         #endregion

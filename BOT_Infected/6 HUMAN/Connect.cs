@@ -67,7 +67,8 @@ namespace Infected
 
             player.SetField("sessionteam", "axis");
             human_List.Remove(player);
-            player.AfterDelay(100, p =>
+            HUMAN_AXIS_LIST.Add(player);
+            AfterDelay(100, () =>
             {
                 player.Call("suicide");
                 player.Notify("menuresponse", "changeclass", "axis_recipe4");
@@ -79,7 +80,10 @@ namespace Infected
             if (human_List.Contains(player))// 봇 타겟리스트에서 접속 끊은 사람 제거
             {
                 human_List.Remove(player);
-
+            }
+            else
+            {
+                HUMAN_AXIS_LIST.Remove(player);
             }
             if (human_List.Count == 0 && !GAME_ENDED_) HUMAN_CONNECTED_ = false;
         }

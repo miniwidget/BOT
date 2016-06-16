@@ -83,8 +83,8 @@ namespace Infected
 
         }
         List<H_SET> H_FIELD = new List<H_SET>(18);
-        //Dictionary<int, int> H_ID = new Dictionary<int, int>();
         List<Entity> human_List = new List<Entity>();
+        List<Entity> HUMAN_AXIS_LIST = new List<Entity>();
         #endregion
 
 
@@ -333,7 +333,10 @@ namespace Infected
             player.OnNotify("weapon_change", (Entity ent, Parameter newWeap) =>
             {
                 if (H.USE_TANK) return;
+
+
                 string weap = newWeap.ToString();
+
                 //print(weap);
                 if (weap == "killstreak_remote_tank_remote_mp")
                 {
@@ -356,6 +359,8 @@ namespace Infected
 
                     //print("들어왔다 "+TANK.Name);
                     human_List.Add(TANK);
+                    player.Call(32936);//thermalvisionfofoverlayon
+
                 }
             });
             player.OnNotify("end_remote", (Entity ent) =>
@@ -364,6 +369,7 @@ namespace Infected
                 {
                     H.USE_TANK = false;
                     human_List.Remove(TANK);
+                    player.Call(32937);//thermalvisionfofoverlayoff
                 }
             });
 
@@ -377,10 +383,7 @@ namespace Infected
 
             #region giveweapon
             giveWeaponTo(player, getRandomWeapon());
-            player.AfterDelay(500, p =>
-            {
-                giveOffhandWeapon(player, offhand);
-            });
+            AfterDelay(500, () => giveOffhandWeapon(player, offhand));
             #endregion
 
             player.SpawnedPlayer += () => human_spawned(player);

@@ -46,14 +46,6 @@ namespace Tdm
                 addBot();
                 num--;
             }
-            AfterDelay(1000, () =>
-            {
-                int x = BOT_SETTING_NUM - BOTs_List.Count;
-                if (x>0)
-                {
-                    print("응ㅇ??");
-                }
-            });
         }
         void deplayBOTs()
         {
@@ -85,7 +77,10 @@ namespace Tdm
             }
         }
 
-        string[] BOTs_CLASS = { "axis_recipe1", "axis_recipe2", "axis_recipe3", "axis_recipe4", "axis_recipe5", "allies_recipe1", "allies_recipe2", "allies_recipe3", "allies_recipe4", "allies_recipe5" };
+        //string[] BOTs_CLASS = { "axis_recipe1", "axis_recipe2", "axis_recipe3", "axis_recipe4", "axis_recipe5", "allies_recipe1", "allies_recipe2", "allies_recipe3", "allies_recipe4", "allies_recipe5" };
+        //string[] BOTs_CLASS = { "axis_recipe1", "axis_recipe2", "axis_recipe3", "class0", "class1", "class2", "class4", "class5", "class6", "class6" };
+
+        string[] BOTs_CLASS = { "class0", "axis_recipe2", "class1", "class2", "class4", "class5", "class1", "class2", "class6", "class6" };
         int BOT_AXIS_IDX, BOT_ALLIES_IDX;
         string getClass
         {
@@ -144,18 +139,17 @@ namespace Tdm
 
                 switch (ADDING_BOT_COUNT)
                 {
-                    //Jugg
-                    case 0:
-                    case 1: bot.SpawnedPlayer += () => SpawnJuggBot(bot, team); break;
-
                     //Rpg
                     case 2:
                     case 3: bot.SpawnedPlayer += () => SpawnRpgBot(bot, team); break;
 
-                    //riot
-                    case 4:
-                    case 5: bot.SpawnedPlayer += () => bot.Call(33220, 2f);
-                        break;
+                    ////Jugg
+                    //case 0:
+                    //case 1: bot.SpawnedPlayer += () => SpawnJuggBot(bot, team); break;
+
+                    ////riot
+                    //case 4:
+                    //case 5: bot.SpawnedPlayer += () => bot.Call(33220, 2f); break;
 
                     default: bot.SpawnedPlayer += () => SpawnBot(bot); break;
                 }

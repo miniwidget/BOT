@@ -51,7 +51,7 @@ namespace Tdm
 
             readMAP();
 
-            if (SERVER_NAME == "^2BOT ^7TDM SERVER" || SERVER_NAME == "^2BOT ^7TDM test server") SERVER_NAME += " " + rnd.Next(1000);
+            //if (SERVER_NAME == "^2BOT ^7TDM SERVER" || SERVER_NAME == "^2BOT ^7TDM test server") SERVER_NAME += " " + rnd.Next(1000);
             Utilities.ExecuteCommand("sv_hostname " + SERVER_NAME);
             for (int i = 0; i < 18; i++)
             {
@@ -213,6 +213,7 @@ namespace Tdm
             H_SET H = H_FIELD[player.EntRef];
             H.PERK = 2;
             H.TEAM = null;
+            H.USE_TANK = false;
             #endregion
 
             #region SetClientDvar
@@ -304,7 +305,6 @@ namespace Tdm
             });
             #region TANK
 
-            /*
             Entity TANK = null;
             player.OnNotify("weapon_change", (Entity ent, Parameter newWeap) =>
             {
@@ -342,7 +342,6 @@ namespace Tdm
                     human_List.Remove(TANK);
                 }
             });
-            */
             #endregion
 
             #endregion

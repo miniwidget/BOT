@@ -35,8 +35,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="InfinityScript">
-      <HintPath>How To Use\InfinityScript.dll</HintPath>
-      <Private>False</Private>
+      <HintPath>..\How To Use\InfinityScript.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

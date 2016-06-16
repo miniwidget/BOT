@@ -80,36 +80,6 @@ namespace Infected
             }
             #endregion
         }
-        void deplayBOTs_mapRestart(string message, int sec)
-        {
-            print("■ IMPORTANT : deplayBOTs_map_init");
-            KickBOTsAll();
-
-            int speed = 25;
-            int decayStart = 3000;
-            int decayDuration = 1000;
-
-            HudElem END = HudElem.CreateServerFontString("default", 2f);
-            END.SetPoint("CENTER", "CENTER", 0, 100);
-            END.Foreground = true;
-            END.HideWhenInMenu = false;
-            END.Alpha = 1f;
-            END.Call("setpulsefx", speed, decayStart, decayDuration);
-            END.SetText(message);
-
-            HudElem staticBG = HudElem.NewHudElem();
-            staticBG.HorzAlign = "fullscreen";
-            staticBG.VertAlign = "fullscreen";
-            staticBG.SetShader("black", 640, 480);
-            staticBG.Foreground = true;
-            staticBG.HideWhenInMenu = false;
-            staticBG.Alpha = 0;
-            staticBG.Call("fadeovertime", 1.5f);
-            staticBG.Alpha = 1f;
-
-
-            AfterDelay(sec * 1000, () => Utilities.ExecuteCommand("fast_restart"));
-        }
         #endregion
 
     }

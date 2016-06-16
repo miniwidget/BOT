@@ -70,7 +70,6 @@ namespace Infected
                 var tx = texts[1];
                 int i = 0;
                 if (!int.TryParse(tx, out i)) return;
-                if (i > 9) return;
 
                 switch (texts[0])
                 {
@@ -82,7 +81,6 @@ namespace Infected
                     case "sn": giveWeaponTo(player, SN(i)); return;
                     case "sg": giveWeaponTo(player, SG(i)); return;
                 }
-
             }
 
         }

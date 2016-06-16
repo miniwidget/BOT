@@ -11,6 +11,76 @@ namespace Infected
 {
     public partial class Infected
     {
+        void StartAllyBotSearch()
+        {
+            Entity bot = BOTs_List[LAST_ALLY_BOT_IDX];
+            bot.Call(33220, 1.5f);
+
+
+            B_SET B = B_FIELD[LAST_ALLY_BOT_IDX];
+            B.target = null;
+            B.fire = true;
+            B.temp_fire = false;
+            bot.SpawnedPlayer += () => B.death += 1;
+
+            string weapon = bot.CurrentWeapon;
+            bot.Call(33468, weapon, 0);//setweaponammoclip
+            bot.Call(33469, weapon, 0);//setweaponammostock
+
+            int death = B.death;
+            bool pause = false;
+            OnInterval(t1, () =>
+            {
+                if (death != B.death|| GAME_ENDED_) return false;
+                if (!HUMAN_CONNECTED_) return pause = true;
+                var target = B.target;
+
+                if (target != null)//이미 타겟을 찾은 경우
+                {
+                    if (HUMAN_AXIS_LIST.Contains(target))
+                    {
+                        //if (TEST_) return true;
+                        var POD = target.Origin.DistanceTo(bot.Origin);
+                        if (POD < FIRE_DIST) return !(pause = false);
+                    }
+
+                    B.target = null;
+                    B.fire = false;
+                    bot.Call(33468, weapon, 0);//setweaponammoclip
+                }
+                pause = true;
+
+                //타겟 찾기 시작
+                foreach (Entity human in HUMAN_AXIS_LIST)
+                {
+                    var POD = human.Origin.DistanceTo(bot.Origin);
+
+                    if (POD < FIRE_DIST)
+                    {
+                        B.target = human;
+                        B.fire = true;
+                        pause = false;
+                        OnInterval(200, () =>
+                        {
+                            if (pause || !B.fire) return false;
+
+                            var ho = human.Origin; ho.Z -= 50;
+
+                            Vector3 angle = Call<Vector3>(247, ho - bot.Origin);//vectortoangles
+                            bot.Call(33531, angle);//SetPlayerAngles
+                            bot.Call(33468, weapon, 5);//setweaponammoclip
+                            return true;
+                        });
+
+                        return true;
+                    }
+
+                }
+                return true;
+
+            });
+
+        }
 
         #region 일반
         //봇 스폰 시작
@@ -38,20 +108,20 @@ namespace Infected
             bot.Call(33468, weapon, 0);//setweaponammoclip
             bot.Call(33469, weapon, 0);//setweaponammostock
 
-            bot.AfterDelay(BOT_DELAY_TIME, b =>
+            AfterDelay(BOT_DELAY_TIME, () =>
             {
                 if (GAME_ENDED_) return;
                 B.fire = true;
-                b.Call(32847);//show
+                bot.Call(32847);//show
                 bot.Call(33220, 1f);
                 if (num != JUGG_BOT_ENTREF)
                 {
-                    b.Health = 150;
-                    start_bot_search(b, B);
+                    bot.Health = 150;
+                    start_bot_search(bot, B);
                 }
                 else
                 {
-                    start_bot_search_Jugg(b, B);
+                    start_bot_search_Jugg(bot, B);
                 }
 
             });
@@ -67,11 +137,10 @@ namespace Infected
                 int death = B.death;
                 string weapon = B.wep;
 
-                bot.OnInterval(SEARCH_TIME, b =>
+                OnInterval(SEARCH_TIME, () =>
                 {
                     if (death != B.death) return false;
-                    if (!HUMAN_CONNECTED_) return !(pause = false);
-
+                    if (!HUMAN_CONNECTED_) return pause = true;
                     var target = B.target;
 
                     if (target != null)//이미 타겟을 찾은 경우
@@ -80,11 +149,7 @@ namespace Infected
                         {
                             //if (TEST_) return true;
                             var POD = target.Origin.DistanceTo(bot.Origin);
-                            if (POD < FIRE_DIST)
-                            {
-                                pause = false;
-                                return true;
-                            }
+                            if (POD < FIRE_DIST) return !(pause = false);
                         }
 
                         B.target = null;
@@ -103,15 +168,15 @@ namespace Infected
                             B.target = human;
                             B.fire = true;
                             pause = false;
-                            b.OnInterval(FIRE_TIME, bb =>
+                            OnInterval(FIRE_TIME, () =>
                             {
                                 if (pause || !B.fire) return false;
 
                                 var ho = human.Origin; ho.Z -= 50;
 
-                                Vector3 angle = Call<Vector3>(247, ho - bb.Origin);//vectortoangles
-                                bb.Call(33531, angle);//SetPlayerAngles
-                                bb.Call(33468, weapon, 5);//setweaponammoclip
+                                Vector3 angle = Call<Vector3>(247, ho - bot.Origin);//vectortoangles
+                                bot.Call(33531, angle);//SetPlayerAngles
+                                bot.Call(33468, weapon, 5);//setweaponammoclip
                                 return true;
                             });
 
@@ -138,10 +203,10 @@ namespace Infected
                 int death = B.death;
                 string weapon = B.wep;
 
-                bot.OnInterval(SEARCH_TIME, b =>
+                OnInterval(SEARCH_TIME, () =>
                 {
                     if (death != B.death) return false;
-                    if (!HUMAN_CONNECTED_) return !(pause = false);
+                    if (!HUMAN_CONNECTED_) return pause = true;
 
                     var target = B.target;
 
@@ -151,11 +216,7 @@ namespace Infected
                         {
                             //if (TEST_) return true;
                             var POD = target.Origin.DistanceTo(bot.Origin);
-                            if (POD < FIRE_DIST)
-                            {
-                                pause = false;
-                                return true;
-                            }
+                            if (POD < FIRE_DIST) return !(pause = false);
                         }
 
                         B.target = null;
@@ -185,15 +246,15 @@ namespace Infected
 
                     if (target != null)
                     {
-                        b.OnInterval(FIRE_TIME, bb =>
+                        OnInterval(FIRE_TIME, () =>
                         {
                             if (pause || !B.fire) return false;
 
                             var ho = target.Origin; ho.Z -= 50;
 
-                            Vector3 angle = Call<Vector3>(247, ho - bb.Origin);//vectortoangles
-                            bb.Call(33531, angle);//SetPlayerAngles
-                            bb.Call(33468, weapon, 5);//setweaponammoclip
+                            Vector3 angle = Call<Vector3>(247, ho - bot.Origin);//vectortoangles
+                            bot.Call(33531, angle);//SetPlayerAngles
+                            bot.Call(33468, weapon, 5);//setweaponammoclip
                             return true;
                         });
                     }
@@ -237,20 +298,20 @@ namespace Infected
             bot.Health = -1;
 
 
-            bot.AfterDelay(10000, b =>
+            AfterDelay(10000, () =>
             {
                 if (GAME_ENDED_) return;
 
                 B.fire = true;
 
                 bot.Health = 150;
-                b.Call(32847);//show
+                bot.Call(32847);//show
 
 
                 if (num == RPG_BOT_ENTREF)//rpg bot
                 {
                     bot.Call(33220, 0.7f);
-                    start_bot_search_slower(b, B);
+                    start_bot_search_slower(bot, B);
                 }
                 else//riot bot
                 {
@@ -267,10 +328,10 @@ namespace Infected
                 bool pause = false;
                 int death = B.death;
 
-                bot.OnInterval(SEARCH_TIME, b =>
+                OnInterval(SEARCH_TIME,() =>
                 {
                     if (death != B.death) return false;
-                    if (!HUMAN_CONNECTED_) return !(pause = false);
+                    if (!HUMAN_CONNECTED_) return pause = true;
 
                     var target = B.target;
                     if (target != null)//이미 타겟을 찾은 경우
@@ -279,11 +340,7 @@ namespace Infected
                         {
                             //if (TEST_) return true;
                             var POD = target.Origin.DistanceTo(bot.Origin);
-                            if (POD < FIRE_DIST)
-                            {
-                                pause = false;
-                                return true;
-                            }
+                            if (POD < FIRE_DIST) return !(pause = false);
                         }
 
                         B.target = null; //타겟과 거리가 멀어진 경우, 타겟 제거
@@ -307,16 +364,16 @@ namespace Infected
 
                             if(human.Name!=null) human.Call(33466, "missile_incoming");
 
-                            b.OnInterval(1500, bb =>
+                            OnInterval(1500, () =>
                             {
 
                                 if (pause || !B.fire) return false;
 
                                 var ho = human.Origin; ho.Z -= 50;
 
-                                Vector3 angle = Call<Vector3>(247, ho - bb.Origin);//vectortoangles
-                                bb.Call(33531, angle);//SetPlayerAngles
-                                bb.Call(33468, "rpg_mp", 1);//setweaponammoclip
+                                Vector3 angle = Call<Vector3>(247, ho - bot.Origin);//vectortoangles
+                                bot.Call(33531, angle);//SetPlayerAngles
+                                bot.Call(33468, "rpg_mp", 1);//setweaponammoclip
                                 return true;
                             });
 

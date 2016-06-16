@@ -108,19 +108,20 @@ namespace Infected
             });
 
         }
-
         /// <summary>
         /// 봇이 처음 감염된 경우
         /// </summary>
+        /// 
+        int LAST_ALLY_BOT_IDX;
         void BotToAxisExceptOne()
         {
 
             var max = BOTs_List.Count - 1;
             int i = 0;
             int fidx = BOTs_List.IndexOf(First_Infed_Player);
-            int bot_ally = max;
+            LAST_ALLY_BOT_IDX = max;
 
-            if (fidx == max) bot_ally -= 1;
+            if (fidx == max) LAST_ALLY_BOT_IDX -= 1;
 
             OnInterval(250, () =>
             {
@@ -130,12 +131,12 @@ namespace Infected
                     changeBotClass(First_Infed_Player, fidx, true);
                     return getTeamState();
                 }
-                if (i!= bot_ally)
+                if (i!= LAST_ALLY_BOT_IDX)
                 {
                     changeBotClass(BOTs_List[i], i, false);
                 }else
                 {
-                    if (TEST_) BOTs_List[i].Health = -1;
+                   
                 }
 
                 i++;
@@ -155,7 +156,7 @@ namespace Infected
             {
                 if (i == max)
                 {
-                    if(TEST_) BOTs_List[i].Health = -1;
+                    LAST_BOT_SEARCH_ON = true;
                     return getTeamState();
                 }
 
@@ -175,12 +176,10 @@ namespace Infected
             if (i == 1 || i == 2)//1=RPG BOT 2=RIOT
             {
                 bot.SpawnedPlayer += () => spawned_bot_slower(bot);
-                spawned_bot_slower(bot);
             }
             else
             {
                 bot.SpawnedPlayer += () => spawned_bot(bot);
-                spawned_bot(bot);
             }
 
             if (!SUICIDE_BOT_) return;
