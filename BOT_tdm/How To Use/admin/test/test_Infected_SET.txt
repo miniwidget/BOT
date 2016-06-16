@@ -1,0 +1,21 @@
+SERVER_NAME=^2BOT ^7test server//server name
+ADMIN_NAME=kwnav//server admin name 
+TEAMNAME_ALLIES=ALIVE//server team name
+TEAMNAME_AXIS=BOTs//server team name
+WELLCOME_MESSAGE=BOT TEST SERVER. SOMETIMES SERVER WILL BE DOWN DUE TO CRASH. NOT YET UNSTABLE. SORRY.
+
+SEARCH_TIME=2000//roop time for bots search targets
+FIRE_TIME=400//bot fire roop time if target found
+BOT_DELAY_TIME=6100//spawan delay due to SERVER CRASH
+
+BOT_SETTING_NUM=10//I tested it by 10 numbers. If increase numbers, server can be crash. I can not ensure ^^.
+INFECTED_TIMELIMIT=10//overall game time
+PLAYERWAIT_TIME=1//wait player time before start game
+MATCHSTART_TIME=1//wait time before start game
+PLAYER_LIFE=2//player life, if maps are small, players are get one life more
+
+TEST_=true//test mode
+DEPLAY_BOT_=true//enable or disable deploing bots
+SUICIDE_BOT_=true//if disable, bots will not suicide at start time
+Disable_Melee_=true//melee will be disabled if true
+USE_ADMIN_SAFE_=true//if enable, admin will not be damaged to any attack

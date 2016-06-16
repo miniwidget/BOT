@@ -1,0 +1,4 @@
+﻿1>------ 빌드 시작: 프로젝트: Infected_v2, 구성: Release Any CPU ------
+1>I:\1 MW3\Infected_v2\5 BOT\3 Spawned.cs(105,29,105,30): warning CS0219: 'i' 할당되었지만 사용되지 않았습니다.
+1>  Infected_v2 -> D:\MW3_SERVER\scripts\Infected.dll
+========== 빌드: 성공 1, 실패 0, 최신 0, 생략 0 ==========
