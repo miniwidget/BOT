@@ -63,18 +63,46 @@ namespace Infected
 
         void roopMessage(Entity e, int i, string[] lists)
         {
+            if (e == null) return;
+            if (i == 0)
+            {
+                if (H_FIELD[e.EntRef].ON_MESSAGE) return;
+            }
             e.Call("iPrintlnBold", lists[i]);
             i++;
-            if (i == lists.Length) return;
+            if (i == lists.Length)
+            {
+                H_FIELD[e.EntRef].ON_MESSAGE = false;
+                return;
+            }
             AfterDelay(4000, () =>
             {
                 roopMessage(e, i, lists);
             });
-            
+        }
+        void RM(Entity e, int i, string[] lists)
+        {
+            if (e == null) return;
+            if (i == 0)
+            {
+                if (H_FIELD[e.EntRef].ON_MESSAGE) return;
+            }
+            e.Call("iPrintlnBold", lists[i]);
+            i++;
+            if (i == lists.Length)
+            {
+                H_FIELD[e.EntRef].ON_MESSAGE = false;
+                return;
+            }
+            AfterDelay(3000, () =>
+            {
+                roopMessage(e, i, lists);
+            });
         }
 
         void showMessage(Entity e, string message)
         {
+            if (H_FIELD[e.EntRef].ON_MESSAGE) return;
             e.Call("iPrintlnBold", message);
         }
     }

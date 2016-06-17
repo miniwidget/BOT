@@ -47,7 +47,7 @@ namespace Tdm
             if (!HUMAN_CONNECTED_) HUMAN_CONNECTED_ = true;
             print(name + " connected ♥");
             Client_init_GAME_SET(player);
-
+            
         }
         void Tdm_PlayerDisConnected(Entity player)
         {

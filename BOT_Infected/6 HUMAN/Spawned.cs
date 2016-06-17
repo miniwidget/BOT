@@ -72,10 +72,24 @@ namespace Infected
 
                         AfterDelay(500, () => giveRandomOffhandWeapon(player, H));
                         AfterDelay(1500, () => player.Call(33344, "^2[ ^7" + wep.Split('_')[1].ToUpper() + " ^2]"));
+
+                        if (HELI_MAP)
+                        {
+                            H.USE_HELI = false;
+                            if (HELI_OWNER == player) EndUseHeli();
+                            else if (HELI_GUNNER == player) EndGunner();
+                        }
+                        H.USE_TANK = false;
                     }
                 }
                 else if (LIFE == -1)//change to AXIS
                 {
+                    if (HELI_MAP)
+                    {
+                        H.USE_HELI = false;
+                    }
+                    H.USE_TANK = false;
+
                     H.LIFE = -2;
                     H.AX_WEP = 1;
 
@@ -84,7 +98,6 @@ namespace Infected
                     player.Call("suicide");
                     player.Notify("menuresponse", "changeclass", "axis_recipe4");
                     print(player.Name + " : Infected ⊙..⊙");
-
                 }
                 else
                 {

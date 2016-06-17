@@ -80,10 +80,9 @@ namespace Infected
             }
 
         }
-
         public override void OnPlayerKilled(Entity killed, Entity inflictor, Entity attacker, int damage, string mod, string weapon, Vector3 dir, string hitLoc)
         {
-
+            print(weapon);
             if (attacker == null || !attacker.IsPlayer) return;
 
             bool BotKilled = killed.Name.StartsWith("bot");
@@ -104,19 +103,17 @@ namespace Infected
             if (!BotAttker)//공격자가 사람인 경우, 퍼크 주기
             {
                 H_SET H = H_FIELD[attacker.EntRef];
-
-                var pc = H.PERK;
-
-                if (pc < 34 && weapon[2] == '5')//iw5
+             
+                if (H.PERK < 34 && weapon[2] == '5')//iw5
                 {
-                    H.PERK += 1;
-                    var i = H.PERK;
-
+                    var i = (H.PERK+=1);
+                   
                     if (i > 2 && i % 3 == 0)
                     {
                         attacker.Call(33466, "mp_killstreak_radar");//playlocalsound
                         AfterDelay(100, () => Perk_Hud(attacker, i / 3));
                     }
+                    else if (i == 11) ShowFlagTag(attacker);
                 }
             }
             else if (!BotKilled)//사람이 죽은 경우

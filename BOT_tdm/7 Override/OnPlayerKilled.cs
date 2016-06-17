@@ -76,9 +76,9 @@ namespace Tdm
             }
             else
             {
-                if (attacker == null) return;
-                var pe = player.EntRef; if (pe < 0 || pe > 18) return;
-                var ae = attacker.EntRef; if (ae < 0 || pe > 18) return;
+                if (attacker == null|| !attacker.IsPlayer) return;
+                var pe = player.EntRef; 
+                var ae = attacker.EntRef; 
                 if (H_FIELD[player.EntRef].TEAM == H_FIELD[attacker.EntRef].TEAM) player.Health += damage;
             }
 

@@ -11,6 +11,23 @@ namespace Infected
 {
     public partial class Infected
     {
+        #region Bots side
+
+        /// <summary>
+        /// BOT SET class for custom fields set
+        /// </summary>
+        class B_SET
+        {
+            public Entity target { get; set; }
+            public int death { get; set; }
+            public bool fire { get; set; }
+            public bool temp_fire { get; set; }
+            public string wep { get; set; }
+        }
+        List<B_SET> B_FIELD = new List<B_SET>(18);
+        //Dictionary<int, int> BOT_ID = new Dictionary<int, int>();
+        List<Entity> BOTs_List = new List<Entity>();
+        #endregion
 
         #region 게임 시작 후, 봇 불러오기 
 

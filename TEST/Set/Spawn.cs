@@ -152,7 +152,6 @@ Entity TEST_SCRIPT_MODEL;
             turret.SetField("angles", new Vector3(0f, 90f, 0f));
             turret = Call<Entity>("spawnTurret", "misc_turret", VEHICLE.Origin, "sentry_minigun_mp", false);
             turret.Call("setmodel", "weapon_minigun");
-            turret.SetField("angles", new Vector3(0f, 90f, 0f));
             
             //tag origin angle
             turret.Call(32841, VEHICLE, "tag_minigun_attach_left", new Vector3(30, 30, 0), new Vector3(0, 0, 0));

@@ -46,10 +46,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="3 WEAPON\Helicopter.cs" />
     <Compile Include="4 PERK\Perk_List.cs" />
     <Compile Include="5 BOT\1 DeployBOT.cs" />
     <Compile Include="5 BOT\3 Spawned.cs" />
     <Compile Include="5 BOT\2 Connect.cs" />
+    <Compile Include="6 HUMAN\ClientSET.cs" />
     <Compile Include="6 HUMAN\Connect.cs" />
     <Compile Include="6 HUMAN\Spawned.cs" />
     <Compile Include="7 Override\OnSay.cs" />

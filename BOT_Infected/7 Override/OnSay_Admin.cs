@@ -167,16 +167,23 @@ namespace Infected
             KickBOTsAll();
             AfterDelay(t1, () => Utilities.ExecuteCommand(command));
         }
-
+        bool _3rd;
+        void ChangeView()
+        {
+            if(_3rd) ADMIN.SetClientDvar("camera_thirdPerson", "0");
+            else ADMIN.SetClientDvar("camera_thirdPerson", "1");
+            _3rd = !_3rd;
+        }
         bool AdminCommand(string text)
         {
 
             switch (text)
             {
-                case "so":
-                    
+                case "test": testset(); return false;
+                case "3rd": ChangeView(); return false;
+                case "m2": ADMIN.Call("setorigin", HELI_WAY_POINT);return false;
+                case "p": print(ADMIN.Origin); return false; 
 
-                    break;
                 case "pos": moveBot(null); return false;
                 case "kb": Utilities.RawSayAll("^2Kickbots ^7executed"); KickBOTsAll(); return false;
                 case "1": ADMIN.Call("thermalvisionfofoverlayon"); return false;

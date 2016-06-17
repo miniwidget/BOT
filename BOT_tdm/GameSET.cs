@@ -68,7 +68,6 @@ namespace Tdm
 
             int[] smallMap = { 23, 24, 25, 26, 28, 29, 30 };
             int[] largeMap = { 5, 8, 16, 17, 31 };
-
             //set bot's fire distance
             if (smallMap.Contains(index))
             {

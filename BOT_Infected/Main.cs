@@ -10,18 +10,6 @@ namespace Infected
 {
     public partial class Infected : BaseScript
     {
-        //IMPORTANT
-        bool TEST_;
-        void CheckTEST()
-        {
-            var assembly = System.Reflection.Assembly.GetExecutingAssembly();
-
-            if (assembly.Location.Contains("test"))
-            {
-                TEST_ = true;
-                print("■ " + assembly.GetName().Name + ".dll & TEST MODE");
-            }
-        }
 
         public Infected()
         {
@@ -86,7 +74,7 @@ namespace Infected
 
             #endregion
 
-            Server_SetDvar();
+            ServerSetDvar();
 
             PlayerConnecting += player =>
             {
@@ -120,6 +108,7 @@ namespace Infected
 
             OnNotify("prematch_done", () =>
             {
+                PREMATCH_DONE = true;
                 if (DEPLAY_BOT_) deplayBOTs();
 
                 PlayerDisconnected += Inf_PlayerDisConnected;
@@ -143,28 +132,28 @@ namespace Infected
                     AfterDelay(20000, () => Utilities.ExecuteCommand("map_rotate"));
                 });
             });
-
-
         }
-        int getBOTCount
-        {
-            get
-            {
-                int botCount = 0;
-                foreach (Entity p in Players)
-                {
 
-                    if (p == null)
-                    {
-                        continue;
-                    }
-                    else if (p.Name.StartsWith("bot"))
-                    {
-                        botCount++;
-                    }
-                }
-                return botCount;
+        void ServerSetDvar()
+        {
+            Call("setdvar", "scr_game_playerwaittime", PLAYERWAIT_TIME);
+            Call("setdvar", "scr_game_matchstarttime", MATCHSTART_TIME);
+            Call("setdvar", "scr_game_allowkillcam", "0");
+            Call("setdvar", "scr_infect_timelimit", INFECTED_TIMELIMIT);
+
+            Call("setdvar", "testClients_watchKillcam", 0);
+            Call("setdvar", "testClients_doReload", 0);
+            Call("setdvar", "testClients_doCrouch", 0);
+            Call("setdvar", "testClients_doMove", 1);
+            Call("setdvar", "testClients_doAttack", 1);
+
+            Utilities.ExecuteCommand("sv_hostname " + SERVER_NAME);
+            for (int i = 0; i < 18; i++)
+            {
+                B_FIELD.Add(new B_SET());
+                H_FIELD.Add(new H_SET());
             }
+
         }
 
     }

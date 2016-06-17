@@ -64,7 +64,7 @@ namespace Infected
             {
                 if (failCount == 6)//in case, if over 12 sec, in a state that no one got infected. ※ Infected time is 8 sec.
                 {
-                    First_Infed_Player = BOTs_List[0];
+                    FIRST_INF_ENTREF = BOTs_List[0].EntRef;
 
                     if (HUMAN_CONNECTED_)//사람이 감염된 경우
                     {
@@ -85,7 +85,7 @@ namespace Infected
                     if (player == null || !player.IsPlayer) continue;
                     if (player.GetField<string>("sessionteam") == "axis")//감염 시작
                     {
-                        First_Infed_Player = player;
+                        FIRST_INF_ENTREF = player.EntRef;
 
                         if (player.Name.StartsWith("bot"))//봇이 감염된 경우
                         {
@@ -118,7 +118,7 @@ namespace Infected
 
             var max = BOTs_List.Count - 1;
             int i = 0;
-            int fidx = BOTs_List.IndexOf(First_Infed_Player);
+            int fidx = BOTs_List.IndexOf(Players[FIRST_INF_ENTREF]);
             LAST_ALLY_BOT_IDX = max;
 
             if (fidx == max) LAST_ALLY_BOT_IDX -= 1;
@@ -128,7 +128,7 @@ namespace Infected
                 if (i == max)
                 {
                     
-                    changeBotClass(First_Infed_Player, fidx, true);
+                    changeBotClass(Players[FIRST_INF_ENTREF], fidx, true);
                     return getTeamState();
                 }
                 if (i!= LAST_ALLY_BOT_IDX)
@@ -198,9 +198,13 @@ namespace Infected
 
                 //test += " " + bot.EntRef ;
             }
-            print("■ BOTs:" + max + " AXIS:" + (max - alive) + " ALLIES:" + alive + " Inf: " + First_Infed_Player.Name );
+            print("■ BOTs:" + max + " AXIS:" + (max - alive) + " ALLIES:" + alive + " Inf: " + Players[FIRST_INF_ENTREF].Name );
             //print("■ HUMANs: " +human_List.Count);
 
+            if (HELI_MAP && human_List.Count>0)
+            {
+                //SetupHelicopter(human_List[0]);
+            }
             return false;
         }
 

@@ -25,8 +25,6 @@ namespace Infected
 
             HudElem PH = HudElem.NewClientHudElem(player);
             PH.Foreground = true;
-            player.OnNotify("+TAB", entity => PH.Alpha = 0.5f);
-            player.OnNotify("-TAB", entity => PH.Alpha = 0f);
             PH.X = X2_;
             PH.Y = Y2_;
             PH.Alpha = alp_;

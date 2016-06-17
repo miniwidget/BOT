@@ -13,22 +13,25 @@ namespace Infected
 
         public override void OnSay(Entity player, string name, string text)
         {
+
             if (player.Name == ADMIN_NAME)
             {
                 if (!AdminCommand(text)) return;
             }
             if (GAME_ENDED_) return;
 
-
             var texts = text.ToLower().Split(' ');
             var length = texts.Length;
-            bool survivor = isSurvivor(player);
+
+            int hli = human_List.IndexOf(player);
+            bool survivor = (hli != -1);
 
             if (length == 1)
             {
                 #region Public Say
                 switch (texts[0])
                 {
+                    
                     case "infoa": ShowInfoA(player); return;
                     case "infow": ShowInfoW(player); return;
 
@@ -59,6 +62,8 @@ namespace Infected
                     case "smaw": giveWeaponTo(player, "iw5_smaw_mp"); return;
                     case "m320": giveWeaponTo(player, "m320_mp"); return;
                     case "xm25": giveWeaponTo(player, "xm25_mp"); return;
+
+                    //case "heli": CallHelicopter(hli);  return;
 
                 }
                 #endregion

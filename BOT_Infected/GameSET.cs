@@ -17,10 +17,11 @@ namespace Infected
             WELLCOME_MESSAGE;
 
         bool
-            USE_ADMIN_SAFE_, Disable_Melee_,
+            USE_ADMIN_SAFE_, Disable_Melee_, HELI_MAP, PREMATCH_DONE,
             DEPLAY_BOT_, SUICIDE_BOT_, OVERFLOW_BOT_,
 
            GAME_ENDED_, HUMAN_CONNECTED_;
+
 
         float
             INFECTED_TIMELIMIT, PLAYERWAIT_TIME, MATCHSTART_TIME;
@@ -31,117 +32,111 @@ namespace Infected
             PLAYER_LIFE;
 
         bool isSurvivor(Entity player) { return player.GetField<string>("sessionteam") == "allies"; }
-        //char[] numChar = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' };
 
         Random rnd = new Random();
-        Entity ADMIN, First_Infed_Player;
+        Entity ADMIN;
+        int FIRST_INF_ENTREF;
         string[] BOTs_CLASS = { "axis_recipe1", "axis_recipe2", "axis_recipe3", "class0", "class1", "class2", "class4", "class5", "class6", "class6" };
         #endregion
-
-        #region Bots side
-
-        /// <summary>
-        /// BOT SET class for custom fields set
-        /// </summary>
-        class B_SET
+        enum MAP
         {
-            public Entity target { get; set; }
-            public int death { get; set; }
-            public bool fire { get; set; }
-            public bool temp_fire { get; set; }
-            public string wep { get; set; }
+            mp_plaza2,
+            mp_mogadishu,
+            mp_bootleg,
+            mp_carbon,
+            mp_dome,
+            mp_exchange,
+            mp_lambeth,
+            mp_hardhat,
+            mp_interchange,
+            mp_alpha,
+            mp_bravo,
+            mp_radar,
+            mp_paris,
+            mp_seatown,
+            mp_underground,
+            mp_village,
+            mp_morningwood,
+            mp_park,
+            mp_overwatch,
+            mp_italy,
+            mp_cement,
+            mp_qadeem,
+            mp_meteora,
+            mp_hillside_ss,
+            mp_restrepo_ss,
+            mp_aground_ss,
+            mp_courtyard_ss,
+            mp_terminal_cls,
+            mp_burn_ss,
+            mp_nola,
+            mp_six_ss,
+            mp_moab
         }
-        List<B_SET> B_FIELD = new List<B_SET>(18);
-        //Dictionary<int, int> BOT_ID = new Dictionary<int, int>();
-        List<Entity> BOTs_List = new List<Entity>();
-        #endregion
 
-        #region Human side
-        /// <summary>
-        /// HUMAN PLAYER SET class for custom fields set
-        /// </summary>
-        class H_SET
+
+        bool readMAP()
         {
-            int att = 0;
-            public int SIRENCERorHB
-            {
-                get
-                {
-                    this.att++;
-                    if (this.att > 2) this.att = 0;
-                    return this.att;
-                }
-            }
-            public int PERK { get; set; }
-            public int AX_WEP { get; set; }
-            public bool BY_SUICIDE { get; set; }
-            public int LIFE { get; set; }
-            public bool RESPAWN { get; set; }
-            //public bool CLASS_CHANGED { get; set; }
-            //public HudElem WEAPONINFO { get; set; }
-            public bool USE_TANK { get; set; }
-
-        }
-        List<H_SET> H_FIELD = new List<H_SET>(18);
-        List<Entity> human_List = new List<Entity>();
-        List<Entity> HUMAN_AXIS_LIST = new List<Entity>();
-        #endregion
-
-
-        #region server side
-        /// <summary>
-        /// server side dvar
-        /// </summary>
-        void Server_SetDvar()
-        {
-            Call("setdvar", "scr_game_playerwaittime", PLAYERWAIT_TIME);
-            Call("setdvar", "scr_game_matchstarttime", MATCHSTART_TIME);
-            Call("setdvar", "scr_game_allowkillcam", "0");
-            Call("setdvar", "scr_infect_timelimit", INFECTED_TIMELIMIT);
-
-            Utilities.ExecuteCommand("sv_hostname " + SERVER_NAME);
-            for (int i = 0; i < 18; i++)
-            {
-                B_FIELD.Add(new B_SET());
-                H_FIELD.Add(new H_SET());
-            }
-        }
-        void readMAP()
-        {
+            if (NEXT_MAP != null) return false;
             string currentMAP = Call<string>("getdvar", "mapname");
-            string ENTIRE_MAPLIST = "mp_plaza2|mp_mogadishu|mp_bootleg|mp_carbon|mp_dome|mp_exchange|mp_lambeth|mp_hardhat|mp_interchange|mp_alpha|mp_bravo|mp_radar|mp_paris|mp_seatown|mp_underground|mp_village|mp_morningwood|mp_park|mp_overwatch|mp_italy|mp_cement|mp_qadeem|mp_meteora|mp_hillside_ss|mp_restrepo_ss|mp_aground_ss|mp_courtyard_ss|mp_terminal_cls";
+            string ENTIRE_MAPLIST = "mp_plaza2|mp_mogadishu|mp_bootleg|mp_carbon|mp_dome|mp_exchange|mp_lambeth|mp_hardhat|mp_interchange|mp_alpha|mp_bravo|mp_radar|mp_paris|mp_seatown|mp_underground|mp_village|mp_morningwood|mp_park|mp_overwatch|mp_italy|mp_cement|mp_qadeem|mp_meteora|mp_hillside_ss|mp_restrepo_ss|mp_aground_ss|mp_courtyard_ss|mp_terminal_cls|mp_burn_ss|mp_nola|mp_six_ss|mp_moab";
             var map_list = ENTIRE_MAPLIST.Split('|').ToList();
             int max = map_list.Count - 1;
             int index = map_list.IndexOf(currentMAP);
 
-            int[] smallMap = { 23, 24, 25, 26, 28, 29, 30 };
-            int[] largeMap = { 5, 8, 16, 17, 31 };
+            List<MAP> theList = Enum.GetValues(typeof(MAP)).Cast<MAP>().ToList();
+            MAP m = theList[index];
+            theList.Clear();
 
-            //set player life
+            Enum[] largemap = { MAP.mp_exchange, MAP.mp_interchange, MAP.mp_morningwood, MAP.mp_park, MAP.mp_moab };
+            Enum[] smallmap = { MAP.mp_hillside_ss, MAP.mp_restrepo_ss, MAP.mp_aground_ss, MAP.mp_courtyard_ss, MAP.mp_burn_ss, MAP.mp_nola };
+        
+            /*set player life */
             if (PLAYER_LIFE == 0) PLAYER_LIFE = 2;
 
-            //set bot's fire distance
-            if (smallMap.Contains(index))
+            /* set bot's fire distance */
+            if (largemap.Contains(m))
+            {
+                FIRE_DIST = 850;
+            }
+            else if (smallmap.Contains(m))
             {
                 PLAYER_LIFE += 1;
                 FIRE_DIST = 600;
-            }
-            else if (largeMap.Contains(index))
-            {
-                FIRE_DIST = 850;
             }
             else
             {
                 FIRE_DIST = 750;
             }
 
+            if (PLAYER_LIFE == 0) PLAYER_LIFE = 2;
+
+            Enum[] helimap = { MAP.mp_interchange, MAP.mp_hardhat, MAP.mp_lambeth, MAP.mp_morningwood, MAP.mp_paris, MAP.mp_radar, MAP.mp_restrepo_ss, MAP.mp_qadeem, MAP.mp_moab, MAP.mp_meteora };
+            if (helimap.Contains(m))
+            {
+                HELI_MAP = true;
+                switch (m)
+                {
+                    case MAP.mp_interchange: HELI_WAY_POINT = new Vector3(2535, -573, 100);break;
+                    case MAP.mp_hardhat: HELI_WAY_POINT = new Vector3(1903, -1220, 380); break;
+                    case MAP.mp_lambeth: HELI_WAY_POINT = new Vector3(1262, 2668, -272); break;
+                    case MAP.mp_morningwood: HELI_WAY_POINT = new Vector3(-1601, -1848, 620); break;
+                    case MAP.mp_paris: HELI_WAY_POINT = new Vector3(662, -952, 112); break;
+                    case MAP.mp_radar: HELI_WAY_POINT = new Vector3(-3441, -660, 1162); break;
+                    case MAP.mp_restrepo_ss: HELI_WAY_POINT = new Vector3(165, 1364, 1800); break;
+                    case MAP.mp_qadeem: HELI_WAY_POINT = new Vector3(2362, 1607, 220); break;
+                    case MAP.mp_moab: HELI_WAY_POINT = new Vector3(-1472, 1101, 323); break;
+                    case MAP.mp_meteora: HELI_WAY_POINT = new Vector3(1880, -469, 1574); break;
+                }
+            }
+            HELI_WAY_POINT.Z += 120;
             //set next map
             if (index >= max || index < 0) index = 0; else index++;
             NEXT_MAP = map_list[index];
 
             Call("setdvar", "sv_nextmap", NEXT_MAP);
 
-           // Utilities.ExecuteCommand("seta g_password \"0\""); return;
+            TEST_ = true;
 
             if (TEST_)
             {
@@ -154,13 +149,16 @@ namespace Infected
                 string content = NEXT_MAP + ",INF,1";
                 File.WriteAllText(GetPath("admin\\INF.dspl"), content);
             }
+            return true;
 
         }
+
         void setTeamName()
         {
             Call("setdvar", "g_TeamName_Allies", TEAMNAME_ALLIES);
             Call("setdvar", "g_TeamName_Axis", TEAMNAME_AXIS);
         }
+
         string GetPath(string path)
         {
             if (TEST_)
@@ -170,188 +168,40 @@ namespace Infected
             return path;
         }
 
-        #endregion
-
-        #region client side
-
-        /// <summary>
-        /// client side dvar & set notifycommand & give weapon & set HUD & change class
-        /// </summary>
-        void Client_init_GAME_SET(Entity player)
+        int getBOTCount
         {
-            #region change class
-            player.Notify("menuresponse", "changeclass", "allies_recipe" + rnd.Next(1, 6));
-            #endregion
-
-            #region set
-            human_List.Add(player);
-
-            //public int PERK { get; set; }
-            //public int AX_WEP { get; set; }
-            //public bool BY_SUICIDE { get; set; }
-            //public int LIFE { get; set; }
-            //public bool RESPAWN { get; set; }
-            //public bool CLASS_CHANGED { get; set; }
-            //public HudElem WEAPONINFO { get; set; }
-
-            H_SET H = H_FIELD[player.EntRef];
-            H.LIFE = PLAYER_LIFE;
-            H.PERK = 2;
-            H.AX_WEP = 0;
-            H.BY_SUICIDE = false;
-            H.USE_TANK = false;
-
-            #endregion
-
-            #region SetClientDvar
-
-            player.SetClientDvar("lowAmmoWarningNoAmmoColor2", "0 0 0 0");
-            player.SetClientDvar("lowAmmoWarningNoAmmoColor1", "0 0 0 0");
-            player.SetClientDvar("lowAmmoWarningNoReloadColor2", "0 0 0 0");
-            player.SetClientDvar("lowAmmoWarningNoReloadColor1", "0 0 0 0");
-            player.SetClientDvar("lowAmmoWarningColor2", "0 0 0 0");
-            player.SetClientDvar("lowAmmoWarningColor1", "0 0 0 0");
-            player.SetClientDvar("cg_drawBreathHint", "0");
-            player.SetClientDvar("cg_scoreboardpingtext", "1");
-            player.SetClientDvar("cg_brass", "1");
-            player.SetClientDvar("waypointIconHeight", "13");
-            player.SetClientDvar("waypointIconWidth", "13");
-
-            //player.SetClientDvar("cg_fov", "75");
-            //player.SetClientDvar("clientsideeffects", "1");
-            //player.SetClientDvar("cl_maxpackets", "60");
-            //player.SetClientDvar("com_maxfps", "91");
-            //player.SetClientDvar("r_fog", "1");
-            //player.SetClientDvar("r_distortion", "1");
-            //player.SetClientDvar("r_dlightlimit", "4");
-            //player.SetClientDvar("fx_drawclouds", "1");
-            //player.SetClientDvar("snaps", "20");
-
-            #endregion
-
-            #region notifyonplayercommand
-
-            player.Call("notifyonplayercommand", "+TAB", "+scores");
-            player.Call("notifyonplayercommand", "-TAB", "-scores");
-            player.Call("notifyonplayercommand", "HOLD_STRAFE", "+strafe");
-            player.Call("notifyonplayercommand", "HOLD_CROUCH", "+movedown");
-            player.Call("notifyonplayercommand", "HOLD_PRONE", "+prone");
-            player.Call("notifyonplayercommand", "HOLD_STANCE", "+stance");
-            //+strafe
-
-            player.OnNotify("HOLD_STRAFE", ent =>
+            get
             {
-                if (!isSurvivor(player)) return;
-                var weapon = player.CurrentWeapon;
-                if (weapon.Length > 3 && weapon[2] == '5')
+                int botCount = 0;
+                foreach (Entity p in Players)
                 {
-                    player.Call("givemaxammo", weapon);
-                }
 
-
-            });
-
-            player.OnNotify("HOLD_CROUCH", ent =>//view scope
-            {
-                if (!isSurvivor(player))
-                {
-                    giveOffhandWeapon(player, "throwingknife");
-                    return;
-                }
-
-                giveAttachScope(player);
-
-            });
-
-            player.OnNotify("HOLD_PRONE", ent =>//attachment silencer heartbeat,
-            {
-                if (!isSurvivor(player))
-                {
-                    giveOffhandWeapon(player, "bouncingbetty_mp");
-                    return;
-                }
-                giveAttachHeartbeat(player);
-            });
-
-            string offhand = "";
-            switch (rnd.Next(4))
-            {
-                case 0: offhand = "frag_grenade_mp"; break;
-                case 1: offhand = "semtex_mp"; break;//OK
-                case 2: offhand = "bouncingbetty_mp"; break;//OK
-                case 3: offhand = "claymore_mp"; break;//OK
-            }
-
-            player.OnNotify("HOLD_STANCE", ent =>//offhand weapon
-            {
-                if (!isSurvivor(player))
-                {
-                    giveOffhandWeapon(player, "claymore_mp");
-                    return;
-                }
-                giveOffhandWeapon(player, offhand);
-            });
-
-            #region TANK
-
-            Entity TANK = null;
-            player.OnNotify("weapon_change", (Entity ent, Parameter newWeap) =>
-            {
-                if (H.USE_TANK) return;
-
-
-                string weap = newWeap.ToString();
-
-                //print(weap);
-                if (weap == "killstreak_remote_tank_remote_mp")
-                {
-                    H.USE_TANK = true;
-                    TANK = null;
-
-                    bool found = false;
-                    for (int i = 0; i < 2048; i++)
+                    if (p == null)
                     {
-                        TANK = Entity.GetEntity(i);
-                        if (TANK == null) continue;
-                        var model = TANK.GetField<string>("model");
-                        if (model == "vehicle_ugv_talon_mp")
-                        {
-                            found = true;
-                            break;
-                        }
+                        continue;
                     }
-                    if (!found) return;
-
-                    //print("들어왔다 "+TANK.Name);
-                    human_List.Add(TANK);
-                    player.Call(32936);//thermalvisionfofoverlayon
-
+                    else if (p.Name.StartsWith("bot"))
+                    {
+                        botCount++;
+                    }
                 }
-            });
-            player.OnNotify("end_remote", (Entity ent) =>
-            {
-                if (H.USE_TANK)
-                {
-                    H.USE_TANK = false;
-                    human_List.Remove(TANK);
-                    player.Call(32937);//thermalvisionfofoverlayoff
-                }
-            });
-
-            #endregion
-
-            #endregion
-
-            #region AlliesHud
-            AlliesHud(player, offhand.Replace("_mp", "").ToUpper());
-            #endregion
-
-            #region giveweapon
-            giveWeaponTo(player, getRandomWeapon());
-            AfterDelay(500, () => giveOffhandWeapon(player, offhand));
-            #endregion
+                return botCount;
+            }
         }
-        #endregion
+
+        //IMPORTANT
+        bool TEST_;
+        void CheckTEST()
+        {
+            var assembly = System.Reflection.Assembly.GetExecutingAssembly();
+
+            if (assembly.Location.Contains("test"))
+            {
+                TEST_ = true;
+                print("■ " + assembly.GetName().Name + ".dll & TEST MODE");
+            }
+        }
+
 
     }
 }
