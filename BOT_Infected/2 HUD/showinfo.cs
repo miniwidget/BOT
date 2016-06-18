@@ -64,15 +64,19 @@ namespace Infected
         void roopMessage(Entity e, int i, string[] lists)
         {
             if (e == null) return;
+
+            var entref = e.EntRef;
             if (i == 0)
             {
-                if (H_FIELD[e.EntRef].ON_MESSAGE) return;
+                if (H_FIELD[entref].ON_MESSAGE) return;
             }
+            H_FIELD[entref].ON_MESSAGE = true;
+
             e.Call("iPrintlnBold", lists[i]);
             i++;
             if (i == lists.Length)
             {
-                H_FIELD[e.EntRef].ON_MESSAGE = false;
+                H_FIELD[entref].ON_MESSAGE = false;
                 return;
             }
             AfterDelay(4000, () =>
@@ -83,15 +87,19 @@ namespace Infected
         void RM(Entity e, int i, string[] lists)
         {
             if (e == null) return;
+
+            var entref = e.EntRef;
             if (i == 0)
             {
-                if (H_FIELD[e.EntRef].ON_MESSAGE) return;
+                if (H_FIELD[entref].ON_MESSAGE) return;
             }
+            H_FIELD[entref].ON_MESSAGE = true;
+
             e.Call("iPrintlnBold", lists[i]);
             i++;
             if (i == lists.Length)
             {
-                H_FIELD[e.EntRef].ON_MESSAGE = false;
+                H_FIELD[entref].ON_MESSAGE = false;
                 return;
             }
             AfterDelay(3000, () =>

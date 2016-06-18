@@ -94,7 +94,6 @@ namespace Infected
             {
                 bot.Health = -1;
             }
-
             B_SET B = B_FIELD[num];
             B.target = null;
             B.fire = false;

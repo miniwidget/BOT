@@ -17,7 +17,7 @@ namespace Infected
             WELLCOME_MESSAGE;
 
         bool
-            USE_ADMIN_SAFE_, Disable_Melee_, HELI_MAP, PREMATCH_DONE,
+            USE_ADMIN_SAFE_, Disable_Melee_, HELI_MAP,
             DEPLAY_BOT_, SUICIDE_BOT_, OVERFLOW_BOT_,
 
            GAME_ENDED_, HUMAN_CONNECTED_;
@@ -35,7 +35,6 @@ namespace Infected
 
         Random rnd = new Random();
         Entity ADMIN;
-        int FIRST_INF_ENTREF;
         string[] BOTs_CLASS = { "axis_recipe1", "axis_recipe2", "axis_recipe3", "class0", "class1", "class2", "class4", "class5", "class6", "class6" };
         #endregion
         enum MAP
@@ -75,9 +74,9 @@ namespace Infected
         }
 
 
-        bool readMAP()
+        void readMAP()
         {
-            if (NEXT_MAP != null) return false;
+
             string currentMAP = Call<string>("getdvar", "mapname");
             string ENTIRE_MAPLIST = "mp_plaza2|mp_mogadishu|mp_bootleg|mp_carbon|mp_dome|mp_exchange|mp_lambeth|mp_hardhat|mp_interchange|mp_alpha|mp_bravo|mp_radar|mp_paris|mp_seatown|mp_underground|mp_village|mp_morningwood|mp_park|mp_overwatch|mp_italy|mp_cement|mp_qadeem|mp_meteora|mp_hillside_ss|mp_restrepo_ss|mp_aground_ss|mp_courtyard_ss|mp_terminal_cls|mp_burn_ss|mp_nola|mp_six_ss|mp_moab";
             var map_list = ENTIRE_MAPLIST.Split('|').ToList();
@@ -90,7 +89,7 @@ namespace Infected
 
             Enum[] largemap = { MAP.mp_exchange, MAP.mp_interchange, MAP.mp_morningwood, MAP.mp_park, MAP.mp_moab };
             Enum[] smallmap = { MAP.mp_hillside_ss, MAP.mp_restrepo_ss, MAP.mp_aground_ss, MAP.mp_courtyard_ss, MAP.mp_burn_ss, MAP.mp_nola };
-        
+
             /*set player life */
             if (PLAYER_LIFE == 0) PLAYER_LIFE = 2;
 
@@ -117,7 +116,7 @@ namespace Infected
                 HELI_MAP = true;
                 switch (m)
                 {
-                    case MAP.mp_interchange: HELI_WAY_POINT = new Vector3(2535, -573, 100);break;
+                    case MAP.mp_interchange: HELI_WAY_POINT = new Vector3(2535, -573, 100); break;
                     case MAP.mp_hardhat: HELI_WAY_POINT = new Vector3(1903, -1220, 380); break;
                     case MAP.mp_lambeth: HELI_WAY_POINT = new Vector3(1262, 2668, -272); break;
                     case MAP.mp_morningwood: HELI_WAY_POINT = new Vector3(-1601, -1848, 620); break;
@@ -128,6 +127,10 @@ namespace Infected
                     case MAP.mp_moab: HELI_WAY_POINT = new Vector3(-1472, 1101, 323); break;
                     case MAP.mp_meteora: HELI_WAY_POINT = new Vector3(1880, -469, 1574); break;
                 }
+
+                Call("precachemodel", "prop_flag_neutral");
+                Call("precacheVehicle", "attack_littlebird_mp");
+                SetHelipoint(true);
             }
             HELI_WAY_POINT.Z += 120;
             //set next map
@@ -136,7 +139,7 @@ namespace Infected
 
             Call("setdvar", "sv_nextmap", NEXT_MAP);
 
-            TEST_ = true;
+            //TEST_ = true;
 
             if (TEST_)
             {
@@ -149,7 +152,6 @@ namespace Infected
                 string content = NEXT_MAP + ",INF,1";
                 File.WriteAllText(GetPath("admin\\INF.dspl"), content);
             }
-            return true;
 
         }
 

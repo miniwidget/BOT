@@ -34,7 +34,6 @@ namespace Infected
                 ADMIN.Call("setmovespeedscale", 1.5f);
             }
         }
-        bool _temp1;
         void Human_Connected(Entity player)
         {
 
@@ -55,19 +54,6 @@ namespace Infected
                 print(name + " connected ♥");
                 Client_init_GAME_SET(player);
                 player.SpawnedPlayer += () => human_spawned(player);
-
-                if (_temp1) return;
-
-                if(NEXT_MAP == null )
-                {
-                    if (readMAP())_temp1 = true;
-                }
-                if (HELI_MAP)
-                {
-                    Call("precachemodel", "prop_flag_neutral");
-                    SetupHelicopter(player);
-                    _temp1 = true;
-                }
             }
             else
             {

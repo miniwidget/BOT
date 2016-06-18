@@ -30,15 +30,12 @@ namespace Infected
                 return true;
             }
         }
-        string[] soundAlert =
-        {
-            "AF_1mc_losing_fight", "AF_1mc_lead_lost", "PC_1mc_losing_fight", "PC_1mc_take_positions", "PC_1mc_positions_lock" , "PC_1mc_enemy_take_a" , "PC_1mc_enemy_take_b", "PC_1mc_enemy_take_c"
-        };
+        string[] soundAlert = {"AF_1mc_losing_fight", "AF_1mc_lead_lost", "PC_1mc_losing_fight", "PC_1mc_take_positions", "PC_1mc_positions_lock" };
         #endregion
 
         #region human_spawned
 
-        bool LAST_BOT_SEARCH_ON;
+        bool START_LAST_BOT_SEARCH;
         void human_spawned(Entity player)//LIFE 1 or 2
         {
             if (GAME_ENDED_) return;
@@ -106,11 +103,11 @@ namespace Infected
                     {
                         if(!HUMAN_AXIS_LIST.Contains(player)) HUMAN_AXIS_LIST.Add(player);
 
-                        if (!LAST_BOT_SEARCH_ON)
+                        if (!START_LAST_BOT_SEARCH)
                         {
                             if (human_List.Count == 0)
                             {
-                                LAST_BOT_SEARCH_ON = true;
+                                START_LAST_BOT_SEARCH = true;
                                 StartAllyBotSearch();
                             }
                         }
@@ -121,6 +118,12 @@ namespace Infected
                         AxisWeapon_by_init(player);
 
                         AfterDelay(t1, () => player.Call("playsoundtoteam", soundAlert[rnd.Next(SA_LENGTH)], "allies"));
+
+                        if(HELI_OWNER == player)
+                        {
+                            HELI_END_USE_ = true;
+                            EndUseHeli();
+                        }
                     }
                     else
                     {

@@ -82,7 +82,7 @@ namespace Infected
         }
         public override void OnPlayerKilled(Entity killed, Entity inflictor, Entity attacker, int damage, string mod, string weapon, Vector3 dir, string hitLoc)
         {
-            print(weapon);
+            //print(weapon);
             if (attacker == null || !attacker.IsPlayer) return;
 
             bool BotKilled = killed.Name.StartsWith("bot");

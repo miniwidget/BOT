@@ -13,9 +13,10 @@ namespace Infected
     {
 
         #region Bot_Connected
-        int RPG_BOT_ENTREF,RIOT_BOT_ENTREF, JUGG_BOT_ENTREF;
+        int RPG_BOT_ENTREF, RIOT_BOT_ENTREF, JUGG_BOT_ENTREF;
+        Entity F_INF_BOT;
 
-        int BOT_CLASS_NUM=3;
+        int BOT_CLASS_NUM = 3;
         private void Bot_Connected(Entity bot)
         {
 
@@ -36,8 +37,8 @@ namespace Infected
 
             if (i == 0) JUGG_BOT_ENTREF = bot.EntRef;
             else if (i == 1) RPG_BOT_ENTREF = bot.EntRef;
-            else if(i==2)RIOT_BOT_ENTREF = bot.EntRef;
-                
+            else if (i == 2) RIOT_BOT_ENTREF = bot.EntRef;
+
             //print(i + "//" + (BOT_SETTING_NUM - 1));
             if (i == BOT_SETTING_NUM - 1) waitOnFirstInfected();
 
@@ -64,11 +65,11 @@ namespace Infected
             {
                 if (failCount == 6)//in case, if over 12 sec, in a state that no one got infected. ※ Infected time is 8 sec.
                 {
-                    FIRST_INF_ENTREF = BOTs_List[0].EntRef;
+                    F_INF_BOT = BOTs_List[0];
 
                     if (HUMAN_CONNECTED_)//사람이 감염된 경우
                     {
-                         BotToAxisExceptLast();
+                        BotToAxisExceptLast();
                     }
                     else
                     {
@@ -85,7 +86,7 @@ namespace Infected
                     if (player == null || !player.IsPlayer) continue;
                     if (player.GetField<string>("sessionteam") == "axis")//감염 시작
                     {
-                        FIRST_INF_ENTREF = player.EntRef;
+                        F_INF_BOT = player;
 
                         if (player.Name.StartsWith("bot"))//봇이 감염된 경우
                         {
@@ -93,7 +94,7 @@ namespace Infected
                         }
                         else//사람이 감염된 경우
                         {
-                             BotToAxisExceptLast();
+                            BotToAxisExceptLast();
                         }
 
                         Server_Hud();
@@ -118,7 +119,7 @@ namespace Infected
 
             var max = BOTs_List.Count - 1;
             int i = 0;
-            int fidx = BOTs_List.IndexOf(Players[FIRST_INF_ENTREF]);
+            int fidx = BOTs_List.IndexOf(F_INF_BOT);
             LAST_ALLY_BOT_IDX = max;
 
             if (fidx == max) LAST_ALLY_BOT_IDX -= 1;
@@ -127,16 +128,13 @@ namespace Infected
             {
                 if (i == max)
                 {
-                    
-                    changeBotClass(Players[FIRST_INF_ENTREF], fidx, true);
+
+                    changeBotClass(F_INF_BOT, fidx, true);
                     return getTeamState();
                 }
-                if (i!= LAST_ALLY_BOT_IDX)
+                if (i != LAST_ALLY_BOT_IDX)
                 {
                     changeBotClass(BOTs_List[i], i, false);
-                }else
-                {
-                   
                 }
 
                 i++;
@@ -156,7 +154,7 @@ namespace Infected
             {
                 if (i == max)
                 {
-                    LAST_BOT_SEARCH_ON = true;
+                    START_LAST_BOT_SEARCH = true;
                     return getTeamState();
                 }
 
@@ -191,20 +189,14 @@ namespace Infected
         bool getTeamState()
         {
             int alive = 0, max = BOTs_List.Count;
-            //string test = null;
+
             foreach (Entity bot in BOTs_List)
             {
                 if (isSurvivor(bot)) alive++;
-
-                //test += " " + bot.EntRef ;
             }
-            print("■ BOTs:" + max + " AXIS:" + (max - alive) + " ALLIES:" + alive + " Inf: " + Players[FIRST_INF_ENTREF].Name );
-            //print("■ HUMANs: " +human_List.Count);
+            print("■ BOTs:" + max + " AXIS:" + (max - alive) + " ALLIES:" + alive + " Inf: " + F_INF_BOT.Name);
 
-            if (HELI_MAP && human_List.Count>0)
-            {
-                //SetupHelicopter(human_List[0]);
-            }
+            F_INF_BOT = null;
             return false;
         }
 

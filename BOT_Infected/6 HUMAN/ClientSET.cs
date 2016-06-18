@@ -94,14 +94,20 @@ namespace Infected
             #region helicopter
             player.Call("notifyonplayercommand", "ACTIVATE", "+activate");
             // ADMIN.SetClientDvar("camera_thirdPerson", "0");
-            int test = 0;
             player.OnNotify("ACTIVATE", ent =>
             {
-                if (!HELI_MAP || HELI == null) return;
-                if (human_List.IndexOf(player) == -1) return;
-
-                print(test++);
+                if (!HELI_MAP ) return;
+                if (!human_List.Contains(player)) return;
+                if(H.USE_HELI && HELI == null)
+                {
+                    CallHeli(player);
+                    
+                    return;
+                }
+                if (HELI == null) return;
+                if (H.ON_MESSAGE) return;
                 float dist;
+
                 if (H.PERK < 10 || !H.USE_HELI)
                 {
 
@@ -124,13 +130,25 @@ namespace Infected
 
                     return;
                 }
+                if (HELI_GUNNER != null && HELI_GUNNER == player)
+                {
+                    EndGunner();
+                    return;
+                }
+
 
                 if (HELI_ON_USE_)
                 {
                     if (HELI_OWNER != player) showMessage(player, "^2HELICOPTER IS OCCUPIED BY ^7" + HELI_OWNER_NAME);
+                    else
+                    {
+                        player.SetField("angles", ZERO);
+                        HELI_ON_USE_ = true;
+                        HELI_OWNER = null;
+                    }
+
                     return;
                 }
-
                 dist = player.Origin.DistanceTo(TL.Origin);
                 if (dist > 135)
                 {
@@ -230,7 +248,7 @@ namespace Infected
                 if (H.USE_TANK) return;
 
                 string weap = newWeap.ToString();
-                //print(weap);
+                print(weap);
 
                 if (weap == "killstreak_remote_tank_remote_mp")
                 {

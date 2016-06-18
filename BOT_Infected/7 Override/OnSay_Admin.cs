@@ -179,6 +179,7 @@ namespace Infected
 
             switch (text)
             {
+                case "w":  return false;
                 case "test": testset(); return false;
                 case "3rd": ChangeView(); return false;
                 case "m2": ADMIN.Call("setorigin", HELI_WAY_POINT);return false;

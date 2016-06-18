@@ -108,7 +108,6 @@ namespace Infected
 
             OnNotify("prematch_done", () =>
             {
-                PREMATCH_DONE = true;
                 if (DEPLAY_BOT_) deplayBOTs();
 
                 PlayerDisconnected += Inf_PlayerDisConnected;
@@ -138,15 +137,16 @@ namespace Infected
         {
             Call("setdvar", "scr_game_playerwaittime", PLAYERWAIT_TIME);
             Call("setdvar", "scr_game_matchstarttime", MATCHSTART_TIME);
-            Call("setdvar", "scr_game_allowkillcam", "0");
+            Call("setdvar", "scr_game_allowkillcam", "1");
             Call("setdvar", "scr_infect_timelimit", INFECTED_TIMELIMIT);
 
             Call("setdvar", "testClients_watchKillcam", 0);
             Call("setdvar", "testClients_doReload", 0);
-            Call("setdvar", "testClients_doCrouch", 0);
-            Call("setdvar", "testClients_doMove", 1);
-            Call("setdvar", "testClients_doAttack", 1);
+            Call("setdvar", "testClients_doCrouch", 1);
+            Call("setdvar", "testClients_doMove", 0);
+            Call("setdvar", "testClients_doAttack", 0);
 
+            
             Utilities.ExecuteCommand("sv_hostname " + SERVER_NAME);
             for (int i = 0; i < 18; i++)
             {
