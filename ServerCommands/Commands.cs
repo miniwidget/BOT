@@ -14,7 +14,7 @@ namespace ServerCommands
         {
             switch (s)
             {
-                case "gametype": print(Call<string>("getdvar","g_gametype")); break;
+                //case "gametype": print(Call<string>("getdvar","g_gametype")); break;
                 case "fr": ExecuteCommand("fast_restart"); break;
                 case "mr": ExecuteCommand("map_rotate"); break;
 
@@ -28,10 +28,18 @@ namespace ServerCommands
                 case "ultest": ExecuteCommand("unloadscript test\\test.dll", "fast_restart"); break;
                 case "ultdm": ExecuteCommand("unloadscript test\\tdm.dll", "fast_restart"); break;
                 case "status": Status(); break;
+
+
             }
         }
-        void Commands(string[] s)
+        void Commands(string[] ss)
         {
+            string s = ss[0];
+
+            switch (s)
+            {
+                case "so": break;
+            }
         }
     }
 }

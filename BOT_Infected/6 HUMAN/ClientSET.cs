@@ -33,7 +33,7 @@ namespace Infected
             //public bool CLASS_CHANGED { get; set; }
             //public HudElem WEAPONINFO { get; set; }
             public bool USE_TANK { get; set; }
-            public bool USE_HELI { get; set; }
+            public byte USE_HELI { get; set; }//0 1 2
             public bool ON_MESSAGE { get; set; }
 
 
@@ -92,88 +92,60 @@ namespace Infected
             #endregion
 
             #region helicopter
+
             player.Call("notifyonplayercommand", "ACTIVATE", "+activate");
-            // ADMIN.SetClientDvar("camera_thirdPerson", "0");
             player.OnNotify("ACTIVATE", ent =>
             {
-                if (!HELI_MAP ) return;
-                if (!human_List.Contains(player)) return;
-                if(H.USE_HELI && HELI == null)
-                {
-                    CallHeli(player);
-                    
-                    return;
-                }
-                if (HELI == null) return;
-                if (H.ON_MESSAGE) return;
-                float dist;
+                if (H.USE_HELI == 3) return;//Axis
 
-                if (H.PERK < 10 || !H.USE_HELI)
+                if (H.USE_HELI == 0)//Allise & under 10 kill
                 {
+                    if (H.ON_MESSAGE) return;
 
-                    dist = player.Origin.DistanceTo(TL.Origin);
-                    if (dist > 135)
+                    if (!IsHeliArea(player))// not in the area
                     {
-                        dist = player.Origin.DistanceTo(TR.Origin);
-
-                        if (dist > 135)
-                        {
-                            if (HELI_GUNNER == player) HELI_GUNNER = null;
-                            return;
-                        }
+                        if (HELI_GUNNER == player) HELI_GUNNER = null;
                     }
-
-                    if (H.PERK < 10) RM(player, 0, new[] { "^2" + (10 - H.PERK) + " KILL MORE ^7TO RIDE HELI", "YOU CAN RIDE HELI", "IF ANOTHER PLAYER ONBOARD" });
-                    else RM(player, 0, new[] { "YOU CAN RIDE HELLI", "IF ANOTHER PLAYER ONBOARD" });
-
-                    if (HELI_GUNNER == null || HELI_GUNNER != player) HELI_GUNNER = player;
-
-                    return;
-                }
-                if (HELI_GUNNER != null && HELI_GUNNER == player)
-                {
-                    EndGunner();
-                    return;
-                }
-
-
-                if (HELI_ON_USE_)
-                {
-                    if (HELI_OWNER != player) showMessage(player, "^2HELICOPTER IS OCCUPIED BY ^7" + HELI_OWNER_NAME);
                     else
                     {
-                        player.SetField("angles", ZERO);
-                        HELI_ON_USE_ = true;
-                        HELI_OWNER = null;
+                        if (H.PERK < 10) RM(player, 0, new[] { "^2" + (11 - H.PERK) + " KILL MORE ^7TO RIDE HELI", "YOU CAN RIDE HELI", "IF ANOTHER PLAYER ONBOARD" });
+                        else RM(player, 0, new[] { "YOU CAN RIDE HELLI", "IF ANOTHER PLAYER ONBOARD" });
+
+                        if (HELI_GUNNER == null || HELI_GUNNER != player) HELI_GUNNER = player;
                     }
 
                     return;
                 }
-                dist = player.Origin.DistanceTo(TL.Origin);
-                if (dist > 135)
+                else if (H.USE_HELI == 1) // above 10 kill
                 {
-                    dist = player.Origin.DistanceTo(TR.Origin);
-
-                    if (dist > 135)
+                    if (HELI == null)
                     {
-                        RM(player, 0, HELI_MESSAGE_ALERT);
+                        CallHeli(player);
+                    }
+                    else if (HELI_ON_USE_)
+                    {
+                        showMessage(player, "^2HELICOPTER IS OCCUPIED BY ^7" + HELI_OWNER_NAME);
                         return;
                     }
                 }
-                RM(player, 0, HELI_MESSAGE_KEY_INFO);
-                HELI_OWNER = player;
-                if (HELI_GUNNER == player) HELI_GUNNER = null;
-                HELI_ON_USE_ = true;
-                player.Call(33256, HELI);//remotecontrolvehicle  
-                player.Call("thermalvisionfofoverlayon");
-
-                AfterDelay(120000, () =>
+                else
                 {
-                    if (player != null && HELI_OWNER == player) EndUseHeli();
-                });
-            });
+                    H.USE_HELI = 0;
+                    EndUseHeli(player, true);
+                    return;
+                }
 
-            player.Call("notifyonplayercommand", "THERMAL", "++actionslot 5");
+                if (!IsHeliArea(player))
+                {
+                    RM(player, 0, HELI_MESSAGE_ALERT);
+                }
+                else
+                {
+                    H.USE_HELI = 2;
+                    StartHeli(player);
+                }
+
+            });
 
             #endregion
 
@@ -244,37 +216,37 @@ namespace Infected
 
             Entity TANK = null;
             player.OnNotify("weapon_change", (Entity ent, Parameter newWeap) =>
-            {
-                if (H.USE_TANK) return;
-
-                string weap = newWeap.ToString();
-                print(weap);
-
-                if (weap == "killstreak_remote_tank_remote_mp")
-                {
-                    H.USE_TANK = true;
-                    TANK = null;
-
-                    bool found = false;
-                    for (int i = 0; i < 2048; i++)
-                    {
-                        TANK = Entity.GetEntity(i);
-                        if (TANK == null) continue;
-                        var model = TANK.GetField<string>("model");
-                        if (model == "vehicle_ugv_talon_mp")
                         {
-                            found = true;
-                            break;
-                        }
-                    }
-                    if (!found) return;
+                            if (H.USE_TANK) return;
 
-                    //print("들어왔다 "+TANK.Name);
-                    human_List.Add(TANK);
-                    player.Call(32936);//thermalvisionfofoverlayon
+                            string weap = newWeap.ToString();
+                            //print(weap);
 
-                }
-            });
+                            if (weap == "killstreak_remote_tank_remote_mp")
+                            {
+                                H.USE_TANK = true;
+                                TANK = null;
+
+                                bool found = false;
+                                for (int i = 0; i < 2048; i++)
+                                {
+                                    TANK = Entity.GetEntity(i);
+                                    if (TANK == null) continue;
+                                    var model = TANK.GetField<string>("model");
+                                    if (model == "vehicle_ugv_talon_mp")
+                                    {
+                                        found = true;
+                                        break;
+                                    }
+                                }
+                                if (!found) return;
+
+                                //print("들어왔다 "+TANK.Name);
+                                human_List.Add(TANK);
+                                player.Call(32936);//thermalvisionfofoverlayon
+
+                            }
+                        });
             player.OnNotify("end_remote", (Entity ent) =>
             {
                 if (H.USE_TANK)
@@ -282,10 +254,6 @@ namespace Infected
                     H.USE_TANK = false;
                     human_List.Remove(TANK);
                     player.Call(32937);//thermalvisionfofoverlayoff
-                }
-                else if (H.USE_HELI)
-                {
-
                 }
             });
 

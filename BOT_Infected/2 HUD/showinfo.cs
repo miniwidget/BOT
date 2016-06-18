@@ -102,7 +102,7 @@ namespace Infected
                 H_FIELD[entref].ON_MESSAGE = false;
                 return;
             }
-            AfterDelay(3000, () =>
+            AfterDelay(2500, () =>
             {
                 roopMessage(e, i, lists);
             });

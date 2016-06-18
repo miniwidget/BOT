@@ -30,7 +30,7 @@ namespace Infected
                 return true;
             }
         }
-        string[] soundAlert = {"AF_1mc_losing_fight", "AF_1mc_lead_lost", "PC_1mc_losing_fight", "PC_1mc_take_positions", "PC_1mc_positions_lock" };
+        string[] soundAlert = { "AF_1mc_losing_fight", "AF_1mc_lead_lost", "PC_1mc_losing_fight", "PC_1mc_take_positions", "PC_1mc_positions_lock" };
         #endregion
 
         #region human_spawned
@@ -40,111 +40,93 @@ namespace Infected
         {
             if (GAME_ENDED_) return;
 
-            try
+            H_SET H = H_FIELD[player.EntRef];
+
+            if (HUMAN_FIRST_SPAWNED) if (isFirstInfected) H.LIFE = -1;
+
+            if (HELI_OWNER == player) EndUseHeli(player, false);
+            else if (HELI_GUNNER == player) EndGunner();
+
+            var LIFE = H.LIFE;
+            if (LIFE > -1)//3 2
             {
-                H_SET H = H_FIELD[player.EntRef];
-
-                if (HUMAN_FIRST_SPAWNED) if (isFirstInfected) H.LIFE = -1;
-
-                var LIFE = H.LIFE;
-                if (LIFE > -1)//3 2
+                if (!H.RESPAWN)
                 {
-                    if (!H.RESPAWN)
-                    {
-
-                        H.LIFE -= 1;
-                        H.RESPAWN = true;
-                        player.Call(33466, "mp_last_stand");// playlocalsound
-                        player.Notify("menuresponse", "team_marinesopfor", "allies");
-                        setTeamName();
-                    }
-                    else
-                    {
-                        H.PERK = 2;
-                        H.RESPAWN = false;
-                        player.Call("iPrintlnBold", "^2[ ^7" + (LIFE + 1) + " LIFE ^2] MORE");
-
-                        string wep = getRandomWeapon();
-                        giveWeaponToInit(player,wep);
-
-                        AfterDelay(500, () => giveRandomOffhandWeapon(player, H));
-                        AfterDelay(1500, () => player.Call(33344, "^2[ ^7" + wep.Split('_')[1].ToUpper() + " ^2]"));
-
-                        if (HELI_MAP)
-                        {
-                            H.USE_HELI = false;
-                            if (HELI_OWNER == player) EndUseHeli();
-                            else if (HELI_GUNNER == player) EndGunner();
-                        }
-                        H.USE_TANK = false;
-                    }
-                }
-                else if (LIFE == -1)//change to AXIS
-                {
-                    if (HELI_MAP)
-                    {
-                        H.USE_HELI = false;
-                    }
-                    H.USE_TANK = false;
-
-                    H.LIFE = -2;
-                    H.AX_WEP = 1;
-
-                    player.SetField("sessionteam", "axis");
-                    human_List.Remove(player);
-                    player.Call("suicide");
-                    player.Notify("menuresponse", "changeclass", "axis_recipe4");
-                    print(player.Name + " : Infected ⊙..⊙");
+                    H.RESPAWN = true;
+                    player.Notify("menuresponse", "team_marinesopfor", "allies");
+                    setTeamName();
                 }
                 else
                 {
-                    var aw = H.AX_WEP;
-                    if (aw == 1)
+                    H.LIFE -= 1;
+                    H.PERK = 2;
+                    H.RESPAWN = false;
+                    H.USE_HELI = 0;
+                    H.USE_TANK = false;
+
+                    player.Call(33466, "mp_last_stand");// playlocalsound
+                    player.Call("iPrintlnBold", "^2[ ^7" + (LIFE + 1) + " LIFE ^2] MORE");
+
+                    string wep = getRandomWeapon();
+                    giveWeaponToInit(player, wep);
+
+                    AfterDelay(500, () => giveRandomOffhandWeapon(player, H));
+                    AfterDelay(1500, () => player.Call(33344, "^2[ ^7" + wep.Split('_')[1].ToUpper() + " ^2]"));
+
+                }
+            }
+            else if (LIFE == -1)//change to AXIS
+            {
+                H.LIFE = -2;
+                H.PERK = 50;
+                H.AX_WEP = 1;
+                H.USE_HELI = 3;
+                H.USE_TANK = false;
+
+                player.SetField("sessionteam", "axis");
+                human_List.Remove(player);
+                player.Call("suicide");
+                player.Notify("menuresponse", "changeclass", "axis_recipe4");
+                print(player.Name + " : Infected ⊙..⊙");
+            }
+            else
+            {
+                var aw = H.AX_WEP;
+                if (aw == 1)
+                {
+                    if (!HUMAN_AXIS_LIST.Contains(player)) HUMAN_AXIS_LIST.Add(player);
+
+                    if (!START_LAST_BOT_SEARCH)
                     {
-                        if(!HUMAN_AXIS_LIST.Contains(player)) HUMAN_AXIS_LIST.Add(player);
-
-                        if (!START_LAST_BOT_SEARCH)
+                        if (human_List.Count == 0)
                         {
-                            if (human_List.Count == 0)
-                            {
-                                START_LAST_BOT_SEARCH = true;
-                                StartAllyBotSearch();
-                            }
+                            START_LAST_BOT_SEARCH = true;
+                            StartAllyBotSearch();
                         }
-                        
-                        player.Call("iPrintlnBold", "^2[ ^7DISABLED ^2] Melee of the Infected");
-                        H.PERK = 50;
-                        AxisHud(player);
-                        AxisWeapon_by_init(player);
+                    }
 
-                        AfterDelay(t1, () => player.Call("playsoundtoteam", soundAlert[rnd.Next(SA_LENGTH)], "allies"));
+                    player.Call("iPrintlnBold", "^2[ ^7DISABLED ^2] Melee of the Infected");
+                    H.PERK = 50;
 
-                        if(HELI_OWNER == player)
-                        {
-                            HELI_END_USE_ = true;
-                            EndUseHeli();
-                        }
+                    AxisHud(player);
+                    AxisWeapon_by_init(player);
+
+                    AfterDelay(t1, () => player.Call("playsoundtoteam", soundAlert[rnd.Next(SA_LENGTH)], "allies"));
+
+                }
+                else
+                {
+
+                    if (!H.BY_SUICIDE)//by attack
+                    {
+                        H.AX_WEP += 1;
+                        AxisWeapon_by_Attack(player, H.AX_WEP);
                     }
                     else
                     {
-
-                        if (!H.BY_SUICIDE)//by attack
-                        {
-                            H.AX_WEP += 1;
-                            AxisWeapon_by_Attack(player, H.AX_WEP);
-                        }
-                        else
-                        {
-                            AxisWeapon_by_init(player);
-                        }
+                        AxisWeapon_by_init(player);
                     }
                 }
-            }
-            catch
-            {
-                string name = null;
-                if (player != null && player.Name != null) name = player.Name;
-                print("human_spawned ERROR : " + name);
             }
         }
         #endregion

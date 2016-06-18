@@ -23,8 +23,7 @@ namespace Infected
             var texts = text.ToLower().Split(' ');
             var length = texts.Length;
 
-            int hli = human_List.IndexOf(player);
-            bool survivor = (hli != -1);
+            bool survivor = human_List.Contains(player);
 
             if (length == 1)
             {

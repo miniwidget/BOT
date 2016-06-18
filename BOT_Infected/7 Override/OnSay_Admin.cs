@@ -28,35 +28,26 @@ namespace Infected
         {
             for (int i = 0; i < num; i++)
             {
-                addBot();
+                Utilities.AddTestClient();
             };
-
-            Utilities.RawSayAll(num + " ^2BOTs ^7deployed");
         }
 
-        void addBot()
-        {
-            var bot = Utilities.AddTestClient();
-            if (bot == null) return;
-            bot.TakeAllWeapons();
-            var weapon = SN();
-            bot.GiveWeapon(weapon);
-            bot.SwitchToWeapon(weapon);
-            bot.SwitchToWeaponImmediate(weapon);
-        }
         void moveBot(string name)
         {
             if (name == null) name = "bot";
             foreach (var bot in BOTs_List)
             {
-                if (bot.Name.Contains(name))
+                if (name == null)
+                {
+                    bot.Call("setorigin", ADMIN.Origin);
+                }
+                else if (bot.Name.Contains(name))
                 {
                     bot.Call("setorigin", ADMIN.Origin);
                     break;
                 }
             }
         }
-
 
         #endregion
 
@@ -139,17 +130,6 @@ namespace Infected
 
         #region 관리자 커맨드 메서드
 
-        void script(string name, bool load)
-        {
-            if (load)
-            {
-                Utilities.ExecuteCommand("loadScript " + name + ".dll");
-            }
-            else
-            {
-                Utilities.ExecuteCommand("unloadScript " + name + ".dll");
-            }
-        }
         void print(object s)
         {
             Log.Write(LogLevel.None, "{0}", s.ToString());
@@ -159,31 +139,38 @@ namespace Infected
             AfterDelay(t0, () => Utilities.RawSayTo(ADMIN, m));
         }
 
-        #endregion
-
-        void ResetGame(string command)
-        {
-            if (!TEST_) command = command.Replace("test\\", "");
-            KickBOTsAll();
-            AfterDelay(t1, () => Utilities.ExecuteCommand(command));
-        }
         bool _3rd;
         void ChangeView()
         {
-            if(_3rd) ADMIN.SetClientDvar("camera_thirdPerson", "0");
+            if (_3rd) ADMIN.SetClientDvar("camera_thirdPerson", "0");
             else ADMIN.SetClientDvar("camera_thirdPerson", "1");
             _3rd = !_3rd;
+        }
+
+
+        #endregion
+
+        string getprintPos(string o)
+        {
+            o = o.Replace(", ", "f, ").Replace(")", "f)");
+            return o;
+        }
+        void printPos()
+        {
+            var o = getprintPos(ADMIN.Origin.ToString());
+            //case MAP.mp_interchange: HELI_WAY_POINT = new Vector3(2535, -573, 100); break;
+            string s = "case "+ MAP_INDEX + ": HELI_WAY_POINT = new Vector3 " + o + "; break;";
+            print(s);
         }
         bool AdminCommand(string text)
         {
 
             switch (text)
             {
-                case "w":  return false;
                 case "test": testset(); return false;
                 case "3rd": ChangeView(); return false;
-                case "m2": ADMIN.Call("setorigin", HELI_WAY_POINT);return false;
-                case "p": print(ADMIN.Origin); return false; 
+                case "m2": ADMIN.Call("setorigin", HELI_WAY_POINT); return false;
+                case "p": printPos(); return false;
 
                 case "pos": moveBot(null); return false;
                 case "kb": Utilities.RawSayAll("^2Kickbots ^7executed"); KickBOTsAll(); return false;
@@ -199,14 +186,11 @@ namespace Infected
                 var value = t[1];
                 switch (txt)
                 {
-                    case "so":ADMIN.Call("playlocalsound", value);return false;
                     case "pos": moveBot(value); break;
-
                     case "bot": DeployBOTsByNUM(int.Parse(value)); return false;
                     case "die": Die(text); return false;
                     case "k": Kick(text); return false;
                     case "magic": Magic(text); return false;
-                    case "map": ResetGame("map " + value); return false;
                 }
             }
 

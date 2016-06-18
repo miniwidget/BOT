@@ -13,7 +13,7 @@ namespace Infected
         Vector3 HELI_WAY_POINT, ZERO = new Vector3(0, 0, 0);
         Entity HELI, TL, TR, HELI_OWNER, HELI_GUNNER;
 
-        bool HELI_ON_USE_, HELI_END_USE_;
+        bool HELI_ENABLED_, HELI_ON_USE_;
 
         string HELI_OWNER_NAME
         {
@@ -28,66 +28,86 @@ namespace Infected
         /// <summary>
         /// 10 킬 이상 하면, remote control enabled
         /// </summary>
-        void ShowFlagTag(Entity player)
+        void AttachFlagTag(Entity player)
         {
-            if (!HELI_ON_USE_)
+            if (!HELI_ENABLED_)
             {
                 player.Call("playsoundtoteam", "PC_1mc_kill_confirmed", "allies");
                 foreach (Entity p in human_List)
                 {
-                    roopMessage(player, 0, HELI_MESSAGE_ACTIVATE);
+                    if (p != player) RM(player, 0, HELI_MESSAGE_ACTIVATE);
+                    else showMessage(player, "^2PRESS [^7 [{+activate}] ^2] TO CALL HELI TURRET");
                 }
             }
-            H_SET H = H_FIELD[player.EntRef];
-            H.USE_HELI = true;
+
             AfterDelay(500, () =>//서버다운 fix
             {
                 player.Call("AttachShieldModel", "prop_flag_neutral", "tag_shield_back", true);
             });
-            if (HELI == null)
-            {
-                AfterDelay(7000, () =>
-                {
-                    if(H.USE_HELI&& HELI == null) showMessage(player, "^2CALL HELI TURRET. PRESS [ ^7[{+activate}] ^2]");
-                });
-            }
         }
 
-        void SetHelipoint(bool enable)
+        void ShowHelipoint()
         {
-            if (enable)
-            {
-                /* mini map point */
-                Call(431, 1, "active"); // objective_add
-                Call(435, 1, HELI_WAY_POINT); // objective_position
-                Call(434, 1, "compass_objpoint_ac130_friendly"); //compass_objpoint_ac130_friendly compass_waypoint_bomb objective_icon
-            }
-            else
-            {
-                Call(431, 1, "inactive"); // objective_add
-            }
 
+            /* mini map point */
+            Call(431, 1, "active"); // objective_add
+            Call(435, 1, HELI_WAY_POINT); // objective_position
+            Call(434, 1, "compass_objpoint_ac130_friendly"); //compass_objpoint_ac130_friendly compass_waypoint_bomb objective_icon
+            HELI_ENABLED_ = false;
+
+        }
+        bool IsHeliArea(Entity player)
+        {
+            float dist = player.Origin.DistanceTo(TL.Origin);
+            if (dist > 140)
+            {
+                dist = player.Origin.DistanceTo(TR.Origin);
+
+                if (dist > 140)
+                {
+                    return false;
+                }
+            }
+            return true;
         }
         void CallHeli(Entity player)
         {
             var w = player.CurrentWeapon;
-            //player.TakeWeapon(player.CurrentWeapon);
+            player.TakeWeapon(w);
             player.GiveWeapon("killstreak_helicopter_mp");
-            ////player.Call(33344, "^2[ ^7" + weapon.Split('_')[1].ToUpper() + " ^2]");//iPrintlnBold
             player.SwitchToWeapon("killstreak_helicopter_mp");
             player.Call("playlocalsound", "mp_killstreak_radar");
+            SetupHelicopter(player);
             AfterDelay(t2, () =>
             {
                 giveWeaponTo(player, w);
-                SetupHelicopter(player);
+               
             });
+        }
+        void StartHeli(Entity player)
+        {
+            HELI_ON_USE_ = true;
+            HELI_OWNER = player;
+            if (HELI_GUNNER == player) HELI_GUNNER = null;
+
+            RM(player, 0, HELI_MESSAGE_KEY_INFO);
+
+            player.Call(33256, HELI);//remotecontrolvehicle  
+            player.Call("thermalvisionfofoverlayon");
+
+            AfterDelay(120000, () =>
+            {
+                if (player != null && HELI_OWNER == player && HELI != null)
+                {
+                    H_FIELD[player.EntRef].USE_HELI = 0;
+                    EndUseHeli(player, true);
+                }
+            });
+
         }
         void SetupHelicopter(Entity player)
         {
             if (HELI != null) return;
-
-            HELI_ON_USE_ = false;
-            HELI_END_USE_ = false;
 
             string realModel = "vehicle_little_bird_armed";
             string minimap_model = "attack_littlebird_mp";
@@ -111,8 +131,8 @@ namespace Infected
             TR.Call("SetRightArc", 180f);
             TR.Call("SetBottomArc", 180f);
 
-            SetHelipoint(false);
-
+            Call(431, 1, "inactive"); // objective_add
+            HELI_ENABLED_ = true;
         }
 
         void EndGunner()
@@ -122,32 +142,36 @@ namespace Infected
             HELI_GUNNER.Call(32843);//unlink
             HELI_GUNNER = null;
         }
-        void EndUseHeli()
+        void EndUseHeli(Entity player, bool unlink)
         {
-            if (HELI_END_USE_ || HELI_OWNER == null) return;
-            if (HELI_OWNER.EntRef == -1) return;
-            HELI_END_USE_ = true;
+            if (unlink)
+            {
+                player.Call(32843);//unlink
+                player.Call(33257);//remotecontrolvehicleoff
+                player.Call("thermalvisionfofoverlayoff");
 
-            HELI_OWNER.Call(32843);//unlink
-            HELI_OWNER.Call(33257);//remotecontrolvehicleoff
-            H_FIELD[HELI_OWNER.EntRef].USE_HELI = false;
-            HELI_OWNER.SetField("angles", ZERO);
-            HELI_OWNER.Call("thermalvisionfofoverlayoff");
+                AfterDelay(500, () =>//서버다운 fix
+                {
+                    player.Call("detachShieldModel", "prop_flag_neutral", "tag_shield_back", true);
+                });
+            }
+            HELI_ON_USE_ = false;
+            player.SetField("angles", ZERO);
             HELI_OWNER = null;
             if (HELI_GUNNER != null) EndGunner();
             TL.Call("delete");
             TR.Call("delete");
             HELI.Call("delete");
             HELI = null;
-            SetHelipoint(true);
+            ShowHelipoint();
         }
 
         void testset()
         {
             H_SET H = H_FIELD[ADMIN.EntRef];
-            H.USE_HELI = true;
-            H.PERK = 10;
-            ShowFlagTag(ADMIN);
+            H.USE_HELI = 1;
+            H.PERK = 11;
+            AttachFlagTag(ADMIN);
             ADMIN.Call("setorigin", HELI_WAY_POINT);
         }
     }

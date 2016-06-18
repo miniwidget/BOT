@@ -107,13 +107,17 @@ namespace Infected
                 if (H.PERK < 34 && weapon[2] == '5')//iw5
                 {
                     var i = (H.PERK+=1);
-                   
+
                     if (i > 2 && i % 3 == 0)
                     {
                         attacker.Call(33466, "mp_killstreak_radar");//playlocalsound
                         AfterDelay(100, () => Perk_Hud(attacker, i / 3));
                     }
-                    else if (i == 11) ShowFlagTag(attacker);
+                    else if (i == 11)
+                    {
+                        H.USE_HELI = 1;
+                        AttachFlagTag(attacker);
+                    }
                 }
             }
             else if (!BotKilled)//사람이 죽은 경우

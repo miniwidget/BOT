@@ -14,6 +14,7 @@ namespace Infected
         void StartAllyBotSearch()
         {
             Entity bot = BOTs_List[LAST_ALLY_BOT_IDX];
+            if (!isSurvivor(bot)) return;
             bot.Call(33220, 1.5f);
 
 

@@ -197,6 +197,10 @@ namespace Infected
             print("■ BOTs:" + max + " AXIS:" + (max - alive) + " ALLIES:" + alive + " Inf: " + F_INF_BOT.Name);
 
             F_INF_BOT = null;
+            Call("setdvar", "testClients_doCrouch", 0);
+            Call("setdvar", "testClients_doMove", 1);
+            Call("setdvar", "testClients_doAttack", 1);
+
             return false;
         }
 

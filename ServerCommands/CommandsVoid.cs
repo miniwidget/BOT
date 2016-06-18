@@ -36,13 +36,13 @@ namespace ServerCommands
                 string name = p.Name;
                 if (name.StartsWith("bot"))
                 {
-                    s += "[◐" + p.Name + ":" + p.GetField<string>("sessionteam") + "] ";
+                    s += "[◎" + p.Name + ":" + p.GetField<string>("sessionteam") + "] ";
                 }
                 else if (name == "")
                 {
                     Players.Remove(p);
                 }
-                else s += "[♨" + p.Name + ":" + p.GetField<string>("sessionteam") + "] ";
+                else s += "[◐" + p.Name + ":" + p.GetField<string>("sessionteam") + "] ";
             }
             print(s);
         }
