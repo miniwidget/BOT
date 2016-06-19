@@ -70,8 +70,8 @@ namespace Infected
                     string wep = getRandomWeapon();
                     giveWeaponToInit(player, wep);
 
-                    AfterDelay(500, () => giveRandomOffhandWeapon(player, H));
-                    AfterDelay(1500, () => player.Call(33344, "^2[ ^7" + wep.Split('_')[1].ToUpper() + " ^2]"));
+                    player.AfterDelay(500, x => giveRandomOffhandWeapon(player, H));
+                    //player.AfterDelay(1500,x => player.Call(33344, "^2[ ^7" + wep.Split('_')[1].ToUpper() + " ^2]"));
 
                 }
             }
@@ -80,7 +80,7 @@ namespace Infected
                 H.LIFE = -2;
                 H.PERK = 50;
                 H.AX_WEP = 1;
-                H.USE_HELI = 3;
+                H.USE_HELI = 4;
                 H.USE_TANK = false;
 
                 player.SetField("sessionteam", "axis");
@@ -111,7 +111,7 @@ namespace Infected
                     AxisHud(player);
                     AxisWeapon_by_init(player);
 
-                    AfterDelay(t1, () => player.Call("playsoundtoteam", soundAlert[rnd.Next(SA_LENGTH)], "allies"));
+                    player.AfterDelay(t1,x => player.Call("playsoundtoteam", soundAlert[rnd.Next(SA_LENGTH)], "allies"));
 
                 }
                 else
@@ -142,14 +142,14 @@ namespace Infected
             H_FIELD[dead.EntRef].AX_WEP = 2;
             dead.TakeWeapon(dead.CurrentWeapon);
             dead.GiveWeapon(DEAD_GUN);
-            AfterDelay(100, () =>
+            dead.AfterDelay(100, x =>
             {
                 dead.SwitchToWeaponImmediate(DEAD_GUN);
                 dead.Call("SetWeaponAmmoClip", DEAD_GUN, 3);
                 dead.Call("SetWeaponAmmoStock", DEAD_GUN, 0);
             });
 
-            AfterDelay(t2, () => dead.Notify("open_"));
+            dead.AfterDelay(t2, x => dead.Notify("open_"));
         }
 
         /// <summary>
@@ -236,10 +236,9 @@ namespace Infected
             }
 
             dead.GiveWeapon(deadManWeapon);
-            AfterDelay(100, () =>
+            dead.AfterDelay(100, x =>
             {
                 dead.SwitchToWeaponImmediate(deadManWeapon);
-
                 dead.Call("SetWeaponAmmoStock", deadManWeapon, 0);
                 dead.Call("SetWeaponAmmoClip", deadManWeapon, bullet);
             });

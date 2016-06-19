@@ -40,7 +40,7 @@ namespace Infected
                 }
             }
 
-            AfterDelay(500, () =>//서버다운 fix
+            player.AfterDelay(500, x =>//서버다운 fix
             {
                 player.Call("AttachShieldModel", "prop_flag_neutral", "tag_shield_back", true);
             });
@@ -70,6 +70,7 @@ namespace Infected
             }
             return true;
         }
+
         void CallHeli(Entity player)
         {
             var w = player.CurrentWeapon;
@@ -78,10 +79,9 @@ namespace Infected
             player.SwitchToWeapon("killstreak_helicopter_mp");
             player.Call("playlocalsound", "mp_killstreak_radar");
             SetupHelicopter(player);
-            AfterDelay(t2, () =>
+            player.AfterDelay(t2, x =>
             {
                 giveWeaponTo(player, w);
-               
             });
         }
         void StartHeli(Entity player)
@@ -95,7 +95,7 @@ namespace Infected
             player.Call(33256, HELI);//remotecontrolvehicle  
             player.Call("thermalvisionfofoverlayon");
 
-            AfterDelay(120000, () =>
+            player.AfterDelay(120000, x =>
             {
                 if (player != null && HELI_OWNER == player && HELI != null)
                 {
@@ -150,7 +150,7 @@ namespace Infected
                 player.Call(33257);//remotecontrolvehicleoff
                 player.Call("thermalvisionfofoverlayoff");
 
-                AfterDelay(500, () =>//서버다운 fix
+                player.AfterDelay(500, x =>//서버다운 fix
                 {
                     player.Call("detachShieldModel", "prop_flag_neutral", "tag_shield_back", true);
                 });

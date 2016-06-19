@@ -30,7 +30,7 @@ namespace Infected
             player.TakeWeapon(player.CurrentWeapon);
             player.GiveWeapon(weapon);
             player.Call(33523, weapon); //givemaxammo
-            AfterDelay(100, () => player.SwitchToWeaponImmediate(weapon));
+            player.AfterDelay(100, x => player.SwitchToWeaponImmediate(weapon));
         }
         void giveWeaponTo(Entity player, string weapon)
         {

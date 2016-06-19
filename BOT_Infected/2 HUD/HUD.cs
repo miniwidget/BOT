@@ -91,7 +91,7 @@ namespace Infected
             player.OnNotify("close_", entity => axis_weap_hud.Alpha = 0f);
             player.OnNotify("CLOSE_", entity => axis_weap_hud.Call(32897));
 
-            AfterDelay(t3, () => player.Notify("open_"));
+            player.AfterDelay(t3, x => player.Notify("open_"));
         }
         
     }

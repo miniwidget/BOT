@@ -69,22 +69,21 @@ namespace Infected
             var map_list = ENTIRE_MAPLIST.Split('|').ToList();
             int max = map_list.Count - 1;
             MAP_INDEX = map_list.IndexOf(currentMAP);
-            /*set player life */
-            if (PLAYER_LIFE == 0) PLAYER_LIFE = 2;
-
+            
+            if (PLAYER_LIFE == 0) PLAYER_LIFE = 2;/*set player life */
 
             switch (MAP_INDEX)
             {
-                case 0: HELI_WAY_POINT = new Vector3(-338.2646f, 2086.079f, 780.125f); break;
-                case 1: HELI_WAY_POINT = new Vector3(-528.8417f, 3310.055f, 96.125f); break;
-                case 2: HELI_WAY_POINT = new Vector3(990.2207f, 1219.364f, -87.875f); break;
-                case 3: HELI_WAY_POINT = new Vector3(-1587.473f, -4330.379f, 3862.001f); break;
-                case 4: HELI_WAY_POINT = new Vector3(574.9448f, -562.5687f, -348.6788f); break;
-                case 5: HELI_WAY_POINT = new Vector3(2458.22f, 1552.072f, 148.4162f); break;
-                case 6: HELI_WAY_POINT = new Vector3(1262, 2668, -272); break;
-                case 7: HELI_WAY_POINT = new Vector3(1903, -1220, 380); break;
-                case 8: HELI_WAY_POINT = new Vector3(2535, -573, 100); break;
-                case 9: HELI_WAY_POINT = new Vector3(839.8029f, -397.5345f, -5.537515f); break;
+                case 00: HELI_WAY_POINT = new Vector3(-338.2646f, 2086.079f, 780.125f); break;
+                case 01: HELI_WAY_POINT = new Vector3(-528.8417f, 3310.055f, 96.125f); break;
+                case 02: HELI_WAY_POINT = new Vector3(990.2207f, 1219.364f, -87.875f); break;
+                case 03: HELI_WAY_POINT = new Vector3(-1587.473f, -4330.379f, 3862.001f); break;
+                case 04: HELI_WAY_POINT = new Vector3(574.9448f, -562.5687f, -348.6788f); break;
+                case 05: HELI_WAY_POINT = new Vector3(2458.22f, 1552.072f, 148.4162f); break;
+                case 06: HELI_WAY_POINT = new Vector3(1262, 2668, -272); break;
+                case 07: HELI_WAY_POINT = new Vector3(1903, -1220, 380); break;
+                case 08: HELI_WAY_POINT = new Vector3(2535, -573, 100); break;
+                case 09: HELI_WAY_POINT = new Vector3(839.8029f, -397.5345f, -5.537515f); break;
                 case 10: HELI_WAY_POINT = new Vector3(-1826.247f, 637.1963f, 1049.175f); break;
                 case 11: HELI_WAY_POINT = new Vector3(-3441, -660, 1162); break;
                 case 12: HELI_WAY_POINT = new Vector3(662, -952, 112); break;
@@ -109,22 +108,20 @@ namespace Infected
                 case 31: HELI_WAY_POINT = new Vector3(-1456.08f, 1086.234f, 323.125f); break;
             }
 
-            if ( new int [] { 23, 24, 25, 26, 28, 29, 30 }.Contains(MAP_INDEX))//small map
+            if (new int[] { 23, 24, 25, 26, 28, 29, 30 }.Contains(MAP_INDEX))//small map
             {
                 PLAYER_LIFE += 1;
                 FIRE_DIST = 600;
             }
-            else
+            else if (new int[] { 8, 16, 17, 31 }.Contains(MAP_INDEX))//large map
             {
-                if (new int[] { 8, 16, 17, 31 }.Contains(MAP_INDEX))//large map
-                {
-                    FIRE_DIST = 850;
-                }
-                else//medium
-                {
-                    FIRE_DIST = 750;
-                }
+                FIRE_DIST = 850;
             }
+            else//medium
+            {
+                FIRE_DIST = 750;
+            }
+
             Call("precachemodel", "prop_flag_neutral");
             Call("precacheVehicle", "attack_littlebird_mp");
             HELI_WAY_POINT.Z += 120;

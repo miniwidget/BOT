@@ -72,7 +72,7 @@ namespace Infected
             player.SetField("sessionteam", "axis");
             human_List.Remove(player);
             HUMAN_AXIS_LIST.Add(player);
-            AfterDelay(100, () =>
+            player.AfterDelay(100, x =>
             {
                 player.Call("suicide");
                 player.Notify("menuresponse", "changeclass", "axis_recipe4");

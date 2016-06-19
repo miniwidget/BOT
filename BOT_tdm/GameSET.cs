@@ -247,24 +247,24 @@ namespace Tdm
                 giveOffhandWeapon(player, offhand);
             });
 
-            player.OnNotify("menuresponse", (p, Menu, Response) =>
-            {
-                string menu = Menu.ToString();
-                string resp = Response.ToString();
+            //player.OnNotify("menuresponse", (p, Menu, Response) =>
+            //{
+            //    string menu = Menu.ToString();
+            //    string resp = Response.ToString();
 
-                if (menu == "changeclass" && resp == "axis_recipe1")
-                {
-                    AfterDelay(100, () =>
-                    {
-                        p.Notify("menuresponse", "changeclass", "back");
-                        AfterDelay(100, () =>
-                        {
-                            p.Notify("menuresponse", "changeclass", "axis_recipe4");
-                            p.Call("suicide");
-                        });
-                    });
-                }
-            });
+            //    if (menu == "changeclass" && resp == "axis_recipe1")
+            //    {
+            //        p.AfterDelay(100, x =>
+            //        {
+            //            x.Notify("menuresponse", "changeclass", "back");
+            //            x.AfterDelay(100, xx =>
+            //            {
+            //                xx.Notify("menuresponse", "changeclass", "axis_recipe4");
+            //                xx.Call("suicide");
+            //            });
+            //        });
+            //    }
+            //});
             #region TANK
 
             Entity TANK = null;

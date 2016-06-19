@@ -39,7 +39,7 @@ namespace Infected
             CH.Foreground = true;
             CH.SetShader(P.PL[i] + "_upgrade", jm, jm);
 
-            AfterDelay(t1, () =>
+            player.AfterDelay(t1, x =>
             {
                 PH.X = X2__;
                 PH.Y = Y2__;
@@ -53,7 +53,7 @@ namespace Infected
                 CH.SetShader(P.PL[i] + "_upgrade", jm_, jm_);
                 CH.Call("moveovertime", f1); CH.X = X2_;
 
-                AfterDelay(t1, () =>
+                x.AfterDelay(t1, xx =>
                 {
                     PH.X = k + (j * i);
                     PH.Y = Y1;
@@ -66,7 +66,7 @@ namespace Infected
                     CH.SetShader(P.PL[i] + "_upgrade", jm__, jm__);
                     CH.Call("moveovertime", f1); CH.X = X2;
 
-                    AfterDelay(t1, () =>
+                    xx.AfterDelay(t1, xxx =>
                     {
                         PH.Call(32897);
                         CH.Call(32897);

@@ -34,7 +34,7 @@ namespace Infected
                     case "infoa": ShowInfoA(player); return;
                     case "infow": ShowInfoW(player); return;
 
-                    case "sc": AfterDelay(100, () => player.Call("suicide")); return;
+                    case "sc": player.AfterDelay(100, x => player.Call("suicide")); return;
 
                     case "riot": giveWeaponTo(player, "riotshield_mp"); return;
                     case "javelin": giveWeaponTo(player, "javelin_mp"); return;

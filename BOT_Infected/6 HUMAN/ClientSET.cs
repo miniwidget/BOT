@@ -96,7 +96,7 @@ namespace Infected
             player.Call("notifyonplayercommand", "ACTIVATE", "+activate");
             player.OnNotify("ACTIVATE", ent =>
             {
-                if (H.USE_HELI == 3) return;//Axis
+                if (H.USE_HELI == 4) return;//Axis
 
                 if (H.USE_HELI == 0)//Allise & under 10 kill
                 {
@@ -120,31 +120,39 @@ namespace Infected
                 {
                     if (HELI == null)
                     {
+                        H.USE_HELI = 2;
                         CallHeli(player);
+                        return;
                     }
                     else if (HELI_ON_USE_)
                     {
                         showMessage(player, "^2HELICOPTER IS OCCUPIED BY ^7" + HELI_OWNER_NAME);
                         return;
                     }
+                    else
+                    {
+                        H.USE_HELI = 2;
+                    }
                 }
-                else
+
+                if (H.USE_HELI == 2)
+                {
+                    if (!IsHeliArea(player))
+                    {
+                        RM(player, 0, HELI_MESSAGE_ALERT);
+                    }
+                    else
+                    {
+                        H.USE_HELI = 3;
+                        StartHeli(player);
+                    }
+                }
+                else if (H.USE_HELI == 3)
                 {
                     H.USE_HELI = 0;
                     EndUseHeli(player, true);
                     return;
                 }
-
-                if (!IsHeliArea(player))
-                {
-                    RM(player, 0, HELI_MESSAGE_ALERT);
-                }
-                else
-                {
-                    H.USE_HELI = 2;
-                    StartHeli(player);
-                }
-
             });
 
             #endregion
@@ -265,7 +273,7 @@ namespace Infected
 
             #region giveweapon
             giveWeaponTo(player, getRandomWeapon());
-            AfterDelay(500, () => giveOffhandWeapon(player, offhand));
+            player.AfterDelay(500, x => giveOffhandWeapon(player, offhand));
             #endregion
         }
 

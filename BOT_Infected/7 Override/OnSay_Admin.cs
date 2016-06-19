@@ -65,7 +65,7 @@ namespace Infected
                     {
                         if (p.Name.Contains(split[1]))
                         {
-                            AfterDelay(100, () => p.Call("suicide"));
+                            p.AfterDelay(100, x => p.Call("suicide"));
                         }
                     }
                 }
@@ -116,8 +116,8 @@ namespace Infected
                     {
                         if (player.Name.Contains(message.Split(' ')[1]))
                         {
-                            AfterDelay(100, () => Utilities.RawSayAll("Kick ^2" + player.Name + " ^7executed"));
-                            AfterDelay(100, () => Utilities.ExecuteCommand("dropclient " + player.EntRef));
+                            player.AfterDelay(100,x => Utilities.RawSayAll("Kick ^2" + player.Name + " ^7executed"));
+                            player.AfterDelay(100, x => Utilities.ExecuteCommand("dropclient " + player.EntRef));
                         }
 
                     }

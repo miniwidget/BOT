@@ -17,7 +17,7 @@ namespace Tdm
             string weapon = B.wep;
 
             int i = 0;
-            OnInterval(FIRE_TIME, () =>
+            bot.OnInterval(FIRE_TIME, x =>
             {
                 if (i == 6 || B.target != null)
                 {
@@ -112,7 +112,7 @@ namespace Tdm
                     if (i > 2 && i % 3 == 0)
                     {
                         attacker.Call(33466, "mp_killstreak_radar");//playlocalsound
-                        AfterDelay(100, () => Perk_Hud(attacker, i / 3));
+                        attacker.AfterDelay(100, x => Perk_Hud(attacker, i / 3));
                     }
                 }
                 return;

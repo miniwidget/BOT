@@ -30,7 +30,7 @@ namespace Infected
 
             int death = B.death;
             bool pause = false;
-            OnInterval(t1, () =>
+            bot.OnInterval(t1, x =>
             {
                 if (death != B.death|| GAME_ENDED_) return false;
                 if (!HUMAN_CONNECTED_) return pause = true;
@@ -61,7 +61,7 @@ namespace Infected
                         B.target = human;
                         B.fire = true;
                         pause = false;
-                        OnInterval(200, () =>
+                        bot.OnInterval(200, xx =>
                         {
                             if (pause || !B.fire) return false;
 
@@ -108,7 +108,7 @@ namespace Infected
             bot.Call(33468, weapon, 0);//setweaponammoclip
             bot.Call(33469, weapon, 0);//setweaponammostock
 
-            AfterDelay(BOT_DELAY_TIME, () =>
+            bot.AfterDelay(BOT_DELAY_TIME, x =>
             {
                 if (GAME_ENDED_) return;
                 B.fire = true;
@@ -130,6 +130,7 @@ namespace Infected
         //봇 목표물 찾기 루프
         private void start_bot_search(Entity bot, B_SET B)
         {
+            
             try
             {
 
@@ -137,8 +138,9 @@ namespace Infected
                 int death = B.death;
                 string weapon = B.wep;
 
-                OnInterval(SEARCH_TIME, () =>
+                bot.OnInterval(SEARCH_TIME, x =>
                 {
+
                     if (death != B.death) return false;
                     if (!HUMAN_CONNECTED_) return pause = true;
                     var target = B.target;
@@ -168,7 +170,7 @@ namespace Infected
                             B.target = human;
                             B.fire = true;
                             pause = false;
-                            OnInterval(FIRE_TIME, () =>
+                            bot.OnInterval(FIRE_TIME, xx =>
                             {
                                 if (pause || !B.fire) return false;
 
@@ -203,7 +205,7 @@ namespace Infected
                 int death = B.death;
                 string weapon = B.wep;
 
-                OnInterval(SEARCH_TIME, () =>
+                bot.OnInterval(SEARCH_TIME, x =>
                 {
                     if (death != B.death) return false;
                     if (!HUMAN_CONNECTED_) return pause = true;
@@ -246,7 +248,7 @@ namespace Infected
 
                     if (target != null)
                     {
-                        OnInterval(FIRE_TIME, () =>
+                        bot.OnInterval(FIRE_TIME, xx =>
                         {
                             if (pause || !B.fire) return false;
 
@@ -298,7 +300,7 @@ namespace Infected
             bot.Health = -1;
 
 
-            AfterDelay(10000, () =>
+            bot.AfterDelay(10000, x =>
             {
                 if (GAME_ENDED_) return;
 
@@ -328,7 +330,7 @@ namespace Infected
                 bool pause = false;
                 int death = B.death;
 
-                OnInterval(SEARCH_TIME,() =>
+                bot.OnInterval(SEARCH_TIME,x =>
                 {
                     if (death != B.death) return false;
                     if (!HUMAN_CONNECTED_) return pause = true;
@@ -364,7 +366,7 @@ namespace Infected
 
                             if(human.Name!=null) human.Call(33466, "missile_incoming");
 
-                            OnInterval(1500, () =>
+                            bot.OnInterval(1500, xx =>
                             {
 
                                 if (pause || !B.fire) return false;

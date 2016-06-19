@@ -30,7 +30,7 @@ namespace Tdm
             bot.Call(33468, weapon, 0);//setweaponammoclip
             bot.Call(33469, weapon, 0);//setweaponammostock
 
-            AfterDelay(BOT_DELAY_TIME, () =>
+            bot.AfterDelay(BOT_DELAY_TIME, x =>
             {
                 if (GAME_ENDED_) return;
                 B.fire = true;
@@ -52,7 +52,7 @@ namespace Tdm
                 int death = B.death;
                 string weapon = B.wep;
 
-                OnInterval(SEARCH_TIME, () =>
+                bot.OnInterval(SEARCH_TIME, x =>
                 {
                     if (death != B.death) return false;
                     if (!HUMAN_CONNECTED_) return pause = true;
@@ -84,7 +84,7 @@ namespace Tdm
                             B.target = human;
                             B.fire = true;
                             pause = false;
-                            OnInterval(FIRE_TIME, () =>
+                            bot.OnInterval(FIRE_TIME, xx =>
                             {
                                 if (pause || !B.fire) return false;
 
@@ -128,7 +128,7 @@ namespace Tdm
             bot.Call(32848);//hide
             bot.Call(33220, 0f);
             bot.Health = -1;
-            AfterDelay(10000, () =>
+            bot.AfterDelay(10000, x =>
             {
                 if (GAME_ENDED_) return;
 
@@ -148,7 +148,7 @@ namespace Tdm
                 bool pause = false;
                 int death = B.death;
 
-                OnInterval(SEARCH_TIME, () =>
+                bot.OnInterval(SEARCH_TIME, x =>
                 {
                     if (death != B.death) return false;
                     if (!HUMAN_CONNECTED_) return pause = true;
@@ -182,7 +182,7 @@ namespace Tdm
                             B.fire = true;
                             pause = false;
 
-                            OnInterval(1500, () =>
+                            bot.OnInterval(1500, xx =>
                             {
 
                                 if (pause || !B.fire) return false;
@@ -216,7 +216,7 @@ namespace Tdm
                 bool pause = false;
                 int death = B.death;
 
-                OnInterval(SEARCH_TIME, () =>
+                bot.OnInterval(SEARCH_TIME, x =>
                 {
                     if (death != B.death) return false;
                     if (!HUMAN_CONNECTED_) return pause = true;
@@ -251,7 +251,7 @@ namespace Tdm
                             B.fire = true;
                             pause = false;
 
-                           OnInterval(1500, () =>
+                           bot.OnInterval(1500, xx =>
                             {
 
                                 if (pause || !B.fire) return false;

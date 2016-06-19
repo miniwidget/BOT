@@ -79,7 +79,7 @@ namespace Infected
                 H_FIELD[entref].ON_MESSAGE = false;
                 return;
             }
-            AfterDelay(4000, () =>
+            e.AfterDelay(4000, x =>
             {
                 roopMessage(e, i, lists);
             });
@@ -102,7 +102,7 @@ namespace Infected
                 H_FIELD[entref].ON_MESSAGE = false;
                 return;
             }
-            AfterDelay(2500, () =>
+            e.AfterDelay(2500, x =>
             {
                 roopMessage(e, i, lists);
             });
