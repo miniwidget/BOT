@@ -5,25 +5,44 @@ using System.Text;
 using System.IO;
 using InfinityScript;
 using System.Timers;
+using System.Diagnostics;
 
 namespace Infected
 {
     public partial class Infected
     {
+        string ERROR_PATH = @"z:\mw3_error.txt"; 
+
+        void writeErrorLoc(ref Exception ex)
+        {
+            var st = new StackTrace(ex, true);
+            var sf = st.GetFrame(0);
+            var line = sf.GetFileLineNumber();
+            var name = sf.GetMethod().Name;
+
+            string contents = "■ ■ ■ IMPORTANT void: " + name + " line: " + line;
+            print(contents);
+            if (!File.Exists(ERROR_PATH)) File.WriteAllText(ERROR_PATH, "/");
+            File.AppendAllText(ERROR_PATH, contents);
+        }
+
         public override void OnPlayerDamage(Entity player, Entity inflictor, Entity attacker, int damage, int dFlags, string mod, string weapon, Vector3 point, Vector3 dir, string hitLoc)
         {
+            if (player == attacker && weapon == "rpg")
+            {
+                player.Health += damage;
+                return;
+            }
+
+            if (attacker == null || player == null || !attacker.IsPlayer || !player.IsPlayer) return;
+
             if (player.Name.StartsWith("bot"))
             {
-                if (attacker == null) return;
-
-                int pi = player.EntRef;
-                if (pi == RPG_BOT_ENTREF && weapon == "rpg_mp") { player.Health += damage; return; }
-                if (pi == RIOT_BOT_ENTREF) return;
-                Field F = FL[pi];
-                if (F.target != null) return;
                 if (weapon[2] == '5')
                 {
-                    F.target = attacker;
+                    Field F = FL[player.EntRef];
+                    if (F.human_target_idx != -1) return;
+                    F.human_target_idx = attacker.EntRef;
                     F.damaged = true;
                 }
                 return;
@@ -38,50 +57,44 @@ namespace Infected
             {
                 if (!FL[player.EntRef].AXIS) player.Health += damage;
             }
-            //else if (USE_ADMIN_SAFE_)
-            //{
-            //    if (ADMIN != null && player == ADMIN) player.Health += damage;
-            //}
-
         }
+
         public override void OnPlayerKilled(Entity player, Entity inflictor, Entity attacker, int damage, string mod, string weapon, Vector3 dir, string hitLoc)
         {
-            if (attacker == null) return;
+            if (attacker == null || player == null || !attacker.IsPlayer || !player.IsPlayer) return;
 
-            int pe = player.EntRef;
-            if (pe == -1 || pe > 17) return;
-            Field F = FL[player.EntRef];
-            bool BotKilled = F.BOT;
+            AfterDelay(100, () => OnPlayerKilled_(ref player, ref attacker));
+        }
+
+        void OnPlayerKilled_(ref Entity player, ref Entity attacker)
+        {
+            Field pf = FL[player.EntRef];
+            bool BotKilled = pf.BOT;
 
             if (player == attacker)
             {
-                if (!BotKilled) F.BY_SUICIDE = true;//자살로 죽음
+                if (!BotKilled) pf.BY_SUICIDE = true;
                 return;
             }
 
-            if (BotKilled)
+            if (BotKilled)//퍼크 주기
             {
-                F.target = null;
-                if (human_List.Contains(attacker))
-                {
-                    F.killerIdx = human_List.IndexOf(attacker);
-                }
-                return;
+                pf.human_target_idx = -1;
+                int i = HUMAN_LIST.IndexOf(attacker);
+                if (i != -1) pf.killerIdx = i;
             }
-            else//사람이 죽은 경우
+            else
             {
-                int ae = attacker.EntRef;
-                if (ae > 17) return;
-                Field af = FL[ae];
+                Field af = FL[attacker.EntRef];
 
-                if (af.BOT) // 봇이 사람을 죽인 경우, 봇 사격 중지
+                if (af.BOT) //stop fire if bot kill target
                 {
+                    af.human_target_idx = -1;
                     Utilities.RawSayAll("^1BAD Luck :) ^7" + player.Name + " killed by " + attacker.Name);
-                    af.target = null;
                 }
                 else
                 {
-                    F.BY_SUICIDE = false;//공격으로 죽음
+                    pf.BY_SUICIDE = false;//human die from attack
                 }
             }
         }

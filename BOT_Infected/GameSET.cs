@@ -25,6 +25,7 @@ namespace Infected
                 
                 if(value == true)
                 {
+                    _hti = -1;
                     this.player.Health = -1;
                     this.player.Call(32848);//hide
                     this.player.Call(33220, 0f);//setmovescale
@@ -40,21 +41,23 @@ namespace Infected
                 this._wait = value;
             }
         }
-
-        Entity  _target;
-        internal Entity target
+        int _hti;
+        internal int human_target_idx
         {
             get
             {
-                return this._target;
+                return _hti;
             }
             set
             {
-                if (value == null) damaged = false;
-                //else fire = true;
-                _target = value;
+                if(value == -1)
+                {
+                    damaged = false;
+                }
+                _hti = value;
             }
         }
+
         internal bool damaged;
         internal string weapon;
 
@@ -85,6 +88,7 @@ namespace Infected
 
     public partial class Infected
     {
+
         #region field
         string SERVER_NAME, ADMIN_NAME, TEAMNAME_ALLIES, TEAMNAME_AXIS, NEXT_MAP, WELLCOME_MESSAGE;
 
@@ -109,8 +113,9 @@ namespace Infected
 
         List<Field> FL = new List<Field>(18);
         List<Entity> BOTs_List = new List<Entity>();
-        List<Entity> human_List = new List<Entity>();
+        List<Entity> HUMAN_LIST = new List<Entity>();
         List<Entity> HUMAN_AXIS_LIST = new List<Entity>();
+
         PerkList CPL = new PerkList();
         MessageText MT = new MessageText();
         Weapon WP = new Weapon( ref rnd);
@@ -130,7 +135,9 @@ namespace Infected
             Call(42, "testClients_doMove", 0);
             Call(42, "testClients_doAttack", 0);
 
-            Utilities.ExecuteCommand("sv_hostname " + SERVER_NAME);
+            //connect 175.114.149.215:27015
+            Utilities.ExecuteCommand("sv_hostname ^2BOT ^7INF CRASH TEST");
+            //Utilities.ExecuteCommand("sv_hostname " + SERVER_NAME);
             for (int i = 0; i < 18; i++)
             {
                 FL.Add(new Field());
@@ -163,7 +170,7 @@ namespace Infected
                 case 10: HELI_WAY_POINT = new Vector3(-1826.247f, 637.1963f, 1049.175f); break;
                 case 11: HELI_WAY_POINT = new Vector3(-3441, -660, 1162); break;
                 case 12: HELI_WAY_POINT = new Vector3(662, -952, 112); break;
-                case 13: HELI_WAY_POINT = new Vector3(-1515.302f, 1060.371f, 6.338187f); break;
+                case 13: HELI_WAY_POINT = new Vector3(-1515.302f, 1060.371f, 50.338187f); break;
                 case 14: HELI_WAY_POINT = new Vector3(-45.68791f, -926.9956f, 0.1250008f); break;
                 case 15: HELI_WAY_POINT = new Vector3(-253.9192f, -1614.135f, 352.125f); break;
                 case 16: HELI_WAY_POINT = new Vector3(-1601, -1848, 620); break;
@@ -200,7 +207,7 @@ namespace Infected
 
             Call("precachemodel", "prop_flag_neutral");
             Call("precacheVehicle", "attack_littlebird_mp");
-            HELI_WAY_POINT.Z += 120;
+            HELI_WAY_POINT.Z += 150;
 
             /* mini map point */
             Call(431, 17, "active"); // objective_add

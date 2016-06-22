@@ -15,21 +15,22 @@ namespace Infected
         {
             if (name == ADMIN_NAME)
             {
-                if(text[0]=='!') if (!AdminCommand(text.Remove(0,1))) return;
+                if (text[0] == '!') if (!AdminCommand(text.Remove(0, 1))) return;
             }
             if (GAME_ENDED_) return;
 
+            #region
             var texts = text.ToLower().Split(' ');
             var length = texts.Length;
 
-            bool survivor = human_List.Contains(player);
+            bool survivor = HUMAN_LIST.Contains(player);
 
             if (length == 1)
             {
                 #region Public Say
                 switch (texts[0])
                 {
-                    
+
                     case "infoa": ShowInfoA(ref player); return;
                     case "infow": ShowInfoW(ref player); return;
 
@@ -38,7 +39,7 @@ namespace Infected
                     case "riot": WP.giveWeaponTo(ref player, "riotshield_mp"); return;
                     case "javelin": WP.giveWeaponTo(ref player, "javelin_mp"); return;
                     case "stinger": WP.giveWeaponTo(ref player, "stinger_mp"); return;
-                    case "help": Utilities.RawSayTo( player, "information is in ^7[^2github.com/miniwidget/BOT-infected^7]"); return;
+                    case "help": Utilities.RawSayTo(player, "information is in ^7[^2github.com/miniwidget/BOT-infected^7]"); return;
                 }
                 #endregion
 
@@ -61,7 +62,7 @@ namespace Infected
                     case "m320": WP.giveWeaponTo(ref player, "m320_mp"); return;
                     case "xm25": WP.giveWeaponTo(ref player, "xm25_mp"); return;
 
-                    //case "heli": CallHelicopter(hli);  return;
+                        //case "heli": CallHelicopter(hli);  return;
 
                 }
                 #endregion
@@ -85,6 +86,7 @@ namespace Infected
                     case "sg": WP.giveWeaponTo(ref player, WP.SG(i)); return;
                 }
             }
+            #endregion
 
         }
 

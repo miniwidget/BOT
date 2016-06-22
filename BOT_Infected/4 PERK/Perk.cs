@@ -19,8 +19,8 @@ namespace Infected
             if (idx == -1) return;
             F.killerIdx = -1;
 
-            if (idx > human_List.Count-1) return;
-            Entity e = human_List[idx];
+            if (idx > HUMAN_LIST.Count-1) return;
+            Entity e = HUMAN_LIST[idx];
             if (e.CurrentWeapon[2] != '5') return;//iw5
             idx = e.EntRef; if (idx == -1) return;
             Field H = FL[idx];

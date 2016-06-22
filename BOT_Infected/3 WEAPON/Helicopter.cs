@@ -148,7 +148,7 @@ namespace Infected
         void HeliEndUse(Entity player, bool unlink)
         {
 
-            if (unlink && human_List.Contains(player))
+            if (unlink && HUMAN_LIST.Contains(player))
             {
                 player.Call(32843);//unlink
                 player.Call(33257);//remotecontrolvehicleoff

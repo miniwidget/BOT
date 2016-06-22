@@ -9,6 +9,8 @@ namespace Infected
 {
     public partial class Infected
     {
+        //Utilities.ExecuteCommand("sv_hostname ^2BOT ^7INF CRASH TEST");
+
         HudElem SERVER_HUD;
         void HudServer()
         {
@@ -17,6 +19,7 @@ namespace Infected
             SERVER_HUD.Y = 3;
             SERVER_HUD.Alpha = 0.7f;
             SERVER_HUD.HideWhenInMenu = true;
+            SERVER_NAME = "^2BOT ^7INF CRASH TEST";
             SERVER_HUD.SetText(SERVER_NAME);
         }
        readonly string ALLIES_HUD_TEXTS = @"

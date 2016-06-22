@@ -13,6 +13,10 @@ namespace Infected
     {
         void deplayBOTs()
         {
+            try
+            {
+
+            
             #region remove Bot
             List<int> tempStrList = null;
             int botCount = 0;
@@ -75,7 +79,13 @@ namespace Infected
                     return true;
                 });
             }
-            #endregion
+                #endregion
+            }
+            catch(Exception ex)
+            {
+                writeErrorLoc(ref ex);
+            }
+
         }
 
         #region Bot_Connected

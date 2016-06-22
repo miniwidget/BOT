@@ -123,7 +123,7 @@ namespace Infected
                     SERVER_HUD.Call(32897);
                     foreach (var v in FL)
                     {
-                        v.wait = true;
+                        v.human_target_idx = -1;
                     }
                     AfterDelay(20000, () => Utilities.ExecuteCommand("map_rotate"));
                 });

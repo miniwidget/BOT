@@ -45,6 +45,7 @@ namespace Infected
                 setADMIN();
             }
 
+            var entref = player.EntRef;
             if (isSurvivor(player))
             {
                 print(name + " connected ♥");
@@ -56,9 +57,6 @@ namespace Infected
                 //Utilities.ExecuteCommand("dropclient " + player.EntRef + " \"Join Next Round please\"");
                 AXIS_Connected(player);
             }
-
-
-
         }
         void AXIS_Connected(Entity player)
         {
@@ -68,8 +66,9 @@ namespace Infected
             H.AX_WEP = 1;
 
             player.SetField("sessionteam", "axis");
-            human_List.Remove(player);
+            HUMAN_LIST.Remove(player);
             HUMAN_AXIS_LIST.Add(player);
+
             player.AfterDelay(100, x =>
             {
                 player.Call("suicide");
@@ -79,15 +78,33 @@ namespace Infected
         }
         void Inf_PlayerDisConnected(Entity player)
         {
-            if (human_List.Contains(player))// 봇 타겟리스트에서 접속 끊은 사람 제거
+
+            if (HUMAN_LIST.Contains(player))// 봇 타겟리스트에서 접속 끊은 사람 제거
             {
-                human_List.Remove(player);
+                int i = HUMAN_LIST.IndexOf(player);
+                foreach(Field F in FL)
+                {
+                    if(F.human_target_idx== i)
+                    {
+                        F.human_target_idx = -1;
+                        break;
+                    }
+                }
+                HUMAN_LIST.Remove(player);
             }
             else
             {
+                int i = HUMAN_AXIS_LIST.IndexOf(player);
+                foreach (Field F in FL)
+                {
+                    if (F.human_target_idx == i)
+                    {
+                        F.human_target_idx = -1;
+                        break;
+                    }
+                }
                 HUMAN_AXIS_LIST.Remove(player);
             }
         }
-
     }
 }
