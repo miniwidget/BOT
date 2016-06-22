@@ -136,8 +136,8 @@ namespace Infected
             Call(42, "testClients_doAttack", 0);
 
             //connect 175.114.149.215:27015
-            Utilities.ExecuteCommand("sv_hostname ^2BOT ^7INF CRASH TEST");
-            //Utilities.ExecuteCommand("sv_hostname " + SERVER_NAME);
+            //Utilities.ExecuteCommand("sv_hostname ^2BOT ^7INF CRASH TEST");
+            Utilities.ExecuteCommand("sv_hostname " + SERVER_NAME);
             for (int i = 0; i < 18; i++)
             {
                 FL.Add(new Field());

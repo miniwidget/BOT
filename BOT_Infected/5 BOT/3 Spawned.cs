@@ -86,7 +86,6 @@ namespace Infected
             {
                 var idx = F.human_target_idx;
                 if (idx == -1 || idx >= HUMAN_LIST.Count) return true;
-                if (target == null) return true;
 
                 var ho = HUMAN_LIST[idx].Origin - z50 - bot.Origin;
                 

@@ -11,7 +11,6 @@ namespace Infected
 {
     public partial class Infected
     {
-        string ERROR_PATH = @"z:\mw3_error.txt"; 
 
         void writeErrorLoc(ref Exception ex)
         {
@@ -22,8 +21,6 @@ namespace Infected
 
             string contents = "■ ■ ■ IMPORTANT void: " + name + " line: " + line;
             print(contents);
-            if (!File.Exists(ERROR_PATH)) File.WriteAllText(ERROR_PATH, "/");
-            File.AppendAllText(ERROR_PATH, contents);
         }
 
         public override void OnPlayerDamage(Entity player, Entity inflictor, Entity attacker, int damage, int dFlags, string mod, string weapon, Vector3 point, Vector3 dir, string hitLoc)
@@ -49,11 +46,7 @@ namespace Infected
             }
 
             /*HUMAN side*/
-            if (mod == "MOD_FALLING")
-            {
-                player.Health += damage;
-            }
-            else if (mod == "MOD_MELEE")
+            if (mod == "MOD_MELEE")
             {
                 if (!FL[player.EntRef].AXIS) player.Health += damage;
             }
