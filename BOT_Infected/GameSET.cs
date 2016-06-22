@@ -7,35 +7,113 @@ using InfinityScript;
 
 namespace Infected
 {
+    class Field
+    {
+        internal Entity player;
+        internal bool BOT;
+        internal int killerIdx=-1;
+        bool _wait;
+        internal bool wait
+        {
+            get
+            {
+                return this._wait;
+            }
+            set
+            {
+                if(player ==null) return;
+                
+                if(value == true)
+                {
+                    this.player.Health = -1;
+                    this.player.Call(32848);//hide
+                    this.player.Call(33220, 0f);//setmovescale
+                    this.player.Call(33468, weapon, 0);//setweaponammoclip
+                    this.player.Call(33469, weapon, 0);//setweaponammostock
+                }
+                else
+                {
+                    this.player.Health = 150;
+                    this.player.Call(33220, 1f);
+                    this.player.Call(32847);//show
+                }
+                this._wait = value;
+            }
+        }
+
+        Entity  _target;
+        internal Entity target
+        {
+            get
+            {
+                return this._target;
+            }
+            set
+            {
+                if (value == null) damaged = false;
+                //else fire = true;
+                _target = value;
+            }
+        }
+        internal bool damaged;
+        internal string weapon;
+
+        int att = 0;
+        internal int SIRENCERorHB
+        {
+            get
+            {
+                this.att++;
+                if (this.att > 2) this.att = 0;
+                return this.att;
+            }
+        }
+        internal bool RESPAWN;
+        internal int LIFE;
+        internal int PERK;
+
+        internal bool USE_TANK;
+        internal byte USE_HELI;
+        internal bool ON_MESSAGE;
+        //internal bool SHOTGUN;
+
+        internal bool AXIS;
+        internal byte AX_WEP;
+        internal bool BY_SUICIDE;
+
+    }
+
     public partial class Infected
     {
         #region field
-        string
-            SERVER_NAME, ADMIN_NAME,
-            TEAMNAME_ALLIES, TEAMNAME_AXIS,
-            NEXT_MAP,
-            WELLCOME_MESSAGE;
+        string SERVER_NAME, ADMIN_NAME, TEAMNAME_ALLIES, TEAMNAME_AXIS, NEXT_MAP, WELLCOME_MESSAGE;
 
-        bool
-            USE_ADMIN_SAFE_, Disable_Melee_,
-            DEPLAY_BOT_, SUICIDE_BOT_, OVERFLOW_BOT_,
-
-           GAME_ENDED_, HUMAN_CONNECTED_;
-
-
-        float
-            INFECTED_TIMELIMIT, PLAYERWAIT_TIME, MATCHSTART_TIME;
-
+        bool DEPLAY_BOT_, SUICIDE_BOT_, GAME_ENDED_, HELI_ON_USE_;
+        
+        float INFECTED_TIMELIMIT, PLAYERWAIT_TIME, MATCHSTART_TIME;
+        
         int
-            t0 = 100, t1 = 1000, t2 = 2000, t3 = 3000,
-            SEARCH_TIME, FIRE_TIME, BOT_DELAY_TIME, BOT_SETTING_NUM, FIRE_DIST,
-            PLAYER_LIFE;
+            SEARCH_TIME, FIRE_TIME, BOT_DELAY_TIME, FIRE_DIST,
+            BOT_SETTING_NUM, PLAYER_LIFE, MAP_INDEX;
 
-        bool isSurvivor(Entity player) { return player.GetField<string>("sessionteam") == "allies"; }
+        static Random rnd = new Random();
+        Vector3 HELI_WAY_POINT;
+        Entity ADMIN, HELI, TL, TR, HELI_OWNER, HELI_GUNNER;
 
-        Random rnd = new Random();
-        Entity ADMIN;
-        string[] BOTs_CLASS = { "axis_recipe1", "axis_recipe2", "axis_recipe3", "class0", "class1", "class2", "class4", "class5", "class6", "class6" };
+        bool isSurvivor(Entity ent) { return ent.GetField<string>("sessionteam") == "allies"; }
+
+
+        readonly int t1 = 1000, t2 = 2000, t3 = 3000;
+        readonly Vector3 ZERO = new Vector3(0, 0, 0), z50 = new Vector3(0, 0, 50);
+
+
+        List<Field> FL = new List<Field>(18);
+        List<Entity> BOTs_List = new List<Entity>();
+        List<Entity> human_List = new List<Entity>();
+        List<Entity> HUMAN_AXIS_LIST = new List<Entity>();
+        PerkList CPL = new PerkList();
+        MessageText MT = new MessageText();
+        Weapon WP = new Weapon( ref rnd);
         #endregion
 
         void ServerSetDvar()
@@ -55,13 +133,11 @@ namespace Infected
             Utilities.ExecuteCommand("sv_hostname " + SERVER_NAME);
             for (int i = 0; i < 18; i++)
             {
-                B_FIELD.Add(new B_SET());
-                H_FIELD.Add(new H_SET());
+                FL.Add(new Field());
             }
 
         }
 
-        int MAP_INDEX;
         void readMAP()
         {
             string currentMAP = Call<string>("getdvar", "mapname");
@@ -125,7 +201,11 @@ namespace Infected
             Call("precachemodel", "prop_flag_neutral");
             Call("precacheVehicle", "attack_littlebird_mp");
             HELI_WAY_POINT.Z += 120;
-            ShowHelipoint();
+
+            /* mini map point */
+            Call(431, 17, "active"); // objective_add
+            Call(435, 17, HELI_WAY_POINT); // objective_position
+            Call(434, 17, "compass_objpoint_ac130_friendly"); //compass_objpoint_ac130_friendly compass_waypoint_bomb objective_icon
 
             print("map: " + MAP_INDEX + "/" + max);
 
@@ -135,8 +215,9 @@ namespace Infected
 
             Call("setdvar", "sv_nextmap", NEXT_MAP);
 
-
+#if DEBUG
             //TEST_ = true;
+#endif
             if (TEST_)
             {
                 Utilities.ExecuteCommand("seta g_password \"0\"");

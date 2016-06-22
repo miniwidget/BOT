@@ -11,26 +11,6 @@ namespace Infected
 {
     public partial class Infected
     {
-        #region Bots side
-
-        /// <summary>
-        /// BOT SET class for custom fields set
-        /// </summary>
-        class B_SET
-        {
-            public Entity target { get; set; }
-            public int death { get; set; }
-            public bool fire { get; set; }
-            public bool temp_fire { get; set; }
-            public string wep { get; set; }
-        }
-        List<B_SET> B_FIELD = new List<B_SET>(18);
-        //Dictionary<int, int> BOT_ID = new Dictionary<int, int>();
-        List<Entity> BOTs_List = new List<Entity>();
-        #endregion
-
-        #region 게임 시작 후, 봇 불러오기 
-
         void deplayBOTs()
         {
             #region remove Bot
@@ -78,7 +58,7 @@ namespace Infected
                 int fail_count = 0, max = BOT_SETTING_NUM - 1;
                 OnInterval(250, () =>
                 {
-                    if (BOTs_List.Count > max || OVERFLOW_BOT_ || Players.Count == 18)
+                    if (BOTs_List.Count > max || Players.Count == 18)
                     {
                         //print("총 불러온 봇 수는 " + getBOTCount + " 입니다.");
                         return false;
@@ -96,6 +76,44 @@ namespace Infected
                 });
             }
             #endregion
+        }
+
+        #region Bot_Connected
+        int RPG_BOT_ENTREF, RIOT_BOT_ENTREF, JUGG_BOT_ENTREF, LAST_ALLY_BOT_IDX;
+        int BOT_CLASS_NUM = 3;
+
+        private void Bot_Connected(ref Entity bot)
+        {
+#if DEBUG
+            if (HEAVY_TEST_)
+            {
+                //HeavyBotConnected(bot);
+                return;
+            }
+#endif
+            var i = BOTs_List.Count;
+
+            if (i > BOT_SETTING_NUM)
+            {
+                Call("kick", bot.EntRef);
+                return;
+            }
+
+            if (i == 0) JUGG_BOT_ENTREF = bot.EntRef;
+            else if (i == 1) RPG_BOT_ENTREF = bot.EntRef;
+            else if (i == 2) RIOT_BOT_ENTREF = bot.EntRef;
+
+            if (i == BOT_SETTING_NUM - 1) waitOnFirstInfected();
+
+            if (i > 9)
+            {
+                if (BOT_CLASS_NUM > 9) BOT_CLASS_NUM = 3;
+                i = BOT_CLASS_NUM;
+                BOT_CLASS_NUM++;
+            }
+            bot.Notify("menuresponse", "changeclass", MT.BOTs_CLASS[i]);
+            BOTs_List.Add(bot);
+            FL[bot.EntRef].BOT = true;
         }
         #endregion
 

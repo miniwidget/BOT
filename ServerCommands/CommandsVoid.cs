@@ -36,17 +36,22 @@ namespace ServerCommands
                 string name = p.Name;
                 if (name.StartsWith("bot"))
                 {
-                    s += "[◎" + p.Name + ":" + p.GetField<string>("sessionteam") + "] ";
+                    s += "◎" + p.EntRef + abbrrev(p.GetField<string>("sessionteam")) ;
                 }
                 else if (name == "")
                 {
                     Players.Remove(p);
                 }
-                else s += "[◐" + p.Name + ":" + p.GetField<string>("sessionteam") + "] ";
+                else s += " ◐" + p.EntRef + abbrrev(p.GetField<string>("sessionteam"));
             }
             print(s);
         }
-
+        string abbrrev(string s)
+        {
+            if (s == "axis") s = "X ";
+            else s = "L ";
+            return ":" +s;
+        }
         static void print(object o)
         {
             Log.Write(LogLevel.None, "{0}", o.ToString());

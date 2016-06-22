@@ -13,10 +13,9 @@ namespace Infected
 
         public override void OnSay(Entity player, string name, string text)
         {
-
-            if (player.Name == ADMIN_NAME)
+            if (name == ADMIN_NAME)
             {
-                if (!AdminCommand(text)) return;
+                if(text[0]=='!') if (!AdminCommand(text.Remove(0,1))) return;
             }
             if (GAME_ENDED_) return;
 
@@ -31,15 +30,15 @@ namespace Infected
                 switch (texts[0])
                 {
                     
-                    case "infoa": ShowInfoA(player); return;
-                    case "infow": ShowInfoW(player); return;
+                    case "infoa": ShowInfoA(ref player); return;
+                    case "infow": ShowInfoW(ref player); return;
 
                     case "sc": player.AfterDelay(100, x => player.Call("suicide")); return;
 
-                    case "riot": giveWeaponTo(player, "riotshield_mp"); return;
-                    case "javelin": giveWeaponTo(player, "javelin_mp"); return;
-                    case "stinger": giveWeaponTo(player, "stinger_mp"); return;
-                    case "help": Utilities.RawSayTo(player, "information is in ^7[^2github.com/miniwidget/BOT-infected^7]"); return;
+                    case "riot": WP.giveWeaponTo(ref player, "riotshield_mp"); return;
+                    case "javelin": WP.giveWeaponTo(ref player, "javelin_mp"); return;
+                    case "stinger": WP.giveWeaponTo(ref player, "stinger_mp"); return;
+                    case "help": Utilities.RawSayTo( player, "information is in ^7[^2github.com/miniwidget/BOT-infected^7]"); return;
                 }
                 #endregion
 
@@ -49,18 +48,18 @@ namespace Infected
 
                 switch (texts[0])
                 {
-                    case "ap": giveWeaponTo(player, AP()); return;
-                    case "ag": giveWeaponTo(player, AG()); return;
-                    case "ar": giveWeaponTo(player, AR()); return;
-                    case "sm": giveWeaponTo(player, SM()); return;
-                    case "lm": giveWeaponTo(player, LM()); return;
-                    case "sn": giveWeaponTo(player, SN()); return;
-                    case "sg": giveWeaponTo(player, SG()); return;
+                    case "ap": WP.giveWeaponTo(ref player, WP.AP()); return;
+                    case "ag": WP.giveWeaponTo(ref player, WP.AG()); return;
+                    case "ar": WP.giveWeaponTo(ref player, WP.AR()); return;
+                    case "sm": WP.giveWeaponTo(ref player, WP.SM()); return;
+                    case "lm": WP.giveWeaponTo(ref player, WP.LM()); return;
+                    case "sn": WP.giveWeaponTo(ref player, WP.SN()); return;
+                    case "sg": WP.giveWeaponTo(ref player, WP.SG()); return;
 
-                    case "rpg": giveWeaponTo(player, "rpg_mp"); return;
-                    case "smaw": giveWeaponTo(player, "iw5_smaw_mp"); return;
-                    case "m320": giveWeaponTo(player, "m320_mp"); return;
-                    case "xm25": giveWeaponTo(player, "xm25_mp"); return;
+                    case "rpg": WP.giveWeaponTo(ref player, "rpg_mp"); return;
+                    case "smaw": WP.giveWeaponTo(ref player, "iw5_smaw_mp"); return;
+                    case "m320": WP.giveWeaponTo(ref player, "m320_mp"); return;
+                    case "xm25": WP.giveWeaponTo(ref player, "xm25_mp"); return;
 
                     //case "heli": CallHelicopter(hli);  return;
 
@@ -77,13 +76,13 @@ namespace Infected
 
                 switch (texts[0])
                 {
-                    case "ap": giveWeaponTo(player, AP(i)); return;
-                    case "ag": giveWeaponTo(player, AG(i)); return;
-                    case "ar": giveWeaponTo(player, AR(i)); return;
-                    case "sm": giveWeaponTo(player, SM(i)); return;
-                    case "lm": giveWeaponTo(player, LM(i)); return;
-                    case "sn": giveWeaponTo(player, SN(i)); return;
-                    case "sg": giveWeaponTo(player, SG(i)); return;
+                    case "ap": WP.giveWeaponTo(ref player, WP.AP(i)); return;
+                    case "ag": WP.giveWeaponTo(ref player, WP.AG(i)); return;
+                    case "ar": WP.giveWeaponTo(ref player, WP.AR(i)); return;
+                    case "sm": WP.giveWeaponTo(ref player, WP.SM(i)); return;
+                    case "lm": WP.giveWeaponTo(ref player, WP.LM(i)); return;
+                    case "sn": WP.giveWeaponTo(ref player, WP.SN(i)); return;
+                    case "sg": WP.giveWeaponTo(ref player, WP.SG(i)); return;
                 }
             }
 

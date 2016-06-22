@@ -7,58 +7,26 @@ using InfinityScript;
 
 namespace Infected
 {
+
+
     public partial class Infected
     {
-        string[] MESSAGES_ALLIES_INFO_A =
-        {
-             "ATTACHMENT INFORMATION",
-             "^7BIND FOLLOWING KEYS  IF SHOW ^2UNBOUND",
-             "press ^2ESC ^7and goto ^2OPTIONS",
-             "goto ^2CONTROLS ^7 -> ^2MOVEMENT",
-             "bind follwing keys",
-
-             "1. ^2HOLD STRAFE ^7to any key",
-             "2. ^2HOLD CROUCH ^7to any key",
-             "3. ^2HOLD PRONE ^7to any key",
-             "4. ^2CHANGE STANCE ^7to any key"
-        };
-        string[] MESSAGES_ALLIES_INFO_W =
-        {
-            "WEAPON  INFORMATION",
-            "^7TYPE ^2[ ^7FOLLOWING ^2] ^7TO GET WEAPONS",
-            "^2AP ^7| ^2AG ^7| ^2AR ^7| ^2SM ^7| ^2LM ^7| ^2SG ^7| ^2SN",
-            "^2[ ^7AP ^2] TO GET AKIMBO PISTOL",
-            "^2[ ^7AG ^2] TO GET AKIMBO GUN",
-            "^2[ ^7AR ^2] TO GET ASSAULT RIFFLE",
-            "^2[ ^7SM ^2] TO GET SUB MACHINE GUN",
-            "^2[ ^7LM ^2] TO GET LIGHT MACHINE GUN",
-            "^2[ ^7SG ^2] TO GET SHOT GUN",
-            "^2[ ^7SN ^2] TO GET SNIPE GUN",
-      };
-        string[] MESSAGES_AXIS_INFO_W =
-        {
-            "^7TYPE ^2[ ^7FOLLOWING ^2] ^7TO GET WEAPONS",
-            "^2[ ^7RIOT ^2] TO GET RIOTSHIELD",
-            "^2[ ^7STINGER ^2] TO GET STINGER",
-        };
-
-        void ShowInfoA(Entity ent)
+        void ShowInfoA(ref Entity ent)
         {
             if (!isSurvivor(ent))
             {
-                ent.Call("iPrintlnBold", "NO FUNCTION. BYE");
+                ent.Call(33344, "NO FUNCTION. BYE");
                 return;
             }
-
-            roopMessage(ent, 0, MESSAGES_ALLIES_INFO_A);
+            roopMessage(ent, 0, MT.MESSAGES_ALLIES_INFO_A);
         }
-        void ShowInfoW(Entity ent)
+        void ShowInfoW(ref Entity ent)
         {
             if (isSurvivor(ent))
 
-                roopMessage(ent, 0, MESSAGES_ALLIES_INFO_W);
+                roopMessage(ent, 0, MT.MESSAGES_ALLIES_INFO_W);
             else
-                roopMessage(ent, 0, MESSAGES_AXIS_INFO_W);
+                roopMessage(ent, 0, MT.MESSAGES_AXIS_INFO_W);
         }
 
         void roopMessage(Entity e, int i, string[] lists)
@@ -68,15 +36,15 @@ namespace Infected
             var entref = e.EntRef;
             if (i == 0)
             {
-                if (H_FIELD[entref].ON_MESSAGE) return;
+                if (FL[entref].ON_MESSAGE) return;
             }
-            H_FIELD[entref].ON_MESSAGE = true;
+            FL[entref].ON_MESSAGE = true;
 
-            e.Call("iPrintlnBold", lists[i]);
+            e.Call(33344, lists[i]);
             i++;
             if (i == lists.Length)
             {
-                H_FIELD[entref].ON_MESSAGE = false;
+                FL[entref].ON_MESSAGE = false;
                 return;
             }
             e.AfterDelay(4000, x =>
@@ -91,15 +59,15 @@ namespace Infected
             var entref = e.EntRef;
             if (i == 0)
             {
-                if (H_FIELD[entref].ON_MESSAGE) return;
+                if (FL[entref].ON_MESSAGE) return;
             }
-            H_FIELD[entref].ON_MESSAGE = true;
+            FL[entref].ON_MESSAGE = true;
 
-            e.Call("iPrintlnBold", lists[i]);
+            e.Call(33344, lists[i]);
             i++;
             if (i == lists.Length)
             {
-                H_FIELD[entref].ON_MESSAGE = false;
+                FL[entref].ON_MESSAGE = false;
                 return;
             }
             e.AfterDelay(2500, x =>
@@ -110,8 +78,8 @@ namespace Infected
 
         void showMessage(Entity e, string message)
         {
-            if (H_FIELD[e.EntRef].ON_MESSAGE) return;
-            e.Call("iPrintlnBold", message);
+            if (FL[e.EntRef].ON_MESSAGE) return;
+            e.Call(33344, message);
         }
     }
 }

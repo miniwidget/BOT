@@ -7,14 +7,18 @@ using InfinityScript;
 
 namespace Infected
 {
+    class PerkList  //PerkLIST
+    {
+        internal readonly int
+             Y1 = 65, k = 120, j = 40,
+             X2 = -120, X2_ = -100, X2__ = -50, Y2 = 250, Y2_ = 250, Y2__ = 250, jm = 80, jm_ = 80, jm__ = 120;
+        internal readonly float
+            alp_ = 0.8f, alp0 = 0.1f, alp = 0.1f, alp_2 = 0.2f, alp__ = 0.5f, f1 = 0.25f, f2 = 0.25f;
 
-     public class P  //PerkLIST
-     {
-
-        public static string[] PL =
+        internal readonly string[] PL =
         {
-             "specialty_fastreload",
-           "specialty_quickdraw",
+            "specialty_fastreload",
+            "specialty_quickdraw",
             "specialty_longersprint",
             "specialty_stalker",
             "specialty_scavenger",
@@ -26,7 +30,7 @@ namespace Infected
             "specialty_hardline"
         };
 
-        public static string[] DL =
+        internal readonly string[] DL =
         {
 
             "specialty_ironlungs",
@@ -35,7 +39,7 @@ namespace Infected
             "specialty_twoprimaries",
 
         };
-        public static string[] CL =
+        internal readonly string[] CL =
         {
             "specialty_longerrange",
             "specialty_reducedsway",

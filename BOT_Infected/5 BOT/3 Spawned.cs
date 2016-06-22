@@ -13,61 +13,50 @@ namespace Infected
     {
         void StartAllyBotSearch()
         {
+            START_LAST_BOT_SEARCH = true;
             Entity bot = BOTs_List[LAST_ALLY_BOT_IDX];
             if (!isSurvivor(bot)) return;
             bot.Call(33220, 1.5f);
 
-
-            B_SET B = B_FIELD[LAST_ALLY_BOT_IDX];
-            B.target = null;
-            B.fire = true;
-            B.temp_fire = false;
-            bot.SpawnedPlayer += () => B.death += 1;
+            Field F = FL[LAST_ALLY_BOT_IDX];
+            F.target = null;
 
             string weapon = bot.CurrentWeapon;
             bot.Call(33468, weapon, 0);//setweaponammoclip
             bot.Call(33469, weapon, 0);//setweaponammostock
 
-            int death = B.death;
             bool pause = false;
-            bot.OnInterval(t1, x =>
+            OnInterval(t1, () =>
             {
-                if (death != B.death|| GAME_ENDED_) return false;
-                if (!HUMAN_CONNECTED_) return pause = true;
-                var target = B.target;
-
-                if (target != null)//이미 타겟을 찾은 경우
+                var target = F.target;
+                if (target != null)
                 {
-                    if (HUMAN_AXIS_LIST.Contains(target))
+                    if (FL[target.EntRef].AXIS)
                     {
-                        //if (TEST_) return true;
                         var POD = target.Origin.DistanceTo(bot.Origin);
                         if (POD < FIRE_DIST) return !(pause = false);
                     }
 
-                    B.target = null;
-                    B.fire = false;
+                    F.target = null;
                     bot.Call(33468, weapon, 0);//setweaponammoclip
                 }
                 pause = true;
 
                 //타겟 찾기 시작
+                var bo = bot.Origin;
                 foreach (Entity human in HUMAN_AXIS_LIST)
                 {
-                    var POD = human.Origin.DistanceTo(bot.Origin);
-
-                    if (POD < FIRE_DIST)
+                    if (human.Origin.DistanceTo(bo) < FIRE_DIST)
                     {
-                        B.target = human;
-                        B.fire = true;
+                        F.target = human;
                         pause = false;
                         bot.OnInterval(200, xx =>
                         {
-                            if (pause || !B.fire) return false;
+                            if (pause || !F.damaged) return false;
 
-                            var ho = human.Origin; ho.Z -= 50;
+                            var ho = human.Origin - z50 - bot.Origin;
 
-                            Vector3 angle = Call<Vector3>(247, ho - bot.Origin);//vectortoangles
+                            Vector3 angle = Call<Vector3>(247, ho);//vectortoangles
                             bot.Call(33531, angle);//SetPlayerAngles
                             bot.Call(33468, weapon, 5);//setweaponammoclip
                             return true;
@@ -83,318 +72,82 @@ namespace Infected
 
         }
 
-        #region 일반
-        //봇 스폰 시작
-        private void spawned_bot(Entity bot)
+        void AddSearchRoop(int entref)
         {
-            if (GAME_ENDED_) return;
-            int num = bot.EntRef;
-            if (num == -1) return;
+            Field F = FL[entref];
+            Entity bot = F.player;
 
-            if (num != JUGG_BOT_ENTREF)
+            string alertSound = null;
+            int fire_time = FIRE_TIME;
+            if (entref == JUGG_BOT_ENTREF)
             {
-                bot.Health = -1;
+                alertSound = "AF_victory_music";
             }
-            B_SET B = B_FIELD[num];
-            B.target = null;
-            B.fire = false;
-            B.temp_fire = false;
-            B.death += 1;
-            if (B.wep == null) B.wep = bot.CurrentWeapon;
-            bot.Call(32848);//hide
-            bot.Call(33220, 0f);//setmovescale
-
-            var weapon = B.wep;
-            bot.Call(33468, weapon, 0);//setweaponammoclip
-            bot.Call(33469, weapon, 0);//setweaponammostock
-
-            bot.AfterDelay(BOT_DELAY_TIME, x =>
+            else if (entref == RPG_BOT_ENTREF)
             {
-                if (GAME_ENDED_) return;
-                B.fire = true;
-                bot.Call(32847);//show
-                bot.Call(33220, 1f);
-                if (num != JUGG_BOT_ENTREF)
-                {
-                    bot.Health = 150;
-                    start_bot_search(bot, B);
-                }
-                else
-                {
-                    start_bot_search_Jugg(bot, B);
-                }
-
-            });
-        }
-
-        //봇 목표물 찾기 루프
-        private void start_bot_search(Entity bot, B_SET B)
-        {
-            
-            try
+                alertSound = "missile_incoming"; fire_time = 1500;
+            }
+            else if(entref == RIOT_BOT_ENTREF)
             {
+                return;
+            }
 
-                bool pause = false;
-                int death = B.death;
-                string weapon = B.wep;
+            F.weapon = bot.CurrentWeapon;
+            string weapon = F.weapon;
 
-                bot.OnInterval(SEARCH_TIME, x =>
+            Vector3 bo;
+            OnInterval(SEARCH_TIME, () =>
+            {
+                if (F.wait) return true;/*죽었을 때*/
+
+                bo = bot.Origin;
+
+                var target = F.target;
+                if (target != null)/*이미 타겟을 찾은 경우*/
                 {
-
-                    if (death != B.death) return false;
-                    if (!HUMAN_CONNECTED_) return pause = true;
-                    var target = B.target;
-
-                    if (target != null)//이미 타겟을 찾은 경우
+                    if (human_List.Contains(target))
                     {
-                        if (human_List.Contains(target))
-                        {
-                            //if (TEST_) return true;
-                            var POD = target.Origin.DistanceTo(bot.Origin);
-                            if (POD < FIRE_DIST) return !(pause = false);
-                        }
-
-                        B.target = null;
-                        B.fire = false;
-                        bot.Call(33468, weapon, 0);//setweaponammoclip
-                    }
-                    pause = true;
-
-                    //타겟 찾기 시작
-                    foreach (Entity human in human_List)
-                    {
-                        var POD = human.Origin.DistanceTo(bot.Origin);
-
+                        var POD = target.Origin.DistanceTo(bo);
                         if (POD < FIRE_DIST)
                         {
-                            B.target = human;
-                            B.fire = true;
-                            pause = false;
-                            bot.OnInterval(FIRE_TIME, xx =>
-                            {
-                                if (pause || !B.fire) return false;
-
-                                var ho = human.Origin; ho.Z -= 50;
-
-                                Vector3 angle = Call<Vector3>(247, ho - bot.Origin);//vectortoangles
-                                bot.Call(33531, angle);//SetPlayerAngles
-                                bot.Call(33468, weapon, 5);//setweaponammoclip
-                                return true;
-                            });
-
                             return true;
                         }
-
-                    }
-                    return true;
-
-                });
-            }
-            catch
-            {
-                print("★ 빠른 봇 예외 발생");
-            }
-
-        }
-        private void start_bot_search_Jugg(Entity bot, B_SET B)
-        {
-            try
-            {
-
-                bool pause = false;
-                int death = B.death;
-                string weapon = B.wep;
-
-                bot.OnInterval(SEARCH_TIME, x =>
-                {
-                    if (death != B.death) return false;
-                    if (!HUMAN_CONNECTED_) return pause = true;
-
-                    var target = B.target;
-
-                    if (target != null)//이미 타겟을 찾은 경우
-                    {
-                        if (human_List.Contains(target))
+                        else
                         {
-                            //if (TEST_) return true;
-                            var POD = target.Origin.DistanceTo(bot.Origin);
-                            if (POD < FIRE_DIST) return !(pause = false);
-                        }
-
-                        B.target = null;
-                        B.fire = false;
-                        bot.Call(33468, weapon, 0);//setweaponammoclip
-                    }
-                    pause = true;
-
-                    //타겟 찾기 시작
-                    bool found = false;
-                    foreach (Entity human in human_List)
-                    {
-                        var POD = human.Origin.DistanceTo(bot.Origin);
-
-                        if (POD < FIRE_DIST)
-                        {
-                            if (!found)
+                            if (F.damaged)
                             {
-                                found = true;
-                                target = B.target = human;
-                                B.fire = true;
-                                pause = false;
+                                F.damaged = false;
+                                return true;
                             }
-                            if(human.Name !=null) human.Call(33466, "AF_victory_music");//"playlocalsound"
                         }
                     }
 
-                    if (target != null)
+                    F.target = null;
+                    bot.Call(33468, weapon, 0);//setweaponammoclip
+                }
+
+                foreach (Entity human in human_List)
+                {
+                    if (human.Origin.DistanceTo(bo) < FIRE_DIST)
                     {
-                        bot.OnInterval(FIRE_TIME, xx =>
-                        {
-                            if (pause || !B.fire) return false;
-
-                            var ho = target.Origin; ho.Z -= 50;
-
-                            Vector3 angle = Call<Vector3>(247, ho - bot.Origin);//vectortoangles
-                            bot.Call(33531, angle);//SetPlayerAngles
-                            bot.Call(33468, weapon, 5);//setweaponammoclip
-                            return true;
-                        });
+                        F.target = human;
+                        if (alertSound != null) human.Call(33466, alertSound);
+                        return true;
                     }
-                    return true;
-
-                });
-            }
-            catch
-            {
-                print("★ 빠른 봇 예외 발생");
-            }
-
-        }
-
-        #endregion
-
-        #region 느린 봇
-
-        void spawned_bot_slower(Entity bot)
-        {
-            if (GAME_ENDED_) return;
-
-            int num = bot.EntRef;
-            if (num == -1) return;
-
-            if (num == RPG_BOT_ENTREF)
-            {
-                bot.Call(33468, "rpg_mp", 0);//setweaponammoclip
-                bot.Call(33469, "rpg_mp", 0);//setweaponammostock
-            }
-
-            B_SET B = B_FIELD[num];
-            B.target = null;
-            B.fire = false;
-            B.temp_fire = false;
-            B.death += 1;
-            if (B.wep == null) B.wep = bot.CurrentWeapon;
-
-            bot.Call(32848);//hide
-            bot.Call(33220, 0f);
-            bot.Health = -1;
-
-
-            bot.AfterDelay(10000, x =>
-            {
-                if (GAME_ENDED_) return;
-
-                B.fire = true;
-
-                bot.Health = 150;
-                bot.Call(32847);//show
-
-
-                if (num == RPG_BOT_ENTREF)//rpg bot
-                {
-                    bot.Call(33220, 0.7f);
-                    start_bot_search_slower(bot, B);
                 }
-                else//riot bot
-                {
-                    bot.Call(33220, 2f);//setmovespeedscale
-                }
+                return true;
+            });
+
+            OnInterval(fire_time, () =>
+            {
+                if (F.target == null) return true;
+
+                var ho = F.target.Origin - z50 - bot.Origin;
+
+                bot.Call(33531, Call<Vector3>(247, ho));//SetPlayerAngles
+                bot.Call(33468, weapon, 5);//setweaponammoclip
+                return true;
             });
         }
-        private void start_bot_search_slower(Entity bot, B_SET B)
-        {
-            try
-            {
-
-
-                bool pause = false;
-                int death = B.death;
-
-                bot.OnInterval(SEARCH_TIME,x =>
-                {
-                    if (death != B.death) return false;
-                    if (!HUMAN_CONNECTED_) return pause = true;
-
-                    var target = B.target;
-                    if (target != null)//이미 타겟을 찾은 경우
-                    {
-                        if (human_List.Contains(target))
-                        {
-                            //if (TEST_) return true;
-                            var POD = target.Origin.DistanceTo(bot.Origin);
-                            if (POD < FIRE_DIST) return !(pause = false);
-                        }
-
-                        B.target = null; //타겟과 거리가 멀어진 경우, 타겟 제거
-                        B.fire = false;
-                        bot.Call(33468, "rpg_mp", 0);//setweaponammoclip
-                    }
-
-                    pause = true;
-                    //B.rooping = true;
-                    //타겟 찾기 시작
-                    foreach (Entity human in human_List)
-                    {
-
-                        var POD = human.Origin.DistanceTo(bot.Origin);
-
-                        if (POD < FIRE_DIST)
-                        {
-                            B.target = human;
-                            B.fire = true;
-                            pause = false;
-
-                            if(human.Name!=null) human.Call(33466, "missile_incoming");
-
-                            bot.OnInterval(1500, xx =>
-                            {
-
-                                if (pause || !B.fire) return false;
-
-                                var ho = human.Origin; ho.Z -= 50;
-
-                                Vector3 angle = Call<Vector3>(247, ho - bot.Origin);//vectortoangles
-                                bot.Call(33531, angle);//SetPlayerAngles
-                                bot.Call(33468, "rpg_mp", 1);//setweaponammoclip
-                                return true;
-                            });
-
-                            return true;
-                        }
-
-                    }
-
-                    return true;
-
-                });
-            }
-            catch
-            {
-                print("★ 느린 봇 예외 발생");
-            }
-        }
-
-        #endregion
-
     }
 }

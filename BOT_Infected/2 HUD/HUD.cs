@@ -10,7 +10,7 @@ namespace Infected
     public partial class Infected
     {
         HudElem SERVER_HUD;
-        void Server_Hud()
+        void HudServer()
         {
             SERVER_HUD = HudElem.CreateServerFontString("hudbig", 0.8f);
             SERVER_HUD.X = 240;
@@ -19,8 +19,7 @@ namespace Infected
             SERVER_HUD.HideWhenInMenu = true;
             SERVER_HUD.SetText(SERVER_NAME);
         }
-        string ALLIES_HUD_TEXTS =
-            @"
+       readonly string ALLIES_HUD_TEXTS = @"
 ^7TYPE FOLLOWING
 ^2AP ^74 AKIMBO PISTOL
 ^2AG ^76 AKIMBO GUN
@@ -38,7 +37,7 @@ namespace Infected
 ^2[{+stance}] ^7";
 
      
-        void AlliesHud(Entity player,string offhand)
+        void HudAllies(Entity player,string offhand)
         {
             HudElem allies_info_hud = HudElem.CreateFontString(player, "hudbig", 0.4f);
             allies_info_hud.X = 740;
@@ -71,7 +70,7 @@ namespace Infected
             });
         }
 
-        void AxisHud(Entity player)
+        void HudAxis(ref Entity player)
         {
             player.Notify("CLOSE");
             //player.Notify("CLOSE_perk");
@@ -87,11 +86,11 @@ namespace Infected
             axis_weap_hud.Alpha = 0f;
             axis_weap_hud.SetText("^7type following\n\n^2infow ^7weapon info\n^2sc ^7 suicide\n^2riot ^7 riotshield\n^2stinger ^7stinger\n\n^7bind key at option\n\n^2[{+movedown}] ^7 throwingknife\n^2[{+prone}] ^7 bouncingbetty\n^2[{+stance}] ^7 claymore");
 
-            player.OnNotify("open_", entity => axis_weap_hud.Alpha = 0.6f);
-            player.OnNotify("close_", entity => axis_weap_hud.Alpha = 0f);
-            player.OnNotify("CLOSE_", entity => axis_weap_hud.Call(32897));
+            player.OnNotify("open_", x => axis_weap_hud.Alpha = 0.6f);
+            player.OnNotify("close_", x => axis_weap_hud.Alpha = 0f);
+            player.OnNotify("CLOSE_", x => axis_weap_hud.Call(32897));
 
-            player.AfterDelay(t3, x => player.Notify("open_"));
+            player.AfterDelay(t3, x => x.Notify("open_"));
         }
         
     }

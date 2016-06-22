@@ -12,7 +12,7 @@ namespace Infected
     {
         void setADMIN()
         {
-            ADMIN.Call("notifyonplayercommand", "SPECT", "centerview");
+            ADMIN.Call(33445, "SPECT", "centerview");//notifyonplayercommand
             bool spect = false;
             ADMIN.OnNotify("SPECT", a =>
             {
@@ -39,7 +39,7 @@ namespace Infected
 
             string name = player.Name;
 
-            if (player.Name == ADMIN_NAME)
+            if (name == ADMIN_NAME)
             {
                 ADMIN = player;
                 setADMIN();
@@ -47,13 +47,9 @@ namespace Infected
 
             if (isSurvivor(player))
             {
-                if (!HUMAN_CONNECTED_)
-                {
-                    HUMAN_CONNECTED_ = true;
-                }
                 print(name + " connected ♥");
                 Client_init_GAME_SET(player);
-                player.SpawnedPlayer += () => human_spawned(player);
+                player.SpawnedPlayer += () => human_spawned(ref player);
             }
             else
             {
@@ -61,11 +57,13 @@ namespace Infected
                 AXIS_Connected(player);
             }
 
+
+
         }
         void AXIS_Connected(Entity player)
         {
             print("AXIS connected ☜");
-            H_SET H = H_FIELD[player.EntRef];
+            Field H = FL[player.EntRef];
             H.LIFE = -2;
             H.AX_WEP = 1;
 
@@ -89,7 +87,6 @@ namespace Infected
             {
                 HUMAN_AXIS_LIST.Remove(player);
             }
-            if (human_List.Count == 0 && !GAME_ENDED_) HUMAN_CONNECTED_ = false;
         }
 
     }

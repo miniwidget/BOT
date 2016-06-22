@@ -9,54 +9,40 @@ namespace Infected
 {
     public partial class Infected
     {
-        #region field
-        Vector3 HELI_WAY_POINT, ZERO = new Vector3(0, 0, 0);
-        Entity HELI, TL, TR, HELI_OWNER, HELI_GUNNER;
-
-        bool HELI_ENABLED_, HELI_ON_USE_;
-
-        string HELI_OWNER_NAME
+        void testset()
         {
-            get
-            {
-                if (HELI_OWNER == null) return "";
-                return HELI_OWNER.Name;
-            }
+            Field H = FL[ADMIN.EntRef];
+            H.USE_HELI = 1;
+            H.PERK = 11;
+            HeliAttachFlagTag(ref ADMIN);
+            ADMIN.Call("setorigin", HELI_WAY_POINT);
         }
-        #endregion
 
+        #region wait heli
         /// <summary>
         /// 10 킬 이상 하면, remote control enabled
         /// </summary>
-        void AttachFlagTag(Entity player)
+        void HeliAttachFlagTag(ref Entity player)
         {
-            if (!HELI_ENABLED_)
+            //player.Call(32771, "PC_1mc_take_positions", "allies");//playsoundtoteam
+
+            if (HELI == null)
             {
-                player.Call("playsoundtoteam", "PC_1mc_kill_confirmed", "allies");
-                foreach (Entity p in human_List)
-                {
-                    if (p != player) RM(player, 0, HELI_MESSAGE_ACTIVATE);
-                    else showMessage(player, "^2PRESS [^7 [{+activate}] ^2] TO CALL HELI TURRET");
-                }
+                showMessage(player, "PRESS ^2[ [{+activate}] ] ^7TO CALL HELI TURRET");
+            }
+            else
+            {
+                RM(player, 0, MT.HELI_MESSAGE_ACTIVATE);
             }
 
-            player.AfterDelay(500, x =>//서버다운 fix
-            {
-                player.Call("AttachShieldModel", "prop_flag_neutral", "tag_shield_back", true);
-            });
-        }
 
-        void ShowHelipoint()
-        {
-
-            /* mini map point */
-            Call(431, 1, "active"); // objective_add
-            Call(435, 1, HELI_WAY_POINT); // objective_position
-            Call(434, 1, "compass_objpoint_ac130_friendly"); //compass_objpoint_ac130_friendly compass_waypoint_bomb objective_icon
-            HELI_ENABLED_ = false;
+            player.Call(32792, "prop_flag_neutral", "tag_shield_back", true);//attachshieldmodel
 
         }
-        bool IsHeliArea(Entity player)
+        #endregion
+
+        #region Call heli
+        bool isHeliArea(ref Entity player)
         {
             float dist = player.Origin.DistanceTo(TL.Origin);
             if (dist > 140)
@@ -70,109 +56,118 @@ namespace Infected
             }
             return true;
         }
-
-        void CallHeli(Entity player)
+        bool isUsingTurret(ref Entity player)
+        {
+            return (player.Call<int>(33539) == 1);
+        }
+        void HeliCall(Entity player)
         {
             var w = player.CurrentWeapon;
             player.TakeWeapon(w);
-            player.GiveWeapon("killstreak_helicopter_mp");
-            player.SwitchToWeapon("killstreak_helicopter_mp");
-            player.Call("playlocalsound", "mp_killstreak_radar");
-            SetupHelicopter(player);
+            string kh = "killstreak_helicopter_mp";
+            player.GiveWeapon(kh);
+            player.SwitchToWeapon(kh);
+            player.Call(33466, "mp_killstreak_radar");//playlocalsound
+            HeliSetup(ref player);
             player.AfterDelay(t2, x =>
             {
-                giveWeaponTo(player, w);
-            });
-        }
-        void StartHeli(Entity player)
-        {
-            HELI_ON_USE_ = true;
-            HELI_OWNER = player;
-            if (HELI_GUNNER == player) HELI_GUNNER = null;
-
-            RM(player, 0, HELI_MESSAGE_KEY_INFO);
-
-            player.Call(33256, HELI);//remotecontrolvehicle  
-            player.Call("thermalvisionfofoverlayon");
-
-            player.AfterDelay(120000, x =>
-            {
-                if (player != null && HELI_OWNER == player && HELI != null)
-                {
-                    H_FIELD[player.EntRef].USE_HELI = 0;
-                    EndUseHeli(player, true);
-                }
+                player.TakeWeapon(kh);
+                player.GiveWeapon(w);
+                player.Call(33523, w); //givemaxammo
+                player.SwitchToWeaponImmediate(w);
             });
 
+            RM(player, 0, MT.HELI_MESSAGE_ACTIVATE);
+            Utilities.RawSayAll("HELICOPTER ENABLED. GO TO THE AREA");
         }
-        void SetupHelicopter(Entity player)
+        void HeliSetup(ref Entity player)
         {
-            if (HELI != null) return;
-
             string realModel = "vehicle_little_bird_armed";
             string minimap_model = "attack_littlebird_mp";
 
+            string turret_mp = "sentry_minigun_mp";
+            string reamModel_turret = "weapon_minigun";
             HELI = Call<Entity>(369, player, HELI_WAY_POINT, ZERO, minimap_model, realModel);
             HELI.Call(32923);
             HELI.Call(32924);
 
 
-            TL = Call<Entity>(19, "misc_turret", HELI.Origin, "sentry_minigun_mp", false);
-            TL.Call("setmodel", "weapon_minigun");
+            TL = Call<Entity>(19, "misc_turret", HELI.Origin, turret_mp, false);
+            TL.Call(32929, reamModel_turret);//setmodel
             TL.Call(32841, HELI, "tag_minigun_attach_left", new Vector3(30f, 30f, 0), new Vector3(0, 0, 0));
-            TL.Call("SetLeftArc", 180f);
-            TL.Call("SetRightArc", 180f);
-            TL.Call("SetBottomArc", 180f);
+            TL.Call(33084, 180f);//SetLeftArc
+            TL.Call(33083, 180f);//SetRightArc
+            TL.Call(33086, 180f);//SetBottomArc
 
-            TR = Call<Entity>(19, "misc_turret", HELI.Origin, "sentry_minigun_mp");
-            TR.Call("setmodel", "weapon_minigun");
+            TR = Call<Entity>(19, "misc_turret", HELI.Origin, turret_mp);
+            TR.Call(32929, reamModel_turret);
             TR.Call(32841, HELI, "tag_minigun_attach_right", new Vector3(30f, -30f, 0), new Vector3(0, 0, 0));
-            TR.Call("SetLeftArc", 180f);
-            TR.Call("SetRightArc", 180f);
-            TR.Call("SetBottomArc", 180f);
+            TR.Call(33084, 180f);
+            TR.Call(33083, 180f);
+            TR.Call(33086, 180f);
 
-            Call(431, 1, "inactive"); // objective_add
-            HELI_ENABLED_ = true;
+            //Call(431, 1, "inactive"); // objective_add
         }
 
-        void EndGunner()
+        #endregion
+        
+        #region board heli
+        void HeliStart(Entity player)
+        {
+            HELI_ON_USE_ = true;
+            HELI_OWNER = player;
+            if (HELI_GUNNER == player) HELI_GUNNER = null;
+
+            RM(player, 0, MT.HELI_MESSAGE_KEY_INFO);
+
+            player.Call(33256, HELI);//remotecontrolvehicle  
+            player.Call(32936);//thermalvisionfofoverlayon
+
+            player.AfterDelay(120000, x =>
+            {
+                if (player != null && HELI_OWNER == player && HELI != null)
+                {
+                    FL[player.EntRef].USE_HELI = 0;
+                    HeliEndUse(player, true);
+                }
+            });
+
+        }
+
+        //void
+        #endregion
+
+        #region end heli
+        void HeliEndGunner()
         {
             if (HELI_GUNNER == null) return;
-            HELI_GUNNER.SetField("angles", ZERO);
+            HELI_GUNNER.Call(33531, ZERO);//unlink
             HELI_GUNNER.Call(32843);//unlink
             HELI_GUNNER = null;
         }
-        void EndUseHeli(Entity player, bool unlink)
+        void HeliEndUse(Entity player, bool unlink)
         {
-            if (unlink)
+
+            if (unlink && human_List.Contains(player))
             {
                 player.Call(32843);//unlink
                 player.Call(33257);//remotecontrolvehicleoff
-                player.Call("thermalvisionfofoverlayoff");
+                player.Call(32937);//thermalvisionfofoverlayoff
 
-                player.AfterDelay(500, x =>//서버다운 fix
-                {
-                    player.Call("detachShieldModel", "prop_flag_neutral", "tag_shield_back", true);
-                });
+                player.Call(32805, "prop_flag_neutral", "tag_shield_back", true);//detachShieldModel
             }
             HELI_ON_USE_ = false;
-            player.SetField("angles", ZERO);
+            player.Call(33531, ZERO);
+
             HELI_OWNER = null;
-            if (HELI_GUNNER != null) EndGunner();
-            TL.Call("delete");
-            TR.Call("delete");
-            HELI.Call("delete");
+            if (HELI_GUNNER != null) HeliEndGunner();
+            TL.Call(32928);//delete
+            TR.Call(32928);
+            HELI.Call(32928);
             HELI = null;
-            ShowHelipoint();
+            //ShowHelipoint();
         }
 
-        void testset()
-        {
-            H_SET H = H_FIELD[ADMIN.EntRef];
-            H.USE_HELI = 1;
-            H.PERK = 11;
-            AttachFlagTag(ADMIN);
-            ADMIN.Call("setorigin", HELI_WAY_POINT);
-        }
+        #endregion
     }
 }

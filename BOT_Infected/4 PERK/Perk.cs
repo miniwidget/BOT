@@ -10,61 +10,85 @@ namespace Infected
     public partial class Infected
     {
         #region Perk
-
-        int Y1 = 65, k = 120, j = 40;
-        int X2 = -120, X2_ = -100, X2__ = -50, Y2 = 250, Y2_ = 250, Y2__ = 250, jm = 80, jm_ = 80, jm__ = 120;
-        float alp_ = 0.8f, alp0 = 0.1f, alp = 0.1f, alp_2 = 0.2f, alp__ = 0.5f, f1 = 0.25f, f2 = 0.25f;
-
-        void Perk_Hud(Entity player, int i)
+        void PerkWait(Field F, int time)
         {
-            if (GAME_ENDED_) return;
+            F.wait = true;
+            AfterDelay(time, () => F.wait = false);
 
-            if (i > 10 || i < 0) return;
+            int idx = F.killerIdx;
+            if (idx == -1) return;
+            F.killerIdx = -1;
+
+            if (idx > human_List.Count-1) return;
+            Entity e = human_List[idx];
+            if (e.CurrentWeapon[2] != '5') return;//iw5
+            idx = e.EntRef; if (idx == -1) return;
+            Field H = FL[idx];
+            if (H.PERK < 34 )//iw5
+            {
+                var i = (H.PERK += 1);
+
+                if (i > 2 && i % 3 == 0)
+                {
+                    i = i / 3; if (i > 10) return;
+
+                    PerkHud(ref e, i);
+                }
+                else if (i == 11)
+                {
+                    H.USE_HELI = 1;
+                    HeliAttachFlagTag(ref e);
+                }
+            }
+        }
+
+        void PerkHud(ref Entity player,  int i)
+        {
+            player.Call(33466, "mp_killstreak_radar");//playlocalsound
             i -= 1;
-            //print(player.Name + " perk count : " + i);
 
             HudElem PH = HudElem.NewClientHudElem(player);
             PH.Foreground = true;
-            PH.X = X2_;
-            PH.Y = Y2_;
-            PH.Alpha = alp_;
-            PH.SetShader(P.PL[i], jm_, jm_);
-            PH.Call("moveovertime", f2); PH.X = X2__;
+            PH.X = CPL.X2_;
+            PH.Y = CPL.Y2_;
+            PH.Alpha = CPL.alp_;
+            PH.SetShader(CPL.PL[i], CPL.jm_, CPL.jm_);
+            PH.Call(32895, CPL.f2); PH.X = CPL.X2__;
 
             HudElem CH = HudElem.NewClientHudElem(player);
             CH.Parent = HudElem.UIParent;
-            CH.X = X2;
-            CH.Y = Y2;
-            CH.Alpha = alp;
+            CH.X = CPL.X2;
+            CH.Y = CPL.Y2;
+            CH.Alpha = CPL.alp;
             CH.Foreground = true;
-            CH.SetShader(P.PL[i] + "_upgrade", jm, jm);
+            CH.SetShader(CPL.PL[i] + "_upgrade", CPL.jm, CPL.jm);
 
             player.AfterDelay(t1, x =>
             {
-                PH.X = X2__;
-                PH.Y = Y2__;
-                PH.Alpha = alp__;
-                PH.SetShader(P.PL[i], jm__, jm__);
-                PH.Call("moveovertime", f1); PH.X = X2_;
+                PH.X = CPL.X2__;
+                PH.Y = CPL.Y2__;
+                PH.Alpha = CPL.alp__;
+                PH.SetShader(CPL.PL[i], CPL.jm__, CPL.jm__);
+                PH.Call(32895, CPL.f1); PH.X = CPL.X2_;
 
-                CH.X = X2;
-                CH.Y = Y2_;
-                CH.Alpha = alp_2;
-                CH.SetShader(P.PL[i] + "_upgrade", jm_, jm_);
-                CH.Call("moveovertime", f1); CH.X = X2_;
+                CH.X = CPL.X2;
+                CH.Y = CPL.Y2_;
+                CH.Alpha = CPL.alp_2;
+                CH.SetShader(CPL.PL[i] + "_upgrade", CPL.jm_, CPL.jm_);
+                CH.Call(32895, CPL.f1); CH.X = CPL.X2_;
 
                 x.AfterDelay(t1, xx =>
                 {
-                    PH.X = k + (j * i);
-                    PH.Y = Y1;
-                    PH.Alpha = alp0;
-                    PH.SetShader(P.PL[i], j, j);
+                    PH.X = CPL.k + (CPL.j * i);
+                    PH.Y = CPL.Y1;
+                    PH.Alpha = CPL.alp0;
+                    PH.SetShader(CPL.PL[i], CPL.j, CPL.j);
 
-                    CH.X = X2_;
-                    CH.Y = Y2__;
-                    CH.Alpha = alp__;
-                    CH.SetShader(P.PL[i] + "_upgrade", jm__, jm__);
-                    CH.Call("moveovertime", f1); CH.X = X2;
+                    CH.X = CPL.X2_;
+                    CH.Y = CPL.Y2__;
+                    CH.Alpha = CPL.alp__;
+                    CH.SetShader(CPL.PL[i] + "_upgrade", CPL.jm__, CPL.jm__);
+                    CH.Call(32895, CPL.f1); CH.X = CPL.X2;
 
                     xx.AfterDelay(t1, xxx =>
                     {
@@ -89,7 +113,7 @@ namespace Infected
                 perk1 = "specialty_quickswap";
                 perk2 = "specialty_twoprimaries";
                 perk3 = "specialty_overkillpro";
-                perk4 = P.CL[i];
+                perk4 = CPL.CL[i];
                 say = " ^2] SLEIGHT_OF_HAND PRO";
             }
             else if (i == 1)
@@ -97,13 +121,13 @@ namespace Infected
                 perk1 = "specialty_fastoffhand";
                 perk2 = "specialty_autospot";
                 perk3 = "specialty_holdbreathwhileads";
-                perk4 = P.CL[i];
+                perk4 = CPL.CL[i];
                 say = " ^2] QUICKDRAW PRO";
             }
             else if (i == 2)
             {
                 perk1 = "specialty_fastmantle";
-                perk2 = P.CL[i];
+                perk2 = CPL.CL[i];
                 perk3 = "specialty_bulletaccuracy";
                 perk4 = "specialty_steadyaimpro";
                 perk5 = "specialty_fastsprintrecovery";
@@ -113,7 +137,7 @@ namespace Infected
             {
                 perk1 = "specialty_delaymine";
                 perk2 = "specialty_marksman";
-                perk3 = P.CL[i];
+                perk3 = CPL.CL[i];
                 perk4 = "specialty_fastermelee";
                 perk5 = "specialty_ironlungs";
                 say = " ^2] STALKER PRO";
@@ -121,7 +145,7 @@ namespace Infected
             else if (i == 4)
             {
                 perk1 = "specialty_extraammo";
-                perk2 = P.CL[i];
+                perk2 = CPL.CL[i];
                 perk3 ="specialty_detectexplosive";
                 perk4 ="specialty_selectivehearing";
                 say = " ^2] SCAVENGER PRO";
@@ -129,7 +153,7 @@ namespace Infected
             else if (i == 5)
             {
                 perk1 ="specialty_paint_pro";
-                perk2 = P.CL[i];
+                perk2 = CPL.CL[i];
                 say = " ^2] PAINT PRO";
             }
             else if (i == 6)
@@ -164,7 +188,7 @@ namespace Infected
 
             Utilities.RawSayTo(player, "^2[^7 " + player.Name +say);
 
-            player.SetPerk(P.PL[i], true, false);
+            player.SetPerk(CPL.PL[i], true, false);
 
             if (perk1 == null) return; player.SetPerk(perk1, true, false);
             if (perk2 == null) return; player.SetPerk(perk2, true, false);

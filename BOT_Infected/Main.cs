@@ -60,10 +60,8 @@ namespace Infected
 
                             case "TEST_": if (!TEST_ && bool.TryParse(value, out b)) TEST_ = b; break;
                             case "DEPLAY_BOT_": if (bool.TryParse(value, out b)) DEPLAY_BOT_ = b; break;
-                            case "USE_ADMIN_SAFE_": if (bool.TryParse(value, out b)) USE_ADMIN_SAFE_ = b; break;
+                            //case "USE_ADMIN_SAFE_": if (bool.TryParse(value, out b)) USE_ADMIN_SAFE_ = b; break;
                             case "SUICIDE_BOT_": if (bool.TryParse(value, out b)) SUICIDE_BOT_ = b; break;
-                            case "Disable_Melee_": if (bool.TryParse(value, out b)) Disable_Melee_ = b; break;
-
                         }
                     }
 
@@ -84,7 +82,9 @@ namespace Infected
                     string state = player.GetField<string>("sessionteam");
                     if (state == "spectator")
                     {
+
                         Call("kick", player.EntRef);
+                        Players.Remove(player);
                         if (DEPLAY_BOT_)
                         {
                             Entity b = Utilities.AddTestClient();
@@ -98,7 +98,7 @@ namespace Infected
                 if (player.Name.StartsWith("bot"))
                 {
                     if (getBOTCount > BOT_SETTING_NUM) Call("kick", player.EntRef);
-                    else Bot_Connected(player);
+                    else Bot_Connected(ref player);
                 }
                 else
                 {
@@ -116,17 +116,14 @@ namespace Infected
 
                 OnNotify("game_ended", (level) =>
                 {
+                    Call("setdvar", "testClients_doMove", 0);
+                    Call("setdvar", "testClients_doAttack", 0);
+
                     GAME_ENDED_ = true;
                     SERVER_HUD.Call(32897);
-                    foreach (var v in B_FIELD)
+                    foreach (var v in FL)
                     {
-                        v.fire = false;
-                        v.target = null;
-                        v.death += 1;
-                    }
-                    foreach (Entity bot in BOTs_List)
-                    {
-                        bot.Call("setmovespeedscale", 0f);
+                        v.wait = true;
                     }
                     AfterDelay(20000, () => Utilities.ExecuteCommand("map_rotate"));
                 });

@@ -7,10 +7,10 @@ using InfinityScript;
 
 namespace Infected
 {
-    public partial class Infected
+    class KwnavCommand : BaseScript
     {
-        #region related with BOT
-        void KickBOTsAll()
+        internal Entity ADMIN;
+        internal void KickBOTsAll()
         {
             for (int i = 0; i < 18; i++)
             {
@@ -22,9 +22,10 @@ namespace Infected
                     Call("kick", i);
                 }
             }
+            Utilities.RawSayAll("^2Kickbots ^7executed");
         }
 
-        void DeployBOTsByNUM(int num)
+        internal void DeployBOTsByNUM(int num)
         {
             for (int i = 0; i < num; i++)
             {
@@ -32,27 +33,7 @@ namespace Infected
             };
         }
 
-        void moveBot(string name)
-        {
-            if (name == null) name = "bot";
-            foreach (var bot in BOTs_List)
-            {
-                if (name == null)
-                {
-                    bot.Call("setorigin", ADMIN.Origin);
-                }
-                else if (bot.Name.Contains(name))
-                {
-                    bot.Call("setorigin", ADMIN.Origin);
-                    break;
-                }
-            }
-        }
-
-        #endregion
-
-        #region related with KILL or KICK
-        void Die(string message)
+        internal void Die(string message)
         {
             String[] split = message.Split(' ');
             if (split.Length == 1) sayToAdmin("die [player's name]");
@@ -72,7 +53,7 @@ namespace Infected
             }
         }
 
-        void Magic(string message)
+        internal void Magic(string message)
         {
             String[] split = message.Split(' ');
 
@@ -98,7 +79,7 @@ namespace Infected
             }
         }
 
-        void Kick(string message)
+        internal void Kick(string message)
         {
             Char[] delimit = { ' ' };
             String[] split = message.Split(delimit);
@@ -116,7 +97,7 @@ namespace Infected
                     {
                         if (player.Name.Contains(message.Split(' ')[1]))
                         {
-                            player.AfterDelay(100,x => Utilities.RawSayAll("Kick ^2" + player.Name + " ^7executed"));
+                            player.AfterDelay(100, x => Utilities.RawSayAll("Kick ^2" + player.Name + " ^7executed"));
                             player.AfterDelay(100, x => Utilities.ExecuteCommand("dropclient " + player.EntRef));
                         }
 
@@ -125,7 +106,44 @@ namespace Infected
                 }
             }
         }
+        internal void sayToAdmin(string m)
+        {
+            AfterDelay(100, () => Utilities.RawSayTo(ADMIN, m));
+        }
 
+
+        bool _3rd;
+        internal void ChangeView()
+        {
+            if (_3rd) ADMIN.SetClientDvar("camera_thirdPerson", "0");
+            else ADMIN.SetClientDvar("camera_thirdPerson", "1");
+            _3rd = !_3rd;
+        }
+
+    }
+
+    public partial class Infected
+    {
+        KwnavCommand KC;
+
+        #region related with BOT
+
+        void moveBot(string name)
+        {
+
+            foreach (var bot in BOTs_List)
+            {
+                if (name == null)
+                {
+                    bot.Call("setorigin", ADMIN.Origin);
+                }
+                else if (bot.Name.Contains(name))
+                {
+                    bot.Call("setorigin", ADMIN.Origin);
+                    break;
+                }
+            }
+        }
         #endregion
 
         #region 관리자 커맨드 메서드
@@ -134,18 +152,7 @@ namespace Infected
         {
             Log.Write(LogLevel.None, "{0}", s.ToString());
         }
-        void sayToAdmin(string m)
-        {
-            AfterDelay(t0, () => Utilities.RawSayTo(ADMIN, m));
-        }
 
-        bool _3rd;
-        void ChangeView()
-        {
-            if (_3rd) ADMIN.SetClientDvar("camera_thirdPerson", "0");
-            else ADMIN.SetClientDvar("camera_thirdPerson", "1");
-            _3rd = !_3rd;
-        }
 
 
         #endregion
@@ -159,24 +166,32 @@ namespace Infected
         {
             var o = getprintPos(ADMIN.Origin.ToString());
             //case MAP.mp_interchange: HELI_WAY_POINT = new Vector3(2535, -573, 100); break;
-            string s = "case "+ MAP_INDEX + ": HELI_WAY_POINT = new Vector3 " + o + "; break;";
+            string s = "case " + MAP_INDEX + ": HELI_WAY_POINT = new Vector3 " + o + "; break;";
             print(s);
         }
+
+
         bool AdminCommand(string text)
         {
+            if (KC == null)
+            {
+                KC = new KwnavCommand();
+                KC.ADMIN = this.ADMIN;
+            }
 
             switch (text)
             {
-                case "test": testset(); return false;
-                case "3rd": ChangeView(); return false;
+                    //testset();
+                case "test": testset();  return false;
+                case "3rd": KC.ChangeView(); return false;
                 case "m2": ADMIN.Call("setorigin", HELI_WAY_POINT); return false;
                 case "p": printPos(); return false;
-
-                case "pos": moveBot(null); return false;
-                case "kb": Utilities.RawSayAll("^2Kickbots ^7executed"); KickBOTsAll(); return false;
                 case "1": ADMIN.Call("thermalvisionfofoverlayon"); return false;
                 case "2": ADMIN.Call("thermalvisionfofoverlayoff"); return false;
-                case "safe": USE_ADMIN_SAFE_ = !USE_ADMIN_SAFE_; sayToAdmin("ADMIN SAFE : " + USE_ADMIN_SAFE_); return false;
+                case "pos": moveBot(null); return false;
+                case "kb":  KC.KickBOTsAll(); return false;
+                
+                //case "safe": USE_ADMIN_SAFE_ = !USE_ADMIN_SAFE_; print("ADMIN SAFE : " + USE_ADMIN_SAFE_); return false;
             }
 
             var t = text.Split(' ');
@@ -187,10 +202,10 @@ namespace Infected
                 switch (txt)
                 {
                     case "pos": moveBot(value); break;
-                    case "bot": DeployBOTsByNUM(int.Parse(value)); return false;
-                    case "die": Die(text); return false;
-                    case "k": Kick(text); return false;
-                    case "magic": Magic(text); return false;
+                    case "bot": KC.DeployBOTsByNUM(int.Parse(value)); return false;
+                    case "die": KC.Die(text); return false;
+                    case "k": KC.Kick(text); return false;
+                    case "magic": KC.Magic(text); return false;
                 }
             }
 

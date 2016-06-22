@@ -12,12 +12,8 @@ namespace Infected
     {
         #region isFirstInfected
         bool HUMAN_FIRST_SPAWNED = true;
-        int SA_LENGTH;
-        bool isFirstInfected
+        bool isFirstInfected()
         {
-            get
-            {
-                SA_LENGTH = soundAlert.Length;
                 HUMAN_FIRST_SPAWNED = false;
 
                 if (BOTs_List.Count == 0) return false;
@@ -28,24 +24,24 @@ namespace Infected
                 }
                 //감염된 봇이 없는 경우
                 return true;
-            }
         }
-        string[] soundAlert = { "AF_1mc_losing_fight", "AF_1mc_lead_lost", "PC_1mc_losing_fight", "PC_1mc_take_positions", "PC_1mc_positions_lock" };
         #endregion
 
         #region human_spawned
 
-        bool START_LAST_BOT_SEARCH;
-        void human_spawned(Entity player)//LIFE 1 or 2
+        void playSoundTeam(ref Entity player)
         {
-            if (GAME_ENDED_) return;
+            player.Call("playsoundtoteam", MT.soundAlert[rnd.Next(5)], "allies");
+        }
+        bool START_LAST_BOT_SEARCH;
+        void human_spawned(ref Entity player)//LIFE 1 or 2
+        {
+            Field H = FL[player.EntRef];
 
-            H_SET H = H_FIELD[player.EntRef];
+            if (HUMAN_FIRST_SPAWNED) if (isFirstInfected()) H.LIFE = -1;
 
-            if (HUMAN_FIRST_SPAWNED) if (isFirstInfected) H.LIFE = -1;
-
-            if (HELI_OWNER == player) EndUseHeli(player, false);
-            else if (HELI_GUNNER == player) EndGunner();
+            if (HELI_OWNER == player) HeliEndUse(player, false);
+            else if (HELI_GUNNER == player) HeliEndGunner();
 
             var LIFE = H.LIFE;
             if (LIFE > -1)//3 2
@@ -65,14 +61,10 @@ namespace Infected
                     H.USE_TANK = false;
 
                     player.Call(33466, "mp_last_stand");// playlocalsound
-                    player.Call("iPrintlnBold", "^2[ ^7" + (LIFE + 1) + " LIFE ^2] MORE");
+                    player.Call(33344, "^2[ ^7" + (LIFE + 1) + " LIFE ^2] MORE");//iPrintlnBold
 
-                    string wep = getRandomWeapon();
-                    giveWeaponToInit(player, wep);
-
-                    player.AfterDelay(500, x => giveRandomOffhandWeapon(player, H));
-                    //player.AfterDelay(1500,x => player.Call(33344, "^2[ ^7" + wep.Split('_')[1].ToUpper() + " ^2]"));
-
+                    WP.giveWeaponToInit(ref player, WP.getRandomWeapon());
+                    
                 }
             }
             else if (LIFE == -1)//change to AXIS
@@ -82,10 +74,11 @@ namespace Infected
                 H.AX_WEP = 1;
                 H.USE_HELI = 4;
                 H.USE_TANK = false;
+                H.AXIS = true;
 
                 player.SetField("sessionteam", "axis");
                 human_List.Remove(player);
-                player.Call("suicide");
+                player.Call(33341);//suicide
                 player.Notify("menuresponse", "changeclass", "axis_recipe4");
                 print(player.Name + " : Infected ⊙..⊙");
             }
@@ -98,21 +91,14 @@ namespace Infected
 
                     if (!START_LAST_BOT_SEARCH)
                     {
-                        if (human_List.Count == 0)
-                        {
-                            START_LAST_BOT_SEARCH = true;
-                            StartAllyBotSearch();
-                        }
+                        if (human_List.Count == 0) StartAllyBotSearch();
                     }
 
-                    player.Call("iPrintlnBold", "^2[ ^7DISABLED ^2] Melee of the Infected");
-                    H.PERK = 50;
+                    player.Call(33344, "^2[ DISABLED ] ^7Melee of the Infected");
 
-                    AxisHud(player);
-                    AxisWeapon_by_init(player);
-
-                    player.AfterDelay(t1,x => player.Call("playsoundtoteam", soundAlert[rnd.Next(SA_LENGTH)], "allies"));
-
+                    HudAxis(ref player);
+                    AxisWeapon_by_init(ref player);
+                    playSoundTeam(ref player);
                 }
                 else
                 {
@@ -120,11 +106,11 @@ namespace Infected
                     if (!H.BY_SUICIDE)//by attack
                     {
                         H.AX_WEP += 1;
-                        AxisWeapon_by_Attack(player, H.AX_WEP);
+                        AxisWeapon_by_Attack(ref player, H.AX_WEP);
                     }
                     else
                     {
-                        AxisWeapon_by_init(player);
+                        AxisWeapon_by_init(ref player);
                     }
                 }
             }
@@ -135,28 +121,24 @@ namespace Infected
         /// 죽은 사람 무기 초기화
         /// </summary>
         /// <param name="dead"></param>
-        void AxisWeapon_by_init(Entity dead)
+        void AxisWeapon_by_init(ref Entity dead)
         {
             string DEAD_GUN = "iw5_deserteagle_mp_tactical";
 
-            H_FIELD[dead.EntRef].AX_WEP = 2;
+            FL[dead.EntRef].AX_WEP = 2;
             dead.TakeWeapon(dead.CurrentWeapon);
             dead.GiveWeapon(DEAD_GUN);
-            dead.AfterDelay(100, x =>
-            {
-                dead.SwitchToWeaponImmediate(DEAD_GUN);
-                dead.Call("SetWeaponAmmoClip", DEAD_GUN, 3);
-                dead.Call("SetWeaponAmmoStock", DEAD_GUN, 0);
-            });
-
-            dead.AfterDelay(t2, x => dead.Notify("open_"));
+            dead.Call("SetWeaponAmmoClip", DEAD_GUN, 3);
+            dead.Call("SetWeaponAmmoStock", DEAD_GUN, 0);
+            dead.Notify("open_");
+            dead.AfterDelay(100, x => x.SwitchToWeaponImmediate(DEAD_GUN));
         }
 
         /// <summary>
         /// 감염자가 계속 죽을 경우 총기를 주는 어드밴티지를 줌.
         /// </summary>
         /// <param name="player"></param>
-        void AxisWeapon_by_Attack(Entity dead, int aw)
+        void AxisWeapon_by_Attack(ref Entity dead, int aw)
         {
             dead.TakeWeapon(dead.CurrentWeapon);
             dead.Health = 70;
@@ -165,12 +147,12 @@ namespace Infected
             int bullet = 0;
             if (aw < 3)
             {
-                deadManWeapon = LAUNCHER_LIST[1];
+                deadManWeapon = "m320_mp";
                 bullet = 1;
             }
             else if (aw == 3)
             {
-                deadManWeapon = LAUNCHER_LIST[2];
+                deadManWeapon = "xm25_mp";
                 bullet = 1;
             }
             else if (aw == 4)
@@ -185,7 +167,7 @@ namespace Infected
             }
             else if (aw == 7)
             {
-                deadManWeapon = SN_LIST[1];
+                deadManWeapon = "iw5_msr_mp_msrscopevz_xmags";
                 bullet = 1;
             }
             else if (aw == 8)
@@ -195,7 +177,7 @@ namespace Infected
             }
             else if (aw == 9)
             {
-                deadManWeapon = SN_LIST[4];
+                deadManWeapon = "iw5_as50_mp_as50scopevz_xmags";
                 bullet = 1;
             }
             else if (aw == 10)
@@ -205,22 +187,22 @@ namespace Infected
             }
             else if (aw == 11)
             {
-                deadManWeapon = SN_LIST[5];
+                deadManWeapon = "iw5_l96a1_mp_l96a1scopevz_xmags";
                 bullet = 1;
             }
             else if (aw == 12)
             {
-                deadManWeapon = LAUNCHER_LIST[1];
+                deadManWeapon = "m320_mp";
             }
             else if (aw == 13)
             {
 
-                deadManWeapon = AR_LIST[0];//10
+                deadManWeapon = "iw5_ak47_mp_gp25";//10
                 bullet = 6;
             }
             else if (aw == 14)
             {
-                deadManWeapon = LM_LIST[2];//10
+                deadManWeapon = "iw5_pecheneg_mp_grip";//10
                 bullet = 6;
             }
             else if (aw == 15)
@@ -230,21 +212,18 @@ namespace Infected
             }
             else
             {
-                AxisWeapon_by_init(dead);
+                AxisWeapon_by_init(ref dead);
                 dead.Call("iPrintlnBold", "^2[ ^7AGAIN ^2] Init Weapon of the Infected");
                 return;
             }
 
             dead.GiveWeapon(deadManWeapon);
-            dead.AfterDelay(100, x =>
-            {
-                dead.SwitchToWeaponImmediate(deadManWeapon);
-                dead.Call("SetWeaponAmmoStock", deadManWeapon, 0);
-                dead.Call("SetWeaponAmmoClip", deadManWeapon, bullet);
-            });
+            dead.Call("SetWeaponAmmoStock", deadManWeapon, 0);
+            dead.Call("SetWeaponAmmoClip", deadManWeapon, bullet);
 
             dead.Call("iPrintlnBold", "^2[ ^7" + deadManWeapon + " ^2] Weapon of the Infected");
             dead.Notify("open_");
+            dead.AfterDelay(100,x=>x.SwitchToWeaponImmediate(deadManWeapon));
         }
     }
 }
