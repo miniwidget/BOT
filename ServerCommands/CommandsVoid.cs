@@ -30,6 +30,7 @@ namespace ServerCommands
 
                 if (p == null)
                 {
+                    print("NULL" + i);
                     Players.Remove(p);
                     continue;
                 }
@@ -48,7 +49,8 @@ namespace ServerCommands
         }
         string abbrrev(string s)
         {
-            if (s == "axis") s = "X ";
+            if (s == "axis") s = "D ";
+            else if (s == "spectator") s = "S ";
             else s = "L ";
             return ":" +s;
         }

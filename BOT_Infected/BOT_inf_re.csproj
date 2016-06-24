@@ -18,7 +18,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>D:\MW3_SERVER\scripts\</OutputPath>
+    <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -35,7 +35,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="InfinityScript">
-      <HintPath>..\How To Use\InfinityScript.dll</HintPath>
+      <HintPath>How To Use\InfinityScript.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />
@@ -47,29 +47,23 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="2 HUD\Message string.cs" />
-    <Compile Include="3 WEAPON\Helicopter.cs" />
-    <Compile Include="4 PERK\Perk_List.cs" />
-    <Compile Include="5 BOT\1 DeployBOT.cs" />
-    <Compile Include="5 BOT\3 Spawned.cs" />
-    <Compile Include="5 BOT\2 bot setting.cs" />
-    <Compile Include="6 HUMAN\ClientSET.cs" />
-    <Compile Include="6 HUMAN\Connect.cs" />
-    <Compile Include="6 HUMAN\Spawned.cs" />
-    <Compile Include="7 Override\OnSay.cs" />
-    <Compile Include="7 Override\OnPlayerKilled.cs" />
-    <Compile Include="GameSET.cs" />
-    <Compile Include="4 PERK\Perk.cs" />
-    <Compile Include="7 Override\OnSay_Admin.cs" />
-    <Compile Include="2 HUD\HUD.cs" />
-    <Compile Include="Main.cs" />
-    <Compile Include="2 HUD\showinfo.cs" />
-    <Compile Include="3 WEAPON\Weapon.cs" />
+    <Compile Include="8 Helicopter.cs" />
+    <Compile Include="BOT\B Spawned.cs" />
+    <Compile Include="BOT\B Connect.cs" />
+    <Compile Include="HUMAN\H Connect.cs" />
+    <Compile Include="HUMAN\H Spawned.cs" />
+    <Compile Include="Override\OnSay.cs" />
+    <Compile Include="Override\OnPlayerKilled.cs" />
+    <Compile Include="2 Set.cs" />
+    <Compile Include="4 Perk.cs" />
+    <Compile Include="7 Admin.cs" />
+    <Compile Include="1 Main.cs" />
+    <Compile Include="5 Info.cs" />
+    <Compile Include="3 Weapon.cs" />
+    <Compile Include="6 Hud.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="1 MAP\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

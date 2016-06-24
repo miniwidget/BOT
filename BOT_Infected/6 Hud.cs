@@ -1,28 +1,16 @@
-﻿using System;
+﻿using InfinityScript;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.IO;
-using InfinityScript;
 
 namespace Infected
 {
-    public partial class Infected
+    internal class Hud
     {
-        //Utilities.ExecuteCommand("sv_hostname ^2BOT ^7INF CRASH TEST");
+        internal HudElem SERVER;
 
-        HudElem SERVER_HUD;
-        void HudServer()
-        {
-            SERVER_HUD = HudElem.CreateServerFontString("hudbig", 0.8f);
-            SERVER_HUD.X = 240;
-            SERVER_HUD.Y = 3;
-            SERVER_HUD.Alpha = 0.7f;
-            SERVER_HUD.HideWhenInMenu = true;
-            //SERVER_NAME = "^2BOT ^7INF CRASH TEST";
-            SERVER_HUD.SetText(SERVER_NAME);
-        }
-       readonly string ALLIES_HUD_TEXTS = @"
+        readonly string ALLIES_HUD_TEXTS = @"
 ^7TYPE FOLLOWING
 ^2AP ^74 AKIMBO PISTOL
 ^2AG ^76 AKIMBO GUN
@@ -36,11 +24,10 @@ namespace Infected
 ^7PRESS KEY
 ^2[{+strafe}] ^7AMMO
 ^2[{+movedown}] ^7VIEWSCOPE
-^2[{+prone}] ^7ATTATCHMENT
 ^2[{+stance}] ^7";
+        //^2[{+prone}] ^7ATTATCHMENT
 
-     
-        void HudAllies(Entity player,string offhand)
+        internal void AlliesHud(Entity player, string offhand)
         {
             HudElem allies_info_hud = HudElem.CreateFontString(player, "hudbig", 0.4f);
             allies_info_hud.X = 740;
@@ -72,13 +59,12 @@ namespace Infected
                 allies_info_hud.Call(32897); allies_weap_hud.Call(32897);
             });
         }
-
-        void HudAxis(ref Entity player)
+        internal void AxisHud(Entity player)
         {
             player.Notify("CLOSE");
             //player.Notify("CLOSE_perk");
             //human_List.Remove(player);
-            
+
 
             HudElem axis_weap_hud = HudElem.CreateFontString(player, "hudbig", 0.5f);
             axis_weap_hud.X = 740;
@@ -89,12 +75,24 @@ namespace Infected
             axis_weap_hud.Alpha = 0f;
             axis_weap_hud.SetText("^7type following\n\n^2infow ^7weapon info\n^2sc ^7 suicide\n^2riot ^7 riotshield\n^2stinger ^7stinger\n\n^7bind key at option\n\n^2[{+movedown}] ^7 throwingknife\n^2[{+prone}] ^7 bouncingbetty\n^2[{+stance}] ^7 claymore");
 
-            player.OnNotify("open_", x => axis_weap_hud.Alpha = 0.6f);
-            player.OnNotify("close_", x => axis_weap_hud.Alpha = 0f);
-            player.OnNotify("CLOSE_", x => axis_weap_hud.Call(32897));
+            player.OnNotify("open_", entity => axis_weap_hud.Alpha = 0.6f);
+            player.OnNotify("close_", entity => axis_weap_hud.Alpha = 0f);
+            player.OnNotify("CLOSE_", entity => axis_weap_hud.Call(32897));
 
-            player.AfterDelay(t3, x => x.Notify("open_"));
+            player.AfterDelay(3000, x => player.Notify("open_"));
         }
-        
+        internal void ServerHud()
+        {
+            SERVER = HudElem.CreateServerFontString("hudbig", 0.8f);
+            SERVER.X = 240;
+            SERVER.Y = 3;
+            SERVER.Alpha = 0.7f;
+            SERVER.HideWhenInMenu = true;
+
+            Function.SetEntRef(-1);
+            SERVER.SetText(Function.Call<string>(47, "sv_hostname"));
+        }
+
     }
+
 }

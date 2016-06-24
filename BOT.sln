@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BOT_inf", "BOT_Infected\BOT_inf.csproj", "{58054442-E61A-4AFE-9BF0-E8F74A77F623}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BOT_inf", "BOT_Infected\BOT_inf_re.csproj", "{58054442-E61A-4AFE-9BF0-E8F74A77F623}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BOT_tdm", "BOT_tdm\BOT_tdm.csproj", "{A7C13281-4445-4B27-9DB7-A43CEBA10E09}"
 EndProject
