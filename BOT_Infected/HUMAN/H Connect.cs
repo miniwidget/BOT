@@ -195,24 +195,14 @@ namespace Infected
                             }
                             else if (H.USE_HELI == 1 && !HCT.IsHeliArea(player))
                             {
-                                int ti = TK.IsTankOwner(player);
-                                if (ti != 5)
-                                {
-                                    TK.TankEnd(player, ti);
-                                }
-                                else
+                                if (!TK.CheckTank(player))
                                 {
                                     Info.MessageRoop(player, 0, HCT.HELI_MESSAGE_ALERT);
                                 }   
                                 return;
                             }
                         }
-                        int i = TK.IsTankOwner(player);
-                        if (i != 5)
-                        {
-                            TK.TankEnd(player, i);
-                            return;
-                        }
+                        TK.CheckTank(player);
                     }
                     else
                     {
@@ -255,6 +245,8 @@ namespace Infected
             WP.GiveOffhandWeapon(player, offhand);
 
             player.SpawnedPlayer += () => human_spawned(player);
+
+            player.Call(33531, ZERO);//setplayerangles
         }
 
         void SetADMIN()

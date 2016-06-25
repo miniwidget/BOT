@@ -61,6 +61,8 @@ namespace Infected
                     WP.GiveRandomOffhandWeapon(player);
 
                     if (!human_List.Contains(player)) human_List.Add(player);
+
+                    TK.CheckTank(player);
                 }
             }
             else if (LIFE == -1)//change to AXIS
@@ -71,6 +73,7 @@ namespace Infected
                 human_List.Remove(player);
                 player.Call(33341);
                 player.Notify("menuresponse", "changeclass", "axis_recipe4");
+                TK.CheckTank(player);
                 my.print(player.Name + " : Infected ⊙..⊙");
             }
             else
