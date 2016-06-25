@@ -28,7 +28,7 @@ namespace Infected
         {
             "AF_1mc_losing_fight", "AF_1mc_lead_lost", "PC_1mc_losing_fight", "PC_1mc_take_positions", "PC_1mc_positions_lock" , "PC_1mc_enemy_take_a" , "PC_1mc_enemy_take_b", "PC_1mc_enemy_take_c"
         };
-        int _tempCount;
+
         #region human_spawned
 
         void human_spawned(Entity player)//LIFE 1 or 2
@@ -39,6 +39,12 @@ namespace Infected
             H_SET H = H_FIELD[pe];
 
             if (_temp) if (IsINF()) H.LIFE = -1;
+
+            if (HCT.HELI != null)
+            {
+                if (HCT.HELI_OWNER == player) HCT.HeliEndUse(player, false);
+                else if (HCT.HELI_GUNNER == player) HCT.HeliEndGunner();
+            }
 
             var LIFE = H.LIFE;
             if (LIFE > -1)//3 2
