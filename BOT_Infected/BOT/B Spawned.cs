@@ -145,7 +145,7 @@ namespace Infected
                         B.target = human;
                         B.fire = true;
                         pause = false;
-                        b.Call(33468, weapon, 999);//setweaponammoclip
+                        b.Call(33468, weapon, 500);//setweaponammoclip
                         b.Call(33523, weapon);//givemaxammo
                         b.OnInterval(400, bb =>
                         {
@@ -158,9 +158,10 @@ namespace Infected
                             float dy = TO.Y - BO.Y;
                             float dz = BO.Z - TO.Z + 50;
 
-                            float dist = (float)Math.Sqrt(dx * dx + dy * dy);
+                            int dist = (int)Math.Sqrt(dx * dx + dy * dy);
                             BO.X = (float)Math.Atan2(dz, dist) * 57.32f;
-                            BO.Y = (float)Math.Atan2(dy, dx) * 57.32f;
+                            BO.Y = -10 + (float)Math.Atan2(dy, dx) * 57.32f;
+                            BO.Z = 0;
                             bb.Call(33531, BO);//SetPlayerAngles
                             return true;
                         });
@@ -227,9 +228,9 @@ namespace Infected
 
                 if (target != null)
                 {
-                    b.Call(33468, weapon, 999);//setweaponammoclip
+                    b.Call(33468, weapon, 500);//setweaponammoclip
                     b.Call(33523, weapon);//givemaxammo
-                    b.OnInterval(400, bb =>
+                    b.OnInterval(300, bb =>
                     {
                         if (pause || !B.fire) return false;
 
@@ -240,10 +241,17 @@ namespace Infected
                         float dy = TO.Y - BO.Y;
                         float dz = BO.Z - TO.Z + 50;
 
-                        float dist = (float)Math.Sqrt(dx * dx + dy * dy);
+                        int dist = (int)Math.Sqrt(dx * dx + dy * dy);
                         BO.X = (float)Math.Atan2(dz, dist) * 57.32f;
-                        BO.Y = (float)Math.Atan2(dy, dx) * 57.32f;
+
+                        BO.Y =-10+ (float)Math.Atan2(dy, dx) * 57.32f;
+                        BO.Z = 0;
                         bb.Call(33531, BO);//SetPlayerAngles
+
+                        //var ho = target.Origin; ho.Z -= 50;
+
+                        //Vector3 a = Call<Vector3>(247, ho - bb.Origin);//vectortoangles
+                        //bb.Call(33531, a);//SetPlayerAngles
 
                         return true;
                     });
@@ -307,7 +315,7 @@ namespace Infected
 
                             Vector3 a = Call<Vector3>(247, ho - bb.Origin);//vectortoangles
                             bb.Call(33531, a);//SetPlayerAngles
-                            bb.Call(33468, "rpg_mp", 1);//setweaponammoclip
+                            bb.Call(33468, "rpg_mp", 2);//setweaponammoclip
                             return true;
                         });
 

@@ -38,9 +38,10 @@ namespace Infected
                 float dy = TO.Y - BO.Y;
                 float dz = BO.Z - TO.Z + 50;
 
-                float dist = (float)Math.Sqrt(dx * dx + dy * dy);
+                int dist = (int)Math.Sqrt(dx * dx + dy * dy);
                 BO.X = (float)Math.Atan2(dz, dist) * 57.32f;
-                BO.Y = (float)Math.Atan2(dy, dx) * 57.32f;
+                BO.Y = -10 + (float)Math.Atan2(dy, dx) * 57.32f;
+                BO.Z = 0;
                 bb.Call(33531, BO);//SetPlayerAngles
                 i++;
                 return true;
@@ -69,10 +70,10 @@ namespace Infected
                     if (B.temp_fire || B.target != null) return;
 
                     BotTempFire(B, player, attacker);
-                }
-                else if (mod == "MOD_MELEE")
+
+                }else if (mod == "MOD_MELEE")
                 {
-                    if (IsAXIS[attacker.EntRef]) return;
+                    if (IsAXIS[player.EntRef]) return;
                     player.Health += damage;
                 }
                 else if (USE_ADMIN_SAFE_)

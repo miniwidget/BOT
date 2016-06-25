@@ -195,14 +195,14 @@ namespace Infected
                             }
                             else if (H.USE_HELI == 1 && !HCT.IsHeliArea(player))
                             {
-                                if (!TK.CheckTank(player))
+                                if (!TK.IfTankOwnerEnd(player))
                                 {
                                     Info.MessageRoop(player, 0, HCT.HELI_MESSAGE_ALERT);
                                 }   
                                 return;
                             }
                         }
-                        TK.CheckTank(player);
+                        TK.IfTankOwnerEnd(player);
                     }
                     else
                     {

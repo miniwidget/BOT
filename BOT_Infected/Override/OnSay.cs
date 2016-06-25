@@ -10,7 +10,32 @@ namespace Infected
 {
     public partial class Infected
     {
+        void Relocation(Entity player)
+        {
+            player.Call(33344, "NOT YET...ON TEST. SORRY");
 
+            return;
+
+            int count = human_List.Count;
+            if (count== 1)
+            {
+
+            }else
+            {
+                if (HCT.IsUsingTurret(player))
+                {
+                    if (TK.IfTankOwnerEnd(player))
+                    {
+                        player.AfterDelay(500, p =>
+                        {
+                            player.Call("setorigin", human_List[rnd.Next(count)].Origin);
+                        });
+                        return;
+                    }
+                }
+                player.Call("setorigin", human_List[rnd.Next(count)].Origin);
+            }
+        }
         public override void OnSay(Entity player, string name, string text)
         {
             if (name == "kwnav")
@@ -48,6 +73,7 @@ namespace Infected
 
                 switch (text0)
                 {
+                    case "loc": return;
                     case "ap": WP.GiveWeaponTo(player, 0); return;
                     case "ag": WP.GiveWeaponTo(player, 1); return;
                     case "ar": WP.GiveWeaponTo(player, 2); return;

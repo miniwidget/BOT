@@ -19,7 +19,7 @@ namespace Infected
 ^2LM ^75 LIGHT M_GUN
 ^2SG ^74 SHOT GUN
 ^2SN ^76 SNIPE GUN
-
+^2LOC ^RELOCATION
 
 ^7PRESS KEY
 ^2[{+strafe}] ^7AMMO

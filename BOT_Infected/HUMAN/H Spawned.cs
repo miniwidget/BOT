@@ -28,7 +28,7 @@ namespace Infected
         {
             "AF_1mc_losing_fight", "AF_1mc_lead_lost", "PC_1mc_losing_fight", "PC_1mc_take_positions", "PC_1mc_positions_lock" , "PC_1mc_enemy_take_a" , "PC_1mc_enemy_take_b", "PC_1mc_enemy_take_c"
         };
-
+        int _tempCount;
         #region human_spawned
 
         void human_spawned(Entity player)//LIFE 1 or 2
@@ -62,7 +62,7 @@ namespace Infected
 
                     if (!human_List.Contains(player)) human_List.Add(player);
 
-                    TK.CheckTank(player);
+                    TK.IfTankOwnerEnd(player);
                 }
             }
             else if (LIFE == -1)//change to AXIS
@@ -73,7 +73,7 @@ namespace Infected
                 human_List.Remove(player);
                 player.Call(33341);
                 player.Notify("menuresponse", "changeclass", "axis_recipe4");
-                TK.CheckTank(player);
+                TK.IfTankOwnerEnd(player);
                 my.print(player.Name + " : Infected ⊙..⊙");
             }
             else

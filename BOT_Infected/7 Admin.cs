@@ -128,7 +128,8 @@ namespace Infected
 
             switch (text)
             {
-                case "p": TK.tankPos(ADMIN); return false;
+                
+                case "p": ADMIN.Call("setorigin", BOTs_List[0].Origin); return false;
                 case "cp": AD.CarePackage(); return false;
                 case "ulsc": AD.Script("unloadscript sc.dll"); return false;
                 case "lsc": AD.Script("loadscript sc.dll"); return false;
@@ -137,6 +138,7 @@ namespace Infected
                 case "kb":  AD.KickBOTsAll(); return false;
                 case "1": ADMIN.Call("thermalvisionfofoverlayon"); return false;
                 case "2": ADMIN.Call("thermalvisionfofoverlayoff"); return false;
+                case "safe": USE_ADMIN_SAFE_ = !USE_ADMIN_SAFE_; Utilities.RawSayTo(ADMIN, "ADMIN SAFE : " + USE_ADMIN_SAFE_); return false;
             }
 
             var texts = text.Split(' ');

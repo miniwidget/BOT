@@ -170,6 +170,7 @@ namespace Infected
                 {
                     if (i == max)
                     {
+                        TK.SetTank(BOTs_List[i]);
                         return GetTeamState(fi);
                     }
 
