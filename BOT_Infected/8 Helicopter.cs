@@ -14,7 +14,17 @@ namespace Infected
         readonly string[] HELI_MESSAGE_ACTIVATE = { "PRESS ^2[ [{+activate}] ] ^7AT THE HELI TURRET AREA", "YOU CAN RIDE IN HELICOPTER" };
 
         internal Entity HELI, TL, TR, HELI_OWNER, HELI_GUNNER;
+        internal static Vector3 HELI_WAY_POINT;
 
+        internal void SetHeliPort()
+        {
+            Function.SetEntRef(-1);
+            Function.Call(431, 17, "active"); // objective_add
+            Function.SetEntRef(-1);
+            Function.Call(435, 17, HELI_WAY_POINT); // objective_position
+            Function.SetEntRef(-1);
+            Function.Call(434, 17, "compass_objpoint_ac130_friendly"); //compass_objpoint_ac130_friendly compass_waypoint_bomb objective_icon
+        }
         #region wait heli
         /// <summary>
         /// 10 킬 이상 하면, remote control enabled
@@ -86,7 +96,7 @@ namespace Infected
             string reamModel_turret = "weapon_minigun";
 
             Function.SetEntRef(-1);
-            HELI = Function.Call<Entity>(369, player, Infected.HELI_WAY_POINT, Infected.ZERO, minimap_model, realModel);
+            HELI = Function.Call<Entity>(369, player, HELI_WAY_POINT, Infected.ZERO, minimap_model, realModel);
             HELI.Call(32923);
             HELI.Call(32924);
 
@@ -108,6 +118,7 @@ namespace Infected
         }
 
         #endregion
+
         #region board heli
         internal bool HELI_ON_USE_;
         internal void HeliStart(Entity player)
@@ -132,10 +143,11 @@ namespace Infected
 
         }
         #endregion
+
         internal void HeliEndGunner()
         {
             if (HELI_GUNNER == null) return;
-            HELI_GUNNER.Call(33531, Infected.ZERO);//unlink
+            HELI_GUNNER.Call(33531, Infected.ZERO);
             HELI_GUNNER.Call(32843);//unlink
             HELI_GUNNER = null;
         }

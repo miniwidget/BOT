@@ -18,17 +18,18 @@ namespace ServerCommands
                 case "fr": ExecuteCommand("fast_restart"); break;
                 case "mr": ExecuteCommand("map_rotate"); break;
 
-                case "linf": ExecuteCommand("loadscript test\\inf.dll", "fast_restart"); break;
-                case "lsc": ExecuteCommand("loadscript test\\sc.dll", "fast_restart"); break;
-                case "ltest": ExecuteCommand("loadscript test\\test.dll", "fast_restart"); break;
-                case "ltdm": ExecuteCommand("loadscript test\\tdm.dll", "fast_restart"); break;
+                case "linf": ExecuteCommand("loadscript inf.dll", "fast_restart"); break;
+                case "lsc": ExecuteCommand("loadscript sc.dll", "fast_restart"); break;
+                case "ltest": ExecuteCommand("loadscript test.dll", "fast_restart"); break;
+                case "ltdm": ExecuteCommand("loadscript tdm.dll", "fast_restart"); break;
 
-                case "ulinf": ExecuteCommand("unloadscript test\\inf.dll", "fast_restart"); break;
-                case "ulsc": ExecuteCommand("unloadscript test\\sc.dll", "fast_restart"); break;
-                case "ultest": ExecuteCommand("unloadscript test\\test.dll", "fast_restart"); break;
-                case "ultdm": ExecuteCommand("unloadscript test\\tdm.dll", "fast_restart"); break;
+                case "ulinf": ExecuteCommand("unloadscript inf.dll", "fast_restart"); break;
+                case "ulsc": ExecuteCommand("unloadscript sc.dll", "fast_restart"); break;
+                case "ultest": ExecuteCommand("unloadscript test.dll", "fast_restart"); break;
+                case "ultdm": ExecuteCommand("unloadscript tdm.dll", "fast_restart"); break;
                 case "status": Status(); break;
 
+                case "3rd":  break;
 
             }
         }

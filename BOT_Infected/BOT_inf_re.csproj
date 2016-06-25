@@ -48,6 +48,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="8 Helicopter.cs" />
+    <Compile Include="9 Tank.cs" />
     <Compile Include="BOT\B Spawned.cs" />
     <Compile Include="BOT\B Connect.cs" />
     <Compile Include="HUMAN\H Connect.cs" />

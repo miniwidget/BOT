@@ -14,9 +14,7 @@ namespace Infected
         #region deplay
         void BotDeplay()
         {
-            Call(431, 17, "active"); // objective_add
-            Call(435, 17, HELI_WAY_POINT); // objective_position
-            Call(434, 17, "compass_objpoint_ac130_friendly"); //compass_objpoint_ac130_friendly compass_waypoint_bomb objective_icon
+            HCT.SetHeliPort();
 
             #region remove Bot
             List<int> tempStrList = null;
@@ -86,7 +84,7 @@ namespace Infected
         #endregion
 
         #region Bot_Connected
-        int BOT_RPG_ENTREF,BOT_RIOT_ENTREF, BOT_JUGG_ENTREF, BOT_ALLY_ENTREF;
+        int BOT_RPG_ENTREF,BOT_RIOT_ENTREF, BOT_JUGG_ENTREF;
         byte BOT_CLASS_NUM = 3;
         readonly string[] BOTs_CLASS = { "axis_recipe1", "axis_recipe2", "axis_recipe3", "class0", "class1", "class2", "class4", "class5", "class6", "class6" };
 
@@ -184,8 +182,10 @@ namespace Infected
             }
 
             int fidx = BOTs_List.IndexOf(fi);
-            BOT_ALLY_ENTREF = max;
-            if (fidx == max) BOT_ALLY_ENTREF -= 1;
+            int lucky_bot_idx = max;
+            if (fidx == max) lucky_bot_idx -= 1;
+
+            TK.SetTank(BOTs_List[lucky_bot_idx]);
 
             OnInterval(250, () =>
             {
@@ -194,7 +194,7 @@ namespace Infected
                     BotSet(fi, true);
                     return GetTeamState(fi);
                 }
-                if (i != BOT_ALLY_ENTREF)
+                if (i != lucky_bot_idx)
                 {
                     BotSet(BOTs_List[i], false);
                 }

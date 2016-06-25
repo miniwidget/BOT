@@ -25,7 +25,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>D:\MW3_SERVER\scripts\test\</OutputPath>
+    <OutputPath>D:\MW3_SERVER\scripts\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -44,15 +44,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Bot.cs" />
+    <Compile Include="FX.cs" />
+    <Compile Include="Marker.cs" />
     <Compile Include="NONE\ToDo.cs" />
-    <Compile Include="Util\Util.cs" />
-    <Compile Include="Weapon\Weapon.cs" />
-    <Compile Include="Set\Spawn.cs" />
+    <Compile Include="Sound.cs" />
+    <Compile Include="Table.cs" />
+    <Compile Include="Util.cs" />
+    <Compile Include="GSC Util.cs" />
+    <Compile Include="Vehicle\Tank.cs" />
+    <Compile Include="Vehicle\Vehicle.cs" />
+    <Compile Include="Weapon.cs" />
     <None Include="NONE\IAM.cs" />
-    <Compile Include="Set\Field.cs" />
-    <Compile Include="test void.cs" />
-    <None Include="NONE\Cooling.cs" />
-    <Compile Include="Main.cs" />
+    <Compile Include="1 Main.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

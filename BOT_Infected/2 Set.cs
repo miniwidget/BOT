@@ -11,15 +11,49 @@ namespace Infected
     {
         public Set()
         {
-            CheckTEST();
 
-            if (Infected.TEST_) Utilities.ExecuteCommand("sv_hostname TEST");
+            #region Load Custom Setting from a set.txt file
 
-            ReadMAP();
-        }
+            string setFile = "admin\\INF.txt";
 
-        void CheckTEST()
-        {
+            if (File.Exists(setFile))
+            {
+                using (StreamReader set = new StreamReader(setFile))
+                {
+                    bool b;
+
+                    while (!set.EndOfStream)
+                    {
+                        string line = set.ReadLine();
+                        if (line.StartsWith("//") || line.Equals(string.Empty)) continue;
+
+                        string[] split = line.Split('=');
+                        if (split.Length < 1) continue;
+
+                        string name = split[0];
+                        string value = split[1];
+                        var comment = value.IndexOf("//");
+                        if (comment != -1) value = value.Substring(0, comment);
+
+                        switch (name)
+                        {
+                            case "SERVER_NAME": Hud.SERVER_NAME_= value; break;
+                            case "ADMIN_NAME": Infected.ADMIN_NAME = value; break;
+
+                            case "TEST_": if ( bool.TryParse(value, out b)) Infected.TEST_ = b; break;
+                            case "DEPLAY_BOT_": if (bool.TryParse(value, out b)) Infected.DEPLAY_BOT_ = b; break;
+                            case "USE_ADMIN_SAFE_": if (bool.TryParse(value, out b)) Infected.USE_ADMIN_SAFE_ = b; break;
+
+                        }
+                    }
+
+                    //if (TEST_) SERVER_NAME = "^2BOT ^7TEST";
+                }
+            }
+
+
+            #endregion
+
             var assembly = System.Reflection.Assembly.GetExecutingAssembly();
 
             if (assembly.Location.Contains("test"))
@@ -27,7 +61,13 @@ namespace Infected
                 Infected.TEST_ = true;
                 print("■ " + assembly.GetName().Name + ".dll & TEST MODE");
             }
+
+            if (Infected.TEST_) Utilities.ExecuteCommand("sv_hostname TEST");
+            else Utilities.ExecuteCommand("sv_hostname " + Hud.SERVER_NAME_);
+
+            ReadMAP();
         }
+
         void ReadMAP()
         {
             Function.SetEntRef(-1);
@@ -74,7 +114,7 @@ namespace Infected
                 case 31: fff = new float[3] { -1456.08f, 1086.234f, 323.125f }; break;
             }
 
-            Infected.HELI_WAY_POINT = new Vector3(fff[0], fff[1], fff[2] + 150);
+            Helicopter.HELI_WAY_POINT = new Vector3(fff[0], fff[1], fff[2] + 150);
 
             if (new byte[] { 23, 24, 25, 26, 28, 29, 30 }.Contains(map_index))//small map
             {

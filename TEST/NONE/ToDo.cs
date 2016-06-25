@@ -15,21 +15,7 @@ namespace TEST.NONE
         2번 RPG 봇
         3번 리엇 봇
         4번 인간
-
-
-        1. OK!!! session team / isAlive 상태 확인
-
-        2. OK 사람이 죽었을 때, 탄알 3개만 줌
-
-        3. 봇 클래스 변경 가능한지 확인
-        
-        4. OK survivor 킬스트렉 어설트 드론 을 공격용 헬기로 변경
-
-        5. dead man 에게 헬기런쳐 지급
-
-        6. OK 메뉴 총기 리스트 변경
-        gameOpt commonOption.allowCustomClasses "1"
-        gameOpt commonOption.forceRespawn "0"
+     
 
                 bool firstSpawn_HelliBOT = true;
         bool secondSpawn;
@@ -67,7 +53,7 @@ namespace TEST.NONE
                 //bool control = true;
                 OnInterval(250, () =>
                 {
-                    var ho = ADMIN.Origin; ho.Z -= 50;
+                    var ho =test.ADMIN.Origin; ho.Z -= 50;
 
                     Vector3 temp_ = Call<Vector3>(247, ho - HELLI_BOT.Origin);//vectortoangles
                     HELLI_BOT.Call(33531, temp_);//SetPlayerAngles
@@ -117,7 +103,7 @@ namespace TEST.NONE
             if (index == 35) index = 0;
             NEXT_MAP = map_list[index+1];
             Call("setdvar", "sv_nextmap", NEXT_MAP);
-            print("맵 인덱스 : " + index + " 다음 맵 : " + NEXT_MAP);
+            test.Print("맵 인덱스 : " + index + " 다음 맵 : " + NEXT_MAP);
 
         */
         #endregion

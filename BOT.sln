@@ -3,13 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BOT_inf", "BOT_Infected\BOT_inf_re.csproj", "{58054442-E61A-4AFE-9BF0-E8F74A77F623}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BOT_inf_re", "BOT_Infected\BOT_inf_re.csproj", "{58054442-E61A-4AFE-9BF0-E8F74A77F623}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BOT_tdm", "BOT_tdm\BOT_tdm.csproj", "{A7C13281-4445-4B27-9DB7-A43CEBA10E09}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServerCommands", "ServerCommands\ServerCommands.csproj", "{5C285122-F381-44B2-A424-E45AB07E7F33}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TEST", "TEST\TEST.csproj", "{075FE7D0-A421-4004-9E13-E719403313EF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InfinityScript", "..\InfinityScript\InfinityScript.csproj", "{5EDFA999-EB9D-4966-B10C-56D405AF421E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{075FE7D0-A421-4004-9E13-E719403313EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{075FE7D0-A421-4004-9E13-E719403313EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{075FE7D0-A421-4004-9E13-E719403313EF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5EDFA999-EB9D-4966-B10C-56D405AF421E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5EDFA999-EB9D-4966-B10C-56D405AF421E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5EDFA999-EB9D-4966-B10C-56D405AF421E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5EDFA999-EB9D-4966-B10C-56D405AF421E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

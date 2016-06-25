@@ -10,7 +10,7 @@ namespace Infected
 {
     public partial class Infected
     {
-        void print(object s)
+        void Print(object s)
         {
             Log.Write(LogLevel.None, "{0}", s.ToString());
         }
@@ -24,7 +24,7 @@ namespace Infected
             bot.Call(33468, weapon, 500);//setweaponammoclip
             bot.Call(33523, weapon);//givemaxammo
 
-            bot.OnInterval(FIRE_TIME, bb =>
+            bot.OnInterval(400, bb =>
             {
                 if (i == 6 || B.target != null)
                 {
@@ -85,7 +85,7 @@ namespace Infected
             }
             catch (IndexOutOfRangeException)
             {
-                print("데미지 에러");
+                Print("데미지 에러");
             }
         }
 
@@ -134,7 +134,7 @@ namespace Infected
             }
             catch (IndexOutOfRangeException)
             {
-                print("킬드 에러");
+                Print("킬드 에러");
             }
         }
 

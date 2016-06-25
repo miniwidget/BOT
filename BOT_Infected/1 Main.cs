@@ -18,12 +18,10 @@ namespace Infected
         Hud HUD;
         Admin AD;
         Helicopter HCT;
+        Tank TK;
 
         public Infected()
         {
-            TEST_ = true;
-            if (TEST_) USE_ADMIN_SAFE_ = true;
-
             my = new Set();
             rnd = new Random();
             WP = new Weapon();
@@ -31,6 +29,7 @@ namespace Infected
             HUD = new Hud();
             info = new Info();
             HCT = new Helicopter();
+            TK = new Tank();
 
             Call(42, "scr_game_playerwaittime", 1);
             Call(42, "scr_game_matchstarttime", 1);
@@ -112,18 +111,15 @@ namespace Infected
 
         internal static Random rnd;
         internal static Entity ADMIN;
-        internal static Vector3 HELI_WAY_POINT, ZERO = new Vector3();
+        internal static Vector3 ZERO = new Vector3();
 
-        readonly int
-            SEARCH_TIME = 2000,
-            FIRE_TIME = 400,
-            BOT_DELAY_TIME = 6100,
-            BOT_SETTING_NUM = 12;
+        readonly int BOT_SETTING_NUM = 12;
 
         internal static int FIRE_DIST;
-        internal static bool TEST_;
+        internal static bool TEST_, DEPLAY_BOT_, USE_ADMIN_SAFE_;
+        internal static string ADMIN_NAME;
 
-        bool GAME_ENDED_, USE_ADMIN_SAFE_;
+        bool GAME_ENDED_;
         bool IsSurvivor(Entity player) { return player.GetField<string>("sessionteam") == "allies"; }
         bool[] IsBOT = new bool[18];
         bool[] IsAXIS = new bool[18];

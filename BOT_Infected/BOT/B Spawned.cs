@@ -63,7 +63,7 @@ namespace Infected
 
             #endregion
 
-            int delay_time = BOT_DELAY_TIME;
+            int delay_time = 6100;
 
             if (num == BOT_RPG_ENTREF || num == BOT_RIOT_ENTREF) delay_time = 10000;
             else if (num != BOT_JUGG_ENTREF) bot.Health = -1;
@@ -106,7 +106,7 @@ namespace Infected
             int death = B.death;
             string weapon = B.wep;
 
-            bot.OnInterval(SEARCH_TIME, b =>
+            bot.OnInterval(2000, b =>
             {
                 if (death != B.death) return false;
 
@@ -117,7 +117,6 @@ namespace Infected
                 {
                     if (human_List.Contains(target))
                     {
-                        //if (TEST_) return true;
                         var POD = target.Origin.DistanceTo(bo);
                         if (POD < FIRE_DIST)
                         {
@@ -148,7 +147,7 @@ namespace Infected
                         pause = false;
                         b.Call(33468, weapon, 999);//setweaponammoclip
                         b.Call(33523, weapon);//givemaxammo
-                        b.OnInterval(FIRE_TIME, bb =>
+                        b.OnInterval(400, bb =>
                         {
                             if (pause || !B.fire) return false;
 
@@ -182,7 +181,7 @@ namespace Infected
             int death = B.death;
             string weapon = B.wep;
 
-            bot.OnInterval(SEARCH_TIME, b =>
+            bot.OnInterval(2000, b =>
             {
                 if (death != B.death) return false;
 
@@ -195,7 +194,7 @@ namespace Infected
                     {
                         if (target.Origin.DistanceTo(bo) < FIRE_DIST)
                         {
-                            b.Call(33468, weapon, 999);//setweaponammoclip
+                            b.Call(33468, weapon, 500);//setweaponammoclip
                             b.Call(33523, weapon);//givemaxammo
                             pause = false;
                             return true;
@@ -230,7 +229,7 @@ namespace Infected
                 {
                     b.Call(33468, weapon, 999);//setweaponammoclip
                     b.Call(33523, weapon);//givemaxammo
-                    b.OnInterval(FIRE_TIME, bb =>
+                    b.OnInterval(400, bb =>
                     {
                         if (pause || !B.fire) return false;
 
@@ -261,7 +260,7 @@ namespace Infected
             bool pause = false;
             int death = B.death;
 
-            bot.OnInterval(SEARCH_TIME, bot_ =>
+            bot.OnInterval(2000, bot_ =>
             {
                 if (death != B.death) return false;
 
@@ -271,7 +270,6 @@ namespace Infected
                 {
                     if (human_List.Contains(target))
                     {
-                        //if (TEST_) return true;
                         var POD = target.Origin.DistanceTo(bo);
                         if (POD < FIRE_DIST)
                         {

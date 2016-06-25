@@ -89,7 +89,7 @@ namespace Infected
             player.Call(33445, "HOLD_CROUCH", "+movedown");
             player.OnNotify("HOLD_CROUCH", ent =>//view scope
             {
-                if (IsAXIS[pe]) 
+                if (IsAXIS[pe])
                 {
                     WP.GiveOffhandWeapon(player, "throwingknife");
                     return;
@@ -112,7 +112,7 @@ namespace Infected
             });
 
             #endregion
-        
+
             #region TANK
 
             Entity TANK = null;
@@ -128,7 +128,7 @@ namespace Infected
                     TANK = null;
 
                     bool found = false;
-                    for (int i = 0; i < 2048; i++)
+                    for (int i = TK.remoteTank.EntRef + 1; i < 2048; i++)
                     {
                         TANK = Entity.GetEntity(i);
                         if (TANK == null) continue;
@@ -173,29 +173,55 @@ namespace Infected
 
                 if (player.CurrentWeapon[2] != '5') return;
 
-                player.AfterDelay(500, x =>
+                player.AfterDelay(250, x =>
                 {
+
                     if (!HCT.IsUsingTurret(player))//heli 생성
                     {
                         if (HCT.HELI == null)
                         {
-                            if (H.USE_HELI == 1) { HCT.HeliCall(player); H.USE_HELI = 2; }
+                            if (H.USE_HELI == 1)
+                            {
+                                HCT.HeliCall(player); H.USE_HELI = 2;
+                                return;
+                            }
                         }
                         else
                         {
                             if (H.USE_HELI == 3 && HCT.HELI_OWNER == player)
                             {
                                 HCT.HeliEndUse(player, true); H.USE_HELI = 0;
+                                return;
                             }
                             else if (H.USE_HELI == 1 && !HCT.IsHeliArea(player))
                             {
-                                Info.MessageRoop(player, 0, HCT.HELI_MESSAGE_ALERT);
+                                int ti = TK.IsTankOwner(player);
+                                if (ti != 5)
+                                {
+                                    TK.TankEnd(player, ti);
+                                }
+                                else
+                                {
+                                    Info.MessageRoop(player, 0, HCT.HELI_MESSAGE_ALERT);
+                                }   
+                                return;
                             }
+                        }
+                        int i = TK.IsTankOwner(player);
+                        if (i != 5)
+                        {
+                            TK.TankEnd(player, i);
+                            return;
                         }
                     }
                     else
                     {
-                        if (HCT.HELI == null || HCT.HELI != null && !HCT.IsHeliArea(player)) return;/*다른 튜렛을 사용 중인 경우*/
+                        if (HCT.HELI == null || HCT.HELI != null && !HCT.IsHeliArea(player))/*다른 튜렛을 사용 중인 경우*/
+                        {
+                            TK.TankStart(player);
+
+                            return;
+                        }
 
                         if (H.USE_HELI == 2)//튜렛을 붙잡은 경우 remote control 시작
                         {
@@ -222,6 +248,7 @@ namespace Infected
             });
 
             #endregion
+
             HUD.AlliesHud(player, offhand.Replace("_mp", "").ToUpper());
 
             WP.GiveRandomWeaponTo(player);

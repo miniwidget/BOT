@@ -10,7 +10,7 @@ namespace ServerCommands
 {
     public partial class sc
     {
-        void sayToAll(string[] texts)
+        void SayToAll(string[] texts)
         {
             string notice = null;
 
@@ -54,19 +54,19 @@ namespace ServerCommands
             else s = "L ";
             return ":" +s;
         }
-        static void print(object o)
+        void print(object o)
         {
             Log.Write(LogLevel.None, "{0}", o.ToString());
         }
         void ExecuteCommand(string a)
         {
-            if (!TEST_) a = a.Replace("test\\", "");
+            //if (!TEST_) a = a.Replace("test\\", "");
 
             Utilities.ExecuteCommand(a);
         }
         void ExecuteCommand(string a, string b)
         {
-            if (!TEST_) a = a.Replace("test\\", "");
+            //if (!TEST_) a = a.Replace("test\\", "");
 
             Utilities.ExecuteCommand(a);
             Utilities.ExecuteCommand(b);

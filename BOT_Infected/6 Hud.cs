@@ -9,7 +9,7 @@ namespace Infected
     internal class Hud
     {
         internal HudElem SERVER;
-
+        internal static string SERVER_NAME_;
         readonly string ALLIES_HUD_TEXTS = @"
 ^7TYPE FOLLOWING
 ^2AP ^74 AKIMBO PISTOL
@@ -90,7 +90,7 @@ namespace Infected
             SERVER.HideWhenInMenu = true;
 
             Function.SetEntRef(-1);
-            SERVER.SetText(Function.Call<string>(47, "sv_hostname"));
+            SERVER.SetText(SERVER_NAME_);
         }
 
     }

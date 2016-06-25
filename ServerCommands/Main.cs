@@ -17,7 +17,7 @@ namespace ServerCommands
         /// 
         public sc()
         {
-            CheckTEST();
+            //CheckTEST();
             OnServerCommand("/", (string[] txts) =>
             {
                 int lenth = txts.Length;
@@ -26,7 +26,7 @@ namespace ServerCommands
                 {
                     if (txts[1] == "say")
                     {
-                        sayToAll(txts);
+                        SayToAll(txts);
                         return;
                     }
 
@@ -44,17 +44,17 @@ namespace ServerCommands
 
         }
 
-        bool TEST_;
-        bool CheckTEST()
-        {
-            var assembly = System.Reflection.Assembly.GetExecutingAssembly();
+        //bool TEST_;
+        //bool CheckTEST()
+        //{
+        //    var assembly = System.Reflection.Assembly.GetExecutingAssembly();
 
-            if (assembly.Location.Contains("test"))
-            {
-                return TEST_ = true;
-            }
-            return TEST_ = false;
-        }
+        //    if (assembly.Location.Contains("test"))
+        //    {
+        //        return TEST_ = true;
+        //    }
+        //    return TEST_ = false;
+        //}
 
     }
 }
