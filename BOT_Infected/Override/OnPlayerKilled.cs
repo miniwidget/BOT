@@ -10,10 +10,6 @@ namespace Infected
 {
     public partial class Infected
     {
-        void Print(object s)
-        {
-            Log.Write(LogLevel.None, "{0}", s.ToString());
-        }
 
         void BotTempFire(B_SET B, Entity bot, Entity target)
         {

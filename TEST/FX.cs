@@ -29,38 +29,29 @@ namespace TEST
         #region FX
         internal void GetLoadFXInt(string s)
         {
-            //smoke/smoke_grenade_11sec_mp
-            try
+        }
+        internal void triggerfx(string s)
+        {
+            int x = Call<int>("loadfx", s);
+            if (x > 0)
             {
-
-                //int i = 0;
-                //string a = null;
-                //while (i < 31)
-                //{
-                //    i++;
-                //    int x = Call<int>("loadfx", "smoke/signal_smoke_airdrop_" + i.ToString() + "sec");
-                //    a += " " + x.ToString();
-                //}
-                //test.Print(a);
-                //i = 0;
-                //a = null;
-                //while (i < 31)
-                //{
-                //    i++;
-                //    int x = Call<int>("loadfx", "smoke/signal_smoke_airdrop_" + i.ToString() + "sec_mp");
-                //    a += " " + x.ToString();
-                //}
-                //test.Print(a);
-                //int loadfx = Call<int>("loadfx", s);
-                //test.Print("FX INT :  " + );
+                Entity Effect = Call<Entity>("spawnFx", x, test.ADMIN.Origin + new Vector3(0, 0, 40));
+                Call("triggerfx", Effect);
+                test.ADMIN.AfterDelay(4000, p => Effect.Call("delete"));
             }
-            catch
+        }
+        internal void PlayFX(string s)
+        {
+            int i = int.Parse(s);
+
+            test.ADMIN.AfterDelay(500, e =>
             {
+                Call("PlayFX", i, test.ADMIN.Origin + new Vector3(0, 0, 50));
 
-            }
+            });
 
         }
-       internal void LoadFX(string s)
+        internal void LoadFX(string s)
         {
             try
             {
@@ -68,7 +59,8 @@ namespace TEST
 
                 test.ADMIN.AfterDelay(500, e =>
                 {
-                    Call("PlayFX", i,test.ADMIN.Origin);
+                    Call("PlayFX", i, test.ADMIN.Origin + new Vector3(0, 0, 50));
+
                 });
 
             }

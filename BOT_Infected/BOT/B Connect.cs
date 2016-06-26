@@ -120,7 +120,7 @@ namespace Infected
         
         void BotWaitOnFirstInfected()
         {
-            my.print("■ waitOnFirstInfected");
+            //my.print("■ waitOnFirstInfected");
 
             int failCount = 0;
             OnInterval(2000, () =>
@@ -207,7 +207,6 @@ namespace Infected
 
         void BotSet(Entity bot, bool change)
         {
-
             bot.SpawnedPlayer += () => BotSpawned(bot);
 
             bot.Call(33341);//suicide
@@ -223,7 +222,7 @@ namespace Infected
                 if (IsSurvivor(bot)) alive++;
             }
 
-            my.print("■ BOTs:" + max + " AXIS:" + (max - alive) + " ALLIES:" + alive + " Inf: " + fi.Name );
+            Print("■ BOTs:" + max + " AXIS:" + (max - alive) + " ALLIES:" + alive + " Inf: " + fi.Name + " ■ MAP: "+ my.MAP_IDX);
             HUD.ServerHud();
 
             Call(42, "testClients_doReload", 0);//setdvar
@@ -232,11 +231,6 @@ namespace Infected
             Call(42, "testClients_doAttack", 1);
 
             return false;
-        }
-        void SetTeamName()
-        {
-            Call("setdvar", "g_TeamName_Allies", "ALIVE");
-            Call("setdvar", "g_TeamName_Axis", "BOTs");
         }
     }
 }

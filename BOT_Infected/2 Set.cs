@@ -59,7 +59,6 @@ namespace Infected
             if (assembly.Location.Contains("test"))
             {
                 Infected.TEST_ = true;
-                print("■ " + assembly.GetName().Name + ".dll & TEST MODE");
             }
 
             if (Infected.TEST_) Utilities.ExecuteCommand("sv_hostname TEST");
@@ -67,7 +66,7 @@ namespace Infected
 
             ReadMAP();
         }
-
+        internal byte MAP_IDX;
         void ReadMAP()
         {
             Function.SetEntRef(-1);
@@ -75,10 +74,10 @@ namespace Infected
             string ENTIRE_MAPLIST = "mp_plaza2|mp_mogadishu|mp_bootleg|mp_carbon|mp_dome|mp_exchange|mp_lambeth|mp_hardhat|mp_interchange|mp_alpha|mp_bravo|mp_radar|mp_paris|mp_seatown|mp_underground|mp_village|mp_morningwood|mp_park|mp_overwatch|mp_italy|mp_cement|mp_qadeem|mp_meteora|mp_hillside_ss|mp_restrepo_ss|mp_aground_ss|mp_courtyard_ss|mp_terminal_cls|mp_burn_ss|mp_nola|mp_six_ss|mp_moab";
             var map_list = ENTIRE_MAPLIST.Split('|').ToList();
             int max = map_list.Count - 1;
-            byte map_index = (byte)map_list.IndexOf(map);
+            MAP_IDX = (byte)map_list.IndexOf(map);
             float[] fff = null;
 
-            switch (map_index)
+            switch (MAP_IDX)
             {
                 case 00: fff = new float[3] { -338.2646f, 2086.079f, 780.125f }; break;
                 case 01: fff = new float[3] { -528.8417f, 3310.055f, 96.125f }; break;
@@ -116,11 +115,11 @@ namespace Infected
 
             Helicopter.HELI_WAY_POINT = new Vector3(fff[0], fff[1], fff[2] + 150);
 
-            if (new byte[] { 23, 24, 25, 26, 28, 29, 30 }.Contains(map_index))//small map
+            if (new byte[] { 23, 24, 25, 26, 28, 29, 30 }.Contains(MAP_IDX))//small map
             {
                 Infected.FIRE_DIST = 600;
             }
-            else if (new byte[] { 8, 16, 17, 31 }.Contains(map_index))//large map
+            else if (new byte[] { 8, 16, 17, 31 }.Contains(MAP_IDX))//large map
             {
                 Infected.FIRE_DIST = 850;
             }
@@ -133,10 +132,10 @@ namespace Infected
             //Call("precacheVehicle", "attack_littlebird_mp");
 
 
-            print("map: " + map_index + "/" + max);
+            //print("map: " + map_index + "/" + max);
 
-            if (map_index >= max || map_index < 0) map_index = 0; else map_index++;
-            map = map_list[map_index];
+            if (MAP_IDX >= max || MAP_IDX < 0) MAP_IDX = 0; else MAP_IDX++;
+            map = map_list[MAP_IDX];
 
             if (Infected.TEST_)
             {
@@ -148,11 +147,6 @@ namespace Infected
                 string content = map + ",INF,1";
                 File.WriteAllText("admin\\INF.dspl", content);
             }
-        }
-
-        internal void print(object s)
-        {
-            Log.Write(LogLevel.None, "{0}", s.ToString());
         }
     }
 }

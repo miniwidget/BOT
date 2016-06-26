@@ -19,12 +19,13 @@ namespace Infected
 ^2LM ^75 LIGHT M_GUN
 ^2SG ^74 SHOT GUN
 ^2SN ^76 SNIPE GUN
-^2LOC ^RELOCATION
+^2LOC ^7RE LOCATION
+^2ti ^7SAVE LOCATION
 
 ^7PRESS KEY
 ^2[{+strafe}] ^7AMMO
-^2[{+movedown}] ^7VIEWSCOPE
-^2[{+stance}] ^7";
+^2[{+movedown}] ^7VIEWSCOPE";
+//^2[{+stance}] ^7"
         //^2[{+prone}] ^7ATTATCHMENT
 
         internal void AlliesHud(Entity player, string offhand)
@@ -62,9 +63,6 @@ namespace Infected
         internal void AxisHud(Entity player)
         {
             player.Notify("CLOSE");
-            //player.Notify("CLOSE_perk");
-            //human_List.Remove(player);
-
 
             HudElem axis_weap_hud = HudElem.CreateFontString(player, "hudbig", 0.5f);
             axis_weap_hud.X = 740;
@@ -89,7 +87,6 @@ namespace Infected
             SERVER.Alpha = 0.7f;
             SERVER.HideWhenInMenu = true;
 
-            Function.SetEntRef(-1);
             SERVER.SetText(SERVER_NAME_);
         }
 

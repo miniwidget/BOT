@@ -171,5 +171,10 @@ namespace Infected
             HELI.Call(32928);
             HELI = null;
         }
+        internal void IfHeliOwner_DoEnd(Entity player)
+        {
+            if (HELI_OWNER == player) HeliEndUse(player, false);
+            else if (HELI_GUNNER == player) HeliEndGunner();
+        }
     }
 }

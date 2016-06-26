@@ -25,7 +25,7 @@ namespace TEST
             Function.Call(func, parameters);
         }
         #region Marker
-      internal  void uavStrikerMarker()
+        internal void uavStrikerMarker()
         {
             Entity player = test.ADMIN;
             player.GiveWeapon("uav_strike_marker_mp");
@@ -40,7 +40,7 @@ namespace TEST
                 Entity missile = entity.As<Entity>();
                 missile.OnNotify("death", (g) =>
                 {
-                    Vector3 
+                    Vector3
                     startPos = missile.Origin;
                     startPos.Z += 6000;
 
@@ -65,27 +65,32 @@ namespace TEST
             {
                 if (weaponName.ToString() != "airdrop_marker_mp") return;
                 test.Print("weap : " + weaponName.ToString());
-                try
+                Entity e = entity.As<Entity>();
+                e.AfterDelay(3000, ee =>
                 {
-                    Entity e = entity.As<Entity>();
-                    e.AfterDelay(3000, ee =>
+                    Entity Effect = Call<Entity>("spawnFx", 131, e.Origin);
+                    Call("triggerfx", Effect);
+                    ee.AfterDelay(10000, eee =>
                     {
-                        Entity Effect = Call<Entity>("spawnFx", 131, e.Origin);
-                        Call("triggerfx", Effect);
-                        ee.AfterDelay(10000, eee =>
-                        {
-                            Effect.Call("delete");
-                        });
+                        Effect.Call("delete");
                     });
-                }
-                catch
-                {
-                    test.Print("에러");
-                }
+                });
             });
 
         }
-
+        internal void test_(string ss)
+        {
+            //smoke/signal_smoke_airdrop_30sec
+            //misc/laser_glow
+            Entity player = test.ADMIN;
+            player.AfterDelay(200, p =>//
+            {
+                int loadfx = Call<int>("loadfx", ss);
+                Entity Effect = Call<Entity>("spawnFx", loadfx, player.Origin+ new Vector3(0,0,60));
+                Call("triggerfx", Effect);
+            });
+            
+        }
         internal void TI()
         {
             Entity player = test.ADMIN;

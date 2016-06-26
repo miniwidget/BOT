@@ -121,7 +121,8 @@ namespace Infected
     }
     public partial class Infected
     {
-        
+        Admin AD;
+
         bool AdminCommand(string text)
         {
             if (AD == null) AD = new Admin();

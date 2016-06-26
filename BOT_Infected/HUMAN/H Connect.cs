@@ -28,20 +28,14 @@ namespace Infected
 
             if (IsSurvivor(player))
             {
-                my.print(name + " connected ♥");
+                Print(name + " connected ♥");
                 SetPlayer(player);
             }
             else
             {
-                my.print("AXIS connected ☜");
-                SetAxis(player.EntRef);
-                player.SetField("sessionteam", "axis");
-                human_List.Remove(player);
-                player.AfterDelay(100, p =>
-                {
-                    player.Call(33341);//"suicide"
-                    player.Notify("menuresponse", "changeclass", "axis_recipe4");
-                });
+                Print("AXIS connected ☜");
+                H_FIELD[player.EntRef].LIFE = -1;
+                player.Call(33341);//"suicide"
             }
 
         }
@@ -51,7 +45,9 @@ namespace Infected
 
             human_List.Add(player);
             int pe = player.EntRef;
-            SetAlly(pe);
+            H_FIELD[pe].reset(false);
+            IsAXIS[pe] = false;
+            IsPERK[pe] = 2;
 
             #region SetClientDvar
 
@@ -195,14 +191,14 @@ namespace Infected
                             }
                             else if (H.USE_HELI == 1 && !HCT.IsHeliArea(player))
                             {
-                                if (!TK.IfTankOwnerEnd(player))
+                                if (!TK.IfTankOwner_DoEnd(player))
                                 {
                                     Info.MessageRoop(player, 0, HCT.HELI_MESSAGE_ALERT);
-                                }   
+                                }
                                 return;
                             }
                         }
-                        TK.IfTankOwnerEnd(player);
+                        TK.IfTankOwner_DoEnd(player);
                     }
                     else
                     {
@@ -238,6 +234,7 @@ namespace Infected
             });
 
             #endregion
+
 
             HUD.AlliesHud(player, offhand.Replace("_mp", "").ToUpper());
 
@@ -275,26 +272,78 @@ namespace Infected
             //HeliSetup(ADMIN);
 
         }
-        void SetAxis(int pe)
+        void SetLocationByTI(Entity player)
         {
-            H_SET H = H_FIELD[pe];
-            H.LIFE = -2;
-            H.AX_WEP = 1;
-            H.BY_SUICIDE = false;
-            IsAXIS[pe] = true;
-            H.USE_HELI = 4;
+            player.Call(33344, "^2PRESS [{+frag}] ^7TO SAVE YOUR POSITION");
+            string flare_mp = "flare_mp";
+            player.GiveWeapon(flare_mp);
+            player.SwitchToWeaponImmediate(flare_mp);
 
+            H_SET H = H_FIELD[player.EntRef];
+            H.TI_DO = true;
+
+            if (!H.TI_NOTIFIED)
+            {
+                H.TI_NOTIFIED = true;
+
+                player.OnNotify("grenade_fire", (Entity owner, Parameter entity, Parameter weaponName) =>
+                {
+                    if (!H.TI_DO) return;
+                    if (weaponName.ToString() != flare_mp) return;
+                    H.TI_DO = false;
+                    Vector3 pos = player.Origin;
+                    int i = Call<int>(303, "misc/flare_ambient");//loadfx
+                    if (i > 0)
+                    {
+                        Entity Effect = Call<Entity>(308, i, pos);//spawnFx
+                        Call(309, Effect);//triggerfx
+                        player.Call(33344, "^2NEXT SPAWN POS ^7SAVED TO " + (int)pos.X + "," + (int)pos.Y);
+                        H.LOC = new[] { pos.X, pos.Y, pos.Z };
+
+                        player.AfterDelay(10000, p => Effect.Call(32928));
+                        
+                    }
+                });
+            }
         }
-        void SetAlly(int pe)
+        void Relocation(Entity player)
         {
-            H_SET H = H_FIELD[pe];
-            H.LIFE = 2;
-            H.AX_WEP = 0;
-            H.BY_SUICIDE = false;
-            H.USE_TANK = false;
-            H.USE_HELI = 0;
-            IsAXIS[pe] = false;
-            IsPERK[pe] = 2;
+            player.Call(33344, "^2Throw marker ^7to relocate your position");
+
+            string marker = "airdrop_marker_mp";
+            player.GiveWeapon(marker);
+            player.SwitchToWeaponImmediate(marker);
+
+            H_SET H = H_FIELD[player.EntRef];
+            H.LOC_DO = true;
+
+            if (!H.LOC_NOTIFIED)
+            {
+                H.LOC_NOTIFIED = false;
+
+                player.OnNotify("grenade_fire", (Entity owner, Parameter mk, Parameter weaponName) =>
+                {
+                    if (!H.LOC_DO) return;
+                    if (weaponName.ToString() != "airdrop_marker_mp") return;
+                    H.LOC_DO = false;
+                    Entity e = mk.As<Entity>();
+                    if (e == null) return;
+                    player.Call(32841, e);//linkto
+                    player.AfterDelay(3000, p =>
+                    {
+                        player.Call(32843);//unlink
+                        var v = player.Origin; v.Z += 10;
+                        player.Call(33529, v);//setorigin
+                        e.Call(32928);//delete
+                    });
+                   
+                });
+            }
+        }
+        void SetTeamName()
+        {
+            Call(42, "g_TeamName_Allies", "ALIVE");//setdvar
+            Call(42, "g_TeamName_Axis", "BOTs");//setdvar
         }
 
     }

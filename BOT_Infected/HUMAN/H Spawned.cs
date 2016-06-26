@@ -11,7 +11,7 @@ namespace Infected
     public partial class Infected
     {
         bool _temp = true;
-        bool IsINF()
+        bool IsFirstInfectdHuman()
         {
             _temp = false;
 
@@ -24,13 +24,11 @@ namespace Infected
             return true;
 
         }
-        readonly string[] SOUND_ALERTS =
-        {
-            "AF_1mc_losing_fight", "AF_1mc_lead_lost", "PC_1mc_losing_fight", "PC_1mc_take_positions", "PC_1mc_positions_lock" , "PC_1mc_enemy_take_a" , "PC_1mc_enemy_take_b", "PC_1mc_enemy_take_c"
-        };
 
-        #region human_spawned
-
+        /// <summary>
+        /// 사람이 스폰한 경우
+        /// </summary>
+        /// <param name="player"></param>
         void human_spawned(Entity player)//LIFE 1 or 2
         {
             if (GAME_ENDED_) return;
@@ -38,12 +36,15 @@ namespace Infected
             int pe = player.EntRef;
             H_SET H = H_FIELD[pe];
 
-            if (_temp) if (IsINF()) H.LIFE = -1;
+            if (_temp) if (IsFirstInfectdHuman()) H.LIFE = -1;
 
-            if (HCT.HELI != null)
+            if (HCT.HELI_ON_USE_)
             {
-                if (HCT.HELI_OWNER == player) HCT.HeliEndUse(player, false);
-                else if (HCT.HELI_GUNNER == player) HCT.HeliEndGunner();
+                HCT.IfHeliOwner_DoEnd(player);
+            }
+            if(TK.USE_RMT1 || TK.USE_RMT2)
+            {
+                TK.IfTankOwner_DoEnd(player);
             }
 
             var LIFE = H.LIFE;
@@ -68,19 +69,27 @@ namespace Infected
 
                     if (!human_List.Contains(player)) human_List.Add(player);
 
-                    TK.IfTankOwnerEnd(player);
+                    if (H.LOC != null)
+                    {
+                        temp.X = H.LOC[0];
+                        temp.Y = H.LOC[1];
+                        temp.Z = H.LOC[2];
+
+                        player.Call("setorigin", temp);
+                        H.LOC = null;
+                    }
                 }
             }
             else if (LIFE == -1)//change to AXIS
             {
-                SetAxis(pe);
+                IsAXIS[pe] = true;
+                H.reset(true);
 
                 player.SetField("sessionteam", "axis");
                 human_List.Remove(player);
                 player.Call(33341);
                 player.Notify("menuresponse", "changeclass", "axis_recipe4");
-                TK.IfTankOwnerEnd(player);
-                my.print(player.Name + " : Infected ⊙..⊙");
+                Print(player.Name + " : Infected ⊙..⊙");
             }
             else
             {
@@ -106,9 +115,20 @@ namespace Infected
                         AxisWeapon_by_init(player);
                     }
                 }
+
+                if (H.LOC != null)
+                {
+                    temp.X = H.LOC[0];
+                    temp.Y = H.LOC[1];
+                    temp.Z = H.LOC[2];
+
+                    player.Call("setorigin", temp);
+                    H.LOC = null;
+                }
             }
+   
         }
-        #endregion
+        Vector3 temp;
 
         /// <summary>
         /// 죽은 사람 무기 초기화

@@ -10,38 +10,12 @@ namespace Infected
 {
     public partial class Infected
     {
-        void Relocation(Entity player)
-        {
-            player.Call(33344, "NOT YET...ON TEST. SORRY");
 
-            return;
-
-            int count = human_List.Count;
-            if (count== 1)
-            {
-
-            }else
-            {
-                if (HCT.IsUsingTurret(player))
-                {
-                    if (TK.IfTankOwnerEnd(player))
-                    {
-                        player.AfterDelay(500, p =>
-                        {
-                            player.Call("setorigin", human_List[rnd.Next(count)].Origin);
-                        });
-                        return;
-                    }
-                }
-                player.Call("setorigin", human_List[rnd.Next(count)].Origin);
-            }
-        }
         public override void OnSay(Entity player, string name, string text)
         {
-            if (name == "kwnav")
+            if (name == ADMIN_NAME)
             {
                 if(text[0]=='/') if (!AdminCommand(text.Remove(0,1))) return;
-               // if (!AdminCommand(text)) return;
             }
 
             if (GAME_ENDED_) return;
@@ -60,10 +34,14 @@ namespace Infected
                 {
                     case "infoa": info.MessageInfoA(player, Axis); return;
                     case "infow": info.MessageInfoW(player, Axis); return;
+
                     case "sc": AfterDelay(100, () => player.Call("suicide")); return;
                     case "riot": WP.GiveWeaponTo(player, "riotshield_mp"); return;
                     case "javelin": WP.GiveWeaponTo(player, "javelin_mp"); return;
                     case "stinger": WP.GiveWeaponTo(player, "stinger_mp"); return;
+
+                    case "loc": Relocation(player); return;
+                    case "ti": SetLocationByTI(player);return;
                 }
                 #endregion
 
@@ -73,7 +51,6 @@ namespace Infected
 
                 switch (text0)
                 {
-                    case "loc": return;
                     case "ap": WP.GiveWeaponTo(player, 0); return;
                     case "ag": WP.GiveWeaponTo(player, 1); return;
                     case "ar": WP.GiveWeaponTo(player, 2); return;

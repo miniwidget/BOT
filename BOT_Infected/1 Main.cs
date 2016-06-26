@@ -11,14 +11,15 @@ namespace Infected
 
     public partial class Infected : BaseScript
     {
+        #region class
         Set my;
         Weapon WP;
         Perk PK;
         Info info;
         Hud HUD;
-        Admin AD;
         Helicopter HCT;
         Tank TK;
+        #endregion
 
         public Infected()
         {
@@ -76,7 +77,7 @@ namespace Infected
 
             OnNotify("prematch_done", () =>
             {
-                BotDeplay();
+                if(DEPLAY_BOT_) BotDeplay();
 
                 PlayerDisconnected += player =>
                 {
@@ -107,6 +108,11 @@ namespace Infected
 
         }
 
+        void Print(object s)
+        {
+            Log.Write(LogLevel.None, "{0}", s.ToString());
+        }
+
         #region field
 
         internal static Random rnd;
@@ -124,6 +130,10 @@ namespace Infected
         bool[] IsBOT = new bool[18];
         bool[] IsAXIS = new bool[18];
         int[] IsPERK = new int[18];
+        readonly string[] SOUND_ALERTS =
+        {
+            "AF_1mc_losing_fight", "AF_1mc_lead_lost", "PC_1mc_losing_fight", "PC_1mc_take_positions", "PC_1mc_positions_lock" , "PC_1mc_enemy_take_a" , "PC_1mc_enemy_take_b", "PC_1mc_enemy_take_c"
+        };
 
 
         /// <summary>
@@ -156,13 +166,43 @@ namespace Infected
             //        return this.att;
             //    }
             //}
-            internal int AX_WEP { get; set; }
-            internal bool BY_SUICIDE { get; set; }
             internal int LIFE { get; set; }
             internal bool RESPAWN { get; set; }
+
+            internal int AX_WEP { get; set; }
+            internal bool BY_SUICIDE { get; set; }
+
             internal bool USE_TANK { get; set; }
             internal int USE_HELI { get; set; }
 
+            internal bool TI_NOTIFIED;
+            internal bool TI_DO;
+
+            internal bool LOC_NOTIFIED;
+            internal bool LOC_DO;
+            internal float[] LOC = null;
+
+            internal void reset (bool Axis)
+            {
+                BY_SUICIDE = false;
+                USE_TANK = false;
+                TI_NOTIFIED = false;
+                TI_DO = false;
+                LOC_NOTIFIED = false;
+                LOC_DO = false;
+                
+                if (!Axis)
+                {
+                    LIFE = 2;
+                    USE_HELI = 0;
+                    AX_WEP = 0;
+                }else
+                {
+                    LIFE = -2;
+                    USE_HELI = 4;
+                    AX_WEP = 1;
+                }
+            }
         }
         internal static List<H_SET> H_FIELD = new List<H_SET>(18);
         internal static List<Entity> human_List = new List<Entity>();

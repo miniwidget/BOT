@@ -93,8 +93,6 @@ namespace Infected
                 
 
             });
-
-
         }
 
         //봇 목표물 찾기 루프
@@ -328,7 +326,6 @@ namespace Infected
 
             });
         }
-
 
     }
 }

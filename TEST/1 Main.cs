@@ -150,8 +150,8 @@ namespace TEST
             string t1 = texts[1];
             switch (t)
             {
-                case "lfx": fx.GetLoadFXInt(t1); break;
-                case "fx": fx.LoadFX(t1); break;
+                case "lfx": fx.LoadFX(t1); break;
+                case "tfx": fx.triggerfx(t1);break;
 
                 case "st": sound.PlaySound(t1); break;
                 case "so": sound.PlayLocalSound(t1); break;

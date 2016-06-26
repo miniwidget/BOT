@@ -8,6 +8,9 @@ namespace Infected
 {
     class Tank
     {
+        internal bool USE_RMT1;
+        internal bool USE_RMT2;
+        internal bool USE_RMTK;
         internal Entity remoteTank, rmt1, rmt2;
         Vector3 TANK_WAY_POINT;
         Vector3 GetVector(float x, float y, float z)
@@ -17,6 +20,7 @@ namespace Infected
             TANK_WAY_POINT.Z = z;
             return TANK_WAY_POINT;
         }
+
         internal void SetTank(Entity player)
         {
             TANK_WAY_POINT = player.Origin;
@@ -65,8 +69,6 @@ namespace Infected
 
         sbyte IsTankOwner_(Entity player)
         {
-            if (remoteTank == null) return 5;
-
             var pe = player.EntRef;
             if (remoteTank.GetField<int>("owner") == pe)
             {
@@ -78,8 +80,10 @@ namespace Infected
 
             return 5;
         }
-        internal bool IfTankOwnerEnd(Entity player)
+        internal bool IfTankOwner_DoEnd(Entity player)
         {
+            if (remoteTank == null) return false;
+
             int ti = IsTankOwner_(player);
             if (ti != 5)
             {
@@ -101,7 +105,6 @@ namespace Infected
             return true;
         }
    
-        internal bool TANK_ON_USE_;
         internal void TankStart(Entity player)
         {
             float pod = player.Origin.DistanceTo(rmt1.Origin);
@@ -111,15 +114,23 @@ namespace Infected
                 if (pod2 > 140) return;
             }
             
-            if (!TANK_ON_USE_)
+            if (!USE_RMTK)
             {
-                TANK_ON_USE_ = true;
                 player.Call(33256, remoteTank);//remotecontrolvehicle  
                 remoteTank.SetField("owner", player.EntRef);
+                USE_RMTK = true;
             }
 
-            if (pod < 140) rmt1.SetField("owner", player.EntRef);
-            else if (pod2 < 140) rmt2.SetField("owner", player.EntRef);
+            if (pod < 140)
+            {
+                rmt1.SetField("owner", player.EntRef);
+                USE_RMT1 = true;
+            }
+            else if (pod2 < 140)
+            {
+                rmt2.SetField("owner", player.EntRef);
+                USE_RMT2 = true;
+            }
 
             player.Health = 300;
 
@@ -128,17 +139,36 @@ namespace Infected
         {
             if (i < 3)
             {
-                TANK_ON_USE_ = false;
+                //TANK_ON_USE_ = false;
                 remoteTank.SetField("owner", -1);
-                if (i == 1) rmt1.SetField("owner", -1);
-                else rmt2.SetField("owner", -1);
+
+                if (i == 1)
+                {
+                    rmt1.SetField("owner", -1);
+                    USE_RMT1 = false;
+                    USE_RMTK = false;
+                }
+                else
+                {
+                    rmt2.SetField("owner", -1);
+                    USE_RMT2 = false;
+                    USE_RMTK = false;
+                }
 
                 SetTankPort(remoteTank.Origin);
             }
             else
             {
-                if (i == 3) rmt1.SetField("owner", -1);
-                else rmt2.SetField("owner", null);
+                if (i == 3)
+                {
+                    rmt1.SetField("owner", -1);
+                    USE_RMT1 = false;
+                }
+                else
+                {
+                    rmt2.SetField("owner", null);
+                    USE_RMT2 = false;
+                }
             }
             player.Call(32843);//unlink
             player.Call(33257);//remotecontrolvehicleoff
