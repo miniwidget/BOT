@@ -77,7 +77,7 @@ namespace Infected
 
             OnNotify("prematch_done", () =>
             {
-                if(DEPLAY_BOT_) BotDeplay();
+                if (DEPLAY_BOT_) BotDeplay();
 
                 PlayerDisconnected += player =>
                 {
@@ -108,7 +108,7 @@ namespace Infected
 
         }
 
-      internal static  void Print(object s)
+        internal static void Print(object s)
         {
             Log.Write(LogLevel.None, "{0}", s.ToString());
         }
@@ -121,7 +121,7 @@ namespace Infected
 
         readonly int BOT_SETTING_NUM = 12;
 
-        internal static int FIRE_DIST;
+        internal static int FIRE_DIST, PLAYER_LIFE = 2;
         internal static bool TEST_, DEPLAY_BOT_, USE_ADMIN_SAFE_;
         internal static string ADMIN_NAME;
 
@@ -182,7 +182,7 @@ namespace Infected
             internal bool LOC_DO;
             internal float[] LOC = null;
 
-            internal void reset (bool Axis)
+            internal void reset(bool Axis)
             {
                 BY_SUICIDE = false;
                 USE_TANK = false;
@@ -190,16 +190,17 @@ namespace Infected
                 TI_DO = false;
                 LOC_NOTIFIED = false;
                 LOC_DO = false;
-                
-                if (!Axis)
+
+                if (Axis)
                 {
-                    LIFE = 2;
-                    USE_HELI = 0;
-                    AX_WEP = 0;
-                }else
-                {
+                    LIFE = -2;
                     USE_HELI = 4;
                     AX_WEP = 1;
+                }
+                else
+                {
+                    USE_HELI = 0;
+                    AX_WEP = 0;
                 }
             }
         }

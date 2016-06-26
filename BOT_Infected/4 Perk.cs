@@ -11,25 +11,22 @@ namespace Infected
     {
         #region Perk
 
-        int Y1 = 65, k = 120, j = 40;
-        int X2 = -120, X2_ = -100, X2__ = -50, Y2 = 250, Y2_ = 250, Y2__ = 250, jm = 80, jm_ = 80, jm__ = 120;
-        float alp_ = 0.8f, alp0 = 0.1f, alp = 0.1f, alp_2 = 0.2f, alp__ = 0.5f, f1 = 0.25f, f2 = 0.25f;
+        int
+            X2 = -120, X2_ = -100, X2__ = -50, Y2 = 250, Y2_ = 250, Y2__ = 250, jm = 80, jm_ = 80, jm__ = 120;
+        float alp_ = 0.8f, alp0 = 0.1f, alp = 0.1f, alp_2 = 0.2f, alp__ = 0.5f;
 
         internal void Perk_Hud(Entity player, int i)
         {
             if (i > 10 || i < 0) return;
             i -= 1;
-            //print(player.Name + " perk count : " + i);
 
             HudElem PH = HudElem.NewClientHudElem(player);
             PH.Foreground = true;
-            player.OnNotify("+TAB", entity => PH.Alpha = 0.5f);
-            player.OnNotify("-TAB", entity => PH.Alpha = 0f);
             PH.X = X2_;
             PH.Y = Y2_;
             PH.Alpha = alp_;
             PH.SetShader(PL[i], jm_, jm_);
-            PH.Call("moveovertime", f2); PH.X = X2__;
+            PH.Call("moveovertime", 0.25f); PH.X = X2__;
 
             HudElem CH = HudElem.NewClientHudElem(player);
             CH.Parent = HudElem.UIParent;
@@ -43,32 +40,27 @@ namespace Infected
             PH.Y = Y2__;
             PH.Alpha = alp__;
             PH.SetShader(PL[i], jm__, jm__);
-            PH.Call("moveovertime", f1); PH.X = X2_;
+            PH.Call("moveovertime", 0.25f); PH.X = X2_;
 
             CH.X = X2;
             CH.Y = Y2_;
             CH.Alpha = alp_2;
             CH.SetShader(PL[i] + "_upgrade", jm_, jm_);
-            CH.Call("moveovertime", f1); CH.X = X2_;
+            CH.Call("moveovertime", 0.25f); CH.X = X2_;
 
             player.AfterDelay(1000, p =>
             {
-                PH.X = k + (j * i);
-                PH.Y = Y1;
-                PH.Alpha = alp0;
-                PH.SetShader(PL[i], j, j);
+                PH.Call(32897);
 
                 CH.X = X2_;
                 CH.Y = Y2__;
                 CH.Alpha = alp__;
                 CH.SetShader(PL[i] + "_upgrade", jm__, jm__);
-                CH.Call("moveovertime", f1); CH.X = X2;
+                CH.Call("moveovertime", 0.25f); CH.X = X2;
+
+                player.AfterDelay(1000, pp => CH.Call(32897));
             });
-            player.AfterDelay(2000, p =>
-            {
-                PH.Call(32897);
-                CH.Call(32897);
-            });
+          
 
             string
                 say = null,
@@ -168,7 +160,7 @@ namespace Infected
         }
         #endregion
 
-        public static string[] PL =
+         readonly string[] PL =
         {
             "specialty_fastreload",
             "specialty_quickdraw",
@@ -183,7 +175,7 @@ namespace Infected
             "specialty_hardline"
         };
 
-        public static string[] DL =
+        readonly string[] DL =
         {
             "specialty_ironlungs",
             "specialty_steadyaim",
@@ -191,7 +183,7 @@ namespace Infected
             "specialty_twoprimaries",
 
         };
-        public static string[] CL =
+        readonly string[] CL =
         {
             "specialty_longerrange",
             "specialty_reducedsway",

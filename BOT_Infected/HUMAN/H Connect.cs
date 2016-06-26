@@ -35,10 +35,12 @@ namespace Infected
             {
                 Print("AXIS connected ☜");
                 H_FIELD[player.EntRef].LIFE = -1;
+                player.SpawnedPlayer += () => human_spawned(player);
                 player.Call(33341);//"suicide"
             }
 
         }
+        
         void SetPlayer(Entity player)
         {
             player.Notify("menuresponse", "changeclass", "allies_recipe" + rnd.Next(1, 6));
@@ -47,7 +49,7 @@ namespace Infected
             int pe = player.EntRef;
             H_SET H = H_FIELD[pe];
             H.reset(false);
-            H.LIFE = 2;
+            H.LIFE = PLAYER_LIFE;
             IsPERK[pe] = 2;
             IsAXIS[pe] = false;
 

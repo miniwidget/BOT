@@ -118,6 +118,7 @@ namespace Infected
             if (new byte[] { 23, 24, 25, 26, 28, 29, 30 }.Contains(MAP_IDX))//small map
             {
                 Infected.FIRE_DIST = 600;
+                Infected.PLAYER_LIFE += 1;
             }
             else if (new byte[] { 8, 16, 17, 31 }.Contains(MAP_IDX))//large map
             {

@@ -123,6 +123,7 @@ namespace Infected
 
                 switch (txt)
                 {
+                    case "perk": PK.Perk_Hud(ADMIN, int.Parse(value));return false;
                     case "pos": AD.moveBot(value); return false;
                     case "die": AD.Die(text); return false;
                     case "k": AD.Kick(text); return false;
