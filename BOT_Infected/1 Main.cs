@@ -198,7 +198,6 @@ namespace Infected
                     AX_WEP = 0;
                 }else
                 {
-                    LIFE = -2;
                     USE_HELI = 4;
                     AX_WEP = 1;
                 }

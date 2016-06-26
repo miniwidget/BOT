@@ -129,10 +129,6 @@ namespace Infected
             }
 
             //Call("precachemodel", "prop_flag_neutral");
-            //Call("precacheVehicle", "attack_littlebird_mp");
-
-
-            //print("map: " + map_index + "/" + max);
 
             if (MAP_IDX >= max || MAP_IDX < 0) MAP_IDX = 0; else MAP_IDX++;
             map = map_list[MAP_IDX];

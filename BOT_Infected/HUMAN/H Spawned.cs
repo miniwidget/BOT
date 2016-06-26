@@ -78,6 +78,9 @@ namespace Infected
                         player.Call("setorigin", temp);
                         H.LOC = null;
                     }
+
+                    H.reset(false);
+                    IsPERK[pe] = 2;
                 }
             }
             else if (LIFE == -1)//change to AXIS

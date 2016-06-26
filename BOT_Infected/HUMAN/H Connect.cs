@@ -45,9 +45,11 @@ namespace Infected
 
             human_List.Add(player);
             int pe = player.EntRef;
-            H_FIELD[pe].reset(false);
-            IsAXIS[pe] = false;
+            H_SET H = H_FIELD[pe];
+            H.reset(false);
+            H.LIFE = 2;
             IsPERK[pe] = 2;
+            IsAXIS[pe] = false;
 
             #region SetClientDvar
 
@@ -93,7 +95,6 @@ namespace Infected
             #region TANK
 
             Entity TANK = null;
-            H_SET H = H_FIELD[pe];
             player.OnNotify("weapon_change", (Entity ent, Parameter newWeap) =>
             {
                 if (H.USE_TANK) return;
@@ -249,8 +250,6 @@ namespace Infected
                 ADMIN.Call(32936);
                 ADMIN.Call(33220, 2f);
             }
-            //HeliSetup(ADMIN);
-
         }
         void SetLocationByTI(Entity player)
         {
@@ -291,7 +290,7 @@ namespace Infected
         }
         void Relocation(Entity player)
         {
-            player.Call(33344, "^2Throw marker ^7to relocate your position");
+            player.Call(33344, "^2THROW MARKER ^7to Relocate Your Position");
 
             string marker = "airdrop_sentry_marker_mp";
             player.GiveWeapon(marker);
