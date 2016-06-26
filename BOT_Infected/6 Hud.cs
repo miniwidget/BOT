@@ -11,21 +11,21 @@ namespace Infected
         internal HudElem SERVER;
         internal static string SERVER_NAME_;
         readonly string ALLIES_HUD_TEXTS = @"
-^7TYPE FOLLOWING
-^2AP ^74 AKIMBO PISTOL
-^2AG ^76 AKIMBO GUN
-^2AR ^79 ASSAU RIFFLE
-^2SM ^76 SUB M_GUN
-^2LM ^75 LIGHT M_GUN
-^2SG ^74 SHOT GUN
-^2SN ^76 SNIPE GUN
-^2LOC ^7RE LOCATION
-^2ti ^7SAVE LOCATION
+            ^7TYPE FOLLOWING
+            ^2AP ^74 AKIMBO PISTOL
+            ^2AG ^76 AKIMBO GUN
+            ^2AR ^79 ASSAU RIFFLE
+            ^2SM ^76 SUB M_GUN
+            ^2LM ^75 LIGHT M_GUN
+            ^2SG ^74 SHOT GUN
+            ^2SN ^76 SNIPE GUN
+            ^2LOC ^7RE LOCATION
+            ^2TI ^7SAVE LOCATION
 
-^7PRESS KEY
-^2[{+strafe}] ^7AMMO
-^2[{+movedown}] ^7VIEWSCOPE";
-//^2[{+stance}] ^7"
+            ^7PRESS KEY
+            ^2[{+strafe}] ^7AMMO
+            ^2[{+movedown}] ^7VIEWSCOPE
+            ^2[{+stance}] ^7";
         //^2[{+prone}] ^7ATTATCHMENT
 
         internal void AlliesHud(Entity player, string offhand)
@@ -60,6 +60,19 @@ namespace Infected
                 allies_info_hud.Call(32897); allies_weap_hud.Call(32897);
             });
         }
+        readonly string AXIS_HUD_TEXTS = @"
+            ^7type following
+            ^2infow ^7weapon info
+            ^2sc ^7 suicide
+            ^2riot ^7 riotshield
+            ^2stinger ^7stinger
+            ^2LOC ^7RE LOCATION
+
+            ^7PRESS KEY
+            ^2[{+movedown}] ^7 throwingknife
+            ^2[{+prone}] ^7 bouncingbetty
+            ^2[{+stance}] ^7 claymore";
+
         internal void AxisHud(Entity player)
         {
             player.Notify("CLOSE");
@@ -71,7 +84,7 @@ namespace Infected
             axis_weap_hud.HideWhenInMenu = true;
             axis_weap_hud.Foreground = false;
             axis_weap_hud.Alpha = 0f;
-            axis_weap_hud.SetText("^7type following\n\n^2infow ^7weapon info\n^2sc ^7 suicide\n^2riot ^7 riotshield\n^2stinger ^7stinger\n\n^7bind key at option\n\n^2[{+movedown}] ^7 throwingknife\n^2[{+prone}] ^7 bouncingbetty\n^2[{+stance}] ^7 claymore");
+            axis_weap_hud.SetText(AXIS_HUD_TEXTS);
 
             player.OnNotify("open_", entity => axis_weap_hud.Alpha = 0.6f);
             player.OnNotify("close_", entity => axis_weap_hud.Alpha = 0f);
