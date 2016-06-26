@@ -62,21 +62,12 @@ namespace Infected
 
             #region notifyonplayercommand
 
-            string offhand = "";
-            switch (rnd.Next(4))
-            {
-                case 0: offhand = "frag_grenade_mp"; break;
-                case 1: offhand = "semtex_mp"; break;//OK
-                case 2: offhand = "bouncingbetty_mp"; break;//OK
-                case 3: offhand = "claymore_mp"; break;//OK
-            }
-
             player.Call(33445, "HOLD_STRAFE", "+strafe");//notifyonplayercommand
             player.OnNotify("HOLD_STRAFE", ent =>
             {
                 if (IsAXIS[pe]) return;
                 var weapon = player.CurrentWeapon;
-                if (weapon.Length > 3 && weapon[2] == '5')
+                if (weapon[2] == '5')
                 {
                     player.Call("givemaxammo", weapon);
                 }
@@ -85,26 +76,16 @@ namespace Infected
             player.Call(33445, "HOLD_CROUCH", "+movedown");
             player.OnNotify("HOLD_CROUCH", ent =>//view scope
             {
-                if (IsAXIS[pe])
-                {
-                    WP.GiveOffhandWeapon(player, "throwingknife");
-                    return;
-                }
-
+                if (IsAXIS[pe]) return;
                 WP.GiveAttachScope(player);
 
             });
 
-
             player.Call(33445, "HOLD_STANCE", "+stance");
             player.OnNotify("HOLD_STANCE", ent =>//offhand weapon
             {
-                if (IsAXIS[pe])
-                {
-                    WP.GiveOffhandWeapon(player, "claymore_mp");
-                    return;
-                }
-                WP.GiveOffhandWeapon(player, offhand);
+                if (IsAXIS[pe])  return;
+                WP.GiveRandomOffhandWeapon(player);
             });
 
             #endregion
@@ -236,13 +217,12 @@ namespace Infected
             #endregion
 
 
-            HUD.AlliesHud(player, offhand.Replace("_mp", "").ToUpper());
+            HUD.AlliesHud(player);
 
             WP.GiveRandomWeaponTo(player);
-            WP.GiveOffhandWeapon(player, offhand);
+            WP.GiveRandomOffhandWeapon(player);
 
             player.SpawnedPlayer += () => human_spawned(player);
-
             player.Call(33531, ZERO);//setplayerangles
         }
 
@@ -274,12 +254,14 @@ namespace Infected
         }
         void SetLocationByTI(Entity player)
         {
-            player.Call(33344, "^2PRESS [{+frag}] ^7TO SAVE YOUR POSITION");
+            player.Call(33344, "^2PRESS [{+attack}] ^7TO SAVE YOUR POSITION");
+
             string flare_mp = "flare_mp";
             player.GiveWeapon(flare_mp);
             player.SwitchToWeaponImmediate(flare_mp);
 
-            H_SET H = H_FIELD[player.EntRef];
+            int pe = player.EntRef;
+            H_SET H = H_FIELD[pe];
             H.TI_DO = true;
 
             if (!H.TI_NOTIFIED)
@@ -289,6 +271,7 @@ namespace Infected
                 player.OnNotify("grenade_fire", (Entity owner, Parameter entity, Parameter weaponName) =>
                 {
                     if (!H.TI_DO) return;
+                    if (IsAXIS[pe]) return;
                     if (weaponName.ToString() != flare_mp) return;
                     H.TI_DO = false;
                     Vector3 pos = player.Origin;
@@ -301,7 +284,7 @@ namespace Infected
                         H.LOC = new[] { pos.X, pos.Y, pos.Z };
 
                         player.AfterDelay(10000, p => Effect.Call(32928));
-                        
+
                     }
                 });
             }
@@ -310,7 +293,7 @@ namespace Infected
         {
             player.Call(33344, "^2Throw marker ^7to relocate your position");
 
-            string marker = "airdrop_marker_mp";
+            string marker = "airdrop_sentry_marker_mp";
             player.GiveWeapon(marker);
             player.SwitchToWeaponImmediate(marker);
 
@@ -324,7 +307,7 @@ namespace Infected
                 player.OnNotify("grenade_fire", (Entity owner, Parameter mk, Parameter weaponName) =>
                 {
                     if (!H.LOC_DO) return;
-                    if (weaponName.ToString() != "airdrop_marker_mp") return;
+                    if (weaponName.ToString() != "airdrop_sentry_marker_mp") return;
                     H.LOC_DO = false;
                     Entity e = mk.As<Entity>();
                     if (e == null) return;
@@ -336,7 +319,7 @@ namespace Infected
                         player.Call(33529, v);//setorigin
                         e.Call(32928);//delete
                     });
-                   
+
                 });
             }
         }

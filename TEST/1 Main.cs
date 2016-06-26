@@ -152,7 +152,7 @@ namespace TEST
             {
                 case "lfx": fx.LoadFX(t1); break;
                 case "tfx": fx.triggerfx(t1);break;
-
+                case "pfx": fx.PlayFX(null);break;
                 case "st": sound.PlaySound(t1); break;
                 case "so": sound.PlayLocalSound(t1); break;
 

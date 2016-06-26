@@ -10,25 +10,24 @@ namespace Infected
     {
         internal HudElem SERVER;
         internal static string SERVER_NAME_;
-        readonly string ALLIES_HUD_TEXTS = @"
-            ^7TYPE FOLLOWING
-            ^2AP ^74 AKIMBO PISTOL
-            ^2AG ^76 AKIMBO GUN
-            ^2AR ^79 ASSAU RIFFLE
-            ^2SM ^76 SUB M_GUN
-            ^2LM ^75 LIGHT M_GUN
-            ^2SG ^74 SHOT GUN
-            ^2SN ^76 SNIPE GUN
-            ^2LOC ^7RE LOCATION
-            ^2TI ^7SAVE LOCATION
+        readonly string ALLIES_HUD_TEXTS =
+@"^7TYPE FOLLOWING
+^2AP ^74 AKIMBO PISTOL
+^2AG ^76 AKIMBO GUN
+^2AR ^79 ASSAU RIFFLE
+^2SM ^76 SUB M_GUN
+^2LM ^75 LIGHT M_GUN
+^2SG ^74 SHOT GUN
+^2SN ^76 SNIPE GUN
+^2LOC ^7RE LOCATION
+^2T I ^7SAVE LOCATION
 
-            ^7PRESS KEY
-            ^2[{+strafe}] ^7AMMO
-            ^2[{+movedown}] ^7VIEWSCOPE
-            ^2[{+stance}] ^7";
+^7PRESS KEY
+^2[{+strafe}] ^7AMMO
+^2[{+movedown}] ^7VIEWSCOPE";
         //^2[{+prone}] ^7ATTATCHMENT
 
-        internal void AlliesHud(Entity player, string offhand)
+        internal void AlliesHud(Entity player)
         {
             HudElem allies_info_hud = HudElem.CreateFontString(player, "hudbig", 0.4f);
             allies_info_hud.X = 740;
@@ -46,8 +45,7 @@ namespace Infected
             allies_weap_hud.Foreground = false;
             allies_weap_hud.Alpha = 0f;
 
-            allies_weap_hud.SetText(ALLIES_HUD_TEXTS + offhand);
-
+            allies_weap_hud.SetText(ALLIES_HUD_TEXTS);
             allies_info_hud.Alpha = 0.8f; allies_weap_hud.Alpha = 0.6f;
             allies_weap_hud.Call("moveovertime", 2f);
             allies_weap_hud.X = 740;
@@ -60,18 +58,13 @@ namespace Infected
                 allies_info_hud.Call(32897); allies_weap_hud.Call(32897);
             });
         }
-        readonly string AXIS_HUD_TEXTS = @"
-            ^7type following
-            ^2infow ^7weapon info
-            ^2sc ^7 suicide
-            ^2riot ^7 riotshield
-            ^2stinger ^7stinger
-            ^2LOC ^7RE LOCATION
-
-            ^7PRESS KEY
-            ^2[{+movedown}] ^7 throwingknife
-            ^2[{+prone}] ^7 bouncingbetty
-            ^2[{+stance}] ^7 claymore";
+        readonly string AXIS_HUD_TEXTS =
+@"^7type following
+^2infow ^7weapon info
+^2sc ^7 suicide
+^2riot ^7 riotshield
+^2stinger ^7stinger
+^2LOC ^7RE LOCATION";
 
         internal void AxisHud(Entity player)
         {

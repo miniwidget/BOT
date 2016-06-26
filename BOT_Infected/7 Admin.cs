@@ -9,7 +9,7 @@ namespace Infected
 {
     internal class Admin
     {
-       internal void KickBOTsAll()
+        internal void KickBOTsAll()
         {
             for (int i = 0; i < 18; i++)
             {
@@ -23,7 +23,7 @@ namespace Infected
                 }
             }
             SayToAdmin("^2Kickbots ^7executed");
-            
+
         }
         internal void moveBot(string name)
         {
@@ -44,7 +44,7 @@ namespace Infected
         }
         internal void Die(string message)
         {
-            string [] split = message.Split(' ');
+            string[] split = message.Split(' ');
             if (split.Length == 1) SayToAdmin("die [player's name]");
 
             else if (split.Length > 1)
@@ -64,7 +64,7 @@ namespace Infected
 
         internal void Kick(string message)
         {
-            string [] split = message.Split(' ');
+            string[] split = message.Split(' ');
             if (split.Length == 1)
             {
                 SayToAdmin("warn [player's name]");
@@ -94,30 +94,6 @@ namespace Infected
             Utilities.ExecuteCommand(str);
             Utilities.ExecuteCommand("fast_restart");
         }
-        internal void CarePackage()
-        {
-            Function.SetEntRef(-1);
-            Entity care_package = Function.Call<Entity>("getEnt", "care_package", "targetname");
-            if(care_package == null)
-            {
-                Infected.ADMIN.Call(33344, "null ");
-            }else
-            {
-                Infected.ADMIN.Call(33344, "ok "+ care_package.EntRef);
-                string[] list = {
-                    "00 "+care_package.Name,
-                    "0 "+Infected.ADMIN.GetField<string>("target"),
-                   "1 "+ care_package.GetField<string>("target"),
-                   "2 "+ care_package.GetField<string>("classname"),
-                    "3 "+care_package.GetField<string>("code_classname"),
-                    "4 "+care_package.GetField<string>("model"),
-                };
-                foreach(string s in list)
-                {
-                    Log.Write(LogLevel.None, "{0}", s);
-                }
-            }
-        }
     }
     public partial class Infected
     {
@@ -129,14 +105,11 @@ namespace Infected
 
             switch (text)
             {
-                
-                case "p": ADMIN.Call("setorigin", BOTs_List[0].Origin); return false;
-                case "cp": AD.CarePackage(); return false;
                 case "ulsc": AD.Script("unloadscript sc.dll"); return false;
                 case "lsc": AD.Script("loadscript sc.dll"); return false;
-                case "fr":Utilities.ExecuteCommand("fast_restart"); return false;
+                case "fr": Utilities.ExecuteCommand("fast_restart"); return false;
                 case "pos": AD.moveBot(null); return false;
-                case "kb":  AD.KickBOTsAll(); return false;
+                case "kb": AD.KickBOTsAll(); return false;
                 case "1": ADMIN.Call("thermalvisionfofoverlayon"); return false;
                 case "2": ADMIN.Call("thermalvisionfofoverlayoff"); return false;
                 case "safe": USE_ADMIN_SAFE_ = !USE_ADMIN_SAFE_; Utilities.RawSayTo(ADMIN, "ADMIN SAFE : " + USE_ADMIN_SAFE_); return false;

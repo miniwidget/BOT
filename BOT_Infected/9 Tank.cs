@@ -55,7 +55,7 @@ namespace Infected
             Function.SetEntRef(-1);
             Entity flag = Function.Call<Entity>("spawn", "script_model", turretAttachTagOrigin);
             flag.Call("setmodel", "prop_flag_neutral");
-            flag.Call("LinkTo", remoteTank, "tag_turret_attach", GetVector(0f, 0f, 45f), new Vector3(90f,0,0));
+            flag.Call("LinkTo", remoteTank, "tag_turret_attach", GetVector(0f, 0f, 45f), new Vector3(-90f,0,0));
         }
         internal void SetTankPort(Vector3 origin)
         {

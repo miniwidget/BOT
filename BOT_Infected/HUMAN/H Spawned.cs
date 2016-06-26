@@ -107,8 +107,7 @@ namespace Infected
 
                     if (!H.BY_SUICIDE)//by attack
                     {
-                        H.AX_WEP += 1;
-                        AxisWeapon_by_Attack(player, H.AX_WEP);
+                        AxisWeapon_by_Attack(player, H.AX_WEP += 1);
                     }
                     else
                     {

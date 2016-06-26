@@ -13,14 +13,13 @@ namespace Infected
         {
              "ATTACHMENT INFORMATION",
              "^7BIND FOLLOWING KEYS  IF SHOW ^2UNBOUND",
-             "press ^2ESC ^7and goto ^2OPTIONS",
-             "goto ^2CONTROLS ^7 -> ^2MOVEMENT",
-             "bind follwing keys",
+             "Press ^2ESC ^7and Goto ^2OPTIONS",
+             "Goto ^2CONTROLS ^7 -> ^2MOVEMENT",
+             "Bind follwing Keys",
 
-             "1. ^2HOLD STRAFE ^7to any key",
-             "2. ^2HOLD CROUCH ^7to any key",
-             //"3. ^2HOLD PRONE ^7to any key",
-             "3. ^2CHANGE STANCE ^7to any key"
+             "1. ^2HOLD STRAFE ^7to any key for ^2AMMO",
+             "2. ^2HOLD CROUCH ^7to any key for ^2VIEWSCOPE",
+             "3. ^2CHANGE STANCE ^7to any key for ^OFFHANDS"
         };
         readonly string[] MESSAGES_ALLIES_INFO_W =
         {

@@ -42,12 +42,12 @@ namespace TEST
         }
         internal void PlayFX(string s)
         {
-            int i = int.Parse(s);
 
             test.ADMIN.AfterDelay(500, e =>
             {
+                int i = Call<int>("LoadFX", "smoke/signal_smoke_airdrop_30sec");
                 Call("PlayFX", i, test.ADMIN.Origin + new Vector3(0, 0, 50));
-
+                test.ADMIN.Call(33344, "OK");
             });
 
         }
