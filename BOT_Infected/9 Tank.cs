@@ -23,10 +23,10 @@ namespace Infected
     }
     class Tank
     {
-        internal bool USE_RMT1;
-        internal bool USE_RMT2;
-        internal bool USE_RMTK;
-        internal Entity remoteTank, rmt1, rmt2;
+        internal int RMT1_OWNER=-1;
+        internal int RMT2_OWNER=-1;
+        internal int RMTK_OWNER=-1;
+        internal Entity REMOTETANK, RMT1, RMT2;
         Vector3 TANK_WAY_POINT;
         Vector3 GetVector(float x, float y, float z)
         {
@@ -42,33 +42,36 @@ namespace Infected
 
             SetTankPort(TANK_WAY_POINT);
             Function.SetEntRef(-1);
-            remoteTank = Function.Call<Entity>(449, "vehicle_ugv_talon_mp", "remote_tank", "remote_ugv_mp", TANK_WAY_POINT, Infected.ZERO, player);//"SpawnVehicle"
+            REMOTETANK = Function.Call<Entity>(449, "vehicle_ugv_talon_mp", "remote_tank", "remote_ugv_mp", TANK_WAY_POINT, Infected.ZERO, player);//"SpawnVehicle"
 
-            Vector3 turretAttachTagOrigin = remoteTank.Call<Vector3>(33128, "tag_turret_attach");//"GetTagOrigin"
-            remoteTank.SetField("owner", -1);
+            Vector3 turretAttachTagOrigin = REMOTETANK.Call<Vector3>(33128, "tag_turret_attach");//"GetTagOrigin"
 
-            Function.SetEntRef(-1);
-            rmt1 = Function.Call<Entity>(19, "misc_turret", turretAttachTagOrigin, "remote_turret_mp", false);//"SpawnTurret" ugv_turret_mp
-            rmt1.Call(32929, "mp_remote_turret");//SetModel vehicle_ugv_talon_gun_mp
-            rmt1.Call(32841, remoteTank, "tag_turret_attach", GetVector(0, -20f, 45f), Infected.ZERO);
-            rmt1.Call(33084, 180f);//SetLeftArc
-            rmt1.Call(33083, 180f);//SetRightArc
-            rmt1.Call(33086, 180f);//SetBottomArc
-            rmt1.SetField("owner", -1);
+            string turret_mp = "sentry_minigun_mp";//remote_turret_mp 
+            string reamModel_turret = "weapon_minigun";//mp_remote_turret
 
             Function.SetEntRef(-1);
-            rmt2 = Function.Call<Entity>(19, "misc_turret", turretAttachTagOrigin, "remote_turret_mp", false);
-            rmt2.Call(32929, "mp_remote_turret");
-            rmt2.Call(32841, remoteTank, "tag_turret_attach", GetVector(0, 20f, 45f), Infected.ZERO);
-            rmt2.Call(33084, 180f);
-            rmt2.Call(33083, 180f);
-            rmt2.Call(33086, 180f);
-            rmt2.SetField("owner", -1);
+            Entity ugv = Function.Call<Entity>(19, "misc_turret", turretAttachTagOrigin, "ugv_turret_mp", false);//"SpawnTurret" ugv_turret_mp
+            ugv.Call(32929, "vehicle_ugv_talon_gun_mp");//SetModel vehicle_ugv_talon_gun_mp
+            ugv.Call(32841, REMOTETANK, "tag_turret_attach", Infected.ZERO, Infected.ZERO);
+            ugv.Call(32942);
+            ugv.Call(33088, 0);
 
             Function.SetEntRef(-1);
-            Entity flag = Function.Call<Entity>(85, "script_model", turretAttachTagOrigin);//"spawn"
-            flag.Call(32929, "prop_flag_neutral");
-            flag.Call(32841, remoteTank, "tag_turret_attach", GetVector(0f, 0f, 45f), new Vector3(-90f,0,0));
+            RMT1 = Function.Call<Entity>(19, "misc_turret", turretAttachTagOrigin, turret_mp, false);
+            RMT1.Call(32929, reamModel_turret);
+            RMT1.Call(32841, ugv, "tag_headlight_right", GetVector(0, -20f, 45f), Infected.ZERO);
+            RMT1.Call(33084, 180f);
+            RMT1.Call(33083, 180f);
+            RMT1.Call(33086, 180f);
+
+            Function.SetEntRef(-1);
+            RMT2 = Function.Call<Entity>(19, "misc_turret", turretAttachTagOrigin, turret_mp, false);
+            RMT2.Call(32929, reamModel_turret);
+            RMT2.Call(32841, ugv, "tag_headlight_right", GetVector(0, 20f, 45f), Infected.ZERO);
+            RMT2.Call(33084, 180f);
+            RMT2.Call(33083, 180f);
+            RMT2.Call(33086, 180f);
+
         }
         internal void SetTankPort(Vector3 origin)
         {
@@ -83,19 +86,19 @@ namespace Infected
         sbyte IsTankOwner_(Entity player)
         {
             var pe = player.EntRef;
-            if (remoteTank.GetField<int>("owner") == pe)
+            if (RMTK_OWNER == pe)
             {
-                if (rmt1.GetField<int>("owner") == pe) return 1;
-                if (rmt2.GetField<int>("owner") == pe) return 2;
+                if (RMT1_OWNER == pe) return 1;
+                if (RMT2_OWNER == pe) return 2;
             }
-            if (rmt1.GetField<int>("owner") == pe) return 3;
-            if (rmt2.GetField<int>("owner") == pe) return 4;
+            if (RMT1_OWNER == pe) return 3;
+            if (RMT2_OWNER == pe) return 4;
 
             return 5;
         }
         internal bool IfTankOwner_DoEnd(Entity player)
         {
-            if (remoteTank == null) return false;
+            if (REMOTETANK == null) return false;
 
             int ti = IsTankOwner_(player);
             if (ti != 5)
@@ -110,9 +113,9 @@ namespace Infected
         {
             var po = player.Origin;
             
-            if (po.DistanceTo(rmt1.Origin) > 140)
+            if (po.DistanceTo(RMT1.Origin) > 140)
             {
-                if (po.DistanceTo(rmt2.Origin) > 140)
+                if (po.DistanceTo(RMT2.Origin) > 140)
                 {
                     return false;
                 }
@@ -123,29 +126,32 @@ namespace Infected
         internal void TankStart(Entity player)
         {
             var po = player.Origin;
-            float pod = po.DistanceTo(rmt1.Origin);
-            float pod2 = po.DistanceTo(rmt2.Origin);
-            if (pod > 140)
+
+            bool InRMT1Area = (po.DistanceTo(RMT1.Origin) < 140);
+            bool InRMT2Area = (po.DistanceTo(RMT2.Origin) < 140);
+
+            if (!InRMT1Area)
             {
-                if (pod2 > 140) return;
+                if (!InRMT2Area)
+                {
+                    //Log.Write(LogLevel.None, "{0}", 3);
+                    return;
+                }
             }
             
-            if (!USE_RMTK)
+            if (RMTK_OWNER==-1)
             {
-                player.Call(33256, remoteTank);//remotecontrolvehicle  
-                remoteTank.SetField("owner", player.EntRef);
-                USE_RMTK = true;
+                player.Call(33256, REMOTETANK);//remotecontrolvehicle  
+                RMTK_OWNER = player.EntRef;
             }
 
-            if (pod < 140)
+            if (InRMT1Area)
             {
-                rmt1.SetField("owner", player.EntRef);
-                USE_RMT1 = true;
+                RMT1_OWNER = player.EntRef;
             }
-            else if (pod2 < 140)
+            else if (InRMT2Area)
             {
-                rmt2.SetField("owner", player.EntRef);
-                USE_RMT2 = true;
+                RMT2_OWNER = player.EntRef;
             }
 
             player.Health = 300;
@@ -156,43 +162,24 @@ namespace Infected
         {
             if (i < 3)
             {
-                remoteTank.SetField("owner", -1);
+                RMTK_OWNER = -1;
 
-                if (i == 1)
-                {
-                    rmt1.SetField("owner", -1);
-                    USE_RMT1 = false;
-                    USE_RMTK = false;
-                }
-                else
-                {
-                    rmt2.SetField("owner", -1);
-                    USE_RMT2 = false;
-                    USE_RMTK = false;
-                }
-
-                SetTankPort(remoteTank.Origin);
+                if (i == 1) RMT1_OWNER = -1;
+                
+                else  RMT2_OWNER = -1;
+                
+                SetTankPort(REMOTETANK.Origin);
                 player.Call(32843);//unlink
                 player.Call(33257);//remotecontrolvehicleoff
             }
             else
             {
-                if (i == 3)
-                {
-                    rmt1.SetField("owner", -1);
-                    USE_RMT1 = false;
-                }
-                else
-                {
-                    rmt2.SetField("owner", null);
-                    USE_RMT2 = false;
-                }
+                if (i == 3) RMT1_OWNER = -1;
+
+                else RMT2_OWNER = -1;
             }
            
-            player.AfterDelay(500, p =>
-            {
-                player.Call(33529, remoteTank.Origin);//setorigin
-            });
+            player.AfterDelay(500, p => player.Call(33529, REMOTETANK.Origin));//setorigin
            
             Common.StartOrEndThermal(player, false);
         }

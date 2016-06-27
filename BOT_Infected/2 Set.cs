@@ -139,9 +139,10 @@ namespace Infected
             else
             {
                 Utilities.ExecuteCommand("seta g_password \"\"");
+                string content = map + ",INF,1";
+                File.WriteAllText("admin\\INF.dspl", content);
             }
-            string content = map + ",INF,1";
-            File.WriteAllText("admin\\INF.dspl", content);
+          
 
         }
     }

@@ -131,10 +131,10 @@ namespace Infected
                 TANK = null;
 
                 bool found = false;
-                for (int i = TK.remoteTank.EntRef + 1; i < 2048; i++)
+                for (int i = 18; i < 2048; i++)
                 {
                     TANK = Entity.GetEntity(i);
-                    if (TANK == null) continue;
+                    if (TANK == null || TANK == TK.REMOTETANK) continue;
                     var model = TANK.GetField<string>("model");
                     if (model == "vehicle_ugv_talon_mp")
                     {
@@ -207,6 +207,7 @@ namespace Infected
                             }
                             return;
                         }
+                        //Print(2);
                         TK.IfTankOwner_DoEnd(player);
 
                     }
@@ -214,6 +215,7 @@ namespace Infected
                     {
                         if (HCT.HELI == null || HCT.HELI != null && !HCT.IsHeliArea(player))/*다른 튜렛을 사용 중인 경우*/
                         {
+                            //Print(1);
                             TK.TankStart(player);
                             return;
                         }
@@ -278,6 +280,9 @@ namespace Infected
             {
                 ADMIN.Call(32936);
                 ADMIN.Call(33220, 2f);
+
+               
+               
             }
         }
         void Relocation(Entity player, bool getback)

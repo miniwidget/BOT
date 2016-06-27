@@ -121,7 +121,7 @@ namespace TEST
             switch (text)
             {
                 case "qm": QueryModel(); break;
-                case "3rd": Viewchange(); break;
+                //case "3rd": Viewchange(); break;
                 case "fx": fx.LoadFX(text.Split(' ')[1]); break;
 
                 case "selector": marker._beginLocationSelection(ADMIN, "mobile_mortar", "map_artillery_selector", false, 500); break;

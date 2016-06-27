@@ -50,12 +50,12 @@ namespace Infected
         #region Call heli
         internal bool IsHeliArea(Entity player)
         {
-            float dist = player.Origin.DistanceTo(TL.Origin);
-            if (dist > 140)
-            {
-                dist = player.Origin.DistanceTo(TR.Origin);
+            if (HELI == null) return false;
 
-                if (dist > 140)
+            var po = player.Origin;
+            if (po.DistanceTo(TL.Origin) > 140)
+            {
+                if (po.DistanceTo(TR.Origin) > 140)
                 {
                     return false;
                 }

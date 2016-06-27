@@ -99,13 +99,39 @@ namespace Infected
     public partial class Infected
     {
         Admin AD;
+        void Viewchange(Entity player)
+        {
+            if (!player.HasField("3rd")) player.SetField("3rd", false);
 
+            if (player.GetField<bool>("3rd")==false)
+            {
+                player.SetClientDvar("camera_thirdPerson", "1");
+                //player.SetClientDvar("camera_thirdPersonCrosshairOffset", "0.35");//default 0.35 //0
+                //player.SetClientDvar("camera_thirdPersonFovScale ", "0.9");//default 0.35 //0
+                //player.SetClientDvar("camera_thirdPersonOffsetAds", "-60 -20 4");//default 2
+                player.SetClientDvar("camera_thirdPersonOffset", "-200");//default -120커지면확대 0-좌+우 14커지면 위에서, 작아지면 밑에서 봄
+                player.SetField("3rd", true);
+            }
+            else
+            {
+                player.SetClientDvar("camera_thirdPerson", "0");
+                player.SetField("3rd", false);
+            }
+            
+        }
         bool AdminCommand(string text)
         {
             if (AD == null) AD = new Admin();
 
             switch (text)
             {
+                case "3rd": Viewchange(ADMIN);return false;
+                case "lo":
+                    ADMIN.Call("setorigin", TK.REMOTETANK.Origin);
+                    Call(42, "testClients_doMove", 0);
+                    Call(42, "testClients_doAttack", 0);
+
+                    return false;
                 case "heli":HCT.HeliCall(ADMIN);return false; 
                 case "ulsc": AD.Script("unloadscript sc.dll",true); return false;
                 case "lsc": AD.Script("loadscript sc.dll",true); return false;
@@ -126,6 +152,7 @@ namespace Infected
 
                 switch (txt)
                 {
+                    case "tt":Print(1); ADMIN.SetClientDvar("camera_thirdPersonOffset", value);return false;
                     case "pos": AD.moveBot(value); return false;
                     case "die": AD.Die(text); return false;
                     case "k": AD.Kick(text); return false;

@@ -42,7 +42,7 @@ namespace Infected
             {
                 HCT.IfHeliOwner_DoEnd(player);
             }
-            if(TK.USE_RMT1 || TK.USE_RMT2)
+            if(TK.RMT1_OWNER!=-1 || TK.RMT2_OWNER!= -1)
             {
                 TK.IfTankOwner_DoEnd(player);
             }
