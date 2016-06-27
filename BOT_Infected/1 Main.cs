@@ -12,10 +12,10 @@ namespace Infected
     public partial class Infected : BaseScript
     {
         #region class
-        Set my;
+        Set SET;
         Weapon WP;
         Perk PK;
-        Info info;
+        Info INFO;
         Hud HUD;
         Helicopter HCT;
         Tank TK;
@@ -23,12 +23,12 @@ namespace Infected
 
         public Infected()
         {
-            my = new Set();
+            SET = new Set();
             rnd = new Random();
             WP = new Weapon();
             PK = new Perk();
             HUD = new Hud();
-            info = new Info();
+            INFO = new Info();
             HCT = new Helicopter();
             TK = new Tank();
 
@@ -75,9 +75,8 @@ namespace Infected
 
             OnNotify("prematch_done", () =>
             {
-                TIME = DateTime.Now.Minute;
 
-                if (DEPLAY_BOT_) BotDeplay();
+                if (SET.DEPLAY_BOT_) BotDeplay();
 
                 PlayerDisconnected += player =>
                 {
@@ -108,31 +107,23 @@ namespace Infected
 
         }
 
-        internal static void Print(object s)
-        {
-            Log.Write(LogLevel.None, "{0}", s.ToString());
-        }
 
         #region field
 
         internal static Random rnd;
         internal static Entity ADMIN;
         internal static Vector3 ZERO = new Vector3();
-
-        readonly int BOT_SETTING_NUM = 12;
         internal static int FIRE_DIST, PLAYER_LIFE = 2;
-        internal static bool TEST_, DEPLAY_BOT_, USE_ADMIN_SAFE_;
+        internal static bool  USE_ADMIN_SAFE_;
         internal static string ADMIN_NAME;
 
         bool GAME_ENDED_;
-        bool IsSurvivor(Entity player) { return player.GetField<string>("sessionteam") == "allies"; }
         bool[] IsBOT = new bool[18];
-        //bool[] IsAXIS = new bool[18];
-        //int[] IsPERK = new int[18];
-        readonly string[] SOUND_ALERTS =
+
+        internal static void Print(object s)
         {
-            "AF_1mc_losing_fight", "AF_1mc_lead_lost", "PC_1mc_losing_fight", "PC_1mc_take_positions", "PC_1mc_positions_lock"
-        };
+            Log.Write(LogLevel.None, "{0}", s.ToString());
+        }
 
 
         /// <summary>
@@ -167,21 +158,17 @@ namespace Infected
             //}
             internal int LIFE { get; set; }
             internal bool RESPAWN { get; set; }
+            internal int PERK = 2;
 
+            internal bool AXIS;
             internal int AX_WEP { get; set; }
             internal bool BY_SUICIDE { get; set; }
 
-            //internal bool USE_TANK { get; set; }
             internal int USE_HELI { get; set; }
-
-            //internal bool TI_NOTIFIED;
-            //internal bool TI_DO;
 
             internal bool LOC_NOTIFIED;
             internal bool LOC_DO;
             internal float[] LOC = null;
-            internal bool AXIS;
-            internal int PERK=2;
             internal Vector3 RELOC;
         }
         internal static List<H_SET> H_FIELD = new List<H_SET>(18);

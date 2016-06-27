@@ -94,21 +94,13 @@ namespace Infected
             Utilities.ExecuteCommand(str);
             Utilities.ExecuteCommand("fast_restart");
         }
-        
-    }
-    public partial class Infected
-    {
-        Admin AD;
-        void Viewchange(Entity player)
+       internal void Viewchange(Entity player)
         {
             if (!player.HasField("3rd")) player.SetField("3rd", false);
 
-            if (player.GetField<bool>("3rd")==false)
+            if (player.GetField<bool>("3rd") == false)
             {
                 player.SetClientDvar("camera_thirdPerson", "1");
-                //player.SetClientDvar("camera_thirdPersonCrosshairOffset", "0.35");//default 0.35 //0
-                //player.SetClientDvar("camera_thirdPersonFovScale ", "0.9");//default 0.35 //0
-                //player.SetClientDvar("camera_thirdPersonOffsetAds", "-60 -20 4");//default 2
                 player.SetClientDvar("camera_thirdPersonOffset", "-200");//default -120커지면확대 0-좌+우 14커지면 위에서, 작아지면 밑에서 봄
                 player.SetField("3rd", true);
             }
@@ -117,43 +109,21 @@ namespace Infected
                 player.SetClientDvar("camera_thirdPerson", "0");
                 player.SetField("3rd", false);
             }
-            
         }
+
+    }
+    public partial class Infected
+    {
+        Admin AD;
+ 
         bool AdminCommand(string text)
         {
             if (AD == null) AD = new Admin();
 
             switch (text)
             {
-                case "cam":
-
-                    AfterDelay(100, () =>
-                     {
-                         Print(Call<string>("getdvar", "g_forceRespawn"));
-                         Print(Call<string>("getdvar", "scr_game_allowkillcam"));
-                         if (Call<string>("getdvar", "scr_game_allowkillcam") == "0")
-                         {
-                             Call("setdvar", "g_forceRespawn", "0");
-                             Call("setdvar", "scr_game_allowkillcam", "1");
-                             
-                         }
-                         else
-                         {
-                             Call("setdvar", "g_forceRespawn", "1");
-                             Call("setdvar", "scr_game_allowkillcam", "0");
-                         }
-                     });
-                    
-
-                    return false;
-                case "3rd": Viewchange(ADMIN);return false;
-                case "lo":
-                    ADMIN.Call("setorigin", TK.REMOTETANK.Origin);
-                    Call(42, "testClients_doMove", 0);
-                    Call(42, "testClients_doAttack", 0);
-
-                    return false;
-                case "heli":HCT.HeliCall(ADMIN);return false; 
+                case "3rd": AD.Viewchange(ADMIN);return false;
+                case "attack": SET.BotDoAttack(SET.StringToBool(Call<string>("getdvar", "testClients_doAttack")));return false;
                 case "ulsc": AD.Script("unloadscript sc.dll",true); return false;
                 case "lsc": AD.Script("loadscript sc.dll",true); return false;
                 case "fr": AD.Script("fast_restart",false); return false;

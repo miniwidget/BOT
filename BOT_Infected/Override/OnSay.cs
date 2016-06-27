@@ -32,8 +32,8 @@ namespace Infected
                 #region Public Say
                 switch (text0)
                 {
-                    case "infoa": info.MessageInfoA(player, Axis); return;
-                    case "infow": info.MessageInfoW(player, Axis); return;
+                    case "infoa": INFO.MessageInfoA(player, Axis); return;
+                    case "infow": INFO.MessageInfoW(player, Axis); return;
 
                     case "sc": AfterDelay(100, () => player.Call(33341)); return;//"suicide"
                     case "riot": WP.GiveWeaponTo(player, "riotshield_mp"); return;

@@ -11,6 +11,7 @@ namespace Infected
 {
     public partial class Infected
     {
+
         //봇 스폰 시작
         private void BotSpawned(Entity bot)
         {

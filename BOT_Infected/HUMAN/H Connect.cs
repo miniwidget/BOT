@@ -18,15 +18,16 @@ namespace Infected
                 return;
             }
 
+            SET.CheckBotDoAttack();
+
             string name = player.Name;
 
             if (player.Name == ADMIN_NAME)
             {
-                ADMIN = player;
-                SetADMIN();
+                SET.SetADMIN((ADMIN = player));
             }
 
-            if (IsSurvivor(player))
+            if (player.GetField<string>("sessionteam") == "allies")
             {
                 Print(name + " connected ♥");
                 SetPlayer(player);
@@ -38,12 +39,11 @@ namespace Infected
                 player.SpawnedPlayer += () => human_spawned(player);
                 player.Call(33341);//"suicide"
             }
-
         }
+
         void Set_hset(H_SET H, bool Axis, bool init)
         {
             H.BY_SUICIDE = false;
-            //H.USE_TANK = false;
 
             if (init)
             {
@@ -66,7 +66,6 @@ namespace Infected
                 H.LIFE -= 1;
             }
         }
-
         void SetPlayer(Entity player)
         {
             player.Notify("menuresponse", "changeclass", "allies_recipe" + rnd.Next(1, 6));
@@ -79,6 +78,7 @@ namespace Infected
 
             #region SetClientDvar
 
+            player.SetClientDvar("cl_maxpackets", "100");
             player.SetClientDvar("lowAmmoWarningNoAmmoColor2", "0 0 0 0");
             player.SetClientDvar("lowAmmoWarningNoAmmoColor1", "0 0 0 0");
             player.SetClientDvar("lowAmmoWarningNoReloadColor2", "0 0 0 0");
@@ -181,7 +181,7 @@ namespace Infected
 
                     if (!HCT.IsUsingTurret(player))//heli 생성
                     {
-                        if (H.USE_HELI == 1 && HCT.HELI == null )
+                        if (H.USE_HELI == 1 && HCT.HELI == null)
                         {
                             HCT.HeliCall(player); H.USE_HELI = 2;
                             return;
@@ -257,34 +257,12 @@ namespace Infected
             player.SpawnedPlayer += () => human_spawned(player);
             player.Call(33531, ZERO);//setplayerangles
         }
-
-        void SetADMIN()
+        void SetTeamName()
         {
-            ADMIN.Call(33445, "SPECT", "centerview");
-            bool spect = false;
-            ADMIN.OnNotify("SPECT", a =>
-            {
-                if (!spect)
-                {
-                    ADMIN.Call(33349, "freelook", true);
-                    ADMIN.SetField("sessionstate", "spectator");
-                }
-                else
-                {
-                    ADMIN.Call(33349, "freelook", false);
-                    ADMIN.SetField("sessionstate", "playing");
-                }
-                spect = !spect;
-            });
-            if (TEST_)
-            {
-                ADMIN.Call(32936);
-                ADMIN.Call(33220, 2f);
-
-               
-               
-            }
+            Call(42, "g_TeamName_Allies", "ALIVE");//setdvar
+            Call(42, "g_TeamName_Axis", "BOTs");//setdvar
         }
+
         void Relocation(Entity player, bool getback)
         {
             H_SET H = H_FIELD[player.EntRef];
@@ -320,7 +298,7 @@ namespace Infected
                     player.AfterDelay(3000, p =>
                     {
                         player.Call(32843);//unlink
-                     
+
                         e.Call(32928);//delete
                         p.AfterDelay(200, x =>
                         {
@@ -335,11 +313,6 @@ namespace Infected
                     });
                 });
             }
-        }
-        void SetTeamName()
-        {
-            Call(42, "g_TeamName_Allies", "ALIVE");//setdvar
-            Call(42, "g_TeamName_Axis", "BOTs");//setdvar
         }
 
         /*

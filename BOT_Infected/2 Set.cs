@@ -9,6 +9,9 @@ namespace Infected
 {
     internal class Set
     {
+        internal readonly int BOT_SETTING_NUM = 12;
+        internal bool DEPLAY_BOT_, TEST_;
+
         bool WRITE_MAP_;
         public Set()
         {
@@ -38,11 +41,11 @@ namespace Infected
 
                         switch (name)
                         {
-                            case "SERVER_NAME": Hud.SERVER_NAME_= value; break;
+                            case "SERVER_NAME": Hud.SERVER_NAME_ = value; break;
                             case "ADMIN_NAME": Infected.ADMIN_NAME = value; break;
 
-                            case "TEST_": if ( bool.TryParse(value, out b)) Infected.TEST_ = b; break;
-                            case "DEPLAY_BOT_": if (bool.TryParse(value, out b)) Infected.DEPLAY_BOT_ = b; break;
+                            case "TEST_": if (bool.TryParse(value, out b)) TEST_ = b; break;
+                            case "DEPLAY_BOT_": if (bool.TryParse(value, out b)) DEPLAY_BOT_ = b; break;
                             case "USE_ADMIN_SAFE_": if (bool.TryParse(value, out b)) Infected.USE_ADMIN_SAFE_ = b; break;
                             case "WRITE_MAP_": if (bool.TryParse(value, out b)) WRITE_MAP_ = b; break;
 
@@ -60,10 +63,10 @@ namespace Infected
 
             if (assembly.Location.Contains("test"))
             {
-                Infected.TEST_ = true;
+                TEST_ = true;
             }
 
-            if (Infected.TEST_) Utilities.ExecuteCommand("sv_hostname TEST");
+            if (TEST_) Utilities.ExecuteCommand("sv_hostname TEST");
             else Utilities.ExecuteCommand("sv_hostname " + Hud.SERVER_NAME_);
 
             ReadMAP();
@@ -134,7 +137,7 @@ namespace Infected
             if (MAP_IDX >= max || MAP_IDX < 0) MAP_IDX = 0; else MAP_IDX++;
             map = map_list[MAP_IDX];
 
-            if (Infected.TEST_)
+            if (TEST_)
             {
                 Utilities.ExecuteCommand("seta g_password \"0\"");
             }
@@ -146,5 +149,95 @@ namespace Infected
             string content = map + ",INF,1";
             File.WriteAllText("admin\\INF.dspl", content);
         }
+
+        internal bool StringToBool(string s)
+        {
+            if (s == "1") return true;
+            else return false;
+        }
+
+        internal enum ATTACK_STATE { none, beforeMatch, inf_done, attack }
+        internal ATTACK_STATE AS = ATTACK_STATE.none;
+
+        internal void CheckBotDoAttack()
+        {
+            if (AS == Set.ATTACK_STATE.none)
+            {
+                AS = Set.ATTACK_STATE.beforeMatch;
+            }
+            else if (AS == Set.ATTACK_STATE.inf_done)
+            {
+                BotDoAttack(true);
+            }
+        }
+
+        internal int TIME;
+        internal void BotDoAttack(bool attack)
+        {
+            if (attack)
+            {
+                Function.SetEntRef(-1);
+                Function.Call(42, "testClients_doCrouch", 0);
+
+                Function.SetEntRef(-1);
+                Function.Call(42, "testClients_doMove", 1);
+
+                Function.SetEntRef(-1);
+                Function.Call(42, "testClients_doAttack", 1);
+                AS = ATTACK_STATE.attack;
+                
+
+                Function.SetEntRef(-1);
+                Function.Call(42, "scr_infect_timelimit", "12");
+                TIME = DateTime.Now.Minute;
+            }
+            else
+            {
+                Function.SetEntRef(-1);
+                Function.Call(42, "testClients_doCrouch", 1);
+
+                Function.SetEntRef(-1);
+                Function.Call(42, "testClients_doMove", 0);
+
+                Function.SetEntRef(-1);
+                Function.Call(42, "testClients_doAttack", 0);
+                AS = ATTACK_STATE.none;
+            }
+        }
+
+        internal int LUCKY_BOT_IDX;
+        internal readonly string[] SOUND_ALERTS =
+        {
+            "AF_1mc_losing_fight", "AF_1mc_lead_lost", "PC_1mc_losing_fight", "PC_1mc_take_positions", "PC_1mc_positions_lock"
+        };
+        internal void SetADMIN(Entity player)
+        {
+            player.Call(33445, "SPECT", "centerview");
+            bool spect = false;
+            player.OnNotify("SPECT", a =>
+            {
+                if (!spect)
+                {
+                    player.Call(33349, "freelook", true);
+                    player.SetField("sessionstate", "spectator");
+                }
+                else
+                {
+                    player.Call(33349, "freelook", false);
+                    player.SetField("sessionstate", "playing");
+                }
+                spect = !spect;
+            });
+            if (TEST_)
+            {
+                player.Call(32936);
+                player.Call(33220, 2f);
+            }
+        }
+
+        internal byte BOT_CLASS_NUM = 3;
+        internal readonly string[] BOTs_CLASS = { "axis_recipe1", "axis_recipe2", "axis_recipe3", "class0", "class1", "class2", "class4", "class5", "class6", "class6" };
+
+
     }
 }

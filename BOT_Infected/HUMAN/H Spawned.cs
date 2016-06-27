@@ -10,16 +10,16 @@ namespace Infected
 {
     public partial class Infected
     {
-        bool _temp_ = true, Human_FIRST_INFECTED_;
+        bool temp_ = true, Human_FIRST_INFECTED_;
         bool IsFirstInfectdHuman()
         {
-            _temp_ = false;
+            temp_ = false;
 
             if (BOTs_List.Count == 0) return false;
 
             foreach (Entity bot in BOTs_List)
             {
-                if (!IsSurvivor(bot)) return false;//감염된 봇이 있는 경우
+                if (bot.GetField<string>("sessionteam") == "axis") return false;//감염된 봇이 있는 경우
             }
             Human_FIRST_INFECTED_ = true;
             return true;
@@ -37,7 +37,7 @@ namespace Infected
             int pe = player.EntRef;
             H_SET H = H_FIELD[pe];
 
-            if (_temp_) if (IsFirstInfectdHuman()) H.LIFE = -1;
+            if (temp_) if (IsFirstInfectdHuman()) H.LIFE = -1;
 
             var LIFE = H.LIFE;
             if (LIFE > -1)//3 2
@@ -73,7 +73,7 @@ namespace Infected
                 if (!Human_FIRST_INFECTED_)
                 {
                     int now = DateTime.Now.Minute;
-                    int elapsed_time = now - TIME;
+                    int elapsed_time = now - SET.TIME;
                     if (elapsed_time < 2)
                     {
                         H.LIFE = 0;
@@ -104,7 +104,7 @@ namespace Infected
                     HUD.AxisHud(player);
                     AxisWeapon_by_init(player);
 
-                    AfterDelay(1000, () => player.Call(32771, SOUND_ALERTS[rnd.Next(SOUND_ALERTS.Length)], "allies"));//playsoundtoteam
+                    AfterDelay(1000, () => player.Call(32771, SET.SOUND_ALERTS[rnd.Next(SET.SOUND_ALERTS.Length)], "allies"));//playsoundtoteam
                 }
                 else
                 {
