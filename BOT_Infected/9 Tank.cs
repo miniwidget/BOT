@@ -6,6 +6,21 @@ using System.Text;
 
 namespace Infected
 {
+    class Common
+    {
+        internal static void StartOrEndThermal(Entity player, bool start)
+        {
+            if (start)
+            {
+                player.Call(32936);//thermalvisionfofoverlayon
+                player.Health = 300;
+                return;
+            }
+            player.Call(32937);//thermalvisionfofoverlayoff
+            player.Health = 100;
+            player.Call(33531, Infected.ZERO);
+        }
+    }
     class Tank
     {
         internal bool USE_RMT1;
@@ -86,16 +101,18 @@ namespace Infected
             if (ti != 5)
             {
                 TankEnd(player, ti);
+               
                 return true;
             }
             return false;
         }
         internal bool IsTankArea_(Entity player)
         {
-            float dist = player.Origin.DistanceTo(rmt1.Origin);
-            if (dist > 140)
+            var po = player.Origin;
+            
+            if (po.DistanceTo(rmt1.Origin) > 140)
             {
-                if (player.Origin.DistanceTo(rmt2.Origin) > 140)
+                if (po.DistanceTo(rmt2.Origin) > 140)
                 {
                     return false;
                 }
@@ -105,8 +122,9 @@ namespace Infected
    
         internal void TankStart(Entity player)
         {
-            float pod = player.Origin.DistanceTo(rmt1.Origin);
-            float pod2 = player.Origin.DistanceTo(rmt2.Origin);
+            var po = player.Origin;
+            float pod = po.DistanceTo(rmt1.Origin);
+            float pod2 = po.DistanceTo(rmt2.Origin);
             if (pod > 140)
             {
                 if (pod2 > 140) return;
@@ -131,13 +149,13 @@ namespace Infected
             }
 
             player.Health = 300;
+            Common.StartOrEndThermal(player, true);
 
         }
         internal void TankEnd(Entity player, int i)
         {
             if (i < 3)
             {
-                //TANK_ON_USE_ = false;
                 remoteTank.SetField("owner", -1);
 
                 if (i == 1)
@@ -154,6 +172,8 @@ namespace Infected
                 }
 
                 SetTankPort(remoteTank.Origin);
+                player.Call(32843);//unlink
+                player.Call(33257);//remotecontrolvehicleoff
             }
             else
             {
@@ -168,15 +188,13 @@ namespace Infected
                     USE_RMT2 = false;
                 }
             }
-            player.Call(32843);//unlink
-            player.Call(33257);//remotecontrolvehicleoff
-            player.Call(33531, Infected.ZERO);
-            player.AfterDelay(250, p =>
+           
+            player.AfterDelay(500, p =>
             {
                 player.Call(33529, remoteTank.Origin);//setorigin
             });
-            player.Health = 100;
+           
+            Common.StartOrEndThermal(player, false);
         }
-  
     }
 }

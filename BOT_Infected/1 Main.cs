@@ -171,7 +171,7 @@ namespace Infected
             internal int AX_WEP { get; set; }
             internal bool BY_SUICIDE { get; set; }
 
-            internal bool USE_TANK { get; set; }
+            //internal bool USE_TANK { get; set; }
             internal int USE_HELI { get; set; }
 
             //internal bool TI_NOTIFIED;

@@ -43,7 +43,7 @@ namespace Infected
         void Set_hset(H_SET H, bool Axis, bool init)
         {
             H.BY_SUICIDE = false;
-            H.USE_TANK = false;
+            //H.USE_TANK = false;
 
             if (init)
             {
@@ -74,7 +74,7 @@ namespace Infected
             human_List.Add(player);
             int pe = player.EntRef;
             H_SET H = H_FIELD[pe];
-            Set_hset(H,false, true);
+            Set_hset(H, false, true);
             H.LIFE = PLAYER_LIFE;
 
             #region SetClientDvar
@@ -120,13 +120,14 @@ namespace Infected
             #region TANK
 
             Entity TANK = null;
+            bool use_tank = false;
             player.OnNotify("weapon_change", (Entity ent, Parameter newWeap) =>
             {
-                if (H.USE_TANK) return;
+                if (use_tank) return;
 
                 string weap = newWeap.ToString();
                 if (weap != "killstreak_remote_tank_remote_mp") return;
-                H.USE_TANK = true;
+                use_tank = true;
                 TANK = null;
 
                 bool found = false;
@@ -143,13 +144,15 @@ namespace Infected
                 }
                 if (!found) return;
 
+                player.Call(32936);
                 human_List.Add(TANK);
                 human_List.Remove(player);
             });
             player.OnNotify("end_remote", (Entity ent) =>
             {
-                if (!H.USE_TANK) return;
-                H.USE_TANK = false;
+                if (!use_tank) return;
+                use_tank = false;
+                player.Call(32937);
                 human_List.Remove(TANK);
                 human_List.Add(player);
             });
@@ -168,69 +171,75 @@ namespace Infected
             player.Call(33445, "ACTIVATE", "+activate");//"notifyonplayercommand"
             player.OnNotify("ACTIVATE", ent =>
             {
-                if (H.AXIS || H.USE_TANK) return;//Axis or OnMessage or HELI null
+                if (H.AXIS || use_tank) return;//Axis or OnMessage or HELI null
 
                 if (player.CurrentWeapon[2] != '5') return;
 
                 player.AfterDelay(500, x =>
                 {
                     if (player.Call<int>(33533) == 1) return;//usebuttonpressed
+
                     if (!HCT.IsUsingTurret(player))//heli 생성
                     {
-                        if (HCT.HELI == null)
+                        if (H.USE_HELI == 1 && HCT.HELI == null )
                         {
-                            if (H.USE_HELI == 1)
-                            {
-                                HCT.HeliCall(player); H.USE_HELI = 2;
-                                return;
-                            }
+                            HCT.HeliCall(player); H.USE_HELI = 2;
+                            return;
                         }
-                        else
+
+                        if (H.USE_HELI == 3 && HCT.HELI_OWNER == player)
                         {
-                            if (H.USE_HELI == 3 && HCT.HELI_OWNER == player)
+                            HCT.HeliEndUse(player, true); H.USE_HELI = 0;
+                            return;
+                        }
+
+                        if (HCT.IsHeliArea(player))
+                        {
+                            Common.StartOrEndThermal(player, false);
+                            return;
+                        }
+
+                        if (H.USE_HELI == 1)
+                        {
+                            if (!TK.IfTankOwner_DoEnd(player))
                             {
-                                HCT.HeliEndUse(player, true); H.USE_HELI = 0;
-                                return;
+                                Info.MessageRoop(player, 0, HCT.HELI_MESSAGE_ALERT);
                             }
-                            else if (H.USE_HELI == 1 && !HCT.IsHeliArea(player))
-                            {
-                                if (!TK.IfTankOwner_DoEnd(player))
-                                {
-                                    Info.MessageRoop(player, 0, HCT.HELI_MESSAGE_ALERT);
-                                }
-                                return;
-                            }
+                            return;
                         }
                         TK.IfTankOwner_DoEnd(player);
+
                     }
                     else
                     {
                         if (HCT.HELI == null || HCT.HELI != null && !HCT.IsHeliArea(player))/*다른 튜렛을 사용 중인 경우*/
                         {
                             TK.TankStart(player);
-
                             return;
                         }
 
-                        if (H.USE_HELI == 2)//튜렛을 붙잡은 경우 remote control 시작
+                        int h = H.USE_HELI;
+                        if (h == 2)//튜렛을 붙잡은 경우 remote control 시작
                         {
                             HCT.HeliStart(player); H.USE_HELI = 3;
                         }
-                        else if (H.USE_HELI == 0)//owner가 도착하지 않은 경우
-                        {
-                            HCT.HELI_GUNNER = player;
-
-                            if (H.PERK < 10) Info.MessageRoop(player, 0, new[] { "^2" + (11 - H.PERK) + " KILL MORE ^7TO RIDE HELI", "YOU CAN RIDE HELI", "IF ANOTHER PLAYER ONBOARD" });
-                            else Info.MessageRoop(player, 0, HCT.HELI_MESSAGE_WAIT_PLAYER);
-                        }
-                        else if (H.USE_HELI == 1)
+                        else if (h == 1)
                         {
                             if (!HCT.HELI_ON_USE_)
                             {
                                 HCT.HeliStart(player); H.USE_HELI = 3;
                             }
+                            return;
                         }
+                        else if (h == 0)//owner가 도착하지 않은 경우
+                        {
+                            HCT.HELI_GUNNER = player;
 
+                            if (H.PERK < 10) Info.MessageRoop(player, 0, new[] { "^2" + (11 - H.PERK) + " KILL MORE ^7TO RIDE HELI", "YOU CAN RIDE HELI", "IF ANOTHER PLAYER ONBOARD" });
+                            else Info.MessageRoop(player, 0, HCT.HELI_MESSAGE_WAIT_PLAYER);
+
+                            Common.StartOrEndThermal(player, true);
+                        }
                     }
                 });
 
@@ -286,14 +295,13 @@ namespace Infected
             string marker = "airdrop_sentry_marker_mp";
             player.GiveWeapon(marker);
             player.SwitchToWeaponImmediate(marker);
-            
+
             H.LOC_DO = true;
-            H.RELOC = player.Origin;
 
             if (!H.LOC_NOTIFIED)
             {
                 H.LOC_NOTIFIED = true;
-                
+
                 player.OnNotify("grenade_fire", (Entity owner, Parameter mk, Parameter weaponName) =>
                 {
                     if (!H.LOC_DO) return;
@@ -302,24 +310,20 @@ namespace Infected
                     H.LOC_DO = false;
                     Entity e = mk.As<Entity>();
                     if (e == null) return;
-
-                    Vector3 mk_pos = e.GetField<Vector3>("angles");
-                    if (mk_pos.Z != 0)
-                    {
-                        mk_pos.Z = 0;
-                        e.SetField("angles", mk_pos);
-                        player.Call(33531, mk_pos);
-                    }
+                    H.RELOC = player.Origin;
                     player.Call(32841, e);//linkto
                     player.AfterDelay(3000, p =>
                     {
                         player.Call(32843);//unlink
+                     
                         e.Call(32928);//delete
                         p.AfterDelay(200, x =>
                         {
                             int ground = player.Call<int>(33538);
                             if (ground == 0)
                             {
+                                var pos = e.Origin; pos.Z += 10;
+                                player.Call(33529, e);//setorigin
                                 player.Call(33344, "TYPE ^2RELOC ^7IF GET BACK LOCATION");
                             }
                         });

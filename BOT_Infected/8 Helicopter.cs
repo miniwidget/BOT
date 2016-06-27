@@ -129,13 +129,17 @@ namespace Infected
         {
             HELI_ON_USE_ = true;
             HELI_OWNER = player;
-            if (HELI_GUNNER == player) HELI_GUNNER = null;
+            
+            if (HELI_GUNNER != null)
+            {
+                if (HELI_GUNNER == player) HELI_GUNNER = null;
+                else Common.StartOrEndThermal(HELI_GUNNER, true);
+            }
 
             Info.MessageRoop(player, 0, HELI_MESSAGE_KEY_INFO);
 
             player.Call(33256, HELI);//remotecontrolvehicle  
-            player.Call(32936);//thermalvisionfofoverlayon
-
+            Common.StartOrEndThermal(player, true);
             player.AfterDelay(120000, x =>
             {
                 if (player != null && HELI_OWNER == player && HELI != null)
@@ -153,6 +157,8 @@ namespace Infected
             if (HELI_GUNNER == null) return;
             HELI_GUNNER.Call(33531, Infected.ZERO);
             HELI_GUNNER.Call(32843);//unlink
+            HELI_GUNNER.Call(32937);
+            Common.StartOrEndThermal(HELI_GUNNER, false);
             HELI_GUNNER = null;
         }
         internal void HeliEndUse(Entity player, bool unlink)
@@ -161,7 +167,7 @@ namespace Infected
             {
                 player.Call(32843);//unlink
                 player.Call(33257);//remotecontrolvehicleoff
-                player.Call(32937);//thermalvisionfofoverlayoff
+                Common.StartOrEndThermal(player, false);
 
                 player.Call(32805, "prop_flag_neutral", "tag_shield_back", true);//detachShieldModel
             }
