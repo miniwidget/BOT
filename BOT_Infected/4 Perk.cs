@@ -12,12 +12,18 @@ namespace Infected
         #region Perk
 
         int
-            X2 = -120, X2_ = -100, X2__ = -50, Y2 = 250, Y2_ = 250, Y2__ = 250, jm = 80, jm_ = 80, jm__ = 120;
-        float alp_ = 0.8f, alp0 = 0.1f, alp = 0.1f, alp_2 = 0.2f, alp__ = 0.5f;
+            X2 = -120, X2_ = -100, X2__ = -50, 
+            Y2 = 250, Y2_ = 250, Y2__ = 250,
+            jm = 80, jm_ = 80, jm__ = 120;
+
+        float
+            alp = 0.1f, 
+            alp_2 = 0.2f,
+            alp_ = 0.8f, 
+            alp__ = 0.5f;
 
         internal void Perk_Hud(Entity player, int i)
         {
-            if (i > 10 || i < 0) return;
             i -= 1;
 
             HudElem PH = HudElem.NewClientHudElem(player);
@@ -26,7 +32,7 @@ namespace Infected
             PH.Y = Y2_;
             PH.Alpha = alp_;
             PH.SetShader(PL[i], jm_, jm_);
-            PH.Call("moveovertime", 0.25f); PH.X = X2__;
+            PH.Call(32895, 0.25f); PH.X = X2__;//"moveovertime"
 
             HudElem CH = HudElem.NewClientHudElem(player);
             CH.Parent = HudElem.UIParent;
@@ -40,13 +46,13 @@ namespace Infected
             PH.Y = Y2__;
             PH.Alpha = alp__;
             PH.SetShader(PL[i], jm__, jm__);
-            PH.Call("moveovertime", 0.25f); PH.X = X2_;
+            PH.Call(32895, 0.25f); PH.X = X2_;
 
             CH.X = X2;
             CH.Y = Y2_;
             CH.Alpha = alp_2;
             CH.SetShader(PL[i] + "_upgrade", jm_, jm_);
-            CH.Call("moveovertime", 0.25f); CH.X = X2_;
+            CH.Call(32895, 0.25f); CH.X = X2_;
 
             player.AfterDelay(1000, p =>
             {
@@ -56,7 +62,7 @@ namespace Infected
                 CH.Y = Y2__;
                 CH.Alpha = alp__;
                 CH.SetShader(PL[i] + "_upgrade", jm__, jm__);
-                CH.Call("moveovertime", 0.25f); CH.X = X2;
+                CH.Call(32895, 0.25f); CH.X = X2;
 
                 player.AfterDelay(1000, pp => CH.Call(32897));
             });

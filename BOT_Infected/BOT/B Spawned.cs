@@ -42,8 +42,12 @@ namespace Infected
                 if (human_List.Count > k)
                 {
                     Entity killer = human_List[k];
+                    if (killer.EntRef > 17) return;
 
-                    var i = (IsPERK[killer.EntRef] += 1);
+                    H_SET H = H_FIELD[killer.EntRef];
+                    if (H.PERK > 34) return;
+
+                    var i = (H.PERK += 1);
 
                     if (i > 2 && i % 3 == 0)
                     {
@@ -53,7 +57,7 @@ namespace Infected
                     }
                     else if (i == 11)
                     {
-                        H_FIELD[killer.EntRef].USE_HELI = 1;
+                        H.USE_HELI = 1;
                         HCT.HeliAttachFlagTag(killer);
                     }
                 }
@@ -160,6 +164,7 @@ namespace Infected
                             BO.X = (float)Math.Atan2(dz, dist) * 57.32f;
                             BO.Y = -10 + (float)Math.Atan2(dy, dx) * 57.32f;
                             BO.Z = 0;
+
                             bb.Call(33531, BO);//SetPlayerAngles
                             return true;
                         });
@@ -241,15 +246,10 @@ namespace Infected
 
                         int dist = (int)Math.Sqrt(dx * dx + dy * dy);
                         BO.X = (float)Math.Atan2(dz, dist) * 57.32f;
-
                         BO.Y =-10+ (float)Math.Atan2(dy, dx) * 57.32f;
                         BO.Z = 0;
+
                         bb.Call(33531, BO);//SetPlayerAngles
-
-                        //var ho = target.Origin; ho.Z -= 50;
-
-                        //Vector3 a = Call<Vector3>(247, ho - bb.Origin);//vectortoangles
-                        //bb.Call(33531, a);//SetPlayerAngles
 
                         return true;
                     });

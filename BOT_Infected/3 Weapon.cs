@@ -12,67 +12,48 @@ namespace Infected
         Random rnd = Infected.rnd;
 
         #region primary
-        string GetWeapon(int i, int j)
-        {
-            if (j == -1)
-            {
-                switch (i)
-                {
-                    case 0: return AP();
-                    case 1: return AG();
-                    case 2: return AR();
-                    case 3: return SM();
-                    case 4: return LM();
-                    case 5: return SG();
-                    case 6: return SN();
-                }
-            }
-            else
-            {
-                switch (i)
-                {
-                    case 0: return AP(j);
-                    case 1: return AG(j);
-                    case 2: return AR(j);
-                    case 3: return SM(j);
-                    case 4: return LM(j);
-                    case 5: return SG(j);
-                    case 6: return SN(j);
-                }
-            }
 
-            return AR(j);
-        }
         internal void GiveWeaponTo(Entity player, int i, int j)
         {
-            GiveWeaponTo(player, GetWeapon(i, j));
+            string wep = null;
+            if(i==0) wep = AP(j);
+            else if(i==1) wep = AG(j);
+            else if (i == 2) wep = AR(j);
+            else if (i == 3) wep = SM(j);
+            else if (i == 4) wep = LM(j);
+            else if (i == 5) wep = SG(j);
+            else  wep = SN(j);
+       
+            GiveWeaponTo(player, wep);
         }
         internal void GiveWeaponTo(Entity player, int i)
         {
-            GiveWeaponTo(player, GetWeapon(i, -1));
+            string wep = null;
+            if (i == 0) wep = AP(rnd.Next(4));
+            else if (i == 1) wep = AG(rnd.Next(6));
+            else if (i == 2) wep = AR(rnd.Next(10));
+            else if (i == 3) wep = SM(rnd.Next(6));
+            else if (i == 4) wep = LM(rnd.Next(5));
+            else if (i == 5) wep = SG(rnd.Next(5));
+            else wep = SN(rnd.Next(6));
+
+            GiveWeaponTo(player, wep);
         }
         internal void GiveWeaponTo(Entity player, string weapon)
         {
             player.TakeWeapon(player.CurrentWeapon);
             player.GiveWeapon(weapon);
-            player.Call("givemaxammo", weapon);
+            player.Call(33523, weapon);//givemaxammo
             player.AfterDelay(100, x => player.SwitchToWeaponImmediate(weapon));
         }
         internal void GiveRandomWeaponTo(Entity player)
         {
-            GiveWeaponTo(player, GetWeapon(rnd.Next(7), -1));
+            GiveWeaponTo(player, rnd.Next(7));
         }
 
         #endregion
 
         #region weapon list
-        string AP() { return AP_LIST[rnd.Next(4)] + AP_ATTACHMENT[rnd.Next(2)]; }
-        string AG() { return AG_LIST[rnd.Next(6)]; }
-        string AR() { return AR_LIST[rnd.Next(10)] + AR_ATTACHMENT[rnd.Next(2)] + AR_VIEWER[rnd.Next(5)] + CAMO_LIST[rnd.Next(11)]; }
-        string SM() { return SM_LIST[rnd.Next(6)] + CAMO_LIST[rnd.Next(11)]; }
-        string LM() { return LM_LIST[rnd.Next(5)] + AR_ATTACHMENT[rnd.Next(2)] + AR_VIEWER[rnd.Next(5)] + CAMO_LIST[rnd.Next(11)]; }
-        string SG() { return SG_LIST[rnd.Next(5)] + CAMO_LIST[rnd.Next(11)]; }
-        string SN() { return SN_LIST[rnd.Next(6)] + SN_ATTACHMENT[rnd.Next(3)] + CAMO_LIST[rnd.Next(11)]; }
 
         string AP(int i) { if (i > 3) i = 0; return AP_LIST[i] + AP_ATTACHMENT[rnd.Next(2)]; }
         string AG(int i) { if (i > 5) i = 0; return AG_LIST[i]; }

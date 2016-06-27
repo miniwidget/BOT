@@ -130,7 +130,6 @@ namespace TEST
                 case "ww": marker.uavStrikerMarker(); break;
 
                 case "p": Print(ADMIN.Origin); break;
-                case "loc": ADMIN.Call("setorigin", new Vector3(-2943, 453, 527)); break;
 
                 case "ds": ADMIN.Call("disableoffhandweapons"); break;
 

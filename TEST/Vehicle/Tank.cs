@@ -68,25 +68,19 @@ namespace TEST
           
                 ent.AfterDelay(250, e =>
                 {
-                    if (ent.Call<int>(33539) == 1)
+                    if (ent.Call<int>(33539) == 1)//isusingturret
                     {
-
                         //player.Call("giveweapon", "killstreak_remote_turret_remote_mp");// mortar_remote_zoom_mp
                         //player.SwitchToWeaponImmediate("killstreak_remote_turret_remote_mp");
                         //player.Call("remotecontrolturret", rmTurret);
                         player.Call(33256, remoteTank);//remotecontrolvehicle  
-                                                       
                        
                         //player.Call(32792, "prop_flag_neutral", "tag_shield_back", true);//attachshieldmodel
                         //player.Call(32792, "weapon_riot_shield_mp", "tag_shield_back", true);//attachshieldmodel
                         //player.Call(32792, "weapon_riot_shield_mp", "tag_player", true);//attachshieldmodel
-
-                        
-
                     }
                     else
                     {
-                        
                         player.Call(32843);//unlink
                         player.Call(33257);//remotecontrolvehicleoff
                         //player.Call(32980);//remotecontrolturretoff

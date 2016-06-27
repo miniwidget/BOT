@@ -20,7 +20,6 @@ namespace Infected
 ^2SG ^74 SHOT GUN
 ^2SN ^76 SNIPE GUN
 ^2LOC ^7RE LOCATION
-^2T I ^7SAVE LOCATION
 
 ^7PRESS KEY
 ^2[{+strafe}] ^7AMMO
@@ -47,10 +46,10 @@ namespace Infected
 
             allies_weap_hud.SetText(ALLIES_HUD_TEXTS);
             allies_info_hud.Alpha = 0.8f; allies_weap_hud.Alpha = 0.6f;
-            allies_weap_hud.Call("moveovertime", 2f);
+            allies_weap_hud.Call(32895, 2f);//"moveovertime"
             allies_weap_hud.X = 740;
 
-            allies_info_hud.Call("moveovertime", 2f);
+            allies_info_hud.Call(32895, 2f);// "moveovertime"
             allies_info_hud.Y = 5;
 
             player.OnNotify("CLOSE", e =>
@@ -81,7 +80,6 @@ namespace Infected
 
             player.OnNotify("open_", entity => axis_weap_hud.Alpha = 0.6f);
             player.OnNotify("close_", entity => axis_weap_hud.Alpha = 0f);
-            player.OnNotify("CLOSE_", entity => axis_weap_hud.Call(32897));
 
             player.AfterDelay(3000, x => player.Notify("open_"));
         }

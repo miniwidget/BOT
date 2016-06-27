@@ -72,15 +72,18 @@ namespace Infected
             player.TakeWeapon(w);
             string kh = "killstreak_helicopter_mp";
             player.GiveWeapon(kh);
-            player.SwitchToWeapon(kh);
-            player.Call(33466, "mp_killstreak_radar");//playlocalsound
+            player.SwitchToWeaponImmediate(kh);
             HeliSetup(player);
-            player.AfterDelay(2000, x =>
+            player.AfterDelay(500, p =>
             {
-                player.TakeWeapon(kh);
-                player.GiveWeapon(w);
-                player.Call(33523, w); //givemaxammo
-                player.SwitchToWeaponImmediate(w);
+                player.Call(33466, "US_1mc_KS_lbd_inposition");//playlocalsound
+                player.AfterDelay(500, x =>
+                {
+                    player.TakeWeapon(kh);
+                    player.GiveWeapon(w);
+                    player.Call(33523, w); //givemaxammo
+                    player.SwitchToWeaponImmediate(w);
+                });
             });
 
             Info.MessageRoop(player, 0, HELI_MESSAGE_ACTIVATE);
@@ -88,6 +91,7 @@ namespace Infected
         }
         internal void HeliSetup(Entity player)
         {
+            if (HELI != null) return;
 
             string realModel = "vehicle_little_bird_armed";
             string minimap_model = "attack_littlebird_mp";

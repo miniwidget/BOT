@@ -70,7 +70,7 @@ namespace Infected
         void ReadMAP()
         {
             Function.SetEntRef(-1);
-            string map = Function.Call<string>("getdvar", "mapname");
+            string map = Function.Call<string>(47, "mapname");//"getdvar"
             string ENTIRE_MAPLIST = "mp_plaza2|mp_mogadishu|mp_bootleg|mp_carbon|mp_dome|mp_exchange|mp_lambeth|mp_hardhat|mp_interchange|mp_alpha|mp_bravo|mp_radar|mp_paris|mp_seatown|mp_underground|mp_village|mp_morningwood|mp_park|mp_overwatch|mp_italy|mp_cement|mp_qadeem|mp_meteora|mp_hillside_ss|mp_restrepo_ss|mp_aground_ss|mp_courtyard_ss|mp_terminal_cls|mp_burn_ss|mp_nola|mp_six_ss|mp_moab";
             var map_list = ENTIRE_MAPLIST.Split('|').ToList();
             int max = map_list.Count - 1;
@@ -129,8 +129,6 @@ namespace Infected
                 Infected.FIRE_DIST = 750;
             }
 
-            //Call("precachemodel", "prop_flag_neutral");
-
             if (MAP_IDX >= max || MAP_IDX < 0) MAP_IDX = 0; else MAP_IDX++;
             map = map_list[MAP_IDX];
 
@@ -141,9 +139,10 @@ namespace Infected
             else
             {
                 Utilities.ExecuteCommand("seta g_password \"\"");
-                string content = map + ",INF,1";
-                File.WriteAllText("admin\\INF.dspl", content);
             }
+            string content = map + ",INF,1";
+            File.WriteAllText("admin\\INF.dspl", content);
+
         }
     }
 }

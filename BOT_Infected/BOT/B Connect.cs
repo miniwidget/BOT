@@ -45,7 +45,7 @@ namespace Infected
             {
                 for (i = 0; i < tempStrList.Count; i++)
                 {
-                    Call("kick", tempStrList[i]);
+                    Call(286, tempStrList[i]);//"kick"
                 }
                 tempStrList.Clear();
             }
@@ -84,7 +84,7 @@ namespace Infected
         #endregion
 
         #region Bot_Connected
-        int BOT_RPG_ENTREF,BOT_RIOT_ENTREF, BOT_JUGG_ENTREF;
+        int BOT_RPG_ENTREF, BOT_RIOT_ENTREF, BOT_JUGG_ENTREF;
         byte BOT_CLASS_NUM = 3;
         readonly string[] BOTs_CLASS = { "axis_recipe1", "axis_recipe2", "axis_recipe3", "class0", "class1", "class2", "class4", "class5", "class6", "class6" };
 
@@ -101,8 +101,8 @@ namespace Infected
 
             if (i == 0) BOT_JUGG_ENTREF = bot.EntRef;
             else if (i == 1) BOT_RPG_ENTREF = bot.EntRef;
-            else if(i==2)BOT_RIOT_ENTREF = bot.EntRef;
-                
+            else if (i == 2) BOT_RIOT_ENTREF = bot.EntRef;
+
             if (i == BOT_SETTING_NUM - 1) BotWaitOnFirstInfected();
 
             if (i > 9)
@@ -117,7 +117,7 @@ namespace Infected
 
         }
         #endregion
-        
+
         void BotWaitOnFirstInfected()
         {
             //my.print("■ waitOnFirstInfected");
@@ -154,7 +154,7 @@ namespace Infected
                 return true;
             });
         }
-  
+
         /// <summary>
         /// 봇이 처음 감염된 경우 & 사람이 아무도 접속하지 않은 경우 = 대기상태를 만들기 위해 봇 1 마리를 살려 놓음
         /// 사람이 접속했을 지라도, 팀변경을 위해 봇 1마리를 살려 놓음
@@ -174,7 +174,10 @@ namespace Infected
                         return GetTeamState(fi);
                     }
 
-                    BotSet(BOTs_List[i], false);
+                    Entity bot;
+                    bot = BOTs_List[i];
+                    bot.SpawnedPlayer += () => BotSpawned(bot);
+                    bot.Call(33341);//suicide
                     i++;
                     return true;
                 });
@@ -190,27 +193,25 @@ namespace Infected
 
             OnInterval(250, () =>
             {
+                Entity bot;
+
                 if (i == max)
                 {
-                    BotSet(fi, true);
+                    fi.SpawnedPlayer += () => BotSpawned(fi);
+                    fi.Call(33341);//suicide
+                    SetTeamName();
                     return GetTeamState(fi);
                 }
                 if (i != lucky_bot_idx)
                 {
-                    BotSet(BOTs_List[i], false);
+                    bot = BOTs_List[i];
+                    bot.SpawnedPlayer += () => BotSpawned(bot);
+                    bot.Call(33341);//suicide
                 }
 
                 i++;
                 return true;
             });
-        }
-
-        void BotSet(Entity bot, bool change)
-        {
-            bot.SpawnedPlayer += () => BotSpawned(bot);
-
-            bot.Call(33341);//suicide
-            if (change) SetTeamName();
         }
 
         bool GetTeamState(Entity fi)
@@ -222,7 +223,7 @@ namespace Infected
                 if (IsSurvivor(bot)) alive++;
             }
 
-            Print("■ BOTs:" + max + " AXIS:" + (max - alive) + " ALLIES:" + alive + " Inf: " + fi.Name + " ■ MAP: "+ my.MAP_IDX);
+            Log.Write(LogLevel.None, "■ BOTs:{0} AXIS:{1} ALLIES:{2} INF:{3} ■ MAP:{4}", max, (max - alive), alive, fi.Name, my.MAP_IDX);
             HUD.ServerHud();
 
             Call(42, "testClients_doReload", 0);//setdvar

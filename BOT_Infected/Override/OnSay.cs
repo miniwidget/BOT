@@ -23,7 +23,7 @@ namespace Infected
             string[] texts = text.ToLower().Split(' ');
             string text0 = texts[0];
 
-            bool Axis = IsAXIS[player.EntRef];
+            bool Axis = H_FIELD[player.EntRef].AXIS;
 
             int length = texts.Length;
 
@@ -35,13 +35,14 @@ namespace Infected
                     case "infoa": info.MessageInfoA(player, Axis); return;
                     case "infow": info.MessageInfoW(player, Axis); return;
 
-                    case "sc": AfterDelay(100, () => player.Call("suicide")); return;
+                    case "sc": AfterDelay(100, () => player.Call(33341)); return;//"suicide"
                     case "riot": WP.GiveWeaponTo(player, "riotshield_mp"); return;
                     case "javelin": WP.GiveWeaponTo(player, "javelin_mp"); return;
                     case "stinger": WP.GiveWeaponTo(player, "stinger_mp"); return;
 
-                    case "loc": Relocation(player); return;
-                    case "ti": SetLocationByTI(player);return;
+                    case "loc": Relocation(player,false); return;
+                    case "reloc": Relocation(player, true);return;
+                        // case "ti": SetLocationByTI(player);return;
                 }
                 #endregion
 

@@ -16,10 +16,10 @@ namespace Infected
                 Entity ent = Entity.GetEntity(i);
 
                 if (ent == null) continue;
-                if (ent.Call<string>("getguid").Contains("bot"))
+                if (ent.Call<string>(33350).Contains("bot"))//"getguid"
                 {
                     Function.SetEntRef(-1);
-                    Function.Call("kick", i);
+                    Function.Call(286, i);
                 }
             }
             SayToAdmin("^2Kickbots ^7executed");
@@ -37,7 +37,7 @@ namespace Infected
                 if (ent == null) continue;
                 if (ent.Name.Contains(name))
                 {
-                    ent.Call("setorigin", o);
+                    ent.Call(33529, o);//"setorigin"
                 }
             }
             SayToAdmin("^2moveBot ^7executed");
@@ -56,7 +56,7 @@ namespace Infected
                     if (ent == null) continue;
                     if (ent.Name.Contains(split[1]))
                     {
-                        ent.AfterDelay(100, x => ent.Call("suicide"));
+                        ent.AfterDelay(100, x => ent.Call(33341));//"suicide"
                     }
                 }
             }
@@ -89,11 +89,12 @@ namespace Infected
         {
             Utilities.RawSayTo(Infected.ADMIN, message);
         }
-        internal void Script(string str)
+        internal void Script(string str, bool restart)
         {
             Utilities.ExecuteCommand(str);
             Utilities.ExecuteCommand("fast_restart");
         }
+        
     }
     public partial class Infected
     {
@@ -105,13 +106,15 @@ namespace Infected
 
             switch (text)
             {
-                case "ulsc": AD.Script("unloadscript sc.dll"); return false;
-                case "lsc": AD.Script("loadscript sc.dll"); return false;
-                case "fr": Utilities.ExecuteCommand("fast_restart"); return false;
+                case "heli":HCT.HeliCall(ADMIN);return false; 
+                case "ulsc": AD.Script("unloadscript sc.dll",true); return false;
+                case "lsc": AD.Script("loadscript sc.dll",true); return false;
+                case "fr": AD.Script("fast_restart",false); return false;
+                case "mr": AD.Script("map_rotate",false); return false;
                 case "pos": AD.moveBot(null); return false;
                 case "kb": AD.KickBOTsAll(); return false;
-                case "1": ADMIN.Call("thermalvisionfofoverlayon"); return false;
-                case "2": ADMIN.Call("thermalvisionfofoverlayoff"); return false;
+                case "1": ADMIN.Call(32936); return false;
+                case "2": ADMIN.Call(32937); return false;
                 case "safe": USE_ADMIN_SAFE_ = !USE_ADMIN_SAFE_; Utilities.RawSayTo(ADMIN, "ADMIN SAFE : " + USE_ADMIN_SAFE_); return false;
             }
 
@@ -123,7 +126,6 @@ namespace Infected
 
                 switch (txt)
                 {
-                    case "perk": PK.Perk_Hud(ADMIN, int.Parse(value));return false;
                     case "pos": AD.moveBot(value); return false;
                     case "die": AD.Die(text); return false;
                     case "k": AD.Kick(text); return false;

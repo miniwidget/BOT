@@ -60,16 +60,15 @@ namespace Infected
                     }
                     if (i == BOT_RIOT_ENTREF) return;
                     if (weapon[2] != '5') return;
-                    if (IsAXIS[attacker.EntRef]) return;
 
                     B_SET B = B_FIELD[i];
                     if (B.temp_fire || B.target != null) return;
 
                     BotTempFire(B, player, attacker);
-
-                }else if (mod == "MOD_MELEE")
+                }
+                else if (mod == "MOD_MELEE")
                 {
-                    if (IsAXIS[player.EntRef]) return;
+                    if (H_FIELD[i].AXIS) return;
                     player.Health += damage;
                 }
                 else if (USE_ADMIN_SAFE_)
@@ -101,15 +100,11 @@ namespace Infected
                     return;
                 }
 
-                int ae = attacker.EntRef;
-                bool BotAttker = IsBOT[ae];
+                bool BotAttker = IsBOT[attacker.EntRef];
 
                 if (!BotAttker)//공격자가 사람인 경우, 퍼크 주기
                 {
-                    if (IsAXIS[ae]) return;
-
-                    int p = IsPERK[ae];
-                    if (weapon[2] == '5' && p < 34)
+                    if (weapon[2] == '5')
                     {
                         B_FIELD[ke].killer = human_List.IndexOf(attacker);
                     }
@@ -119,7 +114,7 @@ namespace Infected
                     if (BotAttker) // 봇이 사람을 죽인 경우, 봇 사격 중지
                     {
                         Utilities.RawSayAll("^1BAD Luck :) ^7" + killed.Name + " killed by " + attacker.Name);
-                        B_SET B = B_FIELD[ae];
+                        B_SET B = B_FIELD[attacker.EntRef];
                         B.fire = false;
                         B.target = null;
                     }

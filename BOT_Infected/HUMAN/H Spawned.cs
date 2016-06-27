@@ -52,11 +52,9 @@ namespace Infected
             {
                 if (!H.RESPAWN)
                 {
-                    H.LIFE -= 1;
                     H.RESPAWN = true;
                     player.Call(33466, "mp_last_stand");// playlocalsound
                     player.Notify("menuresponse", "team_marinesopfor", "allies");
-                    SetTeamName();
                 }
                 else
                 {
@@ -69,24 +67,14 @@ namespace Infected
 
                     if (!human_List.Contains(player)) human_List.Add(player);
 
-                    if (H.LOC != null)
-                    {
-                        temp.X = H.LOC[0];
-                        temp.Y = H.LOC[1];
-                        temp.Z = H.LOC[2];
+                    Set_hset(H, false,false);
 
-                        player.Call("setorigin", temp);
-                        H.LOC = null;
-                    }
-
-                    H.reset(false);
-                    IsPERK[pe] = 2;
+                    SetTeamName();
                 }
             }
             else if (LIFE == -1)//change to AXIS
             {
-                IsAXIS[pe] = true;
-                H.reset(true);
+                Set_hset(H,true,false);
 
                 player.SetField("sessionteam", "axis");
                 human_List.Remove(player);
@@ -117,20 +105,8 @@ namespace Infected
                         AxisWeapon_by_init(player);
                     }
                 }
-
-                if (H.LOC != null)
-                {
-                    temp.X = H.LOC[0];
-                    temp.Y = H.LOC[1];
-                    temp.Z = H.LOC[2];
-
-                    player.Call("setorigin", temp);
-                    H.LOC = null;
-                }
             }
-   
         }
-        Vector3 temp;
 
         /// <summary>
         /// 죽은 사람 무기 초기화
@@ -232,7 +208,7 @@ namespace Infected
             else
             {
                 AxisWeapon_by_init(dead);
-                dead.Call("iPrintlnBold", "^2[ ^7AGAIN ^2] Init Weapon of the Infected");
+                dead.Call(33344, "^2[ ^7AGAIN ^2] Init Weapon of the Infected");//"iPrintlnBold"
                 return;
             }
 

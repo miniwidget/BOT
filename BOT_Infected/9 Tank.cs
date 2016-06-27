@@ -27,14 +27,14 @@ namespace Infected
 
             SetTankPort(TANK_WAY_POINT);
             Function.SetEntRef(-1);
-            remoteTank = Function.Call<Entity>("SpawnVehicle", "vehicle_ugv_talon_mp", "remote_tank", "remote_ugv_mp", TANK_WAY_POINT, Infected.ZERO, player);
-            Vector3 turretAttachTagOrigin = remoteTank.Call<Vector3>("GetTagOrigin", "tag_turret_attach");
+            remoteTank = Function.Call<Entity>(449, "vehicle_ugv_talon_mp", "remote_tank", "remote_ugv_mp", TANK_WAY_POINT, Infected.ZERO, player);//"SpawnVehicle"
+
+            Vector3 turretAttachTagOrigin = remoteTank.Call<Vector3>(33128, "tag_turret_attach");//"GetTagOrigin"
             remoteTank.SetField("owner", -1);
 
-
             Function.SetEntRef(-1);
-            rmt1 = Function.Call<Entity>("SpawnTurret", "misc_turret", turretAttachTagOrigin, "remote_turret_mp", false);//ugv_turret_mp
-            rmt1.Call("SetModel", "mp_remote_turret");//vehicle_ugv_talon_gun_mp
+            rmt1 = Function.Call<Entity>(19, "misc_turret", turretAttachTagOrigin, "remote_turret_mp", false);//"SpawnTurret" ugv_turret_mp
+            rmt1.Call(32929, "mp_remote_turret");//SetModel vehicle_ugv_talon_gun_mp
             rmt1.Call(32841, remoteTank, "tag_turret_attach", GetVector(0, -20f, 45f), Infected.ZERO);
             rmt1.Call(33084, 180f);//SetLeftArc
             rmt1.Call(33083, 180f);//SetRightArc
@@ -42,20 +42,18 @@ namespace Infected
             rmt1.SetField("owner", -1);
 
             Function.SetEntRef(-1);
-            rmt2 = Function.Call<Entity>("SpawnTurret", "misc_turret", turretAttachTagOrigin, "remote_turret_mp", false);
-            rmt2.Call("SetModel", "mp_remote_turret");
+            rmt2 = Function.Call<Entity>(19, "misc_turret", turretAttachTagOrigin, "remote_turret_mp", false);
+            rmt2.Call(32929, "mp_remote_turret");
             rmt2.Call(32841, remoteTank, "tag_turret_attach", GetVector(0, 20f, 45f), Infected.ZERO);
-            rmt2.Call(33084, 180f);//SetLeftArc
-            rmt2.Call(33083, 180f);//SetRightArcff
-            rmt2.Call(33086, 180f);//SetBottomArc
+            rmt2.Call(33084, 180f);
+            rmt2.Call(33083, 180f);
+            rmt2.Call(33086, 180f);
             rmt2.SetField("owner", -1);
 
-            //player.Call(32792, "prop_flag_neutral", "tag_shield_back", true);//attachshieldmodel
-
             Function.SetEntRef(-1);
-            Entity flag = Function.Call<Entity>("spawn", "script_model", turretAttachTagOrigin);
-            flag.Call("setmodel", "prop_flag_neutral");
-            flag.Call("LinkTo", remoteTank, "tag_turret_attach", GetVector(0f, 0f, 45f), new Vector3(-90f,0,0));
+            Entity flag = Function.Call<Entity>(85, "script_model", turretAttachTagOrigin);//"spawn"
+            flag.Call(32929, "prop_flag_neutral");
+            flag.Call(32841, remoteTank, "tag_turret_attach", GetVector(0f, 0f, 45f), new Vector3(-90f,0,0));
         }
         internal void SetTankPort(Vector3 origin)
         {
@@ -175,7 +173,7 @@ namespace Infected
             player.Call(33531, Infected.ZERO);
             player.AfterDelay(250, p =>
             {
-                player.Call("setorigin", remoteTank.Origin);
+                player.Call(33529, remoteTank.Origin);//setorigin
             });
             player.Health = 100;
         }
