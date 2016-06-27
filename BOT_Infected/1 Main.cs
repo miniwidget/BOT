@@ -34,8 +34,6 @@ namespace Infected
 
             Call(42, "scr_game_playerwaittime", 1);
             Call(42, "scr_game_matchstarttime", 1);
-            Call(42, "scr_game_allowkillcam", "0");
-            Call(42, "scr_infect_timelimit", 8);
 
             Call(42, "testClients_watchKillcam", 0);
             Call(42, "testClients_doReload", 0);
@@ -77,6 +75,8 @@ namespace Infected
 
             OnNotify("prematch_done", () =>
             {
+                TIME = DateTime.Now.Minute;
+
                 if (DEPLAY_BOT_) BotDeplay();
 
                 PlayerDisconnected += player =>

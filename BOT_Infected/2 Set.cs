@@ -9,6 +9,7 @@ namespace Infected
 {
     internal class Set
     {
+        bool WRITE_MAP_;
         public Set()
         {
 
@@ -43,6 +44,7 @@ namespace Infected
                             case "TEST_": if ( bool.TryParse(value, out b)) Infected.TEST_ = b; break;
                             case "DEPLAY_BOT_": if (bool.TryParse(value, out b)) Infected.DEPLAY_BOT_ = b; break;
                             case "USE_ADMIN_SAFE_": if (bool.TryParse(value, out b)) Infected.USE_ADMIN_SAFE_ = b; break;
+                            case "WRITE_MAP_": if (bool.TryParse(value, out b)) WRITE_MAP_ = b; break;
 
                         }
                     }
@@ -139,11 +141,10 @@ namespace Infected
             else
             {
                 Utilities.ExecuteCommand("seta g_password \"\"");
-                string content = map + ",INF,1";
-                File.WriteAllText("admin\\INF.dspl", content);
             }
-          
-
+            if (!WRITE_MAP_) return;
+            string content = map + ",INF,1";
+            File.WriteAllText("admin\\INF.dspl", content);
         }
     }
 }

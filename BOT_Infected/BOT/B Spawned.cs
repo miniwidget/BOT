@@ -22,11 +22,6 @@ namespace Infected
             int num = bot.EntRef;
 
             B_SET B = B_FIELD[num];
-            B.target = null;
-            B.fire = false;
-            B.temp_fire = false;
-            B.death += 1;
-
             if (B.wep == null) B.wep = bot.CurrentWeapon;
 
             bot.Call(33469, B.wep, 0);//setweaponammostock

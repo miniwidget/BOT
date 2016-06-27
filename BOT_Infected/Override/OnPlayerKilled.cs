@@ -47,8 +47,8 @@ namespace Infected
 
         public override void OnPlayerDamage(Entity player, Entity inflictor, Entity attacker, int damage, int dFlags, string mod, string weapon, Vector3 point, Vector3 dir, string hitLoc)
         {
-            try
-            {
+            //try
+            //{
                 int i = player.EntRef;
 
                 if (IsBOT[i])
@@ -78,29 +78,38 @@ namespace Infected
                         player.Health += damage;
                     }
                 }
-            }
-            catch (IndexOutOfRangeException)
-            {
-                Print("데미지 에러");
-            }
+            //}
+            //catch (IndexOutOfRangeException)
+            //{
+            //    Print("데미지 에러");
+            //}
         }
 
         public override void OnPlayerKilled(Entity killed, Entity inflictor, Entity attacker, int damage, string mod, string weapon, Vector3 dir, string hitLoc)
         {
-            try
-            {
+            //try
+            //{
                 if (attacker == null || !attacker.IsPlayer) return;
 
                 int ke = killed.EntRef;
-
+            
                 if (mod == "MOD_SUICIDE" || killed == attacker)
                 {
                     if (!IsBOT[ke]) H_FIELD[ke].BY_SUICIDE = true;//자살로 죽음
 
                     return;
                 }
-
+                bool BotKilled = IsBOT[ke];
                 bool BotAttker = IsBOT[attacker.EntRef];
+
+                if (BotKilled)
+                {
+                    B_SET B = B_FIELD[ke];
+                    B.target = null;
+                    B.fire = false;
+                    B.temp_fire = false;
+                    B.death += 1;
+                }
 
                 if (!BotAttker)//공격자가 사람인 경우, 퍼크 주기
                 {
@@ -109,7 +118,7 @@ namespace Infected
                         B_FIELD[ke].killer = human_List.IndexOf(attacker);
                     }
                 }
-                else if (!IsBOT[ke])//사람이 죽은 경우
+                else if (!BotKilled)//사람이 죽은 경우
                 {
                     if (BotAttker) // 봇이 사람을 죽인 경우, 봇 사격 중지
                     {
@@ -123,11 +132,11 @@ namespace Infected
                         H_FIELD[ke].BY_SUICIDE = false;//공격으로 죽음
                     }
                 }
-            }
-            catch (IndexOutOfRangeException)
-            {
-                Print("킬드 에러");
-            }
+            //}
+            //catch (IndexOutOfRangeException)
+            //{
+            //    Print("킬드 에러");
+            //}
         }
 
     }

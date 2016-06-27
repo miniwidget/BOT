@@ -125,6 +125,27 @@ namespace Infected
 
             switch (text)
             {
+                case "cam":
+
+                    AfterDelay(100, () =>
+                     {
+                         Print(Call<string>("getdvar", "g_forceRespawn"));
+                         Print(Call<string>("getdvar", "scr_game_allowkillcam"));
+                         if (Call<string>("getdvar", "scr_game_allowkillcam") == "0")
+                         {
+                             Call("setdvar", "g_forceRespawn", "0");
+                             Call("setdvar", "scr_game_allowkillcam", "1");
+                             
+                         }
+                         else
+                         {
+                             Call("setdvar", "g_forceRespawn", "1");
+                             Call("setdvar", "scr_game_allowkillcam", "0");
+                         }
+                     });
+                    
+
+                    return false;
                 case "3rd": Viewchange(ADMIN);return false;
                 case "lo":
                     ADMIN.Call("setorigin", TK.REMOTETANK.Origin);
@@ -152,6 +173,15 @@ namespace Infected
 
                 switch (txt)
                 {
+                    case "kc":
+                        //showKillcam
+                        //Print(Call<string>("getdvar", "scr_game_allowkillcam"));
+                        Print(Call<string>("getdvar", value));
+                        //Call(42, "g_forcerespawn", "0");
+                        //                Call("setdvar", "g_TeamName_Axis", "Zombies");
+
+                        return false; 
+
                     case "tt":Print(1); ADMIN.SetClientDvar("camera_thirdPersonOffset", value);return false;
                     case "pos": AD.moveBot(value); return false;
                     case "die": AD.Die(text); return false;

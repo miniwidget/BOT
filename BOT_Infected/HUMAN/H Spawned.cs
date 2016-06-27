@@ -10,10 +10,10 @@ namespace Infected
 {
     public partial class Infected
     {
-        bool _temp = true;
+        bool _temp_ = true, Human_FIRST_INFECTED_;
         bool IsFirstInfectdHuman()
         {
-            _temp = false;
+            _temp_ = false;
 
             if (BOTs_List.Count == 0) return false;
 
@@ -21,6 +21,7 @@ namespace Infected
             {
                 if (!IsSurvivor(bot)) return false;//감염된 봇이 있는 경우
             }
+            Human_FIRST_INFECTED_ = true;
             return true;
 
         }
@@ -36,16 +37,7 @@ namespace Infected
             int pe = player.EntRef;
             H_SET H = H_FIELD[pe];
 
-            if (_temp) if (IsFirstInfectdHuman()) H.LIFE = -1;
-
-            if (HCT.HELI_ON_USE_)
-            {
-                HCT.IfHeliOwner_DoEnd(player);
-            }
-            if(TK.RMT1_OWNER!=-1 || TK.RMT2_OWNER!= -1)
-            {
-                TK.IfTankOwner_DoEnd(player);
-            }
+            if (_temp_) if (IsFirstInfectdHuman()) H.LIFE = -1;
 
             var LIFE = H.LIFE;
             if (LIFE > -1)//3 2
@@ -55,32 +47,53 @@ namespace Infected
                     H.RESPAWN = true;
                     player.Call(33466, "mp_last_stand");// playlocalsound
                     player.Notify("menuresponse", "team_marinesopfor", "allies");
+                    player.Call(33344, "^2[ ^7" + (LIFE+1) + " LIFE ^2] MORE");
                 }
                 else
                 {
                     H.RESPAWN = false;
                     H.USE_HELI = 0;
 
-                    player.Call(33344, "^2[ ^7" + (LIFE + 1) + " LIFE ^2] MORE");
+                   
                     WP.GiveRandomWeaponTo(player);
                     WP.GiveRandomOffhandWeapon(player);
 
                     if (!human_List.Contains(player)) human_List.Add(player);
 
-                    Set_hset(H, false,false);
+                    Set_hset(H, false, false);
 
                     SetTeamName();
+
+                    if (HCT.HELI_ON_USE_) HCT.IfHeliOwner_DoEnd(player);
+                    if (TK.RMT1_OWNER != -1 || TK.RMT2_OWNER != -1) TK.IfTankOwner_DoEnd(player);
                 }
             }
             else if (LIFE == -1)//change to AXIS
             {
-                Set_hset(H,true,false);
+                if (!Human_FIRST_INFECTED_)
+                {
+                    int now = DateTime.Now.Minute;
+                    int elapsed_time = now - TIME;
+                    if (elapsed_time < 2)
+                    {
+                        H.LIFE = 0;
+                        H.RESPAWN = true;
+                        player.Notify("menuresponse", "team_marinesopfor", "allies");
+                        player.Call(33344, "^2[ ^7UNLIMETED LIFE ^2] UNTIL 10 MINUTE");
+                        return;
+                    }
+                    else Human_FIRST_INFECTED_ = true;
+                }
+                Set_hset(H, true, false);
 
                 player.SetField("sessionteam", "axis");
                 human_List.Remove(player);
                 player.Call(33341);
                 player.Notify("menuresponse", "changeclass", "axis_recipe4");
                 Print(player.Name + " : Infected ⊙..⊙");
+
+                if (HCT.HELI_ON_USE_) HCT.IfHeliOwner_DoEnd(player);
+                if (TK.RMT1_OWNER != -1 || TK.RMT2_OWNER != -1) TK.IfTankOwner_DoEnd(player);
             }
             else
             {

@@ -14,8 +14,6 @@ namespace Infected
         #region deplay
         void BotDeplay()
         {
-            HCT.SetHeliPort();
-
             #region remove Bot
             List<int> tempStrList = null;
             int botCount = 0;
@@ -171,7 +169,7 @@ namespace Infected
                     if (i == max)
                     {
                         TK.SetTank(BOTs_List[i]);
-                        return GetTeamState(fi);
+                        return GetTeamState(fi,i);
                     }
 
                     Entity bot;
@@ -189,8 +187,6 @@ namespace Infected
             int lucky_bot_idx = max;
             if (fidx == max) lucky_bot_idx -= 1;
 
-            TK.SetTank(BOTs_List[lucky_bot_idx]);
-
             OnInterval(250, () =>
             {
                 Entity bot;
@@ -200,7 +196,7 @@ namespace Infected
                     fi.SpawnedPlayer += () => BotSpawned(fi);
                     fi.Call(33341);//suicide
                     SetTeamName();
-                    return GetTeamState(fi);
+                    return GetTeamState(fi, lucky_bot_idx);
                 }
                 if (i != lucky_bot_idx)
                 {
@@ -214,7 +210,7 @@ namespace Infected
             });
         }
 
-        bool GetTeamState(Entity fi)
+        bool GetTeamState(Entity fi, int lucky_bot_idx)
         {
             int alive = 0, max = BOTs_List.Count;
 
@@ -225,13 +221,18 @@ namespace Infected
 
             Log.Write(LogLevel.None, "■ BOTs:{0} AXIS:{1} ALLIES:{2} INF:{3} ■ MAP:{4}", max, (max - alive), alive, fi.Name, my.MAP_IDX);
             HUD.ServerHud();
+            HCT.SetHeliPort();
+            TK.SetTank(BOTs_List[lucky_bot_idx]);
 
             Call(42, "testClients_doReload", 0);//setdvar
             Call(42, "testClients_doCrouch", 0);
             Call(42, "testClients_doMove", 1);
             Call(42, "testClients_doAttack", 1);
 
+            Call(42, "scr_infect_timelimit", "12");
+
             return false;
         }
+        int TIME;
     }
 }
