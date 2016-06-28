@@ -55,7 +55,7 @@ namespace Infected
             if (Axis)
             {
                 H.LIFE = -2;
-                H.USE_HELI = 4;
+                H.USE_HELI = 1;
                 H.AX_WEP = 1;
             }
             else
@@ -171,7 +171,7 @@ namespace Infected
             player.Call(33445, "ACTIVATE", "+activate");//"notifyonplayercommand"
             player.OnNotify("ACTIVATE", ent =>
             {
-                if (H.AXIS || use_tank) return;//Axis or OnMessage or HELI null
+                if (use_tank) return;//Axis or OnMessage or HELI null
 
                 if (player.CurrentWeapon[2] != '5') return;
 
@@ -203,7 +203,7 @@ namespace Infected
                         {
                             if (!TK.IfTankOwner_DoEnd(player))
                             {
-                                Info.MessageRoop(player, 0, HCT.HELI_MESSAGE_ALERT);
+                                Info.MessageRoop(player, 0, HCT.MESSAGE_ALERT);
                             }
                             return;
                         }
@@ -238,7 +238,7 @@ namespace Infected
                             HCT.HELI_GUNNER = player;
 
                             if (H.PERK < 10) Info.MessageRoop(player, 0, new[] { "^2" + (11 - H.PERK) + " KILL MORE ^7TO RIDE HELI", "YOU CAN RIDE HELI", "IF ANOTHER PLAYER ONBOARD" });
-                            else Info.MessageRoop(player, 0, HCT.HELI_MESSAGE_WAIT_PLAYER);
+                            else Info.MessageRoop(player, 0, HCT.MESSAGE_WAIT_PLAYER);
 
                             Common.StartOrEndThermal(player, true);
                         }
@@ -291,22 +291,22 @@ namespace Infected
                     if (weaponName.ToString() != "airdrop_sentry_marker_mp") return;
 
                     H.LOC_DO = false;
-                    Entity e = mk.As<Entity>();
-                    if (e == null) return;
+                    Entity ent = mk.As<Entity>();
+                    if (ent == null) return;
                     H.RELOC = player.Origin;
-                    player.Call(32841, e);//linkto
+                    player.Call(32841, ent);//linkto
                     player.AfterDelay(3000, p =>
                     {
                         player.Call(32843);//unlink
+                        ent.Call(32928);//delete
 
-                        e.Call(32928);//delete
                         p.AfterDelay(200, x =>
                         {
                             int ground = player.Call<int>(33538);
                             if (ground == 0)
                             {
-                                var pos = e.Origin; pos.Z += 10;
-                                player.Call(33529, e);//setorigin
+                                var pos = player.Origin; pos.Z += 10;
+                                player.Call(33529, pos);//setorigin
                                 player.Call(33344, "TYPE ^2RELOC ^7IF GET BACK LOCATION");
                             }
                         });

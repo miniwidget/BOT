@@ -8,11 +8,11 @@ namespace Infected
 {
     class Helicopter
     {
-        internal readonly string[] HELI_MESSAGE_ALERT = { "YOU ARE NOT IN THE HELI AREA", "GO TO HELI AREA AND", "PRESS ^2[ [{+activate}] ] ^7AT THE HELI AREA" };
-        internal readonly string[] HELI_MESSAGE_WAIT_PLAYER = { "YOU CAN RIDE HELLI", "IF ANOTHER PLAYER ONBOARD" };
-        readonly string[] HELI_MESSAGE_KEY_INFO = { "HELI INFO", "^2[ [{+breath_sprint}] ] ^7MOVE DOWN", "^2[ [{+gostand}] ] ^7MOVE UP" };
-        readonly string[] HELI_MESSAGE_ACTIVATE = { "PRESS ^2[ [{+activate}] ] ^7AT THE HELI TURRET AREA", "YOU CAN RIDE IN HELICOPTER" };
-
+        internal readonly string[] MESSAGE_ALERT = { "YOU ARE NOT IN THE HELI AREA", "GO TO HELI AREA AND", "PRESS ^2[ [{+activate}] ] ^7AT THE HELI AREA" };
+        internal readonly string[] MESSAGE_WAIT_PLAYER = { "YOU CAN RIDE HELLI", "IF ANOTHER PLAYER ONBOARD" };
+        readonly string[] MESSAGE_KEY_INFO = { "HELI INFO", "^2[ [{+breath_sprint}] ] ^7MOVE DOWN", "^2[ [{+gostand}] ] ^7MOVE UP" };
+        internal readonly string[] MESSAGE_ACTIVATE = { "PRESS ^2[ [{+activate}] ] ^7AT THE HELI TURRET AREA", "YOU CAN RIDE IN HELICOPTER" };
+        internal readonly string MESSAGE_CALL = "PRESS ^2[ [{+activate}] ] ^7TO CALL HELI TURRET";
         internal Entity HELI, TL, TR, HELI_OWNER, HELI_GUNNER;
         internal static Vector3 HELI_WAY_POINT;
 
@@ -35,11 +35,11 @@ namespace Infected
 
             if (HELI == null)
             {
-                player.Call(33344, "PRESS ^2[ [{+activate}] ] ^7TO CALL HELI TURRET");
+                player.Call(33344, MESSAGE_CALL);
             }
             else
             {
-                Info.MessageRoop(player, 0, HELI_MESSAGE_ACTIVATE);
+                Info.MessageRoop(player, 0, MESSAGE_ACTIVATE);
             }
 
             player.Call(32792, "prop_flag_neutral", "tag_shield_back", true);//attachshieldmodel
@@ -86,7 +86,7 @@ namespace Infected
                 });
             });
 
-            Info.MessageRoop(player, 0, HELI_MESSAGE_ACTIVATE);
+            Info.MessageRoop(player, 0, MESSAGE_ACTIVATE);
             Utilities.RawSayAll("HELICOPTER ENABLED. GO TO THE AREA");
         }
         internal void HeliSetup(Entity player)
@@ -136,7 +136,7 @@ namespace Infected
                 else Common.StartOrEndThermal(HELI_GUNNER, true);
             }
 
-            Info.MessageRoop(player, 0, HELI_MESSAGE_KEY_INFO);
+            Info.MessageRoop(player, 0, MESSAGE_KEY_INFO);
 
             player.Call(33256, HELI);//remotecontrolvehicle  
             Common.StartOrEndThermal(player, true);
