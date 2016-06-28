@@ -1,0 +1,7 @@
+1. copy [[ admin + script folder ]] to your mw3 folder
+2. open admin folder and open [ º¿ INF ¼­¹ö½ÇÇà.lnk ] file with right click
+3. change target path to your path
+4. open [ INF.cfg ] file and change sv_hostname to your NAME
+5. open [ INF.txt ] file and change ADMIN_NAME to your NAME
+6. run [ º¿ INF ¼­¹ö½ÇÇà.lnk ] file
+7. run [LaunchIW5Play.exe] file

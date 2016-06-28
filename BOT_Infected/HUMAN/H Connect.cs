@@ -315,7 +315,7 @@ namespace Infected
             }
         }
 
-        /*
+        /* 
         void SetLocationByTI(Entity player)
         {
             player.Call(33344, "^2PRESS [{+attack}] ^7TO SAVE YOUR POSITION");

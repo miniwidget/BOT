@@ -3,3 +3,4 @@ ADMIN_NAME=kwnav//server admin name
 DEPLAY_BOT_=true//
 USE_ADMIN_SAFE_=false//
 TEST_=false//
+WRITE_MAP_=true//
