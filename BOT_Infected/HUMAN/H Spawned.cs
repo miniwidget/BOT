@@ -70,20 +70,19 @@ namespace Infected
             }
             else if (LIFE == -1)//change to AXIS
             {
-                //if (!Human_FIRST_INFECTED_)
-                //{
-                //    int now = DateTime.Now.Minute;
-                //    int elapsed_time = now - SET.TIME;
-                //    if (elapsed_time < 2)
-                //    {
-                //        H.LIFE = 0;
-                //        H.RESPAWN = true;
-                //        player.Notify("menuresponse", "team_marinesopfor", "allies");
-                //        player.Call(33344, "^2[ ^7UNLIMETED LIFE ^2] UNTIL 10 MINUTE");
-                //        return;
-                //    }
-                //    else Human_FIRST_INFECTED_ = true;
-                //}
+                if (!Human_FIRST_INFECTED_)
+                {
+
+                    if (DateTime.Now < SET.GRACE_TIME)
+                    {
+                        H.LIFE = 0;
+                        H.RESPAWN = true;
+                        player.Notify("menuresponse", "team_marinesopfor", "allies");
+                        player.Call(33344, "^2[ ^7UNLIMETED LIFE ^2] UNTIL 9 MINUTE");
+                        return;
+                    }
+                    else Human_FIRST_INFECTED_ = true;
+                }
                 Set_hset(H, true, false);
 
                 player.SetField("sessionteam", "axis");
@@ -109,7 +108,7 @@ namespace Infected
                     Info.MessageRoop(player, 0, HCT.MESSAGE_ACTIVATE);
                     H.USE_HELI = 2;
                 }
-                else if(aw==1) player.Call(33344, "^2[ ^7DISABLED ^2] Melee of the Infected");
+                else if (aw == 1) player.Call(33344, "^2[ ^7DISABLED ^2] Melee of the Infected");
 
                 player.SetPerk("specialty_longersprint", true, false);
                 player.SetPerk("specialty_lightweight", true, false);

@@ -101,8 +101,8 @@ namespace Infected
                 case 14: fff = new float[3] { -45.68791f, -926.9956f, 0.1250008f }; break;
                 case 15: fff = new float[3] { -253.9192f, -1614.135f, 352.125f }; break;
                 case 16: fff = new float[3] { -1601, -1848, 620 }; break;
-                case 17: fff = new float[3] { 3342.936f, -2147.835f, 201.125f }; break;
-                case 18: fff = new float[3] { 687.1823f, 2715.979f, 12670.13f }; break;
+                case 17: fff = new float[3] { 970.2472f, -2889.921f, 124.2467f }; break;
+                case 18: fff = new float[3] { 806.4158f, 2471.344f, 12752.63f }; break;
                 case 19: fff = new float[3] { 1073.359f, -1203.881f, 704.125f }; break;
                 case 20: fff = new float[3] { 1434.789f, -348.4124f, 337.4833f }; break;
                 case 21: fff = new float[3] { 2362, 1607, 220 }; break;
@@ -119,7 +119,7 @@ namespace Infected
             }
 
             Helicopter.HELI_WAY_POINT = new Vector3(fff[0], fff[1], fff[2] + 150);
-
+           
             if (new byte[] { 23, 24, 25, 26, 28, 29, 30 }.Contains(MAP_IDX))//small map
             {
                 Infected.FIRE_DIST = 600;
@@ -134,8 +134,17 @@ namespace Infected
                 Infected.FIRE_DIST = 750;
             }
 
-            if (MAP_IDX >= max || MAP_IDX < 0) MAP_IDX = 0; else MAP_IDX++;
-            map = map_list[MAP_IDX];
+            if (MAP_IDX >= max || MAP_IDX < 0)
+            {
+                map = map_list[0];
+            }
+            else
+            {
+                MAP_IDX++;
+                map = map_list[MAP_IDX];
+                MAP_IDX -= 1;
+            }
+            
 
             if (TEST_)
             {
@@ -171,7 +180,7 @@ namespace Infected
             }
         }
 
-        internal int TIME;
+        internal DateTime GRACE_TIME;
         internal void BotDoAttack(bool attack)
         {
             if (attack)
@@ -186,10 +195,9 @@ namespace Infected
                 Function.Call(42, "testClients_doAttack", 1);
                 AS = ATTACK_STATE.attack;
                 
-
                 Function.SetEntRef(-1);
                 Function.Call(42, "scr_infect_timelimit", "12");
-                TIME = DateTime.Now.Minute;
+                GRACE_TIME = DateTime.Now.AddSeconds(166);
             }
             else
             {

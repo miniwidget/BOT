@@ -6,31 +6,34 @@ using System.Text;
 
 namespace TEST
 {
-    class Vehicle
+    class Vehicle : InfinityBase
     {
-        #region infinity script
-        TReturn Call<TReturn>(string func, params Parameter[] parameters)
-        {
-            Function.SetEntRef(-1);
-            return Function.Call<TReturn>(func, parameters);
-        }
-        TReturn Call<TReturn>(int func, params Parameter[] parameters)
-        {
-            Function.SetEntRef(-1);
-            return Function.Call<TReturn>(func, parameters);
-        }
 
-        void Call(string func, params Parameter[] parameters)
+        internal void StartRemoteUAV(Entity player)
         {
-            Function.SetEntRef(-1);
-            Function.Call(func, parameters);
+            player.AfterDelay(400, x =>
+            {
+                //player.GiveWeapon("uav_remote_mp");
+                //player.SwitchToWeaponImmediate("uav_remote_mp");
+                //player.Call("VisionSetNakedForPlayer", "black_bw", 0.5f);
+
+
+                Entity remoteUAV =
+                 Call<Entity>("spawnhelicopter", player, player.Origin + new Vector3(0, 0, 25), new Vector3(0,0,0),
+                 "attack_littlebird_mp", "vehicle_remote_uav");
+                 //Call<Entity>("spawnhelicopter", test.ADMIN, spawnPos, Angles, minimap_model, realModel);
+
+                float UAV_REMOTE_COLLISION_RADIUS = 18,
+                    UAV_REMOTE_Z_OFFSET = -9;
+
+                remoteUAV.Call("MakeVehicleSolidCapsule",
+                    UAV_REMOTE_COLLISION_RADIUS,
+                   UAV_REMOTE_Z_OFFSET,
+                    UAV_REMOTE_COLLISION_RADIUS);
+            });
+          
+
         }
-        void Call(int func, params Parameter[] parameters)
-        {
-            Function.SetEntRef(-1);
-            Function.Call(func, parameters);
-        }
-        #endregion
 
         Entity VEHICLE;
         Vector3[] TAG_ORIGIN = new Vector3[] { new Vector3(0, 0, 200), new Vector3(0, 0, 0) };

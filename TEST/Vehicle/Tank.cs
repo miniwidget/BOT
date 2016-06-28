@@ -6,31 +6,8 @@ using System.Text;
 
 namespace TEST
 {
-    class Tank
+    class Tank : InfinityBase
     {
-        #region infinity script
-        TReturn Call<TReturn>(string func, params Parameter[] parameters)
-        {
-            Function.SetEntRef(-1);
-            return Function.Call<TReturn>(func, parameters);
-        }
-        TReturn Call<TReturn>(int func, params Parameter[] parameters)
-        {
-            Function.SetEntRef(-1);
-            return Function.Call<TReturn>(func, parameters);
-        }
-
-        void Call(string func, params Parameter[] parameters)
-        {
-            Function.SetEntRef(-1);
-            Function.Call(func, parameters);
-        }
-        void Call(int func, params Parameter[] parameters)
-        {
-            Function.SetEntRef(-1);
-            Function.Call(func, parameters);
-        }
-        #endregion
 
         Vector3 ZERO = new Vector3();
         Entity remoteTank;

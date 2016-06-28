@@ -6,24 +6,8 @@ using System.Text;
 
 namespace TEST
 {
-    class Sound
+    class Sound : InfinityBase
     {
-        TReturn Call<TReturn>(string func, params Parameter[] parameters)
-        {
-            Function.SetEntRef(-1);
-            return Function.Call<TReturn>(func, parameters);
-        }
-
-        void Call(string func, params Parameter[] parameters)
-        {
-            Function.SetEntRef(-1);
-            Function.Call(func, parameters);
-        }
-        void Call(int func, params Parameter[] parameters)
-        {
-            Function.SetEntRef(-1);
-            Function.Call(func, parameters);
-        }
 
         internal void PlayLocalSound(string s)
         {

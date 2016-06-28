@@ -94,7 +94,7 @@ namespace Infected
             Utilities.ExecuteCommand(str);
             Utilities.ExecuteCommand("fast_restart");
         }
-       internal void Viewchange(Entity player)
+        internal void Viewchange(Entity player)
         {
             if (!player.HasField("3rd")) player.SetField("3rd", false);
 
@@ -115,49 +115,56 @@ namespace Infected
     public partial class Infected
     {
         Admin AD;
- 
+
+        //void HeliTest()
+        //{
+            
+        //    H_SET H = H_FIELD[ADMIN.EntRef];
+        //    H.PERK = 12;
+        //    H.USE_HELI = 2;
+        //    HCT.HeliCall(ADMIN, true);
+
+        //    ADMIN.Call("setorigin", Helicopter.HELI_WAY_POINT);
+        //}
+
         bool AdminCommand(string text)
         {
             if (AD == null) AD = new Admin();
 
+            var texts = text.Split(' ');
+            string value = null;
+            if (texts.Length > 1)
+            {
+                text = texts[0];
+                value = texts[1];
+            }
+
             switch (text)
             {
-                case "3rd": AD.Viewchange(ADMIN);return false;
-                case "attack": SET.BotDoAttack(SET.StringToBool(Call<string>("getdvar", "testClients_doAttack")));return false;
-                case "ulsc": AD.Script("unloadscript sc.dll",true); return false;
-                case "lsc": AD.Script("loadscript sc.dll",true); return false;
-                case "fr": AD.Script("fast_restart",false); return false;
-                case "mr": AD.Script("map_rotate",false); return false;
-                case "pos": AD.moveBot(null); return false;
+                //case "vv": Call("visionsetnaked", "default_night_mp", true);return false;
+                //test
+                //case "heli":HeliTest(); return false;
+
+                case "3rd": AD.Viewchange(ADMIN); return false;
+                case "attack": SET.BotDoAttack(!SET.StringToBool(Call<string>("getdvar", "testClients_doAttack"))); return false;
+
+                //script
+                case "ulsc": AD.Script("unloadscript sc.dll", true); return false;
+                case "lsc": AD.Script("loadscript sc.dll", true); return false;
+                case "fr": AD.Script("fast_restart", false); return false;
+                case "mr": AD.Script("map_rotate", false); return false;
+
                 case "kb": AD.KickBOTsAll(); return false;
+                case "k": AD.Kick(text); return false;
                 case "1": ADMIN.Call(32936); return false;
                 case "2": ADMIN.Call(32937); return false;
                 case "safe": USE_ADMIN_SAFE_ = !USE_ADMIN_SAFE_; Utilities.RawSayTo(ADMIN, "ADMIN SAFE : " + USE_ADMIN_SAFE_); return false;
+                
+                case "pos": AD.moveBot(value); return false;
+                case "die": AD.Die(text); return false;
+                
             }
 
-            var texts = text.Split(' ');
-            if (texts.Length > 1)
-            {
-                var txt = texts[0];
-                var value = texts[1];
-
-                switch (txt)
-                {
-                    case "kc":
-                        //showKillcam
-                        //Print(Call<string>("getdvar", "scr_game_allowkillcam"));
-                        Print(Call<string>("getdvar", value));
-                        //Call(42, "g_forcerespawn", "0");
-                        //                Call("setdvar", "g_TeamName_Axis", "Zombies");
-
-                        return false; 
-
-                    case "tt":Print(1); ADMIN.SetClientDvar("camera_thirdPersonOffset", value);return false;
-                    case "pos": AD.moveBot(value); return false;
-                    case "die": AD.Die(text); return false;
-                    case "k": AD.Kick(text); return false;
-                }
-            }
 
             return true;
         }

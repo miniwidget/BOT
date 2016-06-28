@@ -31,7 +31,6 @@ namespace Infected
         /// </summary>
         internal void HeliAttachFlagTag(Entity player)
         {
-            //player.Call(32771, "PC_1mc_take_positions", "allies");//playsoundtoteam
 
             if (HELI == null)
             {
@@ -66,7 +65,7 @@ namespace Infected
         {
             return (player.Call<int>(33539) == 1);
         }
-        internal void HeliCall(Entity player)
+        internal void HeliCall(Entity player, bool Axis)
         {
             var w = player.CurrentWeapon;
             player.TakeWeapon(w);
@@ -87,7 +86,14 @@ namespace Infected
             });
 
             Info.MessageRoop(player, 0, MESSAGE_ACTIVATE);
-            Utilities.RawSayAll("HELICOPTER ENABLED. GO TO THE AREA");
+            if (Axis)
+            {
+                Utilities.RawSayAll("^1[ ^7"+player.Name +" ^1] CALLED HELICOPTER. WATCH OUT");
+            }
+            else
+            {
+                Utilities.RawSayAll("HELICOPTER ENABLED. GO TO THE AREA");
+            }
         }
         internal void HeliSetup(Entity player)
         {
@@ -96,7 +102,7 @@ namespace Infected
             string realModel = "vehicle_little_bird_armed";
             string minimap_model = "attack_littlebird_mp";
 
-            string turret_mp = "sentry_minigun_mp";
+            string turret_mp = "littlebird_guard_minigun_mp";// "sentry_minigun_mp";
             string reamModel_turret = "weapon_minigun";
 
             Function.SetEntRef(-1);
@@ -119,13 +125,17 @@ namespace Infected
             TR.Call(33084, 180f);
             TR.Call(33083, 180f);
             TR.Call(33086, 180f);
+
+            //	lb.mgTurretLeft SetMode( level.heliGuardSettings[ heliGuardType ].sentryMode );
+            //lb.mgTurretRight SetMode(level.heliGuardSettings[heliGuardType].sentryMode);
+
         }
 
         #endregion
 
         #region board heli
         internal bool HELI_ON_USE_;
-        internal void HeliStart(Entity player)
+        internal void HeliStart(Entity player,bool Axis)
         {
             HELI_ON_USE_ = true;
             HELI_OWNER = player;
@@ -136,6 +146,12 @@ namespace Infected
                 else Common.StartOrEndThermal(HELI_GUNNER, true);
             }
 
+            if (Axis)
+            {
+                Utilities.RawSayAll("^1ENEMY HELICOPTER INBOUND");
+                player.Call(32771, "PC_1mc_enemy_ah6guard", "allies");//playsoundtoteam
+
+            }
             Info.MessageRoop(player, 0, MESSAGE_KEY_INFO);
 
             player.Call(33256, HELI);//remotecontrolvehicle  
@@ -185,6 +201,15 @@ namespace Infected
         {
             if (HELI_OWNER == player) HeliEndUse(player, false);
             else if (HELI_GUNNER == player) HeliEndGunner();
+        }
+    }
+    class RemoteUAV
+    {
+        void StartRemoteUAV(Entity player)
+        {
+            player.GiveWeapon("uav_remote_mp");
+            player.SwitchToWeaponImmediate("uav_remote_mp");
+            player.Call("VisionSetNakedForPlayer", "black_bw", 0f);
         }
     }
 }

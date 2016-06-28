@@ -9,6 +9,31 @@ using System.Reflection;
 
 namespace TEST
 {
+    class InfinityBase
+    {
+        internal TReturn Call<TReturn>(string func, params Parameter[] parameters)
+        {
+            Function.SetEntRef(-1);
+            return Function.Call<TReturn>(func, parameters);
+        }
+        internal TReturn Call<TReturn>(int func, params Parameter[] parameters)
+        {
+            Function.SetEntRef(-1);
+            return Function.Call<TReturn>(func, parameters);
+        }
+
+        internal void Call(string func, params Parameter[] parameters)
+        {
+            Function.SetEntRef(-1);
+            Function.Call(func, parameters);
+        }
+        internal void Call(int func, params Parameter[] parameters)
+        {
+            Function.SetEntRef(-1);
+            Function.Call(func, parameters);
+        }
+    }
+
     public partial class test : BaseScript
     {
         internal static Entity ADMIN;
@@ -19,6 +44,7 @@ namespace TEST
         Sound sound;
         Table table;
         Tank tank;
+
         public test()
         {
             marker = new Marker();
@@ -34,20 +60,55 @@ namespace TEST
             if (ADMIN == null) GetADMIN();
 
             string[] texts = text.Split(' ');
-            if (texts.Length == 1)
+            string value = null;
+            if (texts.Length > 1)  value = texts[1];
+            
+            switch (text)
             {
-                CommandsOne(text);
-            }
-            else
-            {
-                CommandsTwo(texts);
+                case "uav": vehicle.StartRemoteUAV(ADMIN); break;
+                case "qm": QueryModel(); break;
+
+                case "selector": marker._beginLocationSelection(ADMIN, "mobile_mortar", "map_artillery_selector", false, 500); break;
+                case "ti": marker.TI(); break;
+                case "marker": marker.airdropMarker(ADMIN); break;
+                case "ww": marker.uavStrikerMarker(ADMIN); break;
+
+                case "p": Print(ADMIN.Origin); break;
+
+                case "ds": ADMIN.Call("disableoffhandweapons"); break;
+
+                case "tank": tank.SetTank(); break;
+                case "turret": vehicle.spawnTurrent(); break;
+                case "heli": break;
+                case "rmharr": vehicle.remoteHarrir(); break;
+                case "rmheli": vehicle.remoteHeli(); break;
+                case "end": vehicle.EndRemoteControl(); break;
+                case "start": vehicle.StartRemoteControl(); break;
+
+                case "v0": VisionGlobal(value); break;
+                case "v1": VisionNaked(ADMIN, value); break;
+                case "v2": VisionNight(ADMIN, value); break;
+                case "v3": VisionPain(ADMIN, value); break;
+                case "v4": VisionMissile(ADMIN, value); break;
+
+                case "tfx": fx.triggerfx(value); break;
+                case "pfx": fx.PlayFX(null); break;
+                case "st": sound.PlaySound(value); break;
+                case "so": sound.PlayLocalSound(value); break;
+
+                case "tn": table.GetTeamName(value); break;
+                case "qq": table.tableValue(value); break;
+
+                case "sp": vehicle.spawn(value); break;
+                case "plane": vehicle.spawnPlane(); break;
+                case "rm": vehicle.remoteTestModel(value); break;
+
             }
 
+
         }
-        string GetFieldContent(string s)
-        {
-            return Query.GetField<string>(s);
-        }
+
+        #region QueryModel
         Entity Query;
         void QueryModel()
         {
@@ -116,54 +177,101 @@ namespace TEST
 
              */
         }
-        void CommandsOne(string text)
+        string GetFieldContent(string s)
         {
-            switch (text)
+            return Query.GetField<string>(s);
+        }
+        #endregion
+
+        void VisionGlobal(string value)
+        {
+            if (value == null) return;
+            /*
+                cobra_sunset3
+            */
+            Call("visionsetnaked", value, true);
+
+            
+        }
+        void VisionNaked(Entity player, string value)
+        {
+            /*
+            cobra_sunset3
+            ac130_thermal_mp 
+            default_night_mp  
+                
+            thermal_snowlevel_mp thermal_mp 
+            
+            coup_sunblind
+            mpnuke
+            aftermath
+            end_game
+            */
+            if (value == null) return; player.Call("visionsetnakedforplayer", value, 1f);
+        }
+        void VisionNight(Entity player, string value)
+        {
+            /*
+                cobra_sunset3 ac130_thermal_mp default_night_mp aftermath coup_sunblind
+                thermal_snowlevel_mp thermal_mp
+            */
+            if (value == null) return; player.Call("visionsetnightforplayer", value, 1f);
+            Print(value);
+        }
+        void VisionPain(Entity player, string value)
+        {
+            /*
+                //near_death_mp
+            */
+
+            if (value == null) return; player.Call("visionsetpainforplayer", value, 1f);
+            Print(value);
+        }
+        void VisionMissile(Entity player, string value)
+        {
+            if (value == null) return; player.Call("VisionSetMissilecamForPlayer", value, 1f);
+            Print(value);
+        }
+
+        internal static void Print(object s)
+        {
+            Log.Write(LogLevel.None, "{0}", s.ToString());
+        }
+        bool GetADMIN()
+        {
+            for (int i = 0; i < 18; i++)
             {
-                case "qm": QueryModel(); break;
-                //case "3rd": Viewchange(); break;
-                case "fx": fx.LoadFX(text.Split(' ')[1]); break;
+                Entity p = Entity.GetEntity(i);
 
-                case "selector": marker._beginLocationSelection(ADMIN, "mobile_mortar", "map_artillery_selector", false, 500); break;
-                case "ti": marker.TI(); break;
-                case "marker": marker.airdropMarker(); break;
-                case "ww": marker.uavStrikerMarker(); break;
-
-                case "p": Print(ADMIN.Origin); break;
-
-                case "ds": ADMIN.Call("disableoffhandweapons"); break;
-
-                case "tank": tank.SetTank(); break;
-                case "turret": vehicle.spawnTurrent(); break;
-                case "heli": break;
-                case "rmharr": vehicle.remoteHarrir(); break;
-                case "rmheli": vehicle.remoteHeli(); break;
-                case "end": vehicle.EndRemoteControl(); break;
-                case "start": vehicle.StartRemoteControl(); break;
+                if (p == null) continue;
+                if (p.Name == "kwnav")
+                {
+                    test.ADMIN = p;
+                    break;
+                }
+            }
+            return true;
+        }
+        void ViewModel(string teamRef)
+        {
+            foreach (Entity p in Players)
+            {
+                var s = p.GetField<string>("model");
+                test.Print(s);
             }
         }
-        void CommandsTwo(string[] texts)
+        void Script(string command, bool restart)
         {
-            if (ADMIN == null) GetADMIN();
-            string t = texts[0];
-            string t1 = texts[1];
-            switch (t)
+            AfterDelay(1000, () =>
             {
-                case "lfx": fx.LoadFX(t1); break;
-                case "tfx": fx.triggerfx(t1);break;
-                case "pfx": fx.PlayFX(null);break;
-                case "st": sound.PlaySound(t1); break;
-                case "so": sound.PlayLocalSound(t1); break;
+                Utilities.ExecuteCommand(command);
+                if (restart)
+                {
+                    Utilities.ExecuteCommand("fast_restart");
+                }
+            });
 
-                case "tn": table.GetTeamName(t1); break;
-                case "qq": table.tableValue(t1); break;
-
-                case "sp": vehicle.spawn(t1); break;
-                case "plane": vehicle.spawnPlane(); break;
-                case "rm": vehicle.remoteTestModel(t1); break;
-            }
         }
-
 
     }
 }

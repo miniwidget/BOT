@@ -19,14 +19,11 @@ namespace Infected
             int botCount = 0;
             foreach (Entity p in Players)
             {
-                if (p == null || p.Name == "")
+                if (p == null || p.Name == "")   continue;
+                
+                if (p.Name.StartsWith("bot"))
                 {
-                    continue;
-                }
-                else if (p.Name.StartsWith("bot"))
-                {
-                    var sessionteam = p.GetField<string>("sessionteam");
-                    if (sessionteam != "spectator")
+                    if (p.GetField<string>("sessionteam") != "spectator")
                     {
                         botCount++;
                     }
@@ -34,7 +31,6 @@ namespace Infected
                     {
                         if (tempStrList == null) tempStrList = new List<int>();
                         tempStrList.Add(p.EntRef);
-
                     }
                 }
             }
@@ -130,7 +126,7 @@ namespace Infected
 
                 foreach (Entity player in Players)
                 {
-                    if (player == null || !player.IsPlayer) continue;
+                    if (player == null) continue;
                     if (player.GetField<string>("sessionteam") == "axis")//감염 시작
                     {
                         if (player.Name.StartsWith("bot"))//봇이 감염된 경우
@@ -158,43 +154,30 @@ namespace Infected
         /// </summary>
         void BotToAxis(Entity fi, bool human_infected)
         {
-
             var max = BOTs_List.Count - 1;
             SET.LUCKY_BOT_IDX = max;
-            int i = 0;
-            if (human_infected)
+           
+            if (!human_infected)
             {
-                OnInterval(250, () =>
-                {
-                    if (i == max)
-                    {
-                        return GetTeamState(fi);
-                    }
-
-                    Entity bot;
-                    bot = BOTs_List[i];
-                    bot.SpawnedPlayer += () => BotSpawned(bot);
-                    bot.Call(33341);//suicide
-                    i++;
-                    return true;
-                });
-
-                return;
+                int fidx = BOTs_List.IndexOf(fi);
+                if (fidx == max) SET.LUCKY_BOT_IDX -= 1;
             }
 
-            int fidx = BOTs_List.IndexOf(fi);
-            if (fidx == max) SET.LUCKY_BOT_IDX -= 1;
-
+            int i = 0;
             OnInterval(250, () =>
             {
                 Entity bot;
 
                 if (i == max)
                 {
-                    fi.SpawnedPlayer += () => BotSpawned(fi);
-                    fi.Call(33341);//suicide
-                    SetTeamName();
-                    return GetTeamState(fi);
+                    if (!human_infected)
+                    {
+                        fi.SpawnedPlayer += () => BotSpawned(fi);
+                        fi.Call(33341);//suicide
+                        SetTeamName();
+                    }
+                    
+                    return GetTeamState(fi.Name);
                 }
                 if (i != SET.LUCKY_BOT_IDX)
                 {
@@ -208,7 +191,7 @@ namespace Infected
             });
         }
 
-        bool GetTeamState(Entity fi)
+        bool GetTeamState(string first_inf_name)
         {
             int alive = 0, max = BOTs_List.Count;
 
@@ -217,7 +200,7 @@ namespace Infected
                 if (bot.GetField<string>("sessionteam") == "allies") alive++;
             }
 
-            Log.Write(LogLevel.None, "■ BOTs:{0} AXIS:{1} ALLIES:{2} INF:{3} ■ MAP:{4}", max, (max - alive), alive, fi.Name, SET.MAP_IDX);
+            Log.Write(LogLevel.None, "■ BOTs:{0} AXIS:{1} ALLIES:{2} INF:{3} ■ MAP:{4}", max, (max - alive), alive, first_inf_name, SET.MAP_IDX);
 
             HUD.ServerHud();
             HCT.SetHeliPort();
@@ -225,16 +208,14 @@ namespace Infected
 
             if (SET.AS == Set.ATTACK_STATE.beforeMatch)
             {
-                
+
                 SET.BotDoAttack(true);
             }
             else
                 SET.AS = Set.ATTACK_STATE.inf_done;
 
-           
-
             return false;
         }
-      
+
     }
 }

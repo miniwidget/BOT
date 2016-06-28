@@ -6,32 +6,13 @@ using System.Text;
 
 namespace TEST
 {
-    internal class Marker
+    internal class Marker : InfinityBase
     {
-        TReturn Call<TReturn>(string func, params Parameter[] parameters)
-        {
-            Function.SetEntRef(-1);
-            return Function.Call<TReturn>(func, parameters);
-        }
-
-        void Call(string func, params Parameter[] parameters)
-        {
-            Function.SetEntRef(-1);
-            Function.Call(func, parameters);
-        }
-        void Call(int func, params Parameter[] parameters)
-        {
-            Function.SetEntRef(-1);
-            Function.Call(func, parameters);
-        }
         #region Marker
-        internal void uavStrikerMarker()
+        internal void uavStrikerMarker(Entity player)
         {
-            Entity player = test.ADMIN;
             player.GiveWeapon("uav_strike_marker_mp");
             player.SwitchToWeaponImmediate("uav_strike_marker_mp");
-
-            //self waittill( "missile_fire", missile, weaponName );
 
             player.OnNotify("missile_fire", (Entity owner, Parameter entity, Parameter weaponName) =>
             {
@@ -56,9 +37,8 @@ namespace TEST
                 });
             });
         }
-        internal void airdropMarker()
+        internal void airdropMarker(Entity player)
         {
-            Entity player = test.ADMIN;
             player.GiveWeapon("airdrop_marker_mp");
             player.SwitchToWeaponImmediate("airdrop_marker_mp");
             player.OnNotify("grenade_fire", (Entity owner, Parameter entity, Parameter weaponName) =>
@@ -78,19 +58,6 @@ namespace TEST
             });
 
         }
-        internal void test_(string ss)
-        {
-            //smoke/signal_smoke_airdrop_30sec
-            //misc/laser_glow
-            Entity player = test.ADMIN;
-            player.AfterDelay(200, p =>//
-            {
-                int loadfx = Call<int>("loadfx", ss);
-                Entity Effect = Call<Entity>("spawnFx", loadfx, player.Origin+ new Vector3(0,0,60));
-                Call("triggerfx", Effect);
-            });
-            
-        }
         internal void TI()
         {
             Entity player = test.ADMIN;
@@ -103,7 +70,8 @@ namespace TEST
                 Call(435, 1, player.Origin); // objective_position
                 Call(434, 1, "compass_waypoint_bomb"); // objective_icon
 
-                Entity Effect = Call<Entity>("spawnFx", 131, player.Origin);
+                int i = Call<int>(303, "misc/flare_ambient");//loadfx
+                Entity Effect = Call<Entity>("spawnFx", i, player.Origin);
                 Call("triggerfx", Effect);
                 player.AfterDelay(10000, p =>
                 {

@@ -50,7 +50,6 @@
     <Compile Include="NONE\ToDo.cs" />
     <Compile Include="Sound.cs" />
     <Compile Include="Table.cs" />
-    <Compile Include="Util.cs" />
     <Compile Include="GSC Util.cs" />
     <Compile Include="Vehicle\Tank.cs" />
     <Compile Include="Vehicle\Vehicle.cs" />

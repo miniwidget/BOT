@@ -183,7 +183,7 @@ namespace Infected
                     {
                         if (H.USE_HELI == 1 && HCT.HELI == null)
                         {
-                            HCT.HeliCall(player); H.USE_HELI = 2;
+                            HCT.HeliCall(player, H.AXIS); H.USE_HELI = 2;
                             return;
                         }
 
@@ -207,7 +207,6 @@ namespace Infected
                             }
                             return;
                         }
-                        //Print(2);
                         TK.IfTankOwner_DoEnd(player);
 
                     }
@@ -215,7 +214,6 @@ namespace Infected
                     {
                         if (HCT.HELI == null || HCT.HELI != null && !HCT.IsHeliArea(player))/*다른 튜렛을 사용 중인 경우*/
                         {
-                            //Print(1);
                             TK.TankStart(player);
                             return;
                         }
@@ -223,13 +221,13 @@ namespace Infected
                         int h = H.USE_HELI;
                         if (h == 2)//튜렛을 붙잡은 경우 remote control 시작
                         {
-                            HCT.HeliStart(player); H.USE_HELI = 3;
+                            HCT.HeliStart(player,H.AXIS); H.USE_HELI = 3;
                         }
                         else if (h == 1)
                         {
                             if (!HCT.HELI_ON_USE_)
                             {
-                                HCT.HeliStart(player); H.USE_HELI = 3;
+                                HCT.HeliStart(player, H.AXIS); H.USE_HELI = 3;
                             }
                             return;
                         }
