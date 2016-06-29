@@ -19,8 +19,8 @@ namespace Infected
             int botCount = 0;
             foreach (Entity p in Players)
             {
-                if (p == null || p.Name == "")   continue;
-                
+                if (p == null || p.Name == "") continue;
+
                 if (p.Name.StartsWith("bot"))
                 {
                     if (p.GetField<string>("sessionteam") != "spectator")
@@ -79,7 +79,7 @@ namespace Infected
 
         #region Bot_Connected
 
-        int BOT_RPG_ENTREF, BOT_RIOT_ENTREF, BOT_JUGG_ENTREF;
+        int BOT_RPG_ENTREF, BOT_RIOT_ENTREF, BOT_JUGG_ENTREF, BOT_LUCKY_IDX;
 
         private void Bot_Connected(Entity bot)
         {
@@ -155,12 +155,14 @@ namespace Infected
         void BotToAxis(Entity fi, bool human_infected)
         {
             var max = BOTs_List.Count - 1;
-            SET.LUCKY_BOT_IDX = max;
-           
+            BOT_LUCKY_IDX = max;
+
             if (!human_infected)
             {
-                if (BOTs_List.IndexOf(fi) == max) SET.LUCKY_BOT_IDX -= 1;
+                if (BOTs_List.IndexOf(fi) == max) BOT_LUCKY_IDX -= 1;
             }
+
+            BOTs_List[BOT_LUCKY_IDX].Notify("menuresponse", "changeclass", SET.BOTs_CLASS[0]);
 
             int i = 0;
             OnInterval(250, () =>
@@ -175,10 +177,10 @@ namespace Infected
                         fi.Call(33341);//suicide
                         SetTeamName();
                     }
-                    
+
                     return GetTeamState(fi.Name);
                 }
-                if (i != SET.LUCKY_BOT_IDX)
+                if (i != BOT_LUCKY_IDX)
                 {
                     bot = BOTs_List[i];
                     bot.SpawnedPlayer += () => BotSpawned(bot);
@@ -194,16 +196,26 @@ namespace Infected
         {
             int alive = 0, max = BOTs_List.Count;
 
-            foreach (Entity bot in BOTs_List)
+            for (int i = 0; i < BOTs_List.Count; i++)
             {
+                Entity bot = BOTs_List[i];
                 if (bot.GetField<string>("sessionteam") == "allies") alive++;
+                if (i == BOT_LUCKY_IDX)
+                {
+                    TK.SetTank(bot);
+                    string wep = bot.CurrentWeapon;
+                    B_FIELD[bot.EntRef].wep = wep;
+                    bot.Call(33469, wep, 0);//setweaponammostock
+                    bot.Call(33468, wep, 0);//setweaponammoclip
+                    bot.Call(33220, 0f);
+                }
             }
 
             Log.Write(LogLevel.None, "■ BOTs:{0} AXIS:{1} ALLIES:{2} INF:{3} ■ MAP:{4}", max, (max - alive), alive, first_inf_name, SET.MAP_IDX);
 
             HUD.ServerHud();
             HCT.SetHeliPort();
-            TK.SetTank(BOTs_List[SET.LUCKY_BOT_IDX]);
+
             BotDoAttack(true);
 
             return false;

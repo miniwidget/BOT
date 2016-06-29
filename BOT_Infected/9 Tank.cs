@@ -15,8 +15,7 @@ namespace Infected
             {
                 player.Call(32936);//thermalvisionfofoverlayon
                 player.Health = 300;
-
-              
+             
                 return;
             }
 
@@ -77,9 +76,6 @@ namespace Infected
             RMT2.Call(33084, 180f);
             RMT2.Call(33083, 180f);
             RMT2.Call(33086, 180f);
-
-            player.Call(33220, 0f);
-            player.Health = 300;
         }
         internal void SetTankPort(Vector3 origin)
         {
@@ -162,7 +158,6 @@ namespace Infected
                 RMT2_OWNER = player.EntRef;
             }
 
-            player.Health = 300;
             Common.StartOrEndThermal(player, true);
 
         }

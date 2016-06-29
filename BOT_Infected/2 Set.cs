@@ -167,7 +167,6 @@ namespace Infected
 
 
 
-        internal int LUCKY_BOT_IDX;
         internal readonly string[] SOUND_ALERTS =
         {
             "AF_1mc_losing_fight", "AF_1mc_lead_lost", "PC_1mc_losing_fight", "PC_1mc_take_positions", "PC_1mc_positions_lock"

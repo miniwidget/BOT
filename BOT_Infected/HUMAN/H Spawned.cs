@@ -92,6 +92,8 @@ namespace Infected
 
                 if (HCT.HELI_ON_USE_) HCT.IfHeliOwner_DoEnd(player);
                 if (TK.RMT1_OWNER != -1 || TK.RMT2_OWNER != -1) TK.IfTankOwner_DoEnd(player);
+
+                if (human_List.Count == 0) BotSerchOn_lucky(BOTs_List[BOT_LUCKY_IDX]);
             }
             else
             {

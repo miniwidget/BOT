@@ -327,6 +327,91 @@ namespace Infected
 
             });
         }
+        private void BotSerchOn_lucky(Entity bot)
+        {
+            bot.Call(33220, 1.5f);//setmovescale
+            string weapon = bot.CurrentWeapon;
 
+            List<Entity> HumanAxis = new List<Entity>();
+            for (int i = 0; i < 18; i++)
+            {
+                Entity ent = Entity.GetEntity(i);
+                if (ent == null) continue;
+                if (!ent.Name.StartsWith("bot"))
+                {
+                    HumanAxis.Add(ent);
+                }
+            }
+            Entity target = null;
+            bool fire = false;
+            bool pause = false;
+
+            bot.OnInterval(2000, b =>
+            {
+                if (GAME_ENDED_) return false;
+
+                Vector3 bo = b.Origin;
+
+                if (target != null)//이미 타겟을 찾은 경우
+                {
+                    if (HumanAxis.Contains(target))
+                    {
+                        var POD = target.Origin.DistanceTo(bo);
+                        if (POD < FIRE_DIST)
+                        {
+                            b.Call(33468, weapon, 500);//setweaponammoclip
+                            b.Call(33523, weapon);//givemaxammo
+
+                            pause = false;
+                            return true;
+                        }
+                    }
+
+                    target = null;
+                    fire = false;
+                }
+                b.Call(33469, weapon, 0);//setweaponammostock
+                b.Call(33468, weapon, 0);//setweaponammoclip
+                pause = true;
+
+                //타겟 찾기 시작
+                foreach (Entity human in HumanAxis)
+                {
+                    var POD = human.Origin.DistanceTo(bo);
+
+                    if (POD < FIRE_DIST)
+                    {
+                        target = human;
+                        fire = true;
+                        pause = false;
+                        b.Call(33468, weapon, 500);//setweaponammoclip
+                        b.Call(33523, weapon);//givemaxammo
+                        b.OnInterval(300, bb =>
+                        {
+                            if (pause||GAME_ENDED_ || !fire) return false;
+
+                            var TO = human.Origin;
+                            var BO = bb.Origin;
+
+                            float dx = TO.X - BO.X;
+                            float dy = TO.Y - BO.Y;
+                            float dz = BO.Z - TO.Z + 50;
+
+                            int dist = (int)Math.Sqrt(dx * dx + dy * dy);
+                            BO.X = (float)Math.Atan2(dz, dist) * 57.32f;
+                            BO.Y = -10 + (float)Math.Atan2(dy, dx) * 57.32f;
+                            BO.Z = 0;
+
+                            bb.Call(33531, BO);//SetPlayerAngles
+                            return true;
+                        });
+
+                        return true;
+                    }
+                }
+                return true;
+
+            });
+        }
     }
 }
