@@ -184,7 +184,11 @@ namespace Infected
                 player.AfterDelay(500, x =>
                 {
 
-                    if (player.Call<int>(33533) == 1) return;//usebuttonpressed
+                    if (player.Call<int>(33533) == 1)
+                    {
+                        if (isUsingTurret) player.Call(33436, "", 0f);
+                        return;//usebuttonpressed
+                    }
 
                   
                     if (!HCT.IsUsingTurret(player))//heli 생성
@@ -212,10 +216,14 @@ namespace Infected
                             if (!TK.IfTankOwner_DoEnd(player))
                             {
                                 Info.MessageRoop(player, 0, HCT.MESSAGE_ALERT);
+                                if(isUsingTurret) player.Call(33436, "", 0f);
                             }
                             return;
                         }
-                        TK.IfTankOwner_DoEnd(player);
+                        if (!TK.IfTankOwner_DoEnd(player))
+                        {
+                            if (isUsingTurret) player.Call(33436, "", 0f);
+                        }
 
                     }
                     else

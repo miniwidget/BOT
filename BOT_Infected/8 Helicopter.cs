@@ -15,7 +15,6 @@ namespace Infected
         internal readonly string MESSAGE_CALL = "PRESS ^2[ [{+activate}] ] ^7TO CALL HELI TURRET";
         internal Entity HELI, TL, TR, HELI_OWNER, HELI_GUNNER;
         internal static Vector3 HELI_WAY_POINT;
-
         internal void SetHeliPort()
         {
             Function.SetEntRef(-1);
@@ -98,12 +97,14 @@ namespace Infected
         internal void HeliSetup(Entity player)
         {
             if (HELI != null) return;
-
+            
             string realModel = "vehicle_little_bird_armed";
             string minimap_model = "attack_littlebird_mp";
 
-            string printModel= "littlebird_guard_minigun_mp";// "sentry_minigun_mp";
-            string realModel_turret = "weapon_minigun";
+            string printModel = "littlebird_guard_minigun_mp";// littlebird_guard_minigun_mp "sentry_minigun_mp"; turret_minigun_mp
+            string realModel_turret = "weapon_minigun";//turret_minigun_mp weapon_minigun
+            //if (Set.TURRET_MAP)
+                printModel = "turret_minigun_mp";
 
             Function.SetEntRef(-1);
             HELI = Function.Call<Entity>(369, player, HELI_WAY_POINT, Infected.ZERO, minimap_model, realModel);

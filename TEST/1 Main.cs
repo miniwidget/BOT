@@ -102,7 +102,7 @@ namespace TEST
                 case "sp": vehicle.spawn(value); break;
                 case "plane": vehicle.spawnPlane(); break;
                 case "rm": vehicle.remoteTestModel(value); break;
-
+                case "model": table.GetModel();break;
             }
 
 

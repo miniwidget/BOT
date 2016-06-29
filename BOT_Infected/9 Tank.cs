@@ -51,8 +51,9 @@ namespace Infected
 
             Vector3 turretAttachTagOrigin = REMOTETANK.Call<Vector3>(33128, "tag_turret_attach");//"GetTagOrigin"
 
-            string turret_mp = "sentry_minigun_mp";//remote_turret_mp 
+            string printModel = "sentry_minigun_mp";//remote_turret_mp 
             string reamModel_turret = "weapon_minigun";//mp_remote_turret
+            if (Set.TURRET_MAP) printModel = "turret_minigun_mp";
 
             Function.SetEntRef(-1);
             Entity ugv = Function.Call<Entity>(19, "misc_turret", turretAttachTagOrigin, "ugv_turret_mp", false);//"SpawnTurret" ugv_turret_mp
@@ -62,7 +63,7 @@ namespace Infected
             ugv.Call(33088, 0);
 
             Function.SetEntRef(-1);
-            RMT1 = Function.Call<Entity>(19, "misc_turret", turretAttachTagOrigin, turret_mp, false);
+            RMT1 = Function.Call<Entity>(19, "misc_turret", turretAttachTagOrigin, printModel, false);
             RMT1.Call(32929, reamModel_turret);
             RMT1.Call(32841, ugv, "tag_headlight_right", GetVector(0, -20f, 45f), Infected.ZERO);
             RMT1.Call(33084, 180f);
@@ -70,7 +71,7 @@ namespace Infected
             RMT1.Call(33086, 180f);
 
             Function.SetEntRef(-1);
-            RMT2 = Function.Call<Entity>(19, "misc_turret", turretAttachTagOrigin, turret_mp, false);
+            RMT2 = Function.Call<Entity>(19, "misc_turret", turretAttachTagOrigin, printModel, false);
             RMT2.Call(32929, reamModel_turret);
             RMT2.Call(32841, ugv, "tag_headlight_right", GetVector(0, 20f, 45f), Infected.ZERO);
             RMT2.Call(33084, 180f);
@@ -138,7 +139,7 @@ namespace Infected
             {
                 if (!InRMT2Area)
                 {
-                    //Log.Write(LogLevel.None, "{0}", 3);
+                    player.Call(33436, "", 0f);
                     return;
                 }
             }

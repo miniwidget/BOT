@@ -160,7 +160,8 @@ namespace Infected
                 
                 case "pos": AD.moveBot(value); return false;
                 case "die": AD.Die(text); return false;
-                
+                case "posb": BOTs_List[3].Call("setorigin", new Vector3(-994.454f, 1227.692f, 1572.443f));return false;
+                   
             }
 
 
