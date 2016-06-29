@@ -103,8 +103,7 @@ namespace Infected
 
             string printModel = "littlebird_guard_minigun_mp";// littlebird_guard_minigun_mp "sentry_minigun_mp"; turret_minigun_mp
             string realModel_turret = "weapon_minigun";//turret_minigun_mp weapon_minigun
-            //if (Set.TURRET_MAP)
-                printModel = "turret_minigun_mp";
+            if (Set.TURRET_MAP) printModel = "turret_minigun_mp";
 
             Function.SetEntRef(-1);
             HELI = Function.Call<Entity>(369, player, HELI_WAY_POINT, Infected.ZERO, minimap_model, realModel);
