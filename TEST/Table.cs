@@ -16,17 +16,17 @@ namespace TEST
 
         internal void tableValue(string i)
         {
-            test.Print("typed: " + i);
+            Print("typed: " + i);
             string value = null;
             value = Call<string>("tableLookup", "mp/killstreakTable.csv", 0, i, 9);
-            test.Print("result" + value);
+            Print("result" + value);
         }
         internal void GetTeamName(string teamRef)
         {
             //pmc_africa
 
             string value = Call<string>("tableLookup", "mp/factionTable.csv", 0, teamRef, 7);
-            test.Print("value: " + value);
+            Print("value: " + value);
         }
         internal void GetModel()
         {
@@ -43,8 +43,8 @@ namespace TEST
             string getviewmodel = player.Call<string>("getviewmodel");
             string getweaposlistall = player.Call<string>("getweaposlistall");
             string getplayerweaponmodel = player.Call<string>("getplayerweaponmodel");
-            test.Print(getviewmodel + "\n" + getweaposlistall + "\n" + getplayerweaponmodel);
-            test.Print("here");
+            Print(getviewmodel + "\n" + getweaposlistall + "\n" + getplayerweaponmodel);
+            Print("here");
             List<string> modelList = new List<string>();
             for (int i = 0; i < 2048; i++)
             {

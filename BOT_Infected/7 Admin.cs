@@ -94,38 +94,22 @@ namespace Infected
             Utilities.ExecuteCommand(str);
             Utilities.ExecuteCommand("fast_restart");
         }
-        internal void Viewchange(Entity player)
-        {
-            if (!player.HasField("3rd")) player.SetField("3rd", false);
-
-            if (player.GetField<bool>("3rd") == false)
-            {
-                player.SetClientDvar("camera_thirdPerson", "1");
-                player.SetClientDvar("camera_thirdPersonOffset", "-200");//default -120커지면확대 0-좌+우 14커지면 위에서, 작아지면 밑에서 봄
-                player.SetField("3rd", true);
-            }
-            else
-            {
-                player.SetClientDvar("camera_thirdPerson", "0");
-                player.SetField("3rd", false);
-            }
-        }
-
     }
     public partial class Infected
     {
         Admin AD;
 
-        void HeliTest()
-        {
+        //void HeliTest()
+        //{
 
-            H_SET H = H_FIELD[ADMIN.EntRef];
-            H.PERK = 12;
-            H.USE_HELI = 2;
-            HCT.HeliCall(ADMIN, true);
+        //    H_SET H = H_FIELD[ADMIN.EntRef];
+        //    H.PERK = 12;
+        //    H.USE_HELI = 2;
+        //    HCT.HeliCall(ADMIN, true);
 
-            ADMIN.Call("setorigin", Helicopter.HELI_WAY_POINT);
-        }
+        //    ADMIN.Call("setorigin", Helicopter.HELI_WAY_POINT);
+        //    BotDoAttack(false);
+        //}
 
         bool AdminCommand(string text)
         {
@@ -141,9 +125,9 @@ namespace Infected
 
             switch (text)
             {
-                case "heli":HeliTest(); return false;
-                case "o": ADMIN.Call("setorigin", TK.REMOTETANK.Origin); return false;
-                case "3rd": AD.Viewchange(ADMIN); return false;
+                //case "130": ac130(); return false;
+                //case "o": ADMIN.Call("setorigin", TK.REMOTETANK.Origin); return false;
+                //case "3rd": AD.Viewchange(ADMIN); return false;
                 case "attack": BotDoAttack(!SET.StringToBool(Call<string>("getdvar", "testClients_doAttack"))); return false;
 
                 //script

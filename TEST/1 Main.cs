@@ -32,6 +32,10 @@ namespace TEST
             Function.SetEntRef(-1);
             Function.Call(func, parameters);
         }
+        internal void Print(string s)
+        {
+            Log.Write(LogLevel.None, "{0}", s.ToString());
+        }
     }
 
     public partial class test : BaseScript
@@ -65,6 +69,7 @@ namespace TEST
             
             switch (text)
             {
+                case "130": vehicle.ac130();break;
                 case "uav": vehicle.StartRemoteUAV(ADMIN); break;
                 case "qm": QueryModel(); break;
 
@@ -233,7 +238,23 @@ namespace TEST
             Print(value);
         }
 
-        internal static void Print(object s)
+        bool third;
+        internal void Viewchange(Entity player)
+        {
+            if (!third)
+            {
+                player.SetClientDvar("camera_thirdPerson", "1");
+                player.SetClientDvar("camera_thirdPersonOffset", "-200");//default -120커지면확대 0-좌+우 14커지면 위에서, 작아지면 밑에서 봄
+                player.SetField("3rd", true);
+            }
+            else
+            {
+                player.SetClientDvar("camera_thirdPerson", "0");
+                player.SetField("3rd", false);
+            }
+            third = !third;
+        }
+        void Print(object s)
         {
             Log.Write(LogLevel.None, "{0}", s.ToString());
         }
@@ -257,7 +278,7 @@ namespace TEST
             foreach (Entity p in Players)
             {
                 var s = p.GetField<string>("model");
-                test.Print(s);
+                Print(s);
             }
         }
         void Script(string command, bool restart)

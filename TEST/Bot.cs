@@ -18,7 +18,7 @@ namespace TEST
         }
         void testClientSpawned(Entity bot)
         {
-            test.Print(bot.Name + " Connected");
+            Print(bot.Name + " Connected");
             bot.Call("setorigin",test.ADMIN.Origin);
         }
 

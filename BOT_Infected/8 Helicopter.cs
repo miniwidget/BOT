@@ -101,7 +101,7 @@ namespace Infected
             string realModel = "vehicle_little_bird_armed";
             string minimap_model = "attack_littlebird_mp";
 
-            string printModel = "littlebird_guard_minigun_mp";// littlebird_guard_minigun_mp "sentry_minigun_mp"; turret_minigun_mp
+            string printModel = "pavelow_minigun_mp";// littlebird_guard_minigun_mp sentry_minigun_mp apache_minigun_mp
             string realModel_turret = "weapon_minigun";//turret_minigun_mp weapon_minigun
             if (Set.TURRET_MAP) printModel = "turret_minigun_mp";
 

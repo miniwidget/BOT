@@ -44,7 +44,7 @@ namespace TEST
             player.OnNotify("grenade_fire", (Entity owner, Parameter entity, Parameter weaponName) =>
             {
                 if (weaponName.ToString() != "airdrop_marker_mp") return;
-                test.Print("weap : " + weaponName.ToString());
+                Print("weap : " + weaponName.ToString());
                 Entity e = entity.As<Entity>();
                 e.AfterDelay(3000, ee =>
                 {
@@ -100,7 +100,7 @@ namespace TEST
                     else entered = true;
 
                     Vector3 loc = a.As<Vector3>();
-                    test.Print(loc.ToString());
+                    Print(loc.ToString());
                     player.Call("endlocationselection", true);
                     player.Call("setblurforplayer", 0f, 0f);
                 });

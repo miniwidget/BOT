@@ -23,10 +23,10 @@ namespace TEST
         }
         void sound(string s)
         {
-            test.Print("value" + s);
+            Print("value" + s);
             string value = null;
             value = Call<string>("tableLookup", "mp/factionTable.csv", 0, s, 7);
-            test.Print("value" + value);
+            Print("value" + value);
 
            test.ADMIN.Call("playlocalsound", s);
         }

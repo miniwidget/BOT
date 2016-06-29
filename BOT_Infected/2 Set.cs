@@ -82,7 +82,7 @@ namespace Infected
             int max = map_list.Count - 1;
             MAP_IDX = (byte)map_list.IndexOf(map);
             float[] fff = null;
-            bool tm = false;
+
             switch (MAP_IDX)
             {
                 case 00: fff = new float[3] { -338.2646f, 2086.079f, 780.125f }; break;
