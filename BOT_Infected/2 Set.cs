@@ -76,7 +76,7 @@ namespace Infected
         {
             Function.SetEntRef(-1);
             string map = Function.Call<string>(47, "mapname");//"getdvar"
-            string ENTIRE_MAPLIST = "mp_plaza2|mp_mogadishu|mp_bootleg|mp_carbon|mp_dome|mp_exchange|mp_lambeth|mp_hardhat|mp_interchange|mp_alpha|mp_bravo|mp_radar|mp_paris|mp_seatown|mp_underground|mp_village|mp_morningwood|mp_park|mp_overwatch|mp_italy|mp_cement|mp_qadeem|mp_meteora|mp_hillside_ss|mp_restrepo_ss|mp_aground_ss|mp_courtyard_ss|mp_terminal_cls|mp_burn_ss|mp_nola|mp_six_ss|mp_moab";
+            string ENTIRE_MAPLIST = "mp_plaza2|mp_mogadishu|mp_bootleg|mp_carbon|mp_dome|mp_exchange|mp_lambeth|mp_hardhat|mp_interchange|mp_alpha|mp_bravo|mp_radar|mp_paris|mp_seatown|mp_underground|mp_village|mp_morningwood|mp_park|mp_overwatch|mp_italy|mp_cement|mp_qadeem|mp_meteora|mp_hillside_ss|mp_restrepo_ss|mp_aground_ss|mp_courtyard_ss|mp_terminal_cls|mp_burn_ss|mp_nola|mp_six_ss|mp_moab|mp_boardwalk|mp_crosswalk_ss|mp_roughneck|mp_shipbreaker";
             var map_list = ENTIRE_MAPLIST.Split('|').ToList();
             int max = map_list.Count - 1;
             MAP_IDX = (byte)map_list.IndexOf(map);
@@ -116,6 +116,10 @@ namespace Infected
                 case 29: fff = new float[3] { -4.174267f, -142.9193f, 34.59882f }; break;
                 case 30: fff = new float[3] { 724.9612f, -1579.811f, 186.125f }; break;
                 case 31: fff = new float[3] { -1808.454f, 619.3239f, 240.2601f }; break;
+                case 32: fff = new float[3] { -1542.883f, -626.9022f, 117.1221f };  break;
+                case 33: fff = new float[3] { -1528.624f, 298.8828f, 1392.125f }; break;
+                case 34: fff = new float[3] { -838.4569f, -1980.241f, 198.395f }; break;
+                case 35: fff = new float[3] { -448.7873f, -275.8554f, 820.5182f }; break;
             }
 
             Helicopter.HELI_WAY_POINT = new Vector3(fff[0], fff[1], fff[2] + 150);
@@ -142,7 +146,7 @@ namespace Infected
             {
                 MAP_IDX++;
                 map = map_list[MAP_IDX];
-                MAP_IDX -= 1;
+                MAP_IDX --;
             }
             
 
