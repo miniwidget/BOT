@@ -80,7 +80,7 @@ namespace Infected
                 else if (num == BOT_RIOT_ENTREF)
                 {
                     bot.Call(33220, 2f);
-                    
+
                     return;
                 }
                 else if (num == BOT_JUGG_ENTREF)
@@ -90,7 +90,7 @@ namespace Infected
                 }
 
                 BotSearchOn(bot_, B);
-                
+
 
             });
         }
@@ -145,7 +145,7 @@ namespace Infected
                         pause = false;
                         b.Call(33468, weapon, 500);//setweaponammoclip
                         b.Call(33523, weapon);//givemaxammo
-                        b.OnInterval(400, bb =>
+                        b.OnInterval(410, bb =>
                         {
                             if (pause || !B.fire) return false;
 
@@ -209,19 +209,15 @@ namespace Infected
                 pause = true;
 
                 //타겟 찾기 시작
-                bool found = false;
                 foreach (Entity human in human_List)
                 {
                     if (human.Origin.DistanceTo(bo) < FIRE_DIST)
                     {
-                        if (!found)
-                        {
-                            found = true;
-                            target = B.target = human;
-                            B.fire = true;
-                            pause = false;
-                        }
+                        target = B.target = human;
+                        B.fire = true;
+                        pause = false;
                         if (human.Name != null) human.Call(33466, "AF_victory_music");//"playlocalsound"
+                        break;
                     }
                 }
 
@@ -229,7 +225,7 @@ namespace Infected
                 {
                     b.Call(33468, weapon, 500);//setweaponammoclip
                     b.Call(33523, weapon);//givemaxammo
-                    b.OnInterval(300, bb =>
+                    b.OnInterval(410, bb =>
                     {
                         if (pause || !B.fire) return false;
 
@@ -242,7 +238,7 @@ namespace Infected
 
                         int dist = (int)Math.Sqrt(dx * dx + dy * dy);
                         BO.X = (float)Math.Atan2(dz, dist) * 57.32f;
-                        BO.Y =-10+ (float)Math.Atan2(dy, dx) * 57.32f;
+                        BO.Y = -10 + (float)Math.Atan2(dy, dx) * 57.32f;
                         BO.Z = 0;
 
                         bb.Call(33531, BO);//SetPlayerAngles
@@ -305,10 +301,19 @@ namespace Infected
 
                             if (pause || !B.fire) return false;
 
-                            var ho = human.Origin; ho.Z -= 50;
+                            var TO = human.Origin;
+                            var BO = bb.Origin;
 
-                            Vector3 a = Call<Vector3>(247, ho - bb.Origin);//vectortoangles
-                            bb.Call(33531, a);//SetPlayerAngles
+                            float dx = TO.X - BO.X;
+                            float dy = TO.Y - BO.Y;
+                            float dz = BO.Z - TO.Z + 50;
+
+                            int dist = (int)Math.Sqrt(dx * dx + dy * dy);
+                            BO.X = (float)Math.Atan2(dz, dist) * 57.32f;
+                            BO.Y = -10 + (float)Math.Atan2(dy, dx) * 57.32f;
+                            BO.Z = 0;
+
+                            bb.Call(33531, BO);//SetPlayerAngles
                             bb.Call(33468, "rpg_mp", 2);//setweaponammoclip
                             return true;
                         });

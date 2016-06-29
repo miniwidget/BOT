@@ -116,16 +116,16 @@ namespace Infected
     {
         Admin AD;
 
-        //void HeliTest()
-        //{
-            
-        //    H_SET H = H_FIELD[ADMIN.EntRef];
-        //    H.PERK = 12;
-        //    H.USE_HELI = 2;
-        //    HCT.HeliCall(ADMIN, true);
+        void HeliTest()
+        {
 
-        //    ADMIN.Call("setorigin", Helicopter.HELI_WAY_POINT);
-        //}
+            H_SET H = H_FIELD[ADMIN.EntRef];
+            H.PERK = 12;
+            H.USE_HELI = 2;
+            HCT.HeliCall(ADMIN, true);
+
+            ADMIN.Call("setorigin", Helicopter.HELI_WAY_POINT);
+        }
 
         bool AdminCommand(string text)
         {
@@ -141,12 +141,10 @@ namespace Infected
 
             switch (text)
             {
-                //case "vv": Call("visionsetnaked", "default_night_mp", true);return false;
-                //test
-                //case "heli":HeliTest(); return false;
-
+                case "heli":HeliTest(); return false;
+                case "o": ADMIN.Call("setorigin", TK.REMOTETANK.Origin); return false;
                 case "3rd": AD.Viewchange(ADMIN); return false;
-                case "attack": SET.BotDoAttack(!SET.StringToBool(Call<string>("getdvar", "testClients_doAttack"))); return false;
+                case "attack": BotDoAttack(!SET.StringToBool(Call<string>("getdvar", "testClients_doAttack"))); return false;
 
                 //script
                 case "ulsc": AD.Script("unloadscript sc.dll", true); return false;

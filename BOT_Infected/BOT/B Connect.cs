@@ -159,8 +159,7 @@ namespace Infected
            
             if (!human_infected)
             {
-                int fidx = BOTs_List.IndexOf(fi);
-                if (fidx == max) SET.LUCKY_BOT_IDX -= 1;
+                if (BOTs_List.IndexOf(fi) == max) SET.LUCKY_BOT_IDX -= 1;
             }
 
             int i = 0;
@@ -205,17 +204,30 @@ namespace Infected
             HUD.ServerHud();
             HCT.SetHeliPort();
             TK.SetTank(BOTs_List[SET.LUCKY_BOT_IDX]);
-
-            if (SET.AS == Set.ATTACK_STATE.beforeMatch)
-            {
-
-                SET.BotDoAttack(true);
-            }
-            else
-                SET.AS = Set.ATTACK_STATE.inf_done;
+            BotDoAttack(true);
 
             return false;
         }
+        DateTime GRACE_TIME;
+        void BotDoAttack(bool attack)
+        {
+            if (attack)
+            {
+                Call(42, "testClients_doCrouch", 0);
 
+                Call(42, "testClients_doMove", 1);
+
+                Call(42, "testClients_doAttack", 1);
+
+                Call(42, "scr_infect_timelimit", "12");
+                GRACE_TIME = DateTime.Now.AddSeconds(166);
+            }
+            else
+            {
+                Call(42, "testClients_doCrouch", 1);
+                Call(42, "testClients_doMove", 0);
+                Call(42, "testClients_doAttack", 0);
+            }
+        }
     }
 }

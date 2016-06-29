@@ -72,8 +72,7 @@ namespace Infected
             {
                 if (!Human_FIRST_INFECTED_)
                 {
-
-                    if (DateTime.Now < SET.GRACE_TIME)
+                    if (DateTime.Now < GRACE_TIME)
                     {
                         H.LIFE = 0;
                         H.RESPAWN = true;

@@ -18,8 +18,6 @@ namespace Infected
                 return;
             }
 
-            SET.CheckBotDoAttack();
-
             string name = player.Name;
 
             if (player.Name == ADMIN_NAME)
@@ -45,10 +43,6 @@ namespace Infected
         {
             H.BY_SUICIDE = false;
 
-            if (init)
-            {
-                H.LOC_NOTIFIED = false;
-            }
             H.LOC_DO = false;
             H.AXIS = Axis;
 
@@ -65,6 +59,12 @@ namespace Infected
                 H.PERK = 2;
                 H.LIFE -= 1;
             }
+            if (init)
+            {
+                H.LOC_NOTIFIED = false;
+                H.LIFE = PLAYER_LIFE;
+            }
+
         }
         void SetPlayer(Entity player)
         {
@@ -74,11 +74,11 @@ namespace Infected
             int pe = player.EntRef;
             H_SET H = H_FIELD[pe];
             Set_hset(H, false, true);
-            H.LIFE = PLAYER_LIFE;
+           
 
             #region SetClientDvar
 
-            player.SetClientDvar("cl_maxpackets", "100");
+            //player.SetClientDvar("cl_maxpackets", "100");
             player.SetClientDvar("lowAmmoWarningNoAmmoColor2", "0 0 0 0");
             player.SetClientDvar("lowAmmoWarningNoAmmoColor1", "0 0 0 0");
             player.SetClientDvar("lowAmmoWarningNoReloadColor2", "0 0 0 0");
@@ -175,10 +175,17 @@ namespace Infected
 
                 if (player.CurrentWeapon[2] != '5') return;
 
+                player.Call(33436, "black_bw", 0.5f);//VisionSetNakedForPlayer
+
                 player.AfterDelay(500, x =>
                 {
-                    if (player.Call<int>(33533) == 1) return;//usebuttonpressed
-
+                    
+                    if (player.Call<int>(33533) == 1)
+                    {
+                        player.Call(33436, "", 0);
+                        return;//usebuttonpressed
+                    }
+                    player.Call(33436, "", 1f);
                     if (!HCT.IsUsingTurret(player))//heli 생성
                     {
                         if (H.USE_HELI == 1 && HCT.HELI == null)

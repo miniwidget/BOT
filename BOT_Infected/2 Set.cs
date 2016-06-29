@@ -100,10 +100,10 @@ namespace Infected
                 case 13: fff = new float[3] { -1515.302f, 1060.371f, 50.338187f }; break;
                 case 14: fff = new float[3] { -45.68791f, -926.9956f, 0.1250008f }; break;
                 case 15: fff = new float[3] { -253.9192f, -1614.135f, 352.125f }; break;
-                case 16: fff = new float[3] { -1601, -1848, 620 }; break;
+                case 16: fff = new float[3] { -389.8866f, -1498.549f, 686.7453f }; break;
                 case 17: fff = new float[3] { 970.2472f, -2889.921f, 124.2467f }; break;
                 case 18: fff = new float[3] { 806.4158f, 2471.344f, 12752.63f }; break;
-                case 19: fff = new float[3] { 1073.359f, -1203.881f, 704.125f }; break;
+                case 19: fff = new float[3] { -175.7144f, -0.04654822f, 907.125f }; break;
                 case 20: fff = new float[3] { 1434.789f, -348.4124f, 337.4833f }; break;
                 case 21: fff = new float[3] { 2362, 1607, 220 }; break;
                 case 22: fff = new float[3] { 1880, -469, 1574 }; break;
@@ -111,11 +111,11 @@ namespace Infected
                 case 24: fff = new float[3] { 131.7994f, 1357.19f, 1800.125f }; break;
                 case 25: fff = new float[3] { 404.5297f, 725.2506f, 452.8782f }; break;
                 case 26: fff = new float[3] { 1012.743f, 398.3938f, 168.125f }; break;
-                case 27: fff = new float[3] { 2481.313f, 2897.811f, 40.125f }; break;
+                case 27: fff = new float[3] { 1362.443f, 3537.729f, 112.125f }; break;
                 case 28: fff = new float[3] { -1523.346f, -276.3622f, 166.625f }; break;
                 case 29: fff = new float[3] { -4.174267f, -142.9193f, 34.59882f }; break;
                 case 30: fff = new float[3] { 724.9612f, -1579.811f, 186.125f }; break;
-                case 31: fff = new float[3] { -1456.08f, 1086.234f, 323.125f }; break;
+                case 31: fff = new float[3] { -1808.454f, 619.3239f, 240.2601f }; break;
             }
 
             Helicopter.HELI_WAY_POINT = new Vector3(fff[0], fff[1], fff[2] + 150);
@@ -165,53 +165,7 @@ namespace Infected
             else return false;
         }
 
-        internal enum ATTACK_STATE { none, beforeMatch, inf_done, attack }
-        internal ATTACK_STATE AS = ATTACK_STATE.none;
 
-        internal void CheckBotDoAttack()
-        {
-            if (AS == Set.ATTACK_STATE.none)
-            {
-                AS = Set.ATTACK_STATE.beforeMatch;
-            }
-            else if (AS == Set.ATTACK_STATE.inf_done)
-            {
-                BotDoAttack(true);
-            }
-        }
-
-        internal DateTime GRACE_TIME;
-        internal void BotDoAttack(bool attack)
-        {
-            if (attack)
-            {
-                Function.SetEntRef(-1);
-                Function.Call(42, "testClients_doCrouch", 0);
-
-                Function.SetEntRef(-1);
-                Function.Call(42, "testClients_doMove", 1);
-
-                Function.SetEntRef(-1);
-                Function.Call(42, "testClients_doAttack", 1);
-                AS = ATTACK_STATE.attack;
-                
-                Function.SetEntRef(-1);
-                Function.Call(42, "scr_infect_timelimit", "12");
-                GRACE_TIME = DateTime.Now.AddSeconds(166);
-            }
-            else
-            {
-                Function.SetEntRef(-1);
-                Function.Call(42, "testClients_doCrouch", 1);
-
-                Function.SetEntRef(-1);
-                Function.Call(42, "testClients_doMove", 0);
-
-                Function.SetEntRef(-1);
-                Function.Call(42, "testClients_doAttack", 0);
-                AS = ATTACK_STATE.none;
-            }
-        }
 
         internal int LUCKY_BOT_IDX;
         internal readonly string[] SOUND_ALERTS =

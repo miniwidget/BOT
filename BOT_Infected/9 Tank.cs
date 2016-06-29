@@ -10,8 +10,6 @@ namespace Infected
     {
         internal static void StartOrEndThermal(Entity player, bool start)
         {
-            player.Call(33436, "black_bw", 0.5f);//VisionSetNakedForPlayer
-            player.AfterDelay(500, p => p.Call(33436, "", 0.5f));
 
             if (start)
             {
@@ -21,6 +19,7 @@ namespace Infected
               
                 return;
             }
+
             player.Call(32937);//thermalvisionfofoverlayoff
             player.Health = 100;
             player.Call(33531, Infected.ZERO);
@@ -43,6 +42,8 @@ namespace Infected
 
         internal void SetTank(Entity player)
         {
+           
+
             TANK_WAY_POINT = player.Origin;
 
             SetTankPort(TANK_WAY_POINT);
@@ -77,6 +78,8 @@ namespace Infected
             RMT2.Call(33083, 180f);
             RMT2.Call(33086, 180f);
 
+            player.Call(33220, 0f);
+            player.Health = 300;
         }
         internal void SetTankPort(Vector3 origin)
         {
