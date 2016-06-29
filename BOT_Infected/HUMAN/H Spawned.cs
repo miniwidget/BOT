@@ -10,10 +10,9 @@ namespace Infected
 {
     public partial class Infected
     {
-        bool temp_ = true, Human_FIRST_INFECTED_;
         bool IsFirstInfectdHuman()
         {
-            temp_ = false;
+            IS_FIRST_INFECTD_HUMAN_FINISHED = true;
 
             if (BOTs_List.Count == 0) return false;
 
@@ -37,7 +36,7 @@ namespace Infected
             int pe = player.EntRef;
             H_SET H = H_FIELD[pe];
 
-            if (temp_) if (IsFirstInfectdHuman()) H.LIFE = -1;
+            if (!IS_FIRST_INFECTD_HUMAN_FINISHED) if (IsFirstInfectdHuman()) H.LIFE = -1;
 
             var LIFE = H.LIFE;
             if (LIFE > -1)//3 2
@@ -66,6 +65,7 @@ namespace Infected
 
                     if (HCT.HELI_ON_USE_) HCT.IfHeliOwner_DoEnd(player);
                     if (TK.RMT1_OWNER != -1 || TK.RMT2_OWNER != -1) TK.IfTankOwner_DoEnd(player);
+                    if (HUMAN_DIED_ALL) HUMAN_DIED_ALL = false;
                 }
             }
             else if (LIFE == -1)//change to AXIS
@@ -93,7 +93,11 @@ namespace Infected
                 if (HCT.HELI_ON_USE_) HCT.IfHeliOwner_DoEnd(player);
                 if (TK.RMT1_OWNER != -1 || TK.RMT2_OWNER != -1) TK.IfTankOwner_DoEnd(player);
 
-                if (human_List.Count == 0) BotSerchOn_lucky(BOTs_List[BOT_LUCKY_IDX]);
+                if (human_List.Count == 0)
+                {
+                    HUMAN_DIED_ALL = true;
+                    if(!BOT_SERCH_ON_LUCKY_FINISHED) BotSerchOn_lucky(BOTs_List[BOT_LUCKY_IDX]);
+                }
             }
             else
             {

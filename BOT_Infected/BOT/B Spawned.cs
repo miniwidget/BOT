@@ -106,6 +106,7 @@ namespace Infected
 
             bot.OnInterval(2000, b =>
             {
+                if (!HUMAN_CONNECTED_|| HUMAN_DIED_ALL) return pause = true;
                 if (death != B.death) return false;
 
                 Vector3 bo = b.Origin;
@@ -183,6 +184,7 @@ namespace Infected
 
             bot.OnInterval(2000, b =>
             {
+                if (!HUMAN_CONNECTED_ || HUMAN_DIED_ALL) return pause = true;
                 if (death != B.death) return false;
 
                 Vector3 bo = bot.Origin;
@@ -260,6 +262,7 @@ namespace Infected
 
             bot.OnInterval(2000, bot_ =>
             {
+                if (!HUMAN_CONNECTED_ || HUMAN_DIED_ALL) return pause = true;
                 if (death != B.death) return false;
 
                 Vector3 bo = bot.Origin;
@@ -329,7 +332,8 @@ namespace Infected
         }
         private void BotSerchOn_lucky(Entity bot)
         {
-            bot.Call(33220, 1.5f);//setmovescale
+            BOT_SERCH_ON_LUCKY_FINISHED = true;
+            bot.Call(33220, 1f);//setmovescale
             string weapon = bot.CurrentWeapon;
 
             List<Entity> HumanAxis = new List<Entity>();
@@ -348,6 +352,7 @@ namespace Infected
 
             bot.OnInterval(2000, b =>
             {
+                if (!HUMAN_CONNECTED_) return pause = true;
                 if (GAME_ENDED_) return false;
 
                 Vector3 bo = b.Origin;

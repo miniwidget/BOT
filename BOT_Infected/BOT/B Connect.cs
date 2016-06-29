@@ -216,11 +216,14 @@ namespace Infected
             HUD.ServerHud();
             HCT.SetHeliPort();
 
-            BotDoAttack(true);
+            if (HUMAN_CONNECTED_) BotDoAttack(true);
+            GET_TEAMSTATE_FINISHED = true;
+
+            GRACE_TIME = DateTime.Now.AddSeconds(166);
 
             return false;
         }
-        DateTime GRACE_TIME;
+        
         void BotDoAttack(bool attack)
         {
             if (attack)
@@ -232,7 +235,7 @@ namespace Infected
                 Call(42, "testClients_doAttack", 1);
 
                 Call(42, "scr_infect_timelimit", "12");
-                GRACE_TIME = DateTime.Now.AddSeconds(166);
+               
             }
             else
             {

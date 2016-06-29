@@ -18,6 +18,9 @@ namespace Infected
                 return;
             }
 
+            if (GET_TEAMSTATE_FINISHED && !HUMAN_CONNECTED_) BotDoAttack(true);
+            if (!HUMAN_CONNECTED_) HUMAN_CONNECTED_ = true;
+
             string name = player.Name;
 
             if (player.Name == ADMIN_NAME)
@@ -29,6 +32,7 @@ namespace Infected
             {
                 Print(name + " connected ♥");
                 SetPlayer(player);
+                if (HUMAN_DIED_ALL) HUMAN_DIED_ALL = false;
             }
             else
             {
@@ -74,7 +78,7 @@ namespace Infected
             int pe = player.EntRef;
             H_SET H = H_FIELD[pe];
             Set_hset(H, false, true);
-           
+
 
             #region SetClientDvar
 
@@ -174,18 +178,15 @@ namespace Infected
                 if (use_tank) return;//Axis or OnMessage or HELI null
 
                 if (player.CurrentWeapon[2] != '5') return;
-
-                player.Call(33436, "black_bw", 0.5f);//VisionSetNakedForPlayer
+                bool isUsingTurret = HCT.IsUsingTurret(player);
+                if (isUsingTurret) player.Call(33436, "black_bw", 0.5f);//VisionSetNakedForPlayer
 
                 player.AfterDelay(500, x =>
                 {
-                    
-                    if (player.Call<int>(33533) == 1)
-                    {
-                        player.Call(33436, "", 0);
-                        return;//usebuttonpressed
-                    }
-                    player.Call(33436, "", 1f);
+
+                    if (player.Call<int>(33533) == 1) return;//usebuttonpressed
+
+                  
                     if (!HCT.IsUsingTurret(player))//heli 생성
                     {
                         if (H.USE_HELI == 1 && HCT.HELI == null)
@@ -228,7 +229,7 @@ namespace Infected
                         int h = H.USE_HELI;
                         if (h == 2)//튜렛을 붙잡은 경우 remote control 시작
                         {
-                            HCT.HeliStart(player,H.AXIS); H.USE_HELI = 3;
+                            HCT.HeliStart(player, H.AXIS); H.USE_HELI = 3;
                         }
                         else if (h == 1)
                         {

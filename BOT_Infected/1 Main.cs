@@ -84,6 +84,11 @@ namespace Infected
                     {
                         human_List.Remove(player);
                     }
+                    if (human_List.Count == 0)
+                    {
+                        HUMAN_CONNECTED_ = false;
+                        BotDoAttack(false);
+                    }
                 };
 
                 OnNotify("game_ended", (level) =>
@@ -117,7 +122,6 @@ namespace Infected
         internal static bool  USE_ADMIN_SAFE_;
         internal static string ADMIN_NAME;
 
-        bool GAME_ENDED_;
         bool[] IsBOT = new bool[18];
 
         internal static void Print(object s)
@@ -173,6 +177,14 @@ namespace Infected
         }
         internal static List<H_SET> H_FIELD = new List<H_SET>(18);
         internal static List<Entity> human_List = new List<Entity>();
+
+        bool
+            GET_TEAMSTATE_FINISHED,
+            BOT_SERCH_ON_LUCKY_FINISHED, 
+            HUMAN_CONNECTED_, HUMAN_DIED_ALL,  
+            IS_FIRST_INFECTD_HUMAN_FINISHED, Human_FIRST_INFECTED_, GAME_ENDED_;
+        DateTime GRACE_TIME;
+
         #endregion
 
     }

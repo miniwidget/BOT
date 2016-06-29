@@ -10,7 +10,7 @@ namespace Infected
     {
         internal static void StartOrEndThermal(Entity player, bool start)
         {
-
+            player.Call(33436, "", 1f);//VisionSetNakedForPlayer
             if (start)
             {
                 player.Call(32936);//thermalvisionfofoverlayon
@@ -18,7 +18,7 @@ namespace Infected
              
                 return;
             }
-
+            
             player.Call(32937);//thermalvisionfofoverlayoff
             player.Health = 100;
             player.Call(33531, Infected.ZERO);

@@ -102,8 +102,8 @@ namespace Infected
             string realModel = "vehicle_little_bird_armed";
             string minimap_model = "attack_littlebird_mp";
 
-            string turret_mp = "littlebird_guard_minigun_mp";// "sentry_minigun_mp";
-            string reamModel_turret = "weapon_minigun";
+            string printModel= "littlebird_guard_minigun_mp";// "sentry_minigun_mp";
+            string realModel_turret = "weapon_minigun";
 
             Function.SetEntRef(-1);
             HELI = Function.Call<Entity>(369, player, HELI_WAY_POINT, Infected.ZERO, minimap_model, realModel);
@@ -111,23 +111,20 @@ namespace Infected
             HELI.Call(32924);
 
             Function.SetEntRef(-1);
-            TL = Function.Call<Entity>(19, "misc_turret", HELI.Origin, turret_mp, false);
-            TL.Call(32929, reamModel_turret);//setmodel
+            TL = Function.Call<Entity>(19, "misc_turret", HELI.Origin, printModel, false);
+            TL.Call(32929, realModel_turret);//setmodel
             TL.Call(32841, HELI, "tag_minigun_attach_left", new Vector3(30f, 30f, 0), new Vector3(0, 0, 0));
             TL.Call(33084, 180f);//SetLeftArc
             TL.Call(33083, 180f);//SetRightArc
             TL.Call(33086, 180f);//SetBottomArc
 
             Function.SetEntRef(-1);
-            TR = Function.Call<Entity>(19, "misc_turret", HELI.Origin, turret_mp);
-            TR.Call(32929, reamModel_turret);
+            TR = Function.Call<Entity>(19, "misc_turret", HELI.Origin, printModel);
+            TR.Call(32929, realModel_turret);
             TR.Call(32841, HELI, "tag_minigun_attach_right", new Vector3(30f, -30f, 0), new Vector3(0, 0, 0));
             TR.Call(33084, 180f);
             TR.Call(33083, 180f);
             TR.Call(33086, 180f);
-
-            //	lb.mgTurretLeft SetMode( level.heliGuardSettings[ heliGuardType ].sentryMode );
-            //lb.mgTurretRight SetMode(level.heliGuardSettings[heliGuardType].sentryMode);
 
         }
 
