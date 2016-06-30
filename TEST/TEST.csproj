@@ -51,6 +51,7 @@
     <Compile Include="Sound.cs" />
     <Compile Include="Table.cs" />
     <Compile Include="GSC Util.cs" />
+    <Compile Include="Vehicle\AC130.cs" />
     <Compile Include="Vehicle\Tank.cs" />
     <Compile Include="Vehicle\Vehicle.cs" />
     <Compile Include="Weapon.cs" />

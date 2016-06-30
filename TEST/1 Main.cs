@@ -32,7 +32,7 @@ namespace TEST
             Function.SetEntRef(-1);
             Function.Call(func, parameters);
         }
-        internal void Print(string s)
+        internal void Print(object s)
         {
             Log.Write(LogLevel.None, "{0}", s.ToString());
         }
@@ -69,7 +69,7 @@ namespace TEST
             
             switch (text)
             {
-                case "130": vehicle.ac130();break;
+                case "130":AC130 ac = new AC130();break;
                 case "uav": vehicle.StartRemoteUAV(ADMIN); break;
                 case "qm": QueryModel(); break;
 
