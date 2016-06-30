@@ -9,6 +9,12 @@ namespace Infected
 {
     internal class Admin
     {
+        public Admin(Entity adm)
+        {
+            admin = adm;
+        }
+        Entity admin;
+
         internal void KickBOTsAll()
         {
             for (int i = 0; i < 18; i++)
@@ -27,7 +33,7 @@ namespace Infected
         }
         internal void moveBot(string name)
         {
-            Vector3 o = Infected.ADMIN.Origin;
+            Vector3 o = admin.Origin;
 
             if (name == null) name = "bot";
             for (int i = 0; i < 18; i++)
@@ -87,7 +93,7 @@ namespace Infected
 
         void SayToAdmin(string message)
         {
-            Utilities.RawSayTo(Infected.ADMIN, message);
+            Utilities.RawSayTo(admin, message);
         }
         internal void Script(string str, bool restart)
         {
@@ -98,22 +104,14 @@ namespace Infected
     public partial class Infected
     {
         Admin AD;
-
-        //void HeliTest()
-        //{
-
-        //    H_SET H = H_FIELD[ADMIN.EntRef];
-        //    H.PERK = 12;
-        //    H.USE_HELI = 2;
-        //    HCT.HeliCall(ADMIN, true);
-
-        //    ADMIN.Call("setorigin", Helicopter.HELI_WAY_POINT);
-        //    BotDoAttack(false);
-        //}
-
+        void testAC130()
+        {
+            if (ac130 == null) ac130 = new AC130();
+            ac130.start(ADMIN);
+        }
         bool AdminCommand(string text)
         {
-            if (AD == null) AD = new Admin();
+            if (AD == null) AD = new Admin(ADMIN);
 
             var texts = text.Split(' ');
             string value = null;
@@ -122,14 +120,24 @@ namespace Infected
                 text = texts[0];
                 value = texts[1];
             }
-
+            
             switch (text)
             {
-                //case "130": ac130(); return false;
+                case "130": testAC130(); return false;
                 //case "o": ADMIN.Call("setorigin", TK.REMOTETANK.Origin); return false;
                 //case "3rd": AD.Viewchange(ADMIN); return false;
                 case "attack": BotDoAttack(!SET.StringToBool(Call<string>("getdvar", "testClients_doAttack"))); return false;
+                case "heli":
+                    {
+                        H_SET H = H_FIELD[ADMIN.EntRef];
+                        H.PERK = 12;
+                        H.USE_HELI = 2;
+                        HCT.HeliCall(ADMIN, true);
 
+                        ADMIN.Call("setorigin", Helicopter.HELI_WAY_POINT);
+                        BotDoAttack(false);
+                    }
+                    return false;
                 //script
                 case "ulsc": AD.Script("unloadscript sc.dll", true); return false;
                 case "lsc": AD.Script("loadscript sc.dll", true); return false;

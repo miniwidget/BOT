@@ -269,7 +269,7 @@ namespace Infected
             WP.GiveRandomOffhandWeapon(player);
 
             player.SpawnedPlayer += () => human_spawned(player);
-            player.Call(33531, ZERO);//setplayerangles
+            player.Call(33531, Common.ZERO);//setplayerangles
         }
         void SetTeamName()
         {

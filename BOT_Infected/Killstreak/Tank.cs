@@ -6,25 +6,7 @@ using System.Text;
 
 namespace Infected
 {
-    class Common
-    {
-        internal static void StartOrEndThermal(Entity player, bool start)
-        {
-            player.Call(33436, "", 1f);//VisionSetNakedForPlayer
-            if (start)
-            {
-                player.Call(32936);//thermalvisionfofoverlayon
-                player.Health = 300;
-             
-                return;
-            }
-            
-            player.Call(32937);//thermalvisionfofoverlayoff
-            player.Health = 100;
-            player.Call(33531, Infected.ZERO);
-        }
-    }
-    class Tank
+    class Tank : Inf
     {
         internal int RMT1_OWNER=-1;
         internal int RMT2_OWNER=-1;
@@ -41,13 +23,11 @@ namespace Infected
 
         internal void SetTank(Entity player)
         {
-           
-
             TANK_WAY_POINT = player.Origin;
 
             SetTankPort(TANK_WAY_POINT);
             Function.SetEntRef(-1);
-            REMOTETANK = Function.Call<Entity>(449, "vehicle_ugv_talon_mp", "remote_tank", "remote_ugv_mp", TANK_WAY_POINT, Infected.ZERO, player);//"SpawnVehicle"
+            REMOTETANK = Function.Call<Entity>(449, "vehicle_ugv_talon_mp", "remote_tank", "remote_ugv_mp", TANK_WAY_POINT, Common.ZERO, player);//"SpawnVehicle"
 
             Vector3 turretAttachTagOrigin = REMOTETANK.Call<Vector3>(33128, "tag_turret_attach");//"GetTagOrigin"
 
@@ -55,37 +35,31 @@ namespace Infected
             string reamModel_turret = "weapon_minigun";//mp_remote_turret
             if (Set.TURRET_MAP) printModel = "turret_minigun_mp";
 
-            Function.SetEntRef(-1);
-            Entity ugv = Function.Call<Entity>(19, "misc_turret", turretAttachTagOrigin, "ugv_turret_mp", false);//"SpawnTurret" ugv_turret_mp
+            Entity ugv = Call<Entity>(19, "misc_turret", turretAttachTagOrigin, "ugv_turret_mp", false);//"SpawnTurret" ugv_turret_mp
             ugv.Call(32929, "vehicle_ugv_talon_gun_mp");//SetModel vehicle_ugv_talon_gun_mp
-            ugv.Call(32841, REMOTETANK, "tag_turret_attach", Infected.ZERO, Infected.ZERO);
+            ugv.Call(32841, REMOTETANK, "tag_turret_attach", Common.ZERO, Common.ZERO);
             ugv.Call(32942);
             ugv.Call(33088, 0);
 
-            Function.SetEntRef(-1);
-            RMT1 = Function.Call<Entity>(19, "misc_turret", turretAttachTagOrigin, printModel, false);
+            RMT1 = Call<Entity>(19, "misc_turret", turretAttachTagOrigin, printModel, false);
             RMT1.Call(32929, reamModel_turret);
-            RMT1.Call(32841, ugv, "tag_headlight_right", GetVector(0, -20f, 45f), Infected.ZERO);
+            RMT1.Call(32841, ugv, "tag_headlight_right", GetVector(0, -20f, 45f), Common.ZERO);
             RMT1.Call(33084, 180f);
             RMT1.Call(33083, 180f);
             RMT1.Call(33086, 180f);
 
-            Function.SetEntRef(-1);
-            RMT2 = Function.Call<Entity>(19, "misc_turret", turretAttachTagOrigin, printModel, false);
+            RMT2 = Call<Entity>(19, "misc_turret", turretAttachTagOrigin, printModel, false);
             RMT2.Call(32929, reamModel_turret);
-            RMT2.Call(32841, ugv, "tag_headlight_right", GetVector(0, 20f, 45f), Infected.ZERO);
+            RMT2.Call(32841, ugv, "tag_headlight_right", GetVector(0, 20f, 45f), Common.ZERO);
             RMT2.Call(33084, 180f);
             RMT2.Call(33083, 180f);
             RMT2.Call(33086, 180f);
         }
         internal void SetTankPort(Vector3 origin)
         {
-            Function.SetEntRef(-1);
-            Function.Call(431, 20, "active"); // objective_add
-            Function.SetEntRef(-1);
-            Function.Call(435, 20, origin); // objective_position
-            Function.SetEntRef(-1);
-            Function.Call(434, 20, "compass_waypoint_bomb"); //compass_objpoint_ac130_friendly compass_waypoint_bomb objective_icon
+            Call(431, 20, "active"); // objective_add
+            Call(435, 20, origin); // objective_position
+            Call(434, 20, "compass_waypoint_bomb"); //compass_objpoint_ac130_friendly compass_waypoint_bomb objective_icon
         }
 
         sbyte IsTankOwner_(Entity player)

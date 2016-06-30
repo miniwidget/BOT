@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Infected
 {
-    class Helicopter
+    class Helicopter : Inf
     {
         internal readonly string[] MESSAGE_ALERT = { "YOU ARE NOT IN THE HELI AREA", "GO TO HELI AREA AND", "PRESS ^2[ [{+activate}] ] ^7AT THE HELI AREA" };
         internal readonly string[] MESSAGE_WAIT_PLAYER = { "YOU CAN RIDE HELLI", "IF ANOTHER PLAYER ONBOARD" };
@@ -17,12 +17,9 @@ namespace Infected
         internal static Vector3 HELI_WAY_POINT;
         internal void SetHeliPort()
         {
-            Function.SetEntRef(-1);
-            Function.Call(431, 17, "active"); // objective_add
-            Function.SetEntRef(-1);
-            Function.Call(435, 17, HELI_WAY_POINT); // objective_position
-            Function.SetEntRef(-1);
-            Function.Call(434, 17, "compass_objpoint_ac130_friendly"); //compass_objpoint_ac130_friendly compass_waypoint_bomb objective_icon
+            Call(431, 17, "active"); // objective_add
+            Call(435, 17, HELI_WAY_POINT); // objective_position
+            Call(434, 17, "compass_objpoint_ac130_friendly"); //compass_objpoint_ac130_friendly compass_waypoint_bomb objective_icon
         }
         #region wait heli
         /// <summary>
@@ -105,26 +102,25 @@ namespace Infected
             string realModel_turret = "weapon_minigun";//turret_minigun_mp weapon_minigun
             if (Set.TURRET_MAP) printModel = "turret_minigun_mp";
 
-            Function.SetEntRef(-1);
-            HELI = Function.Call<Entity>(369, player, HELI_WAY_POINT, Infected.ZERO, minimap_model, realModel);
+            HELI = Call<Entity>(369, player, HELI_WAY_POINT, Common.ZERO, minimap_model, realModel);
             HELI.Call(32923);
             HELI.Call(32924);
 
-            Function.SetEntRef(-1);
-            TL = Function.Call<Entity>(19, "misc_turret", HELI.Origin, printModel, false);
+            TL = Call<Entity>(19, "misc_turret", HELI.Origin, printModel, false);
             TL.Call(32929, realModel_turret);//setmodel
             TL.Call(32841, HELI, "tag_minigun_attach_left", new Vector3(30f, 30f, 0), new Vector3(0, 0, 0));
             TL.Call(33084, 180f);//SetLeftArc
             TL.Call(33083, 180f);//SetRightArc
             TL.Call(33086, 180f);//SetBottomArc
+            //TL.Call(32941);//makeusable
 
-            Function.SetEntRef(-1);
-            TR = Function.Call<Entity>(19, "misc_turret", HELI.Origin, printModel);
+            TR = Call<Entity>(19, "misc_turret", HELI.Origin, printModel);
             TR.Call(32929, realModel_turret);
             TR.Call(32841, HELI, "tag_minigun_attach_right", new Vector3(30f, -30f, 0), new Vector3(0, 0, 0));
             TR.Call(33084, 180f);
             TR.Call(33083, 180f);
             TR.Call(33086, 180f);
+            //TR.Call(32941);//makeusable
 
         }
 
@@ -168,7 +164,7 @@ namespace Infected
         internal void HeliEndGunner()
         {
             if (HELI_GUNNER == null) return;
-            HELI_GUNNER.Call(33531, Infected.ZERO);
+            HELI_GUNNER.Call(33531, Common.ZERO);
             HELI_GUNNER.Call(32843);//unlink
             HELI_GUNNER.Call(32937);
             Common.StartOrEndThermal(HELI_GUNNER, false);
@@ -185,7 +181,7 @@ namespace Infected
                 player.Call(32805, "prop_flag_neutral", "tag_shield_back", true);//detachShieldModel
             }
             HELI_ON_USE_ = false;
-            player.Call(33531, Infected.ZERO);
+            player.Call(33531, Common.ZERO);
 
             HELI_OWNER = null;
             if (HELI_GUNNER != null) HeliEndGunner();

@@ -90,8 +90,6 @@ namespace Infected
                 }
 
                 BotSearchOn(bot_, B);
-
-
             });
         }
 
@@ -99,7 +97,7 @@ namespace Infected
         private void BotSearchOn(Entity bot, B_SET B)
         {
             bot.Call(33220, 1f);//setmovescale
-            bot.Health = 150;
+            bot.Health = 120;
             bool pause = false;
             int death = B.death;
             string weapon = B.wep;
@@ -256,7 +254,7 @@ namespace Infected
         private void BotSearchOn_slow(Entity bot, B_SET B)
         {
             bot.Call(33220, 0.7f);//setmovespeedscale
-            bot.Health = 150;
+            bot.Health = 120;
             bool pause = false;
             int death = B.death;
 

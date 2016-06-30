@@ -8,10 +8,8 @@ using System.Timers;
 
 namespace Infected
 {
-
     public partial class Infected : BaseScript
     {
-        #region class
         Set SET;
         Weapon WP;
         Perk PK;
@@ -19,7 +17,7 @@ namespace Infected
         Hud HUD;
         Helicopter HCT;
         Tank TK;
-        #endregion
+        AC130 ac130;
 
         public Infected()
         {
@@ -34,7 +32,6 @@ namespace Infected
 
             Call(42, "scr_game_playerwaittime", 1);
             Call(42, "scr_game_matchstarttime", 1);
-
             Call(42, "testClients_watchKillcam", 0);
             Call(42, "testClients_doReload", 0);
             Call(42, "testClients_doCrouch", 1);
@@ -112,81 +109,57 @@ namespace Infected
 
         }
 
+    }
 
-        #region field
+    class Inf
+    {
+        protected TReturn Call<TReturn>(string func, params Parameter[] parameters)
+        {
+            Function.SetEntRef(-1);
+            return Function.Call<TReturn>(func, parameters);
+        }
+        protected TReturn Call<TReturn>(int func, params Parameter[] parameters)
+        {
+            Function.SetEntRef(-1);
+            return Function.Call<TReturn>(func, parameters);
+        }
 
-        internal static Random rnd;
-        internal static Entity ADMIN;
-        internal static Vector3 ZERO = new Vector3();
-        internal static int FIRE_DIST, PLAYER_LIFE = 2;
-        internal static bool  USE_ADMIN_SAFE_;
-        internal static string ADMIN_NAME;
-
-        bool[] IsBOT = new bool[18];
-
-        internal static void Print(object s)
+        protected void Call(string func, params Parameter[] parameters)
+        {
+            Function.SetEntRef(-1);
+            Function.Call(func, parameters);
+        }
+        protected void Call(int func, params Parameter[] parameters)
+        {
+            Function.SetEntRef(-1);
+            Function.Call(func, parameters);
+        }
+        protected void Print(object s)
         {
             Log.Write(LogLevel.None, "{0}", s.ToString());
         }
-
-
-        /// <summary>
-        /// BOT SET class for custom fields set
-        /// </summary>
-        class B_SET
-        {
-            internal Entity target { get; set; }
-            internal int death { get; set; }
-            internal bool fire { get; set; }
-            internal bool temp_fire { get; set; }
-            internal string wep { get; set; }
-            internal int killer = -1;
-        }
-        List<B_SET> B_FIELD = new List<B_SET>(18);
-        List<Entity> BOTs_List = new List<Entity>();
-
-        /// <summary>
-        /// HUMAN PLAYER SET class for custom fields set
-        /// </summary>
-        internal class H_SET
-        {
-            //int att = 0;
-            //internal int SIRENCERorHB
-            //{
-            //    get
-            //    {
-            //        this.att++;
-            //        if (this.att > 2) this.att = 0;
-            //        return this.att;
-            //    }
-            //}
-            internal int LIFE { get; set; }
-            internal bool RESPAWN { get; set; }
-            internal int PERK = 2;
-
-            internal bool AXIS;
-            internal int AX_WEP { get; set; }
-            internal bool BY_SUICIDE { get; set; }
-
-            internal int USE_HELI { get; set; }
-
-            internal bool LOC_NOTIFIED;
-            internal bool LOC_DO;
-            internal float[] LOC = null;
-            internal Vector3 RELOC;
-        }
-        internal static List<H_SET> H_FIELD = new List<H_SET>(18);
-        internal static List<Entity> human_List = new List<Entity>();
-
-        bool
-            GET_TEAMSTATE_FINISHED,
-            BOT_SERCH_ON_LUCKY_FINISHED, 
-            HUMAN_CONNECTED_, HUMAN_DIED_ALL,  
-            IS_FIRST_INFECTD_HUMAN_FINISHED, Human_FIRST_INFECTED_, GAME_ENDED_;
-        DateTime GRACE_TIME;
-
-        #endregion
-
     }
+    class Common
+    {
+        internal static Vector3 ZERO = new Vector3();
+        internal static Vector3 AC130_WAY_POS;
+
+        internal static void StartOrEndThermal(Entity player, bool start)
+        {
+            player.Call(33436, "", 1f);//VisionSetNakedForPlayer
+            if (start)
+            {
+                player.Call(32936);//thermalvisionfofoverlayon
+                player.Health = 300;
+
+                return;
+            }
+
+            player.Call(32937);//thermalvisionfofoverlayoff
+            player.Health = 100;
+            player.Call(33531, ZERO);
+        }
+    }
+
 }
 
