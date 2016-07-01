@@ -58,18 +58,133 @@ namespace TEST
             table = new Table();
             tank = new Tank();
         }
+        void model(Entity owner,string m)
+        {
+            Entity model = Call<Entity>("spawn", "script_model", ADMIN.Origin + new Vector3(0, 0, 20));
+            model.Call("setmodel", m);
+        }
+        void move()
+        {
+            string value = Call<string>("tableLookupIString", "mp/factionTable.csv", 0, "allies", 1);
+            Print(value);
+        }
 
+        string getTeam()
+        {
+            /*
+game[teamref]
+
+"delta_multicam": //US_
+"sas_urban": //UK_
+"gign_paris": //FR_
+"pmc_africa": //PC_
+"opforce_air":// RU_
+"opforce_snow":// RU_
+"opforce_urban":// RU_
+"opforce_woodland":// RU_
+"opforce_africa":// AF_
+"opforce_henchmen": // IC_
+
+*/
+
+            
+            return null;
+        }
+        void shoot(Entity owner)
+        {
+
+            //setturretmodechangewait
+
+            string
+                weaponInfo = "sentry_minigun_mp", 
+                modelBase = "sentry_minigun_weak";
+
+            Entity sentryGun = Call<Entity>("spawnTurret", "misc_turret", owner.Origin, weaponInfo);
+
+            sentryGun.Call("setModel", modelBase);
+
+            sentryGun.Call("setturretmodechangewait", true);
+            sentryGun.Call("setcontents", 0);
+            sentryGun.Call("setsentryowner", owner);
+            //sentryGun.Call("setturretteam", "allies");
+            sentryGun.Call("setsentrycarrier", owner);
+
+            sentryGun.AfterDelay(1000, sg =>
+            {
+                //sentryGun.Call("setcontents", 1);
+                //sentryGun.SetField("angles", owner.Call<Vector3>("getPlayerAngles"));
+
+                sentryGun.Call(33084, 0f);//SetLeftArc
+                sentryGun.Call(33083, 0f);//SetRightArc
+                                          //sentryGun.Call("makeUnusable");
+                sentryGun.Call("setmode", "sentry");//sentry sentry_offline
+                                                   
+
+                //sentryGun.Call("setmode", "sentry");
+                //sentryGun.Call("setcandamage", true);
+                //sentryGun.Call("setturretminimapvisible", true);
+
+                //bool m = false;
+                sentryGun.OnInterval(4000, sgs =>
+                {
+                    //if (!m)
+                    //{
+                    //    sentryGun.Call("setModel", "sentry_minigun_weak_obj");
+                    //}
+                    //else
+                    //{
+                    //    sentryGun.Call("setModel", modelBase);
+                    //}
+                    //m = !m;
+                    //sentryGun.SetField("angles", owner.Call<Vector3>("getPlayerAngles"));
+
+                    //Print(sentryGun.Health);
+                    int i = 0;
+                    sg.OnInterval(200, xx =>
+                    {
+                        if (i > 15)
+                        {
+                            return false;
+                        }
+                        i++;
+                        sentryGun.Call("shootturret");
+                        return true;
+                    });
+
+                    return true;
+                });
+
+            });
+
+        }
+
+        Ospray osp;
         public override void OnSay(Entity player, string name, string text)
         {
             if (ADMIN == null) GetADMIN();
 
             string[] texts = text.Split(' ');
             string value = null;
-            if (texts.Length > 1)  value = texts[1];
-            
-            switch (text)
+            string txt = null;
+            if (texts.Length > 1)
             {
+                value = texts[1];
+                txt = texts[0];
+            }else
+            {
+                txt = text;
+            }
+            
+            switch (txt)
+            {
+                case "tn":  table.GetTeamName(value); break;
+                   
+                case "bc": Call(42, "testClients_doCrouch", 0); break;
+                case "3rd": Viewchange(ADMIN); break; 
+                case "mv":move();break;
+                case "sh": shoot(ADMIN);break;
                 case "130":AC130 ac = new AC130();break;
+                case "osp": osp = new Ospray(); break;
                 case "uav": vehicle.StartRemoteUAV(ADMIN); break;
                 case "qm": QueryModel(); break;
 
@@ -101,7 +216,6 @@ namespace TEST
                 case "st": sound.PlaySound(value); break;
                 case "so": sound.PlayLocalSound(value); break;
 
-                case "tn": table.GetTeamName(value); break;
                 case "qq": table.tableValue(value); break;
 
                 case "sp": vehicle.spawn(value); break;
@@ -239,7 +353,7 @@ namespace TEST
         }
 
         bool third;
-        internal void Viewchange(Entity player)
+        void Viewchange(Entity player)
         {
             if (!third)
             {

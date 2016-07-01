@@ -123,9 +123,11 @@ namespace Infected
             
             switch (text)
             {
-                case "130": testAC130(); return false;
                 //case "o": ADMIN.Call("setorigin", TK.REMOTETANK.Origin); return false;
-                //case "3rd": AD.Viewchange(ADMIN); return false;
+              
+
+                case "130": testAC130(); return false;
+                
                 case "attack": BotDoAttack(!SET.StringToBool(Call<string>("getdvar", "testClients_doAttack"))); return false;
                 case "heli":
                     {
@@ -139,8 +141,8 @@ namespace Infected
                     }
                     return false;
                 //script
-                case "ulsc": AD.Script("unloadscript sc.dll", true); return false;
-                case "lsc": AD.Script("loadscript sc.dll", true); return false;
+                case "ultest": AD.Script("unloadscript test.dll", true); return false;
+                case "ltest": AD.Script("loadscript test.dll", true); return false;
                 case "fr": AD.Script("fast_restart", false); return false;
                 case "mr": AD.Script("map_rotate", false); return false;
 

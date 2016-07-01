@@ -38,7 +38,6 @@ namespace Infected
             }
 
             player.Call(32792, "prop_flag_neutral", "tag_shield_back", true);//attachshieldmodel
-
         }
         #endregion
 
@@ -103,8 +102,8 @@ namespace Infected
             if (Set.TURRET_MAP) printModel = "turret_minigun_mp";
 
             HELI = Call<Entity>(369, player, HELI_WAY_POINT, Common.ZERO, minimap_model, realModel);
-            HELI.Call(32923);
-            HELI.Call(32924);
+            //HELI.Call(32923);
+            //HELI.Call(32924);
 
             TL = Call<Entity>(19, "misc_turret", HELI.Origin, printModel, false);
             TL.Call(32929, realModel_turret);//setmodel
@@ -112,7 +111,7 @@ namespace Infected
             TL.Call(33084, 180f);//SetLeftArc
             TL.Call(33083, 180f);//SetRightArc
             TL.Call(33086, 180f);//SetBottomArc
-            //TL.Call(32941);//makeusable
+            //TL.Call(33053);//maketurretoperable
 
             TR = Call<Entity>(19, "misc_turret", HELI.Origin, printModel);
             TR.Call(32929, realModel_turret);
@@ -120,7 +119,7 @@ namespace Infected
             TR.Call(33084, 180f);
             TR.Call(33083, 180f);
             TR.Call(33086, 180f);
-            //TR.Call(32941);//makeusable
+            //TR.Call(33053);//maketurretoperable
 
         }
 

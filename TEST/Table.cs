@@ -23,8 +23,21 @@ namespace TEST
         }
         internal void GetTeamName(string teamRef)
         {
-            //pmc_africa
+            /*
+            game[teamref]
 
+            "delta_multicam": //US_
+            "sas_urban": //UK_
+            "gign_paris": //FR_
+            "pmc_africa": //PC_
+            "opforce_air":// RU_
+            "opforce_snow":// RU_
+            "opforce_urban":// RU_
+            "opforce_woodland":// RU_
+            "opforce_africa":// AF_
+            "opforce_henchmen": // IC_
+
+            */
             string value = Call<string>("tableLookup", "mp/factionTable.csv", 0, teamRef, 7);
             Print("value: " + value);
         }
