@@ -40,8 +40,8 @@ namespace Infected
 
             for (int i = 0; i < 18; i++)
             {
-                B_FIELD.Add(null);
-                H_FIELD.Add(null);
+                B_FIELD.Add(new B_SET());
+                H_FIELD.Add(new H_SET(0));
             }
 
             PlayerConnecting += player =>

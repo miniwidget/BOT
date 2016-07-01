@@ -73,9 +73,9 @@ namespace Infected
             player.Notify("menuresponse", "changeclass", "allies_recipe" + rnd.Next(1, 6));
 
             human_List.Add(player);
-            H_SET H = new H_SET(PLAYER_LIFE);
             int pe = player.EntRef;
-            H_FIELD[pe] = H;
+            H_SET H = H_FIELD[pe];
+            H.LIFE = PLAYER_LIFE;
 
             #region SetClientDvar
 

@@ -107,7 +107,6 @@ namespace Infected
             bot.Notify("menuresponse", "changeclass", SET.BOTs_CLASS[i]);
             BOTs_List.Add(bot);
             IsBOT[be] = true;
-            B_FIELD[be] = new B_SET();
         }
         #endregion
 
