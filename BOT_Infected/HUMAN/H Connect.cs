@@ -21,9 +21,10 @@ namespace Infected
             if (GET_TEAMSTATE_FINISHED && !HUMAN_CONNECTED_) BotDoAttack(true);
             if (!HUMAN_CONNECTED_) HUMAN_CONNECTED_ = true;
 
+
             string name = player.Name;
 
-            if (player.Name == ADMIN_NAME)
+            if (name == ADMIN_NAME)
             {
                 SET.SetADMIN((ADMIN = player));
             }
@@ -43,12 +44,12 @@ namespace Infected
             }
         }
 
-        void Set_hset(H_SET H, bool Axis, bool init)
+        void Set_hset(H_SET H, bool Axis)
         {
             H.BY_SUICIDE = false;
-
             H.LOC_DO = false;
             H.AXIS = Axis;
+            H.TURRET_STATE = 0;
 
             if (Axis)
             {
@@ -58,15 +59,12 @@ namespace Infected
             }
             else
             {
+                H.RESPAWN = false;
                 H.USE_HELI = 0;
                 H.AX_WEP = 0;
                 H.PERK = 2;
                 H.LIFE -= 1;
-            }
-            if (init)
-            {
-                H.LOC_NOTIFIED = false;
-                H.LIFE = PLAYER_LIFE;
+                SetTeamName();
             }
 
         }
@@ -75,10 +73,9 @@ namespace Infected
             player.Notify("menuresponse", "changeclass", "allies_recipe" + rnd.Next(1, 6));
 
             human_List.Add(player);
+            H_SET H = new H_SET(PLAYER_LIFE);
             int pe = player.EntRef;
-            H_SET H = H_FIELD[pe];
-            Set_hset(H, false, true);
-
+            H_FIELD[pe] = H;
 
             #region SetClientDvar
 
@@ -105,7 +102,7 @@ namespace Infected
                 }
             });
 
-            player.Call(33445, "HOLD_CROUCH", "+movedown");
+            player.Call(33445, "HOLD_CROUCH", "+movedown");//notifyonplayercommand
             player.OnNotify("HOLD_CROUCH", ent =>//view scope
             {
                 if (H.AXIS) return;
@@ -161,11 +158,31 @@ namespace Infected
                 human_List.Add(player);
             });
 
+            player.Call(33445, "LINK_AGAIN", "+smoke");//notifyonplayercommand
+            player.OnNotify("LINK_AGAIN", ent =>
+            {
+                if (H.TURRET_STATE == 0) return;
+
+                byte th = TurretHolding(player);
+
+                if (th > 1)
+                {
+                    if (TK.IfTankOwner_DoEnd(player)) TK.TankStart(player, th);
+                }
+                else
+                {
+                    if (HCT.HELI_OWNER != player) return;
+                    player.Call(32843);//unlink
+                    player.Call(33257);//remotecontrolvehicleoff
+                    player.Call(33256, HCT.HELI);//remotecontrolvehicle  
+                }
+            });
+
             #endregion
 
             #region helicopter
 
-            /*
+            /* H.USE_HELI
              0 : Allies under 10kill
              1 : ready to call heli
              2 : start heli
@@ -175,93 +192,83 @@ namespace Infected
             player.Call(33445, "ACTIVATE", "+activate");//"notifyonplayercommand"
             player.OnNotify("ACTIVATE", ent =>
             {
-                if (use_tank) return;//Axis or OnMessage or HELI null
+                if (use_tank) return;
+                if (player.CurrentWeapon[2] != '5') return;//killstreak deny
+                if (H.USE_HELI == 1 && HCT.HELI == null)//heli 생성
+                {
+                    HCT.HeliCall(player, H.AXIS); H.USE_HELI = 2;
+                    return;
+                }
+                if (player.Call<int>(33539) != 1) return;//isUsingTurret
+                player.Call(33436, "black_bw", 0.5f);//VisionSetNakedForPlayer
+                /* H.TURRET_STATE
+                 
+                1 rmheli
+                2 heli gunner
+                3 tk runner
+                4 tk gunner
 
-                if (player.CurrentWeapon[2] != '5') return;
-                bool isUsingTurret = HCT.IsUsingTurret(player);
-                if (isUsingTurret) player.Call(33436, "black_bw", 0.5f);//VisionSetNakedForPlayer
+                */
+                int ts = H.TURRET_STATE;
+                if (ts != 0)
+                {
+                    player.AfterDelay(500, x =>
+                    {
+                        if (ts == 1) { HCT.HeliEndUse(player, true); H.USE_HELI = 0; }
 
+                        else if (ts == 2) HCT.HeliEndGunner();
+
+                        else TK.IfTankOwner_DoEnd(player);
+
+                        H.TURRET_STATE = 0;
+                    });
+
+                    return;
+                }
+
+                byte th = TurretHolding(player);
+
+                //player.Call(33436, "black_bw", 0.5f);//VisionSetNakedForPlayer
                 player.AfterDelay(500, x =>
                 {
-
-                    if (player.Call<int>(33533) == 1)
+                    if (th > 1)
                     {
-                        if (isUsingTurret) player.Call(33436, "", 0f);
-                        return;//usebuttonpressed
+                        H.TURRET_STATE = TK.TankStart(player, th);//state 3 ~ 4
+                        return;
                     }
 
-                  
-                    if (!HCT.IsUsingTurret(player))//heli 생성
+                    int h = H.USE_HELI;
+                    if (h == 2)// remote control 시작
                     {
-                        if (H.USE_HELI == 1 && HCT.HELI == null)
-                        {
-                            HCT.HeliCall(player, H.AXIS); H.USE_HELI = 2;
-                            return;
-                        }
-
-                        if (H.USE_HELI == 3 && HCT.HELI_OWNER == player)
-                        {
-                            HCT.HeliEndUse(player, true); H.USE_HELI = 0;
-                            return;
-                        }
-
-                        if (HCT.IsHeliArea(player))
-                        {
-                            Common.StartOrEndThermal(player, false);
-                            return;
-                        }
-
-                        if (H.USE_HELI == 1)
-                        {
-                            if (!TK.IfTankOwner_DoEnd(player))
-                            {
-                                Info.MessageRoop(player, 0, HCT.MESSAGE_ALERT);
-                                if(isUsingTurret) player.Call(33436, "", 0f);
-                            }
-                            return;
-                        }
-                        if (!TK.IfTankOwner_DoEnd(player))
-                        {
-                            if (isUsingTurret) player.Call(33436, "", 0f);
-                        }
-
+                        H.TURRET_STATE = HCT.HeliStart(player, H.AXIS);//state 1
+                        H.USE_HELI = 3;
                     }
-                    else
+                    else if (h == 1)//헬리를 탈 자격이 되는 상태 (10킬 이상)
                     {
-                        if (HCT.HELI == null || HCT.HELI != null && !HCT.IsHeliArea(player))/*다른 튜렛을 사용 중인 경우*/
+                        if (!HCT.HELI_ON_USE_)//다른 사람이 헬리 불러 놓고 죽거나, 아직 타지 않은 경우
                         {
-                            TK.TankStart(player);
-                            return;
+                            H.TURRET_STATE = HCT.HeliStart(player, H.AXIS);//state 1
+                            H.USE_HELI = 3;
                         }
-
-                        int h = H.USE_HELI;
-                        if (h == 2)//튜렛을 붙잡은 경우 remote control 시작
-                        {
-                            HCT.HeliStart(player, H.AXIS); H.USE_HELI = 3;
-                        }
-                        else if (h == 1)
-                        {
-                            if (!HCT.HELI_ON_USE_)
-                            {
-                                HCT.HeliStart(player, H.AXIS); H.USE_HELI = 3;
-                            }
-                            return;
-                        }
-                        else if (h == 0)//owner가 도착하지 않은 경우
-                        {
-                            HCT.HELI_GUNNER = player;
-
-                            if (H.PERK < 10) Info.MessageRoop(player, 0, new[] { "^2" + (11 - H.PERK) + " KILL MORE ^7TO RIDE HELI", "YOU CAN RIDE HELI", "IF ANOTHER PLAYER ONBOARD" });
-                            else Info.MessageRoop(player, 0, HCT.MESSAGE_WAIT_PLAYER);
-
-                            Common.StartOrEndThermal(player, true);
-                        }
+                        return;
                     }
+                    else if (h == 0)//헬리를 탈 자격이 안 되는 상태에서, owner가 도착하지 않은 경우
+                    {
+                        H.TURRET_STATE = 2;//state 2
+                        HCT.HELI_GUNNER = player;
+
+                        if (H.PERK < 10) Info.MessageRoop(player, 0, new[] { "^2" + (11 - H.PERK) + " KILL MORE ^7TO RIDE HELI", "YOU CAN RIDE HELI", "IF ANOTHER PLAYER ONBOARD" });
+                        else Info.MessageRoop(player, 0, HCT.MESSAGE_WAIT_PLAYER);
+
+                        Common.StartOrEndThermal(player, true);
+                    }
+
                 });
 
             });
 
             #endregion
+
 
             HUD.AlliesHud(player);
 
@@ -279,6 +286,8 @@ namespace Infected
 
         void Relocation(Entity player, bool getback)
         {
+            if (!TK.IfTankOwner_DoEnd(player)) HCT.IfHeliOwner_DoEnd(player);
+
             H_SET H = H_FIELD[player.EntRef];
 
             if (getback)
@@ -326,6 +335,29 @@ namespace Infected
                         });
                     });
                 });
+            }
+        }
+        byte TurretHolding(Entity player)
+        {
+            if (HCT.HELI == null)
+            {
+                int TKL = (int)TK.RMT1.Origin.DistanceTo(player.Origin);
+                int TKR = (int)TK.RMT2.Origin.DistanceTo(player.Origin);
+
+                if (TKL < TKR) return 2;
+                else return 3;
+            }
+            else
+            {
+                int HL = (int)HCT.TL.Origin.DistanceTo(player.Origin);
+                int HR = (int)HCT.TR.Origin.DistanceTo(player.Origin);
+                int TKL = (int)TK.RMT1.Origin.DistanceTo(player.Origin);
+                int TKR = (int)TK.RMT2.Origin.DistanceTo(player.Origin);
+
+                int[] DIFFS = new int[4] { HL, HR, TKL, TKR };
+                byte b = (byte)Array.IndexOf(DIFFS, DIFFS.Min());
+                //Print(HL + "/" + HR + "/" + TKL + "/" + TKR + "/" + b);
+                return b;
             }
         }
 

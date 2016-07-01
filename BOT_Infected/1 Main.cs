@@ -40,8 +40,8 @@ namespace Infected
 
             for (int i = 0; i < 18; i++)
             {
-                B_FIELD.Add(new B_SET());
-                H_FIELD.Add(new H_SET());
+                B_FIELD.Add(null);
+                H_FIELD.Add(null);
             }
 
             PlayerConnecting += player =>
@@ -94,13 +94,11 @@ namespace Infected
                     Call(42, "testClients_doAttack", 0);
 
                     GAME_ENDED_ = true;
-                    HUD.SERVER.Call(32897);
-
+                    if(HUD.SERVER!=null) HUD.SERVER.Call(32897);
                     foreach (var v in B_FIELD)
                     {
+                        if (v == null) continue;
                         v.fire = false;
-                        v.target = null;
-                        v.death += 1;
                     }
                     AfterDelay(20000, () => Utilities.ExecuteCommand("map_rotate"));
                 });
@@ -110,7 +108,6 @@ namespace Infected
         }
 
     }
-
     class Inf
     {
         protected TReturn Call<TReturn>(string func, params Parameter[] parameters)
@@ -142,11 +139,11 @@ namespace Infected
     class Common
     {
         internal static Vector3 ZERO = new Vector3();
-        internal static Vector3 AC130_WAY_POS;
+        //internal static Vector3 AC130_WAY_POS;
 
         internal static void StartOrEndThermal(Entity player, bool start)
         {
-            player.Call(33436, "", 1f);//VisionSetNakedForPlayer
+            player.Call(33436, "", 0);//VisionSetNakedForPlayer
             if (start)
             {
                 player.Call(32936);//thermalvisionfofoverlayon
@@ -154,11 +151,20 @@ namespace Infected
 
                 return;
             }
-
             player.Call(32937);//thermalvisionfofoverlayoff
             player.Health = 100;
             player.Call(33531, ZERO);
+
         }
+       static Vector3 tempV= new Vector3();
+       internal static Vector3 GetVector(float x, float y, float z)
+        {
+            tempV.X = x;
+            tempV.Y = y;
+            tempV.Z = z;
+            return tempV;
+        }
+
     }
 
 }

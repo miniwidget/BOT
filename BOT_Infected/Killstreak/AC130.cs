@@ -8,14 +8,14 @@ namespace Infected
 {
     class AC130 : Inf
     {
-        private string getKillstreakWeapon(string streakName)
-        {
-            string empty = string.Empty;
-            Parameter[] parameterArray = new Parameter[] { "mp/killstreakTable.csv", 1, streakName, 12 };
-            empty = base.Call<string>("tableLookup", parameterArray);
-            Log.Write(LogLevel.Info, string.Concat("Killstreak weapon: ", empty));
-            return empty;
-        }
+        //private string getKillstreakWeapon(string streakName)
+        //{
+        //    string empty = string.Empty;
+        //    Parameter[] parameterArray = new Parameter[] { "mp/killstreakTable.csv", 1, streakName, 12 };
+        //    empty = base.Call<string>("tableLookup", parameterArray);
+        //    Log.Write(LogLevel.Info, string.Concat("Killstreak weapon: ", empty));
+        //    return empty;
+        //}
         Vector3 GetMinimapOrigin()
         {
             return Call<Entity>(365, "minimap_corner", "targetname").Origin;//getEnt
@@ -58,8 +58,7 @@ namespace Infected
             objModel.Call(32841, level_ac130, "tag_player", new Vector3(0, 80, 32), new Vector3(0, -90, 0));//linkTo
 
             /*if ( getDvarInt( "camera_thirdPerson" ) ) player setThirdPersonDOF( false );*/
-
-
+            
 
             player.GiveWeapon("ac130_105mm_mp");
             player.GiveWeapon("ac130_40mm_mp");

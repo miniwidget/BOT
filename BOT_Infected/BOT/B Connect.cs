@@ -85,16 +85,16 @@ namespace Infected
         {
 
             var i = BOTs_List.Count;
-
+            int be = bot.EntRef;
             if (i > SET.BOT_SETTING_NUM)
             {
-                Call(286, bot.EntRef);//kick
+                Call(286, be);//kick
                 return;
             }
 
-            if (i == 0) BOT_JUGG_ENTREF = bot.EntRef;
-            else if (i == 1) BOT_RPG_ENTREF = bot.EntRef;
-            else if (i == 2) BOT_RIOT_ENTREF = bot.EntRef;
+            if (i == 0) BOT_JUGG_ENTREF = be;
+            else if (i == 1) BOT_RPG_ENTREF = be;
+            else if (i == 2) BOT_RIOT_ENTREF = be;
 
             if (i == SET.BOT_SETTING_NUM - 1) BotWaitOnFirstInfected();
 
@@ -106,8 +106,8 @@ namespace Infected
             }
             bot.Notify("menuresponse", "changeclass", SET.BOTs_CLASS[i]);
             BOTs_List.Add(bot);
-            IsBOT[bot.EntRef] = true;
-
+            IsBOT[be] = true;
+            B_FIELD[be] = new B_SET();
         }
         #endregion
 
@@ -229,7 +229,7 @@ namespace Infected
             return false;
         }
         
-        void BotDoAttack(bool attack)
+        bool BotDoAttack(bool attack)
         {
             if (attack)
             {
@@ -245,6 +245,7 @@ namespace Infected
                 Call(42, "testClients_doMove", 0);
                 Call(42, "testClients_doAttack", 0);
             }
+            return false;
         }
     }
 }

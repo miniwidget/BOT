@@ -10,9 +10,9 @@ namespace Infected
     {
         internal readonly string[] MESSAGE_ALERT = { "YOU ARE NOT IN THE HELI AREA", "GO TO HELI AREA AND", "PRESS ^2[ [{+activate}] ] ^7AT THE HELI AREA" };
         internal readonly string[] MESSAGE_WAIT_PLAYER = { "YOU CAN RIDE HELLI", "IF ANOTHER PLAYER ONBOARD" };
-        readonly string[] MESSAGE_KEY_INFO = { "HELI INFO", "^2[ [{+breath_sprint}] ] ^7MOVE DOWN", "^2[ [{+gostand}] ] ^7MOVE UP" };
-        internal readonly string[] MESSAGE_ACTIVATE = { "PRESS ^2[ [{+activate}] ] ^7AT THE HELI TURRET AREA", "YOU CAN RIDE IN HELICOPTER" };
-        internal readonly string MESSAGE_CALL = "PRESS ^2[ [{+activate}] ] ^7TO CALL HELI TURRET";
+        readonly string[] MESSAGE_KEY_INFO = { "^2HELICOPTER CONTROL INFO", "^2MOVE DOWN [^7 [{+breath_sprint}] ^2]", "^2MOVE UP [^7 [{+gostand}] ^2]", "^2PRESS [ ^7[{+smoke}] ^2] IF STUCK" };
+        internal readonly string[] MESSAGE_ACTIVATE = { "^2PRESS [^7 [{+activate}] ^2] AT THE HELI TURRET AREA", "YOU CAN RIDE IN HELICOPTER" };
+        internal readonly string MESSAGE_CALL = "^2PRESS [^7 [{+activate}] ^2] TO CALL HELI TURRET";
         internal Entity HELI, TL, TR, HELI_OWNER, HELI_GUNNER;
         internal static Vector3 HELI_WAY_POINT;
         internal void SetHeliPort()
@@ -101,25 +101,22 @@ namespace Infected
             string realModel_turret = "weapon_minigun";//turret_minigun_mp weapon_minigun
             if (Set.TURRET_MAP) printModel = "turret_minigun_mp";
 
-            HELI = Call<Entity>(369, player, HELI_WAY_POINT, Common.ZERO, minimap_model, realModel);
-            //HELI.Call(32923);
-            //HELI.Call(32924);
+            HELI = Call<Entity>(369, player, HELI_WAY_POINT, Common.ZERO, minimap_model, realModel);//spawnHelicopter
+            HELI.Call(33417, true);//setcandamage
 
             TL = Call<Entity>(19, "misc_turret", HELI.Origin, printModel, false);
             TL.Call(32929, realModel_turret);//setmodel
-            TL.Call(32841, HELI, "tag_minigun_attach_left", new Vector3(30f, 30f, 0), new Vector3(0, 0, 0));
+            TL.Call(32841, HELI, "tag_minigun_attach_left", Common.GetVector(30f, 30f, 0),Common.ZERO);
             TL.Call(33084, 180f);//SetLeftArc
             TL.Call(33083, 180f);//SetRightArc
             TL.Call(33086, 180f);//SetBottomArc
-            //TL.Call(33053);//maketurretoperable
 
             TR = Call<Entity>(19, "misc_turret", HELI.Origin, printModel);
-            TR.Call(32929, realModel_turret);
-            TR.Call(32841, HELI, "tag_minigun_attach_right", new Vector3(30f, -30f, 0), new Vector3(0, 0, 0));
+            TR.Call(32929, realModel_turret);//setmodel
+            TR.Call(32841, HELI, "tag_minigun_attach_right", Common.GetVector(30f, -30f, 0), Common.ZERO);
             TR.Call(33084, 180f);
             TR.Call(33083, 180f);
             TR.Call(33086, 180f);
-            //TR.Call(33053);//maketurretoperable
 
         }
 
@@ -127,7 +124,7 @@ namespace Infected
 
         #region board heli
         internal bool HELI_ON_USE_;
-        internal void HeliStart(Entity player,bool Axis)
+        internal byte HeliStart(Entity player,bool Axis)
         {
             HELI_ON_USE_ = true;
             HELI_OWNER = player;
@@ -156,10 +153,11 @@ namespace Infected
                     HeliEndUse(player, true);
                 }
             });
-
+            return 1;
         }
         #endregion
 
+        #region end heli
         internal void HeliEndGunner()
         {
             if (HELI_GUNNER == null) return;
@@ -175,7 +173,6 @@ namespace Infected
             {
                 player.Call(32843);//unlink
                 player.Call(33257);//remotecontrolvehicleoff
-                Common.StartOrEndThermal(player, false);
 
                 player.Call(32805, "prop_flag_neutral", "tag_shield_back", true);//detachShieldModel
             }
@@ -184,6 +181,8 @@ namespace Infected
 
             HELI_OWNER = null;
             if (HELI_GUNNER != null) HeliEndGunner();
+            Common.StartOrEndThermal(player, false);
+
             TL.Call(32928);//delete
             TR.Call(32928);
             HELI.Call(32928);
@@ -194,14 +193,16 @@ namespace Infected
             if (HELI_OWNER == player) HeliEndUse(player, false);
             else if (HELI_GUNNER == player) HeliEndGunner();
         }
+        #endregion
     }
-    class RemoteUAV
-    {
-        void StartRemoteUAV(Entity player)
-        {
-            player.GiveWeapon("uav_remote_mp");
-            player.SwitchToWeaponImmediate("uav_remote_mp");
-            player.Call("VisionSetNakedForPlayer", "black_bw", 0f);
-        }
-    }
+
+    //class RemoteUAV
+    //{
+    //    void StartRemoteUAV(Entity player)
+    //    {
+    //        player.GiveWeapon("uav_remote_mp");
+    //        player.SwitchToWeaponImmediate("uav_remote_mp");
+    //        player.Call("VisionSetNakedForPlayer", "black_bw", 0f);
+    //    }
+    //}
 }

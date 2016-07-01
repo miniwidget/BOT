@@ -22,30 +22,30 @@ namespace ServerCommands
         }
         void Status()
         {
-            //string s = null;
+            string s = null;
 
-            //for (int i = 0; i < 18; i++)
-            //{
-            //    Entity p = Entity.GetEntity(i);
+            for (int i = 0; i < 18; i++)
+            {
+                Entity p = Entity.GetEntity(i);
 
-            //    if (p == null)
-            //    {
-            //        print("NULL" + i);
-            //        Players.Remove(p);
-            //        continue;
-            //    }
-            //    string name = p.Name;
-            //    if (name.StartsWith("bot"))
-            //    {
-            //        s += "◎" + p.EntRef + abbrrev(p.GetField<string>("sessionteam")) ;
-            //    }
-            //    else if (name == "")
-            //    {
-            //        Players.Remove(p);
-            //    }
-            //    else s += " ◐" + p.EntRef + abbrrev(p.GetField<string>("sessionteam"));
-            //}
-            //print(s);
+                if (p == null)
+                {
+                    print("NULL" + i);
+                    Players.Remove(p);
+                    continue;
+                }
+                string name = p.Name;
+                if (name.StartsWith("bot"))
+                {
+                    s += "◎" + p.EntRef + abbrrev(p.GetField<string>("sessionteam"));
+                }
+                else if (name == "")
+                {
+                    Players.Remove(p);
+                }
+                else s += " ◐" + p.EntRef + abbrrev(p.GetField<string>("sessionteam"));
+            }
+            print(s);
         }
         string abbrrev(string s)
         {

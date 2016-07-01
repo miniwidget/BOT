@@ -22,14 +22,13 @@ namespace Infected
             }
             Human_FIRST_INFECTED_ = true;
             return true;
-
         }
 
         /// <summary>
         /// 사람이 스폰한 경우
         /// </summary>
         /// <param name="player"></param>
-        void human_spawned(Entity player)//LIFE 1 or 2
+        void human_spawned(Entity player)
         {
             if (GAME_ENDED_) return;
 
@@ -38,8 +37,9 @@ namespace Infected
 
             if (!IS_FIRST_INFECTD_HUMAN_FINISHED) if (IsFirstInfectdHuman()) H.LIFE = -1;
 
+
             var LIFE = H.LIFE;
-            if (LIFE > -1)//3 2
+            if (LIFE > -1)
             {
                 if (!H.RESPAWN)
                 {
@@ -50,18 +50,12 @@ namespace Infected
                 }
                 else
                 {
-                    H.RESPAWN = false;
-                    H.USE_HELI = 0;
-
-
                     WP.GiveRandomWeaponTo(player);
                     WP.GiveRandomOffhandWeapon(player);
 
                     if (!human_List.Contains(player)) human_List.Add(player);
 
-                    Set_hset(H, false, false);
-
-                    SetTeamName();
+                    Set_hset(H, false);
 
                     if (HCT.HELI_ON_USE_) HCT.IfHeliOwner_DoEnd(player);
                     if (TK.RMT1_OWNER != -1 || TK.RMT2_OWNER != -1) TK.IfTankOwner_DoEnd(player);
@@ -82,11 +76,11 @@ namespace Infected
                     }
                     else Human_FIRST_INFECTED_ = true;
                 }
-                Set_hset(H, true, false);
+                Set_hset(H, true);
 
                 player.SetField("sessionteam", "axis");
                 human_List.Remove(player);
-                player.Call(33341);
+                player.Call(33341);//suicde
                 player.Notify("menuresponse", "changeclass", "axis_recipe4");
                 Print(player.Name + " : Infected ⊙..⊙");
 

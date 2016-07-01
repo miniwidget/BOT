@@ -9,58 +9,11 @@ using System.Reflection;
 
 namespace TEST
 {
-    class InfinityBase
+    class SentryGun : InfinityBase
     {
-        internal TReturn Call<TReturn>(string func, params Parameter[] parameters)
+        void model(Entity owner, string m)
         {
-            Function.SetEntRef(-1);
-            return Function.Call<TReturn>(func, parameters);
-        }
-        internal TReturn Call<TReturn>(int func, params Parameter[] parameters)
-        {
-            Function.SetEntRef(-1);
-            return Function.Call<TReturn>(func, parameters);
-        }
-
-        internal void Call(string func, params Parameter[] parameters)
-        {
-            Function.SetEntRef(-1);
-            Function.Call(func, parameters);
-        }
-        internal void Call(int func, params Parameter[] parameters)
-        {
-            Function.SetEntRef(-1);
-            Function.Call(func, parameters);
-        }
-        internal void Print(object s)
-        {
-            Log.Write(LogLevel.None, "{0}", s.ToString());
-        }
-    }
-
-    public partial class test : BaseScript
-    {
-        internal static Entity ADMIN;
-        Random rnd = new Random();
-        Marker marker;
-        FX fx;
-        Vehicle vehicle;
-        Sound sound;
-        Table table;
-        Tank tank;
-
-        public test()
-        {
-            marker = new Marker();
-            fx = new FX();
-            vehicle = new Vehicle();
-            sound = new Sound();
-            table = new Table();
-            tank = new Tank();
-        }
-        void model(Entity owner,string m)
-        {
-            Entity model = Call<Entity>("spawn", "script_model", ADMIN.Origin + new Vector3(0, 0, 20));
+            Entity model = Call<Entity>("spawn", "script_model", test.ADMIN.Origin + new Vector3(0, 0, 20));
             model.Call("setmodel", m);
         }
         void move()
@@ -87,16 +40,16 @@ game[teamref]
 
 */
 
-            
+
             return null;
         }
-        void shoot(Entity owner)
+       internal void shoot(Entity owner)
         {
 
             //setturretmodechangewait
 
             string
-                weaponInfo = "sentry_minigun_mp", 
+                weaponInfo = "sentry_minigun_mp",
                 modelBase = "sentry_minigun_weak";
 
             Entity sentryGun = Call<Entity>("spawnTurret", "misc_turret", owner.Origin, weaponInfo);
@@ -118,7 +71,7 @@ game[teamref]
                 sentryGun.Call(33083, 0f);//SetRightArc
                                           //sentryGun.Call("makeUnusable");
                 sentryGun.Call("setmode", "sentry");//sentry sentry_offline
-                                                   
+
 
                 //sentryGun.Call("setmode", "sentry");
                 //sentryGun.Call("setcandamage", true);
@@ -158,6 +111,57 @@ game[teamref]
 
         }
 
+
+    }
+    class InfinityBase
+    {
+        internal TReturn Call<TReturn>(string func, params Parameter[] parameters)
+        {
+            Function.SetEntRef(-1);
+            return Function.Call<TReturn>(func, parameters);
+        }
+        internal TReturn Call<TReturn>(int func, params Parameter[] parameters)
+        {
+            Function.SetEntRef(-1);
+            return Function.Call<TReturn>(func, parameters);
+        }
+
+        internal void Call(string func, params Parameter[] parameters)
+        {
+            Function.SetEntRef(-1);
+            Function.Call(func, parameters);
+        }
+        internal void Call(int func, params Parameter[] parameters)
+        {
+            Function.SetEntRef(-1);
+            Function.Call(func, parameters);
+        }
+        internal void Print(object s)
+        {
+            Log.Write(LogLevel.None, "{0}", s.ToString());
+        }
+    }
+
+    public partial class test : BaseScript
+    {
+        internal static Entity ADMIN;
+        Random rnd = new Random();
+        Marker marker;
+        FX fx;
+        Vehicle vehicle;
+        Sound sound;
+        Table table;
+        Tank tank;
+        SentryGun SG;
+        public test()
+        {
+            marker = new Marker();
+            fx = new FX();
+            vehicle = new Vehicle();
+            sound = new Sound();
+            table = new Table();
+            tank = new Tank();
+        }
         Ospray osp;
         public override void OnSay(Entity player, string name, string text)
         {
@@ -181,8 +185,7 @@ game[teamref]
                    
                 case "bc": Call(42, "testClients_doCrouch", 0); break;
                 case "3rd": Viewchange(ADMIN); break; 
-                case "mv":move();break;
-                case "sh": shoot(ADMIN);break;
+                case "sh": if (SG == null) SG = new SentryGun(); SG.shoot(ADMIN);break;
                 case "130":AC130 ac = new AC130();break;
                 case "osp": osp = new Ospray(); break;
                 case "uav": vehicle.StartRemoteUAV(ADMIN); break;

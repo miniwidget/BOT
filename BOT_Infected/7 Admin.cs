@@ -7,15 +7,15 @@ using InfinityScript;
 
 namespace Infected
 {
-    internal class Admin
+    class Admin : Inf
     {
+        Entity admin;
         public Admin(Entity adm)
         {
             admin = adm;
         }
-        Entity admin;
 
-        internal void KickBOTsAll()
+        internal bool KickBOTsAll()
         {
             for (int i = 0; i < 18; i++)
             {
@@ -24,14 +24,14 @@ namespace Infected
                 if (ent == null) continue;
                 if (ent.Call<string>(33350).Contains("bot"))//"getguid"
                 {
-                    Function.SetEntRef(-1);
-                    Function.Call(286, i);
+                    Call(286, i);
                 }
             }
             SayToAdmin("^2Kickbots ^7executed");
-
+            return false;
         }
-        internal void moveBot(string name)
+
+        internal bool moveBot(string name)
         {
             Vector3 o = admin.Origin;
 
@@ -47,68 +47,101 @@ namespace Infected
                 }
             }
             SayToAdmin("^2moveBot ^7executed");
+            return false;
         }
-        internal void Die(string message)
-        {
-            string[] split = message.Split(' ');
-            if (split.Length == 1) SayToAdmin("die [player's name]");
 
-            else if (split.Length > 1)
+        internal bool Die(string message)
+        {
+            if (message == null) SayToAdmin("die [player's name]");
+
+            else
             {
                 for (int i = 0; i < 18; i++)
                 {
                     Entity ent = Entity.GetEntity(i);
 
                     if (ent == null) continue;
-                    if (ent.Name.Contains(split[1]))
+                    if (ent.Name.Contains(message))
                     {
                         ent.AfterDelay(100, x => ent.Call(33341));//"suicide"
                     }
                 }
             }
+            return false;
         }
 
-        internal void Kick(string message)
+        internal bool Kick(string message)
         {
-            string[] split = message.Split(' ');
-            if (split.Length == 1)
+            if (message == null)
             {
-                SayToAdmin("warn [player's name]");
+                SayToAdmin("kick [player's name]");
             }
-            else if (split.Length > 1)
+            else
             {
                 for (int i = 0; i < 18; i++)
                 {
                     Entity ent = Entity.GetEntity(i);
 
                     if (ent == null) continue;
-                    if (ent.Name.Contains(message.Split(' ')[1]))
+                    if (ent.Name.Contains(message))
                     {
                         ent.AfterDelay(100, x => Utilities.ExecuteCommand("dropclient " + ent.EntRef));
                     }
                 }
                 SayToAdmin("^2Kick ^7Executed");
             }
+            return false;
+        }
+
+        internal bool Script(string str, bool restart)
+        {
+            Utilities.ExecuteCommand(str);
+            Utilities.ExecuteCommand("fast_restart");
+
+            return false;
+        }
+
+        internal bool Status()
+        {
+            string s = null;
+
+            for (int i = 0; i < 18; i++)
+            {
+                Entity p = Entity.GetEntity(i);
+
+                if (p == null) continue;
+                string name = p.Name;
+                if (name.StartsWith("bot"))
+                {
+                    s += "◎" + p.EntRef + p.GetField<string>("sessionteam").Substring(0, 2);
+                }
+                else s += " ◐" + p.EntRef + p.GetField<string>("sessionteam").Substring(0, 2);
+            }
+            Print(s);
+            return false;
         }
 
         void SayToAdmin(string message)
         {
             Utilities.RawSayTo(admin, message);
         }
-        internal void Script(string str, bool restart)
-        {
-            Utilities.ExecuteCommand(str);
-            Utilities.ExecuteCommand("fast_restart");
-        }
+
     }
+
     public partial class Infected
     {
+        //string GetSO(string idx, Vector3 o)
+        //{
+        //    int x = (int)o.X;
+        //    int y = (int)o.Y;
+        //    int z = (int)o.Z;
+
+        //    int diff = (int)o.DistanceTo(ADMIN.Origin);
+        //    return idx + "(" + x + "," + y + "," + z + ")[" + diff + "] ";
+        //}
+
         Admin AD;
-        void testAC130()
-        {
-            if (ac130 == null) ac130 = new AC130();
-            ac130.start(ADMIN);
-        }
+
         bool AdminCommand(string text)
         {
             if (AD == null) AD = new Admin(ADMIN);
@@ -120,15 +153,16 @@ namespace Infected
                 text = texts[0];
                 value = texts[1];
             }
-            
+
             switch (text)
             {
-                //case "o": ADMIN.Call("setorigin", TK.REMOTETANK.Origin); return false;
-              
-
-                case "130": testAC130(); return false;
-                
-                case "attack": BotDoAttack(!SET.StringToBool(Call<string>("getdvar", "testClients_doAttack"))); return false;
+                case "tank": TK.SetTank(ADMIN); return false;
+                case "130":
+                    {
+                        if (ac130 == null) ac130 = new AC130();
+                        ac130.start(ADMIN);
+                    }
+                    return false;
                 case "heli":
                     {
                         H_SET H = H_FIELD[ADMIN.EntRef];
@@ -140,24 +174,28 @@ namespace Infected
                         BotDoAttack(false);
                     }
                     return false;
-                //script
-                case "ultest": AD.Script("unloadscript test.dll", true); return false;
-                case "ltest": AD.Script("loadscript test.dll", true); return false;
-                case "fr": AD.Script("fast_restart", false); return false;
-                case "mr": AD.Script("map_rotate", false); return false;
+                case "safe":
+                    {
+                        USE_ADMIN_SAFE_ = !USE_ADMIN_SAFE_;
+                        Utilities.RawSayTo(ADMIN, "ADMIN SAFE : " + USE_ADMIN_SAFE_);
+                    }
+                    return false;
 
-                case "kb": AD.KickBOTsAll(); return false;
-                case "k": AD.Kick(text); return false;
+                case "ultest": return AD.Script("unloadscript test.dll", true);
+                case "ltest": return AD.Script("loadscript test.dll", true);
+                case "fr": return AD.Script("fast_restart", false);
+                case "mr": return AD.Script("map_rotate", false);
+                case "status": return AD.Status();
+
+                case "attack": return BotDoAttack(!SET.StringToBool(Call<string>("getdvar", "testClients_doAttack")));
+                case "kb": return AD.KickBOTsAll();
+                case "k": return AD.Kick(text);
+                case "pos": return AD.moveBot(value);
+                case "die": return AD.Die(value);
+
                 case "1": ADMIN.Call(32936); return false;
                 case "2": ADMIN.Call(32937); return false;
-                case "safe": USE_ADMIN_SAFE_ = !USE_ADMIN_SAFE_; Utilities.RawSayTo(ADMIN, "ADMIN SAFE : " + USE_ADMIN_SAFE_); return false;
-                
-                case "pos": AD.moveBot(value); return false;
-                case "die": AD.Die(text); return false;
-                case "posb": BOTs_List[3].Call("setorigin", new Vector3(-994.454f, 1227.692f, 1572.443f));return false;
-                   
             }
-
 
             return true;
         }
