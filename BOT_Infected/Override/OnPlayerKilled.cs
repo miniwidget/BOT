@@ -90,22 +90,9 @@ namespace Infected
 
         public override void OnPlayerKilled(Entity killed, Entity inflictor, Entity attacker, int damage, string mod, string weapon, Vector3 dir, string hitLoc)
         {
-
-            if (attacker == null || !attacker.IsPlayer) return;
-
             int ke = killed.EntRef;
 
-            if (mod == "MOD_SUICIDE" || killed == attacker)
-            {
-                if (!IsBOT[ke])
-                {
-                    if (H_FIELD[ke].AX_WEP != 0) H_FIELD[ke].AX_WEP = 2;//자살로 죽음
-                }
-
-                return;
-            }
             bool BotKilled = IsBOT[ke];
-            bool BotAttker = IsBOT[attacker.EntRef];
 
             if (BotKilled)
             {
@@ -114,7 +101,23 @@ namespace Infected
                 B.fire = false;
                 B.temp_fire = false;
                 B.death += 1;
+                if (ke == BOT_SENTRY_ENTREF) SentryStopFire = true;
             }
+
+            if (attacker == null || !attacker.IsPlayer) return;
+
+            if (mod == "MOD_SUICIDE" || killed == attacker)
+            {
+                if (!BotKilled)
+                {
+                    if (H_FIELD[ke].AX_WEP != 0) H_FIELD[ke].AX_WEP = 2;//자살로 죽음
+                }
+
+                return;
+            }
+
+
+            bool BotAttker = IsBOT[attacker.EntRef];
 
             if (!BotAttker)//공격자가 사람인 경우, 퍼크 주기
             {

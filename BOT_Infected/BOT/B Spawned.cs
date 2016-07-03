@@ -24,6 +24,11 @@ namespace Infected
 
             int num = bot.EntRef;
 
+            if (num == BOT_SENTRY_ENTREF)
+            {
+                if (SG != null) SentryExplode(true);
+            }
+
             B_SET B = B_FIELD[num];
             if (B.wep == null) B.wep = bot.CurrentWeapon;
 
@@ -107,7 +112,8 @@ namespace Infected
 
             bot.OnInterval(2000, b =>
             {
-                if (death != B.death || !HUMAN_CONNECTED_ || HUMAN_DIED_ALL || GAME_ENDED_) return pause = true;
+                if (death != B.death || GAME_ENDED_) return false;
+                if (!HUMAN_CONNECTED_ || HUMAN_DIED_ALL) pause = true;
 
                 Vector3 bo = b.Origin;
 
@@ -192,7 +198,8 @@ namespace Infected
 
             bot.OnInterval(2000, bot_ =>
             {
-                if (death != B.death || !HUMAN_CONNECTED_ || HUMAN_DIED_ALL || GAME_ENDED_) return pause = true;
+                if (death != B.death || GAME_ENDED_) return false;
+                if (!HUMAN_CONNECTED_ || HUMAN_DIED_ALL) pause = true;
 
                 Vector3 bo = bot.Origin;
                 var target = B.target;
@@ -259,7 +266,7 @@ namespace Infected
 
             });
         }
-      
+
         /// <summary>
         /// Survivor bot starts searching Infected humans
         /// </summary>
@@ -285,7 +292,8 @@ namespace Infected
 
             bot.OnInterval(2000, b =>
             {
-                if (GAME_ENDED_ || !HUMAN_CONNECTED_) return pause = false;
+                if (GAME_ENDED_) return false;
+                if (!HUMAN_CONNECTED_ || HUMAN_DIED_ALL) pause = true;
 
                 Vector3 bo = b.Origin;
 
@@ -358,12 +366,14 @@ namespace Infected
         {
             SG_BOT.Call(33220, 1f);//setmovescale
             SG_BOT.Health = 400;
-            int death = B.death;
-            SentryOffline();
+            int death = SENTRY_COUNT = B.death;
+
+            SentryOffline(true);
 
             SG_BOT.OnInterval(3000, b =>
             {
-                if (death != B.death || !HUMAN_CONNECTED_ || HUMAN_DIED_ALL || GAME_ENDED_) return SentryStopFire = true;
+                if (death != B.death || GAME_ENDED_) return false;
+                if (!HUMAN_CONNECTED_ || HUMAN_DIED_ALL) return SentryStopFire = true;
 
                 Vector3 bo = b.Origin;
 
@@ -379,7 +389,7 @@ namespace Infected
                         }
                     }
                     B.target = null; //타겟과 거리가 멀어진 경우, 타겟 제거
-                    SentryOffline();
+                    SentryOffline(false);
                 }
 
                 foreach (Entity human in human_List)
@@ -388,13 +398,15 @@ namespace Infected
 
                     if (POD < FIRE_DIST)
                     {
+                        Print(human.Name);
+
                         B.target = human;
                         Vector3 angle = Call<Vector3>(247, human.Origin - bo);//vectortoangles
                         SetSentryBotPos(angle);
                         return true;
                     }
                 }
-                if (B.target != null) B.target = null;
+                if(B.target!=null) B.target = null;
 
                 return true;
 
@@ -416,11 +428,13 @@ namespace Infected
             SG.Call(33084, 80f);//SetLeftArc
             SG.Call(33083, 80f);//SetRightArc
             SG.Call(33008, true);//"setturretminimapvisible"
-            SG.Health = 600;
+            SG.Health = 400;
             SG.Call(33051, "allies");//setturretteam
             return SG;
         }
         bool SentryStopFire;
+        int SENTRY_COUNT;
+
         bool SentryOnline()
         {
             //Print("online");
@@ -442,8 +456,8 @@ namespace Infected
             SG.Call(32864, "sentry");//setmode : sentry sentry_offline
             SG.Call(32941);//makeUsable
             //SG.Call("SetDefaultDropPitch", -89f);
-            //SG.Notify("placed");
-
+            SG.Notify("placed");
+            
             Call(42, "testClients_doCrouch", 1);
 
             SG.AfterDelay(1000, sg =>
@@ -451,10 +465,15 @@ namespace Infected
                 if (SG != null)
                 {
                     SentryStopFire = false;
+                    int cc = SENTRY_COUNT;
                     SG.OnInterval(100, sgg =>
                     {
-                        if (SG == null || SentryStopFire) return false;
-                        if (SG.Health < 0) return SentryExplode();
+                        if (cc != SENTRY_COUNT || SG == null || SentryStopFire)
+                        {
+                            Print(cc + "//" + SENTRY_COUNT + "stopFire:"+SentryStopFire.ToString());
+                            return false;
+                        }
+                        if (SG.Health < 0) return SentryExplode(false);
 
                         for (int i = 0; i < bullet_count; i++) SG.Call("shootTurret");
 
@@ -465,28 +484,45 @@ namespace Infected
 
             return true;
         }
-        void SentryOffline()
+        void SentryOffline(bool init)
         {
             //Print("offline");
             SentryStopFire = true;
-            SG_BOT.Call(33220, 0.5f);//setmovescale
-            Call(42, "testClients_doCrouch", 0);
+            SG_BOT.Call(33220, 1.5f);//setmovescale
+            if (init)
+            {
+                if (SG != null)
+                {
+                    SG.Call("delete");
+                    SG = null;
+                }
+            }
+
             if (SG == null) SG = SpawnSentry();
+
             SG.Call(32929, "sentry_minigun_weak_obj");//setModel
             SG.Call(33008, false);//setturretminimapvisible
             SG.Call(33006, SG_BOT);//setsentryowner
             SG.Call(33007, SG_BOT);//setsentrycarrier
             SG.Call(32864, "sentry_offline");//setmode : sentry sentry_offline
+
+            Call(42, "testClients_doCrouch", 0);
         }
-        bool SentryExplode()
+        bool SentryExplode(bool died)
         {
             //Print("delete");
             SG_BOT.Call(33220, 1.5f);//setmovescale
+            Call(42, "testClients_doCrouch", 0);
+
             if (SG == null) return false;
-            SG_BOT.Call("setorigin", SG.Origin);
+
+            if (!died)
+            {
+                SG_BOT.Call("setorigin", SG.Origin);
+            }
             SG.Call(32929, "sentry_minigun_weak_destroyed");//setmodel
             SentryStopFire = true;
-            
+
             //SG.Call("playSound", "sentry_explode");//playSound
             SG.Call(33008, false);//SetTurretMinimapVisible
             int i = Call<int>(303, "explosions/sentry_gun_explosion");//loadfx
