@@ -112,7 +112,7 @@ namespace Infected
 
             bot.OnInterval(2000, b =>
             {
-                if (death != B.death || GAME_ENDED_) return false;
+                if (death != B.death || GAME_ENDED_) return !(pause = true);
                 if (!HUMAN_CONNECTED_ || HUMAN_DIED_ALL) pause = true;
 
                 Vector3 bo = b.Origin;
@@ -198,9 +198,8 @@ namespace Infected
 
             bot.OnInterval(2000, bot_ =>
             {
-                if (death != B.death || GAME_ENDED_) return false;
+                if (death != B.death || GAME_ENDED_) return !(pause = true);
                 if (!HUMAN_CONNECTED_ || HUMAN_DIED_ALL) pause = true;
-
                 Vector3 bo = bot.Origin;
                 var target = B.target;
                 if (target != null)//이미 타겟을 찾은 경우
@@ -289,12 +288,13 @@ namespace Infected
             Entity target = null;
             bool fire = false;
             bool pause = false;
+            B_SET B = B_FIELD[bot.EntRef];
+            int death = B.death;
 
             bot.OnInterval(2000, b =>
             {
-                if (GAME_ENDED_) return false;
+                if (death != B.death || GAME_ENDED_) return !(pause = true);
                 if (!HUMAN_CONNECTED_ || HUMAN_DIED_ALL) pause = true;
-
                 Vector3 bo = b.Origin;
 
                 if (target != null)//이미 타겟을 찾은 경우

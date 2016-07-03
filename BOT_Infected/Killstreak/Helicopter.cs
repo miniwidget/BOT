@@ -11,8 +11,8 @@ namespace Infected
         internal readonly string[] MESSAGE_ALERT = { "YOU ARE NOT IN THE HELI AREA", "GO TO HELI AREA AND", "PRESS ^2[ [{+activate}] ] ^7AT THE HELI AREA" };
         internal readonly string[] MESSAGE_WAIT_PLAYER = { "YOU CAN RIDE HELLI", "IF ANOTHER PLAYER ONBOARD" };
         readonly string[] MESSAGE_KEY_INFO = { "^2HELICOPTER CONTROL INFO", "^2MOVE DOWN [^7 [{+breath_sprint}] ^2]", "^2MOVE UP [^7 [{+gostand}] ^2]", "^2PRESS [ ^7[{+smoke}] ^2] IF STUCK" };
-        internal readonly string[] MESSAGE_ACTIVATE = { "^1PRESS [^7 [{+activate}] ^1] AT THE HELI TURRET AREA", "YOU CAN RIDE IN HELICOPTER" };
-        internal readonly string MESSAGE_CALL = "^1PRESS [^7 [{+activate}] ^1] TO CALL HELI TURRET";
+        internal readonly string[] MESSAGE_ACTIVATE = { "^2PRESS [^7 [{+activate}] ^2] AT THE HELI TURRET AREA", "YOU CAN RIDE IN HELICOPTER" };
+        internal readonly string MESSAGE_CALL = "^2PRESS [^7 [{+activate}] ^2] TO CALL HELI TURRET";
         internal Entity HELI, TL, TR, HELI_OWNER, HELI_GUNNER;
         internal static Vector3 HELI_WAY_POINT;
         internal void SetHeliPort()
