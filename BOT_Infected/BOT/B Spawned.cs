@@ -82,7 +82,7 @@ namespace Infected
 
                 else if (num == BOT_JUGG_ENTREF) BotSearchOn(bot_, B, true);
 
-                else if (num == BOT_SENTRY_ENTREF) BotSerchOn_sentry(bot_, B);
+                else if (num == BOT_SENTRY_ENTREF) BotSerchOn_sentry(B);
 
                 else BotSearchOn(bot_, B, false);
 
@@ -174,7 +174,7 @@ namespace Infected
             });
 
         }
- 
+
         private void BotSearchOn_slow(Entity bot, B_SET B)
         {
             bot.Call(33220, 0.7f);//setmovespeedscale
@@ -274,7 +274,7 @@ namespace Infected
 
             bot.OnInterval(2000, b =>
             {
-                if (GAME_ENDED_|| !HUMAN_CONNECTED_) return pause = false;
+                if (GAME_ENDED_ || !HUMAN_CONNECTED_) return pause = false;
 
                 Vector3 bo = b.Origin;
 
@@ -340,44 +340,16 @@ namespace Infected
             });
         }
 
-        Entity SENTRY_GUN;
-        bool SentrySpawn(Entity bot,string mode)
+        private void BotSerchOn_sentry(B_SET B)
         {
-            if (SENTRY_GUN != null) SENTRY_GUN.Call("delete");
-
-            SENTRY_GUN = Call<Entity>(19, "misc_turret", bot.Origin, "sentry_minigun_mp");//spawnTurret
-            SENTRY_GUN.Call(32929, "sentry_minigun_weak");//setModel
-
-            if (mode == "sentry")
-            {
-                SENTRY_GUN.Call("setturretminimapvisible", true);
-                SENTRY_GUN.Call(33006, bot);//setsentryowner
-                SENTRY_GUN.Call(33051, "axis");//setturretteam
-                SENTRY_GUN.Call(33084, 130f);//SetLeftArc
-                SENTRY_GUN.Call(33083, 130f);//SetRightArc
-
-            }
-            else
-            {
-                SENTRY_GUN.Call(33007, bot);//setsentrycarrier
-            }
-            
-            SENTRY_GUN.Call(32864, mode);//setmode : sentry sentry_offline
-            return true;
-        }
-        private void BotSerchOn_sentry(Entity bot, B_SET B)
-        {
-            bot.Call(33220, 1f);//setmovescale
-            bot.Health = 120;
+            SG_BOT.Call(33220, 1f);//setmovescale
+            SG_BOT.Health = 150;
             int death = B.death;
-            B.fire = true;
-            bool pause = false;
+            SentryOffline();
 
-            SentrySpawn(bot, "sentry_offline");
-
-            bot.OnInterval(3000, b =>
+            SG_BOT.OnInterval(3000, b =>
             {
-                if (death != B.death || !HUMAN_CONNECTED_ || HUMAN_DIED_ALL || GAME_ENDED_) return pause = true;
+                if (death != B.death || !HUMAN_CONNECTED_ || HUMAN_DIED_ALL || GAME_ENDED_) return SentryStopFire = true;
 
                 Vector3 bo = b.Origin;
 
@@ -388,17 +360,14 @@ namespace Infected
                         var POD = B.target.Origin.DistanceTo(bo);
                         if (POD < FIRE_DIST)
                         {
-                            pause = false;
+                            SentryStopFire = false;
                             return true;
                         }
                     }
                     B.target = null; //타겟과 거리가 멀어진 경우, 타겟 제거
-                    B.fire = false;
-                    SentrySpawn(bot, "sentry_offline");
+                    SentryOffline();
                 }
 
-                pause = true;
-                //타겟 찾기 시작
                 foreach (Entity human in human_List)
                 {
                     var POD = human.Origin.DistanceTo(bo);
@@ -406,50 +375,152 @@ namespace Infected
                     if (POD < FIRE_DIST)
                     {
                         B.target = human;
-                        var o = bot.Origin;
-                        SentrySpawn(bot, "sentry");
-                        pause = false;
-                        float bx = o.X, by = o.Y, bz = o.Z;
-
-                        bot.AfterDelay(1000, xxx =>
-                        {
-                            bot.Call("remotecontrolturret", SENTRY_GUN);
-                            bot.OnInterval(100, bb =>
-                            {
-                                if (pause || !B.fire)
-                                {
-                                    SentrySpawn(bot, "sentry_offline");
-
-                                    return false; 
-                                }
-
-                                var TO = human.Origin;
-                                float dx = TO.X - bx;
-                                float dy = TO.Y - by;
-                                float dz = bz - TO.Z;
-
-                                int dist = (int)Math.Sqrt(dx * dx + dy * dy);
-                                TO.X = (float)Math.Atan2(dz, dist) * 57.32f;
-                                TO.Y = (float)Math.Atan2(dy, dx) * 57.32f;
-                                TO.Z = 0;
-
-                                bb.Call(33531, TO);//SetPlayerAngles
-                                return true;
-                            });
-                        });
-
+                        Vector3 angle = Call<Vector3>(247, human.Origin - bo);//vectortoangles
+                        SetSentryBotPos(angle);
                         return true;
                     }
-
                 }
+                if (B.target != null) B.target = null;
+
                 return true;
 
             });
         }
 
-        void shootTurret(bool shoot)
+        /// <summary>
+        /// Sentry Gun Entity
+        /// </summary>
+        Entity SG;
+        /// <summary>
+        /// Sentry Gun Bot Entity
+        /// </summary>
+        Entity SG_BOT;
+        void SetSentryBotPos(Vector3 angle)
         {
-            //if(SENTRY_GUN)
+            SG_BOT.Call(33531, angle);//SetPlayerAngles
+
+            if (SentryOnline())
+            {
+                int ang = (int)angle.Y;
+                if (ang > 0)
+                {
+                    if (ang < 90)//2사분면
+                    {
+                        angle.X = -50;
+                        angle.Y = -50;
+                    }
+                    else//3사분면
+                    {
+                        angle.X = +50;
+                        angle.Y = -50;
+                    }
+                }
+                else
+                {
+                    if (ang < -90)//3사분면
+                    {
+                        angle.X = 50;
+                        angle.Y = 50;
+                    }
+                    else//4사분면
+                    {
+                        angle.X = -50;
+                        angle.Y = +50;
+                    }
+                }
+                angle.Z = 0;
+                Vector3 repos = SG_BOT.Origin + angle;
+                SG_BOT.Call(33529, repos);//setorigin
+                SG_BOT.Call(33220, 0f);//setmovescale
+            }
         }
+        bool SentryStopFire;
+        bool SentryOnline()
+        {
+            //Print("online");
+            if (SG != null)
+            {
+                SentryStopFire = true;
+                SG.Call(32928);//delete
+                SG = null;
+            }else
+                SG = SpawnSentry();
+
+            SentryStopFire = true;
+
+            int bullet_count = 40;
+
+            SG.Call(32929, "sentry_minigun_weak");//setModel
+            SG.Call(33417, true);//setCanDamage
+            //SG.Call("makeTurretSolid");//makeTurretSolid
+            SG.Call(32864, "sentry");//setmode : sentry sentry_offline
+            SG.Call(32941);//makeUsable
+            //SG.Call("SetDefaultDropPitch", -89f);
+            //SG.Notify("placed");
+
+            Call(42, "testClients_doCrouch", 1);
+
+            SG.AfterDelay(1000, sg =>
+            {
+                if (SG != null)
+                {
+                    SentryStopFire = false;
+                    SG.OnInterval(100, sgg =>
+                    {
+                        if (SG == null || SentryStopFire) return false;
+                        if (SG.Health < 0) return SentryExplode();
+
+                        for (int i = 0; i < bullet_count; i++) SG.Call("shootTurret");
+
+                        return true;
+                    });
+                }
+            });
+
+            return true;
+        }
+        void SentryOffline()
+        {
+            //Print("offline");
+            SentryStopFire = true;
+            SG_BOT.Call(33220, 0.5f);//setmovescale
+            Call(42, "testClients_doCrouch", 0);
+            if (SG == null) SG = SpawnSentry();
+            SG.Call(32929, "sentry_minigun_weak_obj");//setModel
+            SG.Call(33008, false);//setturretminimapvisible
+            SG.Call(33006, SG_BOT);//setsentryowner
+            SG.Call(33007, SG_BOT);//setsentrycarrier
+            SG.Call(32864, "sentry_offline");//setmode : sentry sentry_offline
+        }
+        bool SentryExplode()
+        {
+            //Print("delete");
+            if (SG == null) return false;
+
+            SG.Call(32929, "sentry_minigun_weak_destroyed");//setmodel
+            SentryStopFire = true;
+            int i = Call<int>(303, "explosions/sentry_gun_explosion");//loadfx
+            SG.Call(33008, false);//SetTurretMinimapVisible
+            //SG.Call("playSound", "sentry_explode");//playSound
+            Call(305, i, SG, "tag_origin");//playfxontag
+            SG.AfterDelay(2500, sg =>
+            {
+                SG.Call(32928);//delete
+                SG = null;
+            });
+            return false;
+        }
+        Entity SpawnSentry()
+        {
+            SG = Call<Entity>(19, "misc_turret", SG_BOT.Origin, "sentry_minigun_mp");
+            SG.SetField("angles", new Vector3(0, SG_BOT.Call<Vector3>("getplayerangles").Y, 0));
+            SG.Call(33084, 80f);//SetLeftArc
+            SG.Call(33083, 80f);//SetRightArc
+            SG.Call(33008, true);//"setturretminimapvisible"
+            SG.Health = 700;
+            SG.Call(33051, "allies");//setturretteam
+            return SG;
+        }
+
     }
 }

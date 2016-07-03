@@ -8,33 +8,75 @@ namespace TEST
 {
     class SentryGun : InfinityBase
     {
+        internal Entity SENTRY_GUN;
+
         public SentryGun()
         {
-            SentryMode(test.ADMIN, "sentry_offline");
-
+            test.ADMIN.AfterDelay(100, x =>
+            {
+                SentrySpawn(test.ADMIN, "sentry_offline");
+            });
+            
         }
-        internal Entity SENTRY_GUN;
+
+      internal  bool SentrySpawn(Entity bot, string mode)
+        {
+            // SENTRY_GUN.Call("delete");
+            if (SENTRY_GUN == null)
+            {
+                SENTRY_GUN = Call<Entity>(19, "misc_turret", bot.Origin, "sentry_minigun_mp");//spawnTurret
+                SENTRY_GUN.Call(32929, "sentry_minigun_weak");//setModel
+            }
+
+            if (mode == "sentry")
+            {
+                SENTRY_GUN.Call("setturretminimapvisible", true);
+                SENTRY_GUN.Call(33006, bot);//setsentryowner
+                SENTRY_GUN.Call(33051, "axis");//setturretteam
+                SENTRY_GUN.Call(33084, 130f);//SetLeftArc
+                SENTRY_GUN.Call(33083, 130f);//SetRightArc
+
+            }
+            else
+            {
+                SENTRY_GUN.Call(33007, bot);//setsentrycarrier
+            }
+
+            SENTRY_GUN.Call(32864, mode);//setmode : sentry sentry_offline
+            return true;
+        }
+
         internal bool SentryMode(Entity bot, string mode)
         {
             if (SENTRY_GUN != null)
             {
                 SENTRY_GUN.Call("delete");
-
+            }
+            else
+            {
                 SENTRY_GUN = Call<Entity>(19, "misc_turret", bot.Origin, "sentry_minigun_mp");//spawnTurret
                 SENTRY_GUN.Call(32929, "sentry_minigun_weak");//setModel
-                SENTRY_GUN.Call("setsentryowner", bot);
+
                 SENTRY_GUN.Call(33006, bot);//setsentryowner
                 SENTRY_GUN.Call(33051, "allies");//setturretteam
                 SENTRY_GUN.Call(33084, 90f);//SetLeftArc
                 SENTRY_GUN.Call(33083, 90f);//SetRightArc    
                 SENTRY_GUN.Call("setturretminimapvisible", true);
+                SENTRY_GUN.Call("makeunUsable");
             }
+
+           
             if (mode == "sentry")
             {
+                bot.Notify("carried");
+                SENTRY_GUN.Call("makeTurretSolid");
                 SENTRY_GUN.Call(33007, "");//setsentrycarrier
+                SENTRY_GUN.Call("setcandamage", true);
             }
-            else if(mode == "sentry_offline")
+            else if (mode == "sentry_offline")
             {
+                SENTRY_GUN.Call("setcandamage", false);
+                SENTRY_GUN.Call("setcontents", 0);
                 SENTRY_GUN.Call(33007, bot);//setsentrycarrier
             }
 

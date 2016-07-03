@@ -44,7 +44,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Bot.cs" />
     <Compile Include="FX.cs" />
     <Compile Include="Marker.cs" />
     <Compile Include="NONE\ToDo.cs" />

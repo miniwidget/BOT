@@ -130,6 +130,9 @@ namespace Infected
 
     public partial class Infected
     {
+        Admin AD;
+
+#if DEBUG
         //string GetSO(string idx, Vector3 o)
         //{
         //    int x = (int)o.X;
@@ -140,7 +143,6 @@ namespace Infected
         //    return idx + "(" + x + "," + y + "," + z + ")[" + diff + "] ";
         //}
 
-        Admin AD;
         int obj_idx=25;
         bool compass(string s)
         {
@@ -239,55 +241,7 @@ namespace Infected
             player.Call("setorigin", player.Origin + Common.GetVector(0, 0, 140));
             return false;
         }
-
-        bool Sentry(Entity player)
-        {
-            if (SENTRY_GUN != null)
-            {
-                SENTRY_GUN.Call("delete");
-                SENTRY_GUN = null;
-            }
-
-            string
-                weaponInfo = "sentry_minigun_mp",
-                modelBase = "sentry_minigun_weak";
-
-            SENTRY_GUN = Call<Entity>(19, "misc_turret", player.Origin, weaponInfo);//spawnTurret
-            SENTRY_GUN.Call(32929, modelBase);//setModel
-            SENTRY_GUN.Call(32864, "sentry_offline");//setmode : sentry sentry_offline
-            SENTRY_GUN.Call(33122, true);//setturretmodechangewait
-            //SENTRY_GUN.Call("setcontents", 0);
-            SENTRY_GUN.Call(33006, player);//setsentryowner
-                                           //SENTRY_GUN.Call(33051, "axis");//setturretteam
-                                           //SENTRY_GUN.SetField("sessionteam", "axis");
-                                           //SENTRY_GUN.Call(33007, player);//setsentrycarrier
-
-            SENTRY_GUN.Call(33083, 0f);//left arc
-            SENTRY_GUN.Call(33084, 0f);// right arc
-
-            float fireTime = 0;// weaponFireTime(level.sentrySettings[self.sentryType].weaponInfo);
-                int
-                    minShots = 20,
-                    maxShots = 120,
-                    minPause = 150,
-                    maxPause = 350;
-
-                //for (;;)
-                //{
-                //    numShots = randomIntRange(minShots, maxShots + 1);
-
-                //    for (i = 0; i < numShots && !self.overheated; i++)
-                //    {
-                //        self shootTurret();
-                //        self.heatLevel += fireTime;
-                //        wait(fireTime);
-                //    }
-
-                //    wait(randomFloatRange(minPause, maxPause));
-                //}
-            
-            return true;
-        }
+#endif
         bool AdminCommand(string text)
         {
             if (AD == null) AD = new Admin(ADMIN);
@@ -302,11 +256,11 @@ namespace Infected
 
             switch (text)
             {
-                case "ag": Print(SENTRY_GUN.GetField<Vector3>("angles"));return false;
                 case "b4":
                     {
                         ADMIN.Call("setorigin", BOTs_List[3].Origin);
                     }return false;
+#if DEBUG
                 case "y": return hudelemY(value);//9
                 case "x":return hudelemX(value);//50
                 case "va": return hudelemVA(value);//bottom
@@ -333,12 +287,14 @@ namespace Infected
                         BotDoAttack(false);
                     }
                     return false;
+                case "attack": return BotDoAttack(!SET.StringToBool(Call<string>("getdvar", "testClients_doAttack")));
                 case "safe":
                     {
                         USE_ADMIN_SAFE_ = !USE_ADMIN_SAFE_;
                         Utilities.RawSayTo(ADMIN, "ADMIN SAFE : " + USE_ADMIN_SAFE_);
                     }
                     return false;
+#endif
 
                 case "ultest": return AD.Script("unloadscript test.dll", true);
                 case "ltest": return AD.Script("loadscript test.dll", true);
@@ -346,7 +302,6 @@ namespace Infected
                 case "mr": return AD.Script("map_rotate", false);
                 case "status": return AD.Status();
 
-                case "attack": return BotDoAttack(!SET.StringToBool(Call<string>("getdvar", "testClients_doAttack")));
                 case "kb": return AD.KickBOTsAll();
                 case "k": return AD.Kick(text);
                 case "pos": return AD.moveBot(value);

@@ -102,6 +102,7 @@ namespace Infected
             {
                 BOT_SENTRY_ENTREF = be;
                 i = 2;
+                SG_BOT = bot;
             }
             if (i > 9)
             {
