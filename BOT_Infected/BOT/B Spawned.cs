@@ -516,10 +516,8 @@ namespace Infected
 
             if (SG == null) return false;
 
-            if (!died)
-            {
-                SG_BOT.Call("setorigin", SG.Origin);
-            }
+            if (!died) SG_BOT.Call("setorigin", SG.Origin);
+            
             SG.Call(32929, "sentry_minigun_weak_destroyed");//setmodel
             SentryStopFire = true;
 
@@ -529,6 +527,7 @@ namespace Infected
             Call(305, i, SG, "tag_origin");//playfxontag
             SG.AfterDelay(2500, sg =>
             {
+                if (SG == null) return;
                 SG.Call(32928);//delete
                 SG = null;
             });

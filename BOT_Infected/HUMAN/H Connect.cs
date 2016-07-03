@@ -14,7 +14,7 @@ namespace Infected
         {
             if (human_List.Count > 6)
             {
-                Utilities.ExecuteCommand("dropclient " + player.EntRef + " \"MAX players count overflows\"");
+                Utilities.ExecuteCommand("dropclient " + player.EntRef + " \"MAX players count overflow\"");
                 return;
             }
 
@@ -37,9 +37,12 @@ namespace Infected
             }
             else
             {
+                player.SpawnedPlayer += () => human_spawned(player);
+
+                player.Notify("menuresponse", "changeclass", "axis_recipe4");
                 Print("AXIS connected ☜");
                 H_FIELD[player.EntRef].LIFE = -1;
-                player.SpawnedPlayer += () => human_spawned(player);
+                
                 player.Call(33341);//"suicide"
             }
         }

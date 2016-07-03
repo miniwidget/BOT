@@ -70,18 +70,18 @@ namespace Infected
             #region Axis
             else if (LIFE == -1)//change to AXIS
             {
-                if (!Human_FIRST_INFECTED_)
-                {
-                    if (DateTime.Now < GRACE_TIME)
-                    {
-                        H.LIFE = 0;
-                        H.RESPAWN = true;
-                        player.Notify("menuresponse", "team_marinesopfor", "allies");
-                        player.Call(33344, "^2[ ^7UNLIMETED LIFE ^2] UNTIL 9 MINUTE");
-                        return;
-                    }
-                    else Human_FIRST_INFECTED_ = true;
-                }
+                //if (!Human_FIRST_INFECTED_)
+                //{
+                //    if (DateTime.Now < GRACE_TIME)
+                //    {
+                //        H.LIFE = 0;
+                //        H.RESPAWN = true;
+                //        player.Notify("menuresponse", "team_marinesopfor", "allies");
+                //        player.Call(33344, "^2[ ^7UNLIMETED LIFE ^2] UNTIL 9 MINUTE");
+                //        return;
+                //    }
+                //    else Human_FIRST_INFECTED_ = true;
+                //}
 
                 SetZero_hset(H, true,0);
 
