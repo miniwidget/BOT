@@ -58,14 +58,18 @@ namespace Infected
 
         internal static void MessageRoop(Entity e, int i, string[] lists)
         {
+            if(i==0) Infected.H_FIELD[e.EntRef].ON_MESSAGE = true;
             e.Call(33344, lists[i]);
             i++;
-            if (i == lists.Length) return;
+            if (i == lists.Length)
+            {
+                Infected.H_FIELD[e.EntRef].ON_MESSAGE = false;
+                return;
+            }
             e.AfterDelay(4000, e1 =>
             {
                 MessageRoop(e, i, lists);
             });
-
         }
     }
 }

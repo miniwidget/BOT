@@ -11,8 +11,8 @@ namespace Infected
         internal readonly string[] MESSAGE_ALERT = { "YOU ARE NOT IN THE HELI AREA", "GO TO HELI AREA AND", "PRESS ^2[ [{+activate}] ] ^7AT THE HELI AREA" };
         internal readonly string[] MESSAGE_WAIT_PLAYER = { "YOU CAN RIDE HELLI", "IF ANOTHER PLAYER ONBOARD" };
         readonly string[] MESSAGE_KEY_INFO = { "^2HELICOPTER CONTROL INFO", "^2MOVE DOWN [^7 [{+breath_sprint}] ^2]", "^2MOVE UP [^7 [{+gostand}] ^2]", "^2PRESS [ ^7[{+smoke}] ^2] IF STUCK" };
-        internal readonly string[] MESSAGE_ACTIVATE = { "^2PRESS [^7 [{+activate}] ^2] AT THE HELI TURRET AREA", "YOU CAN RIDE IN HELICOPTER" };
-        internal readonly string MESSAGE_CALL = "^2PRESS [^7 [{+activate}] ^2] TO CALL HELI TURRET";
+        internal readonly string[] MESSAGE_ACTIVATE = { "^1PRESS [^7 [{+activate}] ^1] AT THE HELI TURRET AREA", "YOU CAN RIDE IN HELICOPTER" };
+        internal readonly string MESSAGE_CALL = "^1PRESS [^7 [{+activate}] ^1] TO CALL HELI TURRET";
         internal Entity HELI, TL, TR, HELI_OWNER, HELI_GUNNER;
         internal static Vector3 HELI_WAY_POINT;
         internal void SetHeliPort()
@@ -62,6 +62,8 @@ namespace Infected
         }
         internal void HeliCall(Entity player, bool Axis)
         {
+            Infected.H_FIELD[player.EntRef].USE_HELI = 2;
+
             var w = player.CurrentWeapon;
             player.TakeWeapon(w);
             string kh = "killstreak_helicopter_mp";
@@ -126,6 +128,14 @@ namespace Infected
         internal bool HELI_ON_USE_;
         internal byte HeliStart(Entity player,bool Axis)
         {
+            Common.StartOrEndThermal(player, true);
+            if (HELI_ON_USE_)
+            {
+                HELI_GUNNER = player;
+                return 0;
+            }
+            Infected.H_FIELD[player.EntRef].USE_HELI =3;
+
             HELI_ON_USE_ = true;
             HELI_OWNER = player;
             
@@ -144,7 +154,6 @@ namespace Infected
             Info.MessageRoop(player, 0, MESSAGE_KEY_INFO);
 
             player.Call(33256, HELI);//remotecontrolvehicle  
-            Common.StartOrEndThermal(player, true);
             player.AfterDelay(120000, x =>
             {
                 if (player != null && HELI_OWNER == player && HELI != null)
@@ -169,6 +178,8 @@ namespace Infected
         }
         internal void HeliEndUse(Entity player, bool unlink)
         {
+            Infected.H_FIELD[player.EntRef].USE_HELI = 0;
+
             if (unlink && Infected.human_List.Contains(player))
             {
                 player.Call(32843);//unlink
@@ -188,10 +199,19 @@ namespace Infected
             HELI.Call(32928);
             HELI = null;
         }
-        internal void IfHeliOwner_DoEnd(Entity player)
+        internal bool IfUsetHeli_DoEnd(Entity player,bool unlink)
         {
-            if (HELI_OWNER == player) HeliEndUse(player, false);
-            else if (HELI_GUNNER == player) HeliEndGunner();
+            if (HELI_OWNER == player)
+            {
+                HeliEndUse(player, unlink);
+                return true;
+            }
+            else if (HELI_GUNNER == player)
+            {
+                HeliEndGunner();
+                return true;
+            }
+            return false;
         }
         #endregion
     }

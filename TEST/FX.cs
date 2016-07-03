@@ -18,6 +18,7 @@ namespace TEST
 
             Entity Effect = Call<Entity>("spawnFx", i, test.ADMIN.Origin + new Vector3(0, 0, 40));
             Call("triggerfx", Effect);
+
             test.ADMIN.AfterDelay(4000, p => Effect.Call("delete"));
 
         }
@@ -25,6 +26,7 @@ namespace TEST
         {
             int i = Call<int>("LoadFX", s);//"smoke/signal_smoke_airdrop_30sec"
             if (i <= 0) return;
+
             Call("PlayFX", i, test.ADMIN.Origin + new Vector3(0, 0, 50));
 
         }

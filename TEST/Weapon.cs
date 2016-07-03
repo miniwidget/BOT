@@ -21,15 +21,11 @@ namespace TEST
             });
         }
 
-        void giveWeapon(Entity player)
+        void giveWeapon(Entity player,string weapon)
         {
-            player.Call("freezecontrols", true);
-            player.AfterDelay(500, p=>
-            {
-                //player.GiveWeapon("iw5_fmg9_mp_akimbo");
-                //player.SwitchToWeaponImmediate("iw5_fmg9_mp_akimbo");
-            });
-
+            //player.Call("freezecontrols", true);
+            player.GiveWeapon(weapon);
+            player.SwitchToWeaponImmediate(weapon);
         }
 
 

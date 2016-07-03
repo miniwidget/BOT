@@ -37,7 +37,13 @@ namespace Infected
 
             if (!IS_FIRST_INFECTD_HUMAN_FINISHED) if (IsFirstInfectdHuman()) H.LIFE = -1;
 
+            if (H.REMOTE_STATE != 0)
+            {
+                if (H.REMOTE_STATE == 1) HCT.IfUsetHeli_DoEnd(player,false);
+                else if (H.REMOTE_STATE == 2) TK.IfUseTank_DoEnd(player);
+            }
 
+            #region Allies
             var LIFE = H.LIFE;
             if (LIFE > -1)
             {
@@ -55,13 +61,13 @@ namespace Infected
 
                     if (!human_List.Contains(player)) human_List.Add(player);
 
-                    Set_hset(H, false);
+                    SetZero_hset(H, false,--H.LIFE);
 
-                    if (HCT.HELI_ON_USE_) HCT.IfHeliOwner_DoEnd(player);
-                    if (TK.RMT1_OWNER != -1 || TK.RMT2_OWNER != -1) TK.IfTankOwner_DoEnd(player);
                     if (HUMAN_DIED_ALL) HUMAN_DIED_ALL = false;
                 }
             }
+            #endregion
+            #region Axis
             else if (LIFE == -1)//change to AXIS
             {
                 if (!Human_FIRST_INFECTED_)
@@ -76,16 +82,14 @@ namespace Infected
                     }
                     else Human_FIRST_INFECTED_ = true;
                 }
-                Set_hset(H, true);
+
+                SetZero_hset(H, true,0);
 
                 player.SetField("sessionteam", "axis");
                 human_List.Remove(player);
                 player.Call(33341);//suicde
                 player.Notify("menuresponse", "changeclass", "axis_recipe4");
                 Print(player.Name + " : Infected ⊙..⊙");
-
-                if (HCT.HELI_ON_USE_) HCT.IfHeliOwner_DoEnd(player);
-                if (TK.RMT1_OWNER != -1 || TK.RMT2_OWNER != -1) TK.IfTankOwner_DoEnd(player);
 
                 if (human_List.Count == 0)
                 {
@@ -96,24 +100,13 @@ namespace Infected
             else
             {
                 var aw = H.AX_WEP;
-
-                if (HCT.HELI == null)
-                {
-                    H.USE_HELI = 1;
-                    player.Call(33344, HCT.MESSAGE_CALL);
-                }
-                else if (!HCT.HELI_ON_USE_)
-                {
-                    Info.MessageRoop(player, 0, HCT.MESSAGE_ACTIVATE);
-                    H.USE_HELI = 2;
-                }
-                else if (aw == 1) player.Call(33344, "^2[ ^7DISABLED ^2] Melee of the Infected");
-
+                player.SetPerk("specialty_scavenger", true, false);
                 player.SetPerk("specialty_longersprint", true, false);
                 player.SetPerk("specialty_lightweight", true, false);
 
                 if (aw == 1)
                 {
+                    player.Call(33344, "^2[ ^7DISABLED ^2] Melee of the Infected");
                     HUD.AxisHud(player);
                     AxisWeapon_by_init(player);
 
@@ -121,24 +114,31 @@ namespace Infected
                 }
                 else
                 {
-
-                    if (!H.BY_SUICIDE)//by attack
+                    string deadManWeapon = null;
+                    deadManWeapon= AxisWeapon_by_Attack(player, H.AX_WEP += 1);
+                   
+                    if (HCT.HELI == null)
                     {
-                        AxisWeapon_by_Attack(player, H.AX_WEP += 1);
+                        H.USE_HELI = 1;
+                        if (H.ON_MESSAGE) return;
+                        Info.MessageRoop(player, 0, new[] { "^2[ ^7" + deadManWeapon + " ^2] Weapon of the Infected", "^1PRESS[^7 [{+activate}] ^1] TO CALL HELI TURRET" });
                     }
-                    else
+                    else if (!HCT.HELI_ON_USE_)
                     {
-                        AxisWeapon_by_init(player);
+                        H.USE_HELI = 2;
+                        if (H.ON_MESSAGE) return;
+                        Info.MessageRoop(player, 0, new []{ "^2[ ^7" + deadManWeapon + " ^2] Weapon of the Infected", "^1PRESS [^7 [{+activate}] ^1] AT THE HELI TURRET AREA", "YOU CAN RIDE IN HELICOPTER" });
                     }
                 }
             }
+            #endregion
         }
 
         /// <summary>
         /// 죽은 사람 무기 초기화
         /// </summary>
         /// <param name="dead"></param>
-        void AxisWeapon_by_init(Entity dead)
+        string AxisWeapon_by_init(Entity dead)
         {
             string DEAD_GUN = "iw5_deserteagle_mp_tactical";
 
@@ -153,38 +153,38 @@ namespace Infected
             });
 
             dead.AfterDelay(2000, d => dead.Notify("open_"));
+            return DEAD_GUN;
         }
 
         /// <summary>
         /// 감염자가 계속 죽을 경우 총기를 주는 어드밴티지를 줌.
         /// </summary>
         /// <param name="player"></param>
-        void AxisWeapon_by_Attack(Entity dead, int aw)
+        string AxisWeapon_by_Attack(Entity dead, int aw)
         {
             dead.TakeWeapon(dead.CurrentWeapon);
             dead.Health = 70;
-
             string deadManWeapon;
             int bullet = 0;
-            if (aw < 3)
+            if (aw == 3)
             {
                 deadManWeapon = "m320_mp";
                 bullet = 1;
             }
-            else if (aw == 3)
+            else if (aw == 4)
             {
                 deadManWeapon = "xm25_mp";
                 bullet = 1;
             }
-            else if (aw == 4)
+            else if (aw == 5)
             {
                 deadManWeapon = "iw5_mp412_mp";
                 bullet = 1;
             }
-            else if (aw < 7)
+            else if (aw == 6)
             {
                 deadManWeapon = "iw5_44magnum_mp";
-                bullet = 1;
+                bullet = 2;
             }
             else if (aw == 7)
             {
@@ -194,7 +194,7 @@ namespace Infected
             else if (aw == 8)
             {
                 deadManWeapon = "iw5_mp412_mp";
-                bullet = 1;
+                bullet = 2;
             }
             else if (aw == 9)
             {
@@ -214,6 +214,7 @@ namespace Infected
             else if (aw == 12)
             {
                 deadManWeapon = "m320_mp";
+                bullet = 1;
             }
             else if (aw == 13)
             {
@@ -234,8 +235,7 @@ namespace Infected
             else
             {
                 AxisWeapon_by_init(dead);
-                dead.Call(33344, "^2[ ^7AGAIN ^2] Init Weapon of the Infected");//"iPrintlnBold"
-                return;
+                return null;
             }
 
             dead.GiveWeapon(deadManWeapon);
@@ -247,8 +247,8 @@ namespace Infected
                 dead.Call(33468, deadManWeapon, bullet);
             });
 
-            dead.Call(33344, "^2[ ^7" + deadManWeapon + " ^2] Weapon of the Infected");
             dead.Notify("open_");
+            return deadManWeapon;
         }
     }
 }

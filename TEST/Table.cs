@@ -68,5 +68,15 @@ namespace TEST
             }
             File.WriteAllLines(@"z:\model.txt", modelList.ToArray());
         }
+
+        //void ViewModel(string teamRef)
+        //{
+        //    foreach (Entity p in Players)
+        //    {
+        //        var s = p.GetField<string>("model");
+        //        Print(s);
+        //    }
+        //}
+
     }
 }

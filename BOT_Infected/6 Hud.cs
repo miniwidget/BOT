@@ -26,36 +26,51 @@ namespace Infected
 ^2[{+movedown}] ^7VIEWSCOPE";
         //^2[{+prone}] ^7ATTATCHMENT
 
+        internal HudElem elem;
         internal void AlliesHud(Entity player)
         {
             HudElem allies_info_hud = HudElem.CreateFontString(player, "hudbig", 0.4f);
-            allies_info_hud.X = 740;
+            allies_info_hud.Alpha = 0.8f;
+            allies_info_hud.X = -40;
             allies_info_hud.Y = -10;
-            allies_info_hud.AlignX = "right";
+            allies_info_hud.HorzAlign = "right";
             allies_info_hud.HideWhenInMenu = true;
-            allies_info_hud.Alpha = 0f;
             allies_info_hud.SetText("ATTACHMENT ^2INFOA\n^7WEAPONINFO ^2INFOW");
-
-            HudElem allies_weap_hud = HudElem.CreateFontString(player, "hudbig", 0.5f);
-            allies_weap_hud.X = 700;
-            allies_weap_hud.Y = 150;
-            allies_weap_hud.AlignX = "right";
-            allies_weap_hud.HideWhenInMenu = true;
-            allies_weap_hud.Foreground = false;
-            allies_weap_hud.Alpha = 0f;
-
-            allies_weap_hud.SetText(ALLIES_HUD_TEXTS);
-            allies_info_hud.Alpha = 0.8f; allies_weap_hud.Alpha = 0.6f;
-            allies_weap_hud.Call(32895, 2f);//"moveovertime"
-            allies_weap_hud.X = 740;
-
             allies_info_hud.Call(32895, 2f);// "moveovertime"
             allies_info_hud.Y = 5;
 
+            HudElem allies_weap_hud = HudElem.CreateFontString(player, "hudbig", 0.5f);
+            allies_weap_hud.HorzAlign = "right";
+            allies_weap_hud.Alpha = 0.6f;
+            allies_weap_hud.X = -40;
+            allies_weap_hud.Y = 150;
+            allies_weap_hud.HideWhenInMenu = true;
+            allies_weap_hud.Foreground = false;
+            allies_weap_hud.SetText(ALLIES_HUD_TEXTS);
+            //allies_weap_hud.Call(32895, 2f);//"moveovertime"
+            //allies_weap_hud.X = 40;
+
+            elem = allies_weap_hud;
+
             player.OnNotify("CLOSE", e =>
             {
-                allies_info_hud.Call(32897); allies_weap_hud.Call(32897);
+                allies_weap_hud.Call(32897);
             });
+
+            HudElem  hud = HudElem.CreateFontString(player, "hudbig", 0.8f);
+            
+            hud.X = 0;
+            hud.Y = 9;
+            
+            hud.Foreground = false;
+            hud.VertAlign = "bottom";
+            hud.HorzAlign = "left";
+
+            hud.HideWhenInMenu = true;
+            hud.Alpha = 1f;
+            hud.SetText("");
+            Infected.H_FIELD[player.EntRef].PERK_COUNT_HUD = hud;
+
         }
         readonly string AXIS_HUD_TEXTS =
 @"^7type following

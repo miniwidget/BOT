@@ -79,11 +79,11 @@ namespace Infected
 
         #region Bot_Connected
 
-        int BOT_RPG_ENTREF, BOT_RIOT_ENTREF, BOT_JUGG_ENTREF, BOT_LUCKY_IDX;
+        int BOT_RPG_ENTREF, BOT_RIOT_ENTREF, BOT_JUGG_ENTREF, BOT_SENTRY_ENTREF, BOT_LUCKY_IDX;
 
         private void Bot_Connected(Entity bot)
         {
-
+            
             var i = BOTs_List.Count;
             int be = bot.EntRef;
             if (i > SET.BOT_SETTING_NUM)
@@ -91,22 +91,31 @@ namespace Infected
                 Call(286, be);//kick
                 return;
             }
+            if (be == -1) return;
+
+            if (i == SET.BOT_SETTING_NUM - 1) BotWaitOnFirstInfected();
 
             if (i == 0) BOT_JUGG_ENTREF = be;
             else if (i == 1) BOT_RPG_ENTREF = be;
             else if (i == 2) BOT_RIOT_ENTREF = be;
-
-            if (i == SET.BOT_SETTING_NUM - 1) BotWaitOnFirstInfected();
-
+            else if (i == 3)
+            {
+                BOT_SENTRY_ENTREF = be;
+                i = 2;
+            }
             if (i > 9)
             {
                 if (SET.BOT_CLASS_NUM > 9) SET.BOT_CLASS_NUM = 3;
                 i = SET.BOT_CLASS_NUM;
                 SET.BOT_CLASS_NUM++;
             }
+
+           
+
             bot.Notify("menuresponse", "changeclass", SET.BOTs_CLASS[i]);
             BOTs_List.Add(bot);
             IsBOT[be] = true;
+            H_FIELD[be] = null;
         }
         #endregion
 
@@ -219,7 +228,7 @@ namespace Infected
 
             if (HUMAN_CONNECTED_)
             {
-                if(!SET.TEST_) BotDoAttack(true);
+                 BotDoAttack(true);
             }
             GET_TEAMSTATE_FINISHED = true;
 

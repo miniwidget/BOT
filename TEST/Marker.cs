@@ -39,16 +39,19 @@ namespace TEST
         }
         internal void airdropMarker(Entity player)
         {
-            player.GiveWeapon("airdrop_marker_mp");
-            player.SwitchToWeaponImmediate("airdrop_marker_mp");
+            string marker = "airdrop_sentry_marker_mp";
+            player.GiveWeapon(marker);
+            player.SwitchToWeaponImmediate(marker);
             player.OnNotify("grenade_fire", (Entity owner, Parameter entity, Parameter weaponName) =>
             {
-                if (weaponName.ToString() != "airdrop_marker_mp") return;
+                if (weaponName.ToString() != marker) return;
                 Print("weap : " + weaponName.ToString());
                 Entity e = entity.As<Entity>();
+                int i = Call<int>(303, "misc/flare_ambient");//loadfx
+                if (i < 1) return;
                 e.AfterDelay(3000, ee =>
                 {
-                    Entity Effect = Call<Entity>("spawnFx", 131, e.Origin);
+                    Entity Effect = Call<Entity>("spawnFx", i, e.Origin);
                     Call("triggerfx", Effect);
                     ee.AfterDelay(10000, eee =>
                     {
@@ -71,6 +74,8 @@ namespace TEST
                 Call(434, 1, "compass_waypoint_bomb"); // objective_icon
 
                 int i = Call<int>(303, "misc/flare_ambient");//loadfx
+                if (i < 1) return;
+
                 Entity Effect = Call<Entity>("spawnFx", i, player.Origin);
                 Call("triggerfx", Effect);
                 player.AfterDelay(10000, p =>

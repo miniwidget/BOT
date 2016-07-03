@@ -49,16 +49,152 @@ namespace TEST
         Table table;
         Tank tank;
         SentryGun SG;
+        Ospray osp;
+        AC130 ac;
+
         public test()
         {
-            marker = new Marker();
-            fx = new FX();
-            vehicle = new Vehicle();
-            sound = new Sound();
-            table = new Table();
-            tank = new Tank();
+            Call(42, "scr_game_playerwaittime", 1);
+            Call(42, "scr_game_matchstarttime", 1);
+            Call(42, "testClients_watchKillcam", 0);
+            Call(42, "testClients_doReload", 0);
+            Call(42, "testClients_doCrouch", 1);
+            Call(42, "testClients_doMove", 0);
+            Call(42, "testClients_doAttack", 0);
+            Utilities.ExecuteCommand("seta g_password \"0\"");
+            Utilities.ExecuteCommand("sv_hostname TEST");
         }
-        Ospray osp;
+
+        void Sentry(string type)
+        {
+            if (SG == null) SG = new SentryGun();
+            if (type=="s1") SG.SentryMode(ADMIN, "sentry_offline");
+            else SG.SentryMode(ADMIN, "sentry");
+        }
+        void AC130()
+        {
+            if (ac == null) ac = new AC130();
+        }
+        void Ospray()
+        {
+            if (osp == null) osp = new Ospray();
+        }
+        void Marker(string type)
+        {  
+            if (marker == null) marker = new Marker();
+            if (type == "selector")
+            {
+                marker._beginLocationSelection(ADMIN, "mobile_mortar", "map_artillery_selector", false, 500);
+            }
+            else if (type == "ti")
+            {
+                marker.TI();
+            }
+            else if (type == "adm")
+            {
+                marker.airdropMarker(ADMIN);
+            }
+            else if(type=="usm")
+            {
+                marker.uavStrikerMarker(ADMIN);
+            }
+        }
+        void Fx(string type, string value)
+        {
+            if (fx == null) fx = new FX();
+            if (type == "tfx") fx.triggerfx(value);
+            else fx.PlayFX(null);
+        }
+        void Tank()
+        {
+            if (tank == null) tank = new TEST.Tank();
+            tank.SetTank();
+        }
+        void Vision(string type)
+        {
+
+        }
+        void Sound_(string type, string value)
+        {
+            if (sound == null) sound = new TEST.Sound();
+            if (type == "so") sound.PlayLocalSound(value);
+            else sound.PlaySound(value);
+        }
+        void Table_(string type, string value)
+        {
+            if (table == null) table = new Table();
+            if (type == "model") table.GetModel();
+            else if (type == "qq") table.tableValue(value);
+            else if (type == "tn") table.GetTeamName(value);
+            else if (type == "qm") QueryModel();
+
+        }
+        void Vehicle_(string type,string value)
+        {
+            if (vehicle == null) vehicle = new Vehicle();
+            if (type == "sp") vehicle.spawn(value);
+            else if (type == "plane") vehicle.spawnPlane();
+            else if (type == "rm") vehicle.remoteTestModel(value);
+            else if (type == "turret") vehicle.spawnTurrent();
+            else if (type == "heli") { }
+            else if (type == "rmharr") vehicle.remoteHarrir(); 
+            else if (type == "rmheli") vehicle.remoteHeli(); 
+            else if (type == "end") vehicle.EndRemoteControl(); 
+            else if (type =="start") vehicle.StartRemoteControl(); 
+            else if (type =="uav")vehicle.StartRemoteUAV(ADMIN); 
+        }
+        void Vision(string type, string value)
+        {
+            if(type == "v0")
+            {
+                /*
+                    cobra_sunset3
+                */
+                Call("visionsetnaked", value, true);
+            }
+            else if (type == "v1")
+            {
+                /*
+                cobra_sunset3
+                ac130_thermal_mp 
+                default_night_mp  
+
+                thermal_snowlevel_mp thermal_mp 
+
+                coup_sunblind
+                mpnuke
+                aftermath
+                end_game
+                */
+                if (value == null) return;
+                ADMIN.Call("visionsetnakedforplayer", value, 1f);
+            }
+            else if (type == "v2")
+            {
+
+                /*
+                    cobra_sunset3 ac130_thermal_mp default_night_mp aftermath coup_sunblind
+                    thermal_snowlevel_mp thermal_mp
+                */
+                if (value == null) return;
+                ADMIN.Call("visionsetnightforplayer", value, 1f);
+            }
+            else if (type == "v3")
+            {
+                /*
+                    //near_death_mp
+                */
+
+                if (value == null) return;
+                ADMIN.Call("visionsetpainforplayer", value, 1f);
+            }
+            else if (type == "v4")
+            {
+                if (value == null) return;
+                ADMIN.Call("VisionSetMissilecamForPlayer", value, 1f);
+            }
+        }
+
         public override void OnSay(Entity player, string name, string text)
         {
             if (ADMIN == null) GetADMIN();
@@ -70,57 +206,62 @@ namespace TEST
             {
                 value = texts[1];
                 txt = texts[0];
-            }else
+            }
+            else
             {
                 txt = text;
             }
-            
+
             switch (txt)
             {
-                case "tn":  table.GetTeamName(value); break;
-                   
+
+                case "s1": 
+                case "s2": Sentry(value); break;
+
+                case "130": AC130(); break;
+                case "osp": Ospray(); break;
+
+                case "selector": 
+                case "ti": 
+                case "adm": 
+                case "usm": Marker(value); break;
+
+                case "tank": Tank(); break;
+
+                case "v0": 
+                case "v1": 
+                case "v2": 
+                case "v3": 
+                case "v4": Vision(txt, value); break;
+
+                case "tfx": 
+                case "pfx": Fx(txt, null); break;
+
+                case "st": 
+                case "so": Sound_(txt, value); break;
+
+                case "sp":
+                case "plane": 
+                case "rm":
+                case "turret": 
+                case "heli": 
+                case "rmharr":
+                case "rmheli":
+                case "end":
+                case "start":
+                case "uav":Vehicle_(txt, value);break;
+
+                case "model": 
+                case "qq":
+                case "tn":
+                case "qm": Table_(txt, value); break;
+
+                //
                 case "bc": Call(42, "testClients_doCrouch", 0); break;
-                case "3rd": Viewchange(ADMIN); break; 
-                case "sh": if (SG == null) SG = new SentryGun(); SG.shoot(ADMIN);break;
-                case "130":AC130 ac = new AC130();break;
-                case "osp": osp = new Ospray(); break;
-                case "uav": vehicle.StartRemoteUAV(ADMIN); break;
-                case "qm": QueryModel(); break;
-
-                case "selector": marker._beginLocationSelection(ADMIN, "mobile_mortar", "map_artillery_selector", false, 500); break;
-                case "ti": marker.TI(); break;
-                case "marker": marker.airdropMarker(ADMIN); break;
-                case "ww": marker.uavStrikerMarker(ADMIN); break;
-
+                case "3rd": Viewchange(ADMIN); break;
                 case "p": Print(ADMIN.Origin); break;
+                case "dow": ADMIN.Call("disableoffhandweapons"); break;
 
-                case "ds": ADMIN.Call("disableoffhandweapons"); break;
-
-                case "tank": tank.SetTank(); break;
-                case "turret": vehicle.spawnTurrent(); break;
-                case "heli": break;
-                case "rmharr": vehicle.remoteHarrir(); break;
-                case "rmheli": vehicle.remoteHeli(); break;
-                case "end": vehicle.EndRemoteControl(); break;
-                case "start": vehicle.StartRemoteControl(); break;
-
-                case "v0": VisionGlobal(value); break;
-                case "v1": VisionNaked(ADMIN, value); break;
-                case "v2": VisionNight(ADMIN, value); break;
-                case "v3": VisionPain(ADMIN, value); break;
-                case "v4": VisionMissile(ADMIN, value); break;
-
-                case "tfx": fx.triggerfx(value); break;
-                case "pfx": fx.PlayFX(null); break;
-                case "st": sound.PlaySound(value); break;
-                case "so": sound.PlayLocalSound(value); break;
-
-                case "qq": table.tableValue(value); break;
-
-                case "sp": vehicle.spawn(value); break;
-                case "plane": vehicle.spawnPlane(); break;
-                case "rm": vehicle.remoteTestModel(value); break;
-                case "model": table.GetModel();break;
             }
 
 
@@ -195,61 +336,7 @@ namespace TEST
 
              */
         }
-        string GetFieldContent(string s)
-        {
-            return Query.GetField<string>(s);
-        }
         #endregion
-
-        void VisionGlobal(string value)
-        {
-            if (value == null) return;
-            /*
-                cobra_sunset3
-            */
-            Call("visionsetnaked", value, true);
-
-            
-        }
-        void VisionNaked(Entity player, string value)
-        {
-            /*
-            cobra_sunset3
-            ac130_thermal_mp 
-            default_night_mp  
-                
-            thermal_snowlevel_mp thermal_mp 
-            
-            coup_sunblind
-            mpnuke
-            aftermath
-            end_game
-            */
-            if (value == null) return; player.Call("visionsetnakedforplayer", value, 1f);
-        }
-        void VisionNight(Entity player, string value)
-        {
-            /*
-                cobra_sunset3 ac130_thermal_mp default_night_mp aftermath coup_sunblind
-                thermal_snowlevel_mp thermal_mp
-            */
-            if (value == null) return; player.Call("visionsetnightforplayer", value, 1f);
-            Print(value);
-        }
-        void VisionPain(Entity player, string value)
-        {
-            /*
-                //near_death_mp
-            */
-
-            if (value == null) return; player.Call("visionsetpainforplayer", value, 1f);
-            Print(value);
-        }
-        void VisionMissile(Entity player, string value)
-        {
-            if (value == null) return; player.Call("VisionSetMissilecamForPlayer", value, 1f);
-            Print(value);
-        }
 
         bool third;
         void Viewchange(Entity player)
@@ -285,14 +372,6 @@ namespace TEST
                 }
             }
             return true;
-        }
-        void ViewModel(string teamRef)
-        {
-            foreach (Entity p in Players)
-            {
-                var s = p.GetField<string>("model");
-                Print(s);
-            }
         }
         void Script(string command, bool restart)
         {

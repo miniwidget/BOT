@@ -35,7 +35,11 @@ namespace Infected
                     case "infoa": INFO.MessageInfoA(player, Axis); return;
                     case "infow": INFO.MessageInfoW(player, Axis); return;
 
-                    case "sc": AfterDelay(100, () => player.Call(33341)); return;//"suicide"
+                    case "sc":
+                        if (H_FIELD[player.EntRef].AX_WEP != 0) H_FIELD[player.EntRef].AX_WEP = 2;//자살로 죽음
+                        AfterDelay(100, () => player.Call(33341));//"suicide"
+                        return;
+
                     case "riot": WP.GiveWeaponTo(player, "riotshield_mp"); return;
                     case "javelin": WP.GiveWeaponTo(player, "javelin_mp"); return;
                     case "stinger": WP.GiveWeaponTo(player, "stinger_mp"); return;

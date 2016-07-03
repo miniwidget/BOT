@@ -47,9 +47,10 @@ namespace Infected
 
         public override void OnPlayerDamage(Entity player, Entity inflictor, Entity attacker, int damage, int dFlags, string mod, string weapon, Vector3 point, Vector3 dir, string hitLoc)
         {
-            //Print(weapon);
-            if (weapon[2] != '5' && weapon != "rpg_mp") return;
-
+            if (weapon[2] != '5' && weapon != "rpg_mp")
+            {
+                return;
+            }
             int pe = player.EntRef;
 
             if (IsBOT[pe])//in case of BOT
@@ -89,13 +90,17 @@ namespace Infected
 
         public override void OnPlayerKilled(Entity killed, Entity inflictor, Entity attacker, int damage, string mod, string weapon, Vector3 dir, string hitLoc)
         {
+
             if (attacker == null || !attacker.IsPlayer) return;
 
             int ke = killed.EntRef;
 
             if (mod == "MOD_SUICIDE" || killed == attacker)
             {
-                if (!IsBOT[ke]) H_FIELD[ke].BY_SUICIDE = true;//자살로 죽음
+                if (!IsBOT[ke])
+                {
+                    if (H_FIELD[ke].AX_WEP != 0) H_FIELD[ke].AX_WEP = 2;//자살로 죽음
+                }
 
                 return;
             }
@@ -126,10 +131,6 @@ namespace Infected
                     B_SET B = B_FIELD[attacker.EntRef];
                     B.fire = false;
                     B.target = null;
-                }
-                else
-                {
-                    H_FIELD[ke].BY_SUICIDE = false;//공격으로 죽음
                 }
             }
         }

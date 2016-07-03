@@ -8,16 +8,15 @@ namespace Infected
 {
     class Tank : Inf
     {
-        internal int RMT1_OWNER = -1;
-        internal int RMT2_OWNER = -1;
-        internal int RMTK_OWNER = -1;
+        internal int TL_LEFT_USER_ENTREF = -1;
+        internal int TL_RIGHT_USER_ENTREF = -1;
+        internal int RMTK_OWNER_ENTREF = -1;
         internal Entity REMOTETANK, RMT1, RMT2;
 
         internal void SetTank(Entity player)
         {
             Vector3 point = player.Origin;
 
-            SetTankPort(point);
             Function.SetEntRef(-1);
             REMOTETANK = Function.Call<Entity>(449, "vehicle_ugv_talon_mp", "remote_tank", "remote_ugv_mp", point, Common.ZERO, player);//"SpawnVehicle"
 
@@ -47,28 +46,30 @@ namespace Infected
             RMT2.Call(33083, 180f);
             RMT2.Call(33086, 180f);
         }
-        internal void SetTankPort(Vector3 origin)
-        {
-            Call(431, 20, "active"); // objective_add
-            Call(435, 20, origin); // objective_position
-            Call(434, 20, "compass_waypoint_bomb"); //compass_objpoint_ac130_friendly compass_waypoint_bomb objective_icon
-        }
-        readonly string[] MESSAGE_RUNNER = { "^2TANK RUNNER START [ ^7MOVE & FIRE ^2]", "^2PRESS [ ^7[{+smoke}] ^2] IF STUCK" };
 
+        //readonly string[] MESSAGE_RUNNER = { "^2TANK RUNNER START [ ^7MOVE & FIRE ^2]", "^2PRESS [ ^7[{+smoke}] ^2] IF STUCK" };
+
+        /// <summary>
+        /// 1: remote left /
+        /// 2: remote right /
+        /// 3: gunner left /
+        /// 4: gunner right /
+        /// 5: not 
+        /// </summary>
         sbyte IsTankOwner_(Entity player)
         {
             var pe = player.EntRef;
-            if (RMTK_OWNER == pe)
+            if (RMTK_OWNER_ENTREF == pe)
             {
-                if (RMT1_OWNER == pe) return 1;
-                if (RMT2_OWNER == pe) return 2;
+                if (TL_LEFT_USER_ENTREF == pe) return 1;
+                if (TL_RIGHT_USER_ENTREF == pe) return 2;
             }
-            if (RMT1_OWNER == pe) return 3;
-            if (RMT2_OWNER == pe) return 4;
+            if (TL_LEFT_USER_ENTREF == pe) return 3;
+            if (TL_RIGHT_USER_ENTREF == pe) return 4;
 
             return 5;
         }
-        internal bool IfTankOwner_DoEnd(Entity player)
+        internal bool IfUseTank_DoEnd(Entity player)
         {
             if (REMOTETANK == null) return false;
 
@@ -82,54 +83,72 @@ namespace Infected
             return false;
         }
 
+        bool CheckDist(int entref)
+        {
+            if (entref == -1) return true;
+            Entity ent = Entity.GetEntity(RMTK_OWNER_ENTREF);
+            if (ent == null || !ent.IsPlayer || ent.Origin.DistanceTo(REMOTETANK.Origin) > 150)
+            {
+                return false;
+            }
+            return true;
+        }
+        bool CheckUsers(byte th)
+        {
+            if (!CheckDist(RMTK_OWNER_ENTREF)) RMTK_OWNER_ENTREF = -1;
+
+            if (th==2)
+            {
+                if (!CheckDist(TL_RIGHT_USER_ENTREF)) TL_RIGHT_USER_ENTREF = -1;
+                return true;
+            }
+
+            if (!CheckDist(TL_LEFT_USER_ENTREF)) TL_LEFT_USER_ENTREF = -1;
+            return true;
+        }
         internal byte TankStart(Entity player, byte turretHolding)
         {
             Common.StartOrEndThermal(player, true);
 
-            if (turretHolding == 2)
-            {
-                RMT1_OWNER = player.EntRef;
-            }
-            else
-            {
-                RMT2_OWNER = player.EntRef;
-            }
+            if (turretHolding == 2)   TL_LEFT_USER_ENTREF = player.EntRef;
+            
+            else TL_RIGHT_USER_ENTREF = player.EntRef;
+            
+            CheckUsers(turretHolding);
 
-            if (RMTK_OWNER == -1|| RMTK_OWNER == player.EntRef)
+            if (RMTK_OWNER_ENTREF == -1 || RMTK_OWNER_ENTREF == player.EntRef)
             {
                 player.Call(33256, REMOTETANK);//remotecontrolvehicle  
-                RMTK_OWNER = player.EntRef;
-                Info.MessageRoop(player, 0, MESSAGE_RUNNER);
-                return 3;
+                RMTK_OWNER_ENTREF = player.EntRef;
+                player.Call(33344, "^2TANK RUNNER START [ ^7MOVE & FIRE ^2]"); 
+                return 2;
             }
             else
             {
                 player.Call(33344, "^2TANK GUNNER START [ ^7FIRE ^2]");
-                return 4;
+                return 0;
             }
-           
-
-
         }
+
         internal void TankEnd(Entity player, int i)
         {
             if (i < 3)
             {
-                RMTK_OWNER = -1;
+                RMTK_OWNER_ENTREF = -1;
 
-                if (i == 1) RMT1_OWNER = -1;
+                if (i == 1) TL_LEFT_USER_ENTREF = -1;
 
-                else RMT2_OWNER = -1;
+                else TL_RIGHT_USER_ENTREF = -1;
 
-                SetTankPort(REMOTETANK.Origin);
                 player.Call(32843);//unlink
                 player.Call(33257);//remotecontrolvehicleoff
+
             }
             else
             {
-                if (i == 3) RMT1_OWNER = -1;
+                if (i == 3) TL_LEFT_USER_ENTREF = -1;
 
-                else RMT2_OWNER = -1;
+                else TL_RIGHT_USER_ENTREF = -1;
             }
 
             Common.StartOrEndThermal(player, false);

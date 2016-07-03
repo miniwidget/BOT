@@ -11,18 +11,17 @@ namespace TEST
 
         void spawndBot()
         {
-            Entity b = Utilities.AddTestClient();
-            if (b == null) return;
-            b.SpawnedPlayer += () => testClientSpawned(b);
-
-        }
-        void testClientSpawned(Entity bot)
-        {
+            Entity bot = Utilities.AddTestClient();
+            if (bot == null) return;
             Print(bot.Name + " Connected");
-            bot.Call("setorigin",test.ADMIN.Origin);
+            bot.SpawnedPlayer += () =>
+            {
+                bot.Call("setorigin", test.ADMIN.Origin);
+            };
+
+
         }
 
-        List<Entity> BOTs_List = new List<Entity>();
         void KickBOTsAll()
         {
             for (int i = 0; i < 18; i++)

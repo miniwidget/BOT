@@ -13,8 +13,9 @@ namespace Infected
         Set SET;
         Weapon WP;
         Perk PK;
-        Info INFO;
         Hud HUD;
+        Info INFO;
+
         Helicopter HCT;
         Tank TK;
         AC130 ac130;
@@ -27,6 +28,7 @@ namespace Infected
             PK = new Perk();
             HUD = new Hud();
             INFO = new Info();
+
             HCT = new Helicopter();
             TK = new Tank();
 
@@ -94,7 +96,7 @@ namespace Infected
                     Call(42, "testClients_doAttack", 0);
 
                     GAME_ENDED_ = true;
-                    if(HUD.SERVER!=null) HUD.SERVER.Call(32897);
+                    if (HUD.SERVER != null) HUD.SERVER.Call(32897);
                     foreach (var v in B_FIELD)
                     {
                         if (v == null) continue;
@@ -156,8 +158,8 @@ namespace Infected
             player.Call(33531, ZERO);
 
         }
-       static Vector3 tempV= new Vector3();
-       internal static Vector3 GetVector(float x, float y, float z)
+        static Vector3 tempV = new Vector3();
+        internal static Vector3 GetVector(float x, float y, float z)
         {
             tempV.X = x;
             tempV.Y = y;
