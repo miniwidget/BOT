@@ -150,6 +150,7 @@ namespace Infected
 
                 else TL_RIGHT_USER_ENTREF = -1;
             }
+            player.Call("setorigin", REMOTETANK.Origin);
 
             Common.StartOrEndThermal(player, false);
         }

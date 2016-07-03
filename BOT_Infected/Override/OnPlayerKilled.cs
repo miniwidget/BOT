@@ -47,10 +47,8 @@ namespace Infected
 
         public override void OnPlayerDamage(Entity player, Entity inflictor, Entity attacker, int damage, int dFlags, string mod, string weapon, Vector3 point, Vector3 dir, string hitLoc)
         {
-            if (weapon[2] != '5' && weapon != "rpg_mp")
-            {
-                return;
-            }
+            if (weapon[2] != '5' && weapon != "rpg_mp") return;
+            
             int pe = player.EntRef;
 
             if (IsBOT[pe])//in case of BOT
@@ -101,7 +99,6 @@ namespace Infected
                 B.fire = false;
                 B.temp_fire = false;
                 B.death += 1;
-                if (ke == BOT_SENTRY_ENTREF) SentryStopFire = true;
             }
 
             if (attacker == null || !attacker.IsPlayer) return;

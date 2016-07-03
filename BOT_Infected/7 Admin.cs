@@ -246,21 +246,14 @@ namespace Infected
         {
             if (AD == null) AD = new Admin(ADMIN);
 
-            var texts = text.Split(' ');
-            string value = null;
-            if (texts.Length > 1)
-            {
-                text = texts[0];
-                value = texts[1];
-            }
+            var texts = text.Split(' '); string value = null;
+            if (texts.Length > 1) { text = texts[0]; value = texts[1]; }
 
             switch (text)
             {
-                case "b4":
-                    {
-                        ADMIN.Call("setorigin", BOTs_List[3].Origin);
-                    }return false;
 #if DEBUG
+                case "b4": ADMIN.Call("setorigin", BOTs_List[3].Origin);return false;
+
                 case "y": return hudelemY(value);//9
                 case "x":return hudelemX(value);//50
                 case "va": return hudelemVA(value);//bottom

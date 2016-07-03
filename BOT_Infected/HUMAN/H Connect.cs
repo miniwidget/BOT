@@ -42,7 +42,7 @@ namespace Infected
                 player.Notify("menuresponse", "changeclass", "axis_recipe4");
                 Print("AXIS connected ☜");
                 H_FIELD[player.EntRef].LIFE = -1;
-                
+
                 player.Call(33341);//"suicide"
             }
         }
@@ -81,7 +81,6 @@ namespace Infected
             /// 2 remote tank /
             /// </summary>
             internal byte REMOTE_STATE;
-            internal bool HOLDING_TURRET;
             /// <summary>
             /// when roop massage, if on_message state, it blocks reapeted roop
             /// </summary>
@@ -117,7 +116,6 @@ namespace Infected
             H.LOC_DO = false;
             H.AXIS = Axis;
             H.REMOTE_STATE = 0;
-            H.HOLDING_TURRET = false;
 
             if (Axis)
             {
@@ -258,34 +256,35 @@ namespace Infected
             {
                 if (use_tank) return;
                 if (!H.AXIS && player.CurrentWeapon[2] != '5') return;//deny when using killstreak 
-                if (H.USE_HELI == 1 && HCT.HELI == null)//heli 생성
+
+                bool isUsingTurret = player.Call<int>(33539) == 1;
+
+                if (!isUsingTurret && H.USE_HELI == 1 && HCT.HELI == null)//isUsingTurret : deny when not using turrent
                 {
                     player.AfterDelay(500, p =>
                     {
                         if (player.Call<int>(33533) == 1) return;//usebuttonpressed : deny when catching carepackage 
                         HCT.HeliCall(player, H.AXIS);
                     });
-
                     return;
                 }
-
-                if (player.Call<int>(33539) != 1) return;//isUsingTurret : deny when not using turrent
-                H.HOLDING_TURRET = !H.HOLDING_TURRET;
+                if (!isUsingTurret) return;
 
                 player.Call(33436, "black_bw", 0.5f);//VisionSetNakedForPlayer
 
-                if (H.HOLDING_TURRET)//튜렛을 붙잡은 경우
+                player.AfterDelay(500, x =>
                 {
-                    byte ts = TurretState(player);
-                    if (ts == 4)//다른 튜렛 붙잡은 경우 종료
-                    {
-                        player.Call(33436, "", 0f);//VisionSetNakedForPlayer
-                        H.REMOTE_STATE = 0;
-                        return;
-                    }
+                    isUsingTurret = player.Call<int>(33539) == 1;
 
-                    player.AfterDelay(500, x =>//wait visionset transition
+                    if (isUsingTurret)
                     {
+                        byte ts = TurretState(player);
+                        if (ts == 4)//다른 튜렛 붙잡은 경우 종료
+                        {
+                            player.Call(33436, "", 0f);//VisionSetNakedForPlayer
+                            H.REMOTE_STATE = 0;
+                            return;
+                        }
                         if (ts > 1)//탱크 튜렛을 붙잡은 경우
                         {
                             H.REMOTE_STATE = TK.TankStart(player, ts);//state 0 or 2
@@ -308,26 +307,23 @@ namespace Infected
                         {
                             H.REMOTE_STATE = HCT.HeliStart(player, H.AXIS);//state 0 or 1
                         }
-
-                    });
-                }
-                else//튜렛을 놓은 상태인 경우
-                {
-                    player.AfterDelay(500, x =>//wait visionset transition
+                    }
+                    else
                     {
                         byte rms = H.REMOTE_STATE;
 
                         bool ended = false;
                         if (rms == 1) ended = HCT.IfUsetHeli_DoEnd(player, true);
-                        
+
                         else if (rms == 2) ended = TK.IfUseTank_DoEnd(player);
-                        
-                        if(!ended) Common.StartOrEndThermal(player, false);
+
+                        if (!ended) Common.StartOrEndThermal(player, false);
 
                         H.REMOTE_STATE = 0;
-                    });
+                    }
 
-                }
+                });
+
 
             });
 

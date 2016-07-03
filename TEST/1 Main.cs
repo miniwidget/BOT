@@ -63,6 +63,8 @@ namespace TEST
             Call(42, "testClients_doAttack", 0);
             Utilities.ExecuteCommand("seta g_password \"0\"");
             Utilities.ExecuteCommand("sv_hostname TEST");
+
+            //KickBOTsAll("");
         }
 
         Entity SG;
@@ -93,7 +95,7 @@ namespace TEST
             });
             return false;
         }
-        void SentryOn()
+        void SentryOnline()
         {
             if (SG != null)
             {
@@ -102,20 +104,20 @@ namespace TEST
             }
             if (SG == null) SG = SpawnSentry();
             SentryStopFire = false;
-            int count = 40;
-            SG.OnInterval(100, sg =>
-            {
-                if (SG == null) return false;
-                if (SG.Health < 0)
-                {
-                    return SentryExplode();
-                }
-                for (int i = 0; i < count; i++)
-                {
-                    if (!SentryStopFire) SG.Call("shootTurret");
-                }
-                return true;
-            });
+            //int count = 40;
+            //SG.OnInterval(100, sg =>
+            //{
+            //    if (SG == null) return false;
+            //    if (SG.Health < 0)
+            //    {
+            //        return SentryExplode();
+            //    }
+            //    for (int i = 0; i < count; i++)
+            //    {
+            //        if (!SentryStopFire) SG.Call("shootTurret");
+            //    }
+            //    return true;
+            //});
 
             SG.Call(32929, "sentry_minigun_weak");//setModel
 
@@ -131,8 +133,10 @@ namespace TEST
             SG.Notify("placed");
             SG.Call(33051, "axis");//setturretteam
             //SG.Call(33006, Players[3]);//setsentryowner
+
+            
         }
-        void SentryOff()
+        void SentryOffline()
         {
             SentryStopFire = true;
             if (SG == null) SG = SpawnSentry();
@@ -144,8 +148,52 @@ namespace TEST
 
             SG.Call(32864, "sentry_offline");//setmode : sentry sentry_offline
         }
-
-
+        void SentryRemoteControl(bool control)
+        {
+            if (control) {
+                ADMIN.Call("remotecontrolturret", SG);
+                SG.Call(32929, "sentry_minigun_weak");//setModel
+            }
+            else
+            {
+                ADMIN.Call("remotecontrolturretoff", SG);
+                SG.Call(32929, "sentry_minigun_weak_obj");//setModel
+            }
+        }
+        void SentryAngle()
+        {
+            if (testbot == null) testBot();
+            
+            ADMIN.OnInterval(200, a =>
+            {
+                var tagback = testbot.Origin;tagback.Z += 25;//Call<Vector3>(33128, "tag_origin");//"GetTagOrigin"
+                var myback = SG.Call<Vector3>(33128, "tag_aim");
+                Vector3 angle = Call<Vector3>(247, tagback - myback);//vectortoangles
+                ADMIN.Call(33531, angle);//SetPlayerAngles
+                return true;
+            });
+        }
+        Entity testbot;
+        void testBot()
+        {
+            if (testbot == null)
+            {
+                Entity bot = Utilities.AddTestClient();
+                if (bot != null) testbot = bot;
+            }
+            Vector3 or= new Vector3();
+            testbot.SpawnedPlayer += delegate
+            {
+                testbot.Notify("menuresponse", "team_marinesopfor", "allies");
+                testbot.Call("setorigin", or);
+            };
+            testbot.AfterDelay(1000, t =>
+            {
+                testbot.Call("setorigin", ADMIN.Origin);
+                or = ADMIN.Origin;
+            });
+        }
+        #region ++
         void AC130()
         {
             if (ac == null) ac = new AC130();
@@ -318,29 +366,28 @@ namespace TEST
             Vector3 repos = ADMIN.Origin + angle;
             ADMIN.Call("setorigin", repos);
         }
+        #endregion
+
 
         public override void OnSay(Entity player, string name, string text)
         {
             if (ADMIN == null) GetADMIN();
 
-            string[] texts = text.Split(' ');
-            string value = null;
-            string txt = null;
-            if (texts.Length > 1)
-            {
-                value = texts[1];
-                txt = texts[0];
-            }
-            else
-            {
-                txt = text;
-            }
+            string[] texts = text.Split(' '); string value = null, txt = null;
+            if (texts.Length > 1) { value = texts[1]; txt = texts[0]; } else  txt = text;
 
             switch (txt)
             {
+                case "move0": Call(42, "testClients_doMove", 0); break;
+                case "crouch0": Call(42, "testClients_doCrouch", 0); break;
+                case "move1": Call(42, "testClients_doMove", 1); break;
+                case "crouch1": Call(42, "testClients_doCrouch", 1); break;
+                case "ag": SentryAngle(); break;
+                case "bp": ADMIN.TakeAllWeapons(); testBot(); break;
                 //case "a": SetSentryBotPos(); break;
-                //case "soff": SentryOff(); break;
-                //case "son": SentryOn(); break;
+                case "soff": SentryOffline(); break;
+                case "sron": SentryRemoteControl(true); break;
+                case "sroff": SentryRemoteControl(false); break;
 
                 case "130": AC130(); break;
                 case "osp": Ospray(); break;
