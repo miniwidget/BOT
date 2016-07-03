@@ -31,7 +31,7 @@ namespace Infected
             string curr = player.CurrentWeapon;
             player.GiveWeapon("killstreak_ac130_mp");
             player.SwitchToWeapon("killstreak_ac130_mp");
-            player.Notify("using_remote");
+            //player.Notify("using_remote");
 
             player.AfterDelay(2000, p => initAC130(p, curr));
         }

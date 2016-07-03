@@ -259,7 +259,7 @@ namespace Infected
 
             });
         }
-
+      
         /// <summary>
         /// Survivor bot starts searching Infected humans
         /// </summary>
@@ -357,7 +357,7 @@ namespace Infected
         private void BotSerchOn_sentry(B_SET B)
         {
             SG_BOT.Call(33220, 1f);//setmovescale
-            SG_BOT.Health = 150;
+            SG_BOT.Health = 400;
             int death = B.death;
             SentryOffline();
 
@@ -409,44 +409,16 @@ namespace Infected
         /// Sentry Gun Bot Entity
         /// </summary>
         Entity SG_BOT;
-        void SetSentryBotPos(Vector3 angle)
+        Entity SpawnSentry()
         {
-            SG_BOT.Call(33531, angle);//SetPlayerAngles
-
-            if (SentryOnline())
-            {
-                int ang = (int)angle.Y;
-                if (ang > 0)
-                {
-                    if (ang < 90)//2사분면
-                    {
-                        angle.X = -50;
-                        angle.Y = -50;
-                    }
-                    else//3사분면
-                    {
-                        angle.X = +50;
-                        angle.Y = -50;
-                    }
-                }
-                else
-                {
-                    if (ang < -90)//3사분면
-                    {
-                        angle.X = 50;
-                        angle.Y = 50;
-                    }
-                    else//4사분면
-                    {
-                        angle.X = -50;
-                        angle.Y = +50;
-                    }
-                }
-                angle.Z = 0;
-                Vector3 repos = SG_BOT.Origin + angle;
-                SG_BOT.Call(33529, repos);//setorigin
-                SG_BOT.Call(33220, 0f);//setmovescale
-            }
+            SG = Call<Entity>(19, "misc_turret", SG_BOT.Origin, "sentry_minigun_mp");
+            SG.SetField("angles", new Vector3(0, SG_BOT.Call<Vector3>("getplayerangles").Y, 0));
+            SG.Call(33084, 80f);//SetLeftArc
+            SG.Call(33083, 80f);//SetRightArc
+            SG.Call(33008, true);//"setturretminimapvisible"
+            SG.Health = 600;
+            SG.Call(33051, "allies");//setturretteam
+            return SG;
         }
         bool SentryStopFire;
         bool SentryOnline()
@@ -457,16 +429,16 @@ namespace Infected
                 SentryStopFire = true;
                 SG.Call(32928);//delete
                 SG = null;
-            }else
-                SG = SpawnSentry();
-
+            }
+            if (SG == null) SG = SpawnSentry();
             SentryStopFire = true;
 
             int bullet_count = 40;
 
+
             SG.Call(32929, "sentry_minigun_weak");//setModel
             SG.Call(33417, true);//setCanDamage
-            //SG.Call("makeTurretSolid");//makeTurretSolid
+            SG.Call(33052);//makeTurretSolid
             SG.Call(32864, "sentry");//setmode : sentry sentry_offline
             SG.Call(32941);//makeUsable
             //SG.Call("SetDefaultDropPitch", -89f);
@@ -509,13 +481,15 @@ namespace Infected
         bool SentryExplode()
         {
             //Print("delete");
+            SG_BOT.Call(33220, 1.5f);//setmovescale
             if (SG == null) return false;
-
+            SG_BOT.Call("setorigin", SG.Origin);
             SG.Call(32929, "sentry_minigun_weak_destroyed");//setmodel
             SentryStopFire = true;
-            int i = Call<int>(303, "explosions/sentry_gun_explosion");//loadfx
-            SG.Call(33008, false);//SetTurretMinimapVisible
+            
             //SG.Call("playSound", "sentry_explode");//playSound
+            SG.Call(33008, false);//SetTurretMinimapVisible
+            int i = Call<int>(303, "explosions/sentry_gun_explosion");//loadfx
             Call(305, i, SG, "tag_origin");//playfxontag
             SG.AfterDelay(2500, sg =>
             {
@@ -524,16 +498,44 @@ namespace Infected
             });
             return false;
         }
-        Entity SpawnSentry()
+        void SetSentryBotPos(Vector3 angle)
         {
-            SG = Call<Entity>(19, "misc_turret", SG_BOT.Origin, "sentry_minigun_mp");
-            SG.SetField("angles", new Vector3(0, SG_BOT.Call<Vector3>("getplayerangles").Y, 0));
-            SG.Call(33084, 80f);//SetLeftArc
-            SG.Call(33083, 80f);//SetRightArc
-            SG.Call(33008, true);//"setturretminimapvisible"
-            SG.Health = 700;
-            SG.Call(33051, "allies");//setturretteam
-            return SG;
+            SG_BOT.Call(33531, angle);//SetPlayerAngles
+
+            if (SentryOnline())
+            {
+                int ang = (int)angle.Y;
+                if (ang > 0)
+                {
+                    if (ang < 90)//2사분면
+                    {
+                        angle.X = -50;
+                        angle.Y = -50;
+                    }
+                    else//3사분면
+                    {
+                        angle.X = +50;
+                        angle.Y = -50;
+                    }
+                }
+                else
+                {
+                    if (ang < -90)//3사분면
+                    {
+                        angle.X = 50;
+                        angle.Y = 50;
+                    }
+                    else//4사분면
+                    {
+                        angle.X = -50;
+                        angle.Y = +50;
+                    }
+                }
+                angle.Z = 0;
+                Vector3 repos = SG_BOT.Origin + angle;
+                SG_BOT.Call(33529, repos);//setorigin
+                SG_BOT.Call(33220, 0f);//setmovescale
+            }
         }
 
     }
