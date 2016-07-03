@@ -12,7 +12,9 @@ namespace Infected
     public partial class Infected
     {
 
-        //봇 스폰 시작
+        /// <summary>
+        /// Bot spawnded
+        /// </summary>
         private void BotSpawned(Entity bot)
         {
             #region general
@@ -90,7 +92,9 @@ namespace Infected
             });
         }
 
-        //봇 목표물 찾기 루프
+        /// <summary>
+        /// Normal bots start searching humans
+        /// </summary>
         private void BotSearchOn(Entity bot, B_SET B, bool Jugg)
         {
             bot.Call(33220, 1f);//setmovescale
@@ -175,6 +179,9 @@ namespace Infected
 
         }
 
+        /// <summary>
+        /// Rpg bot starts searching humans
+        /// </summary>
         private void BotSearchOn_slow(Entity bot, B_SET B)
         {
             bot.Call(33220, 0.7f);//setmovespeedscale
@@ -252,6 +259,10 @@ namespace Infected
 
             });
         }
+
+        /// <summary>
+        /// Survivor bot starts searching Infected humans
+        /// </summary>
         private void BotSerchOn_lucky(Entity bot)
         {
             BOT_SERCH_ON_LUCKY_FINISHED = true;
@@ -340,6 +351,9 @@ namespace Infected
             });
         }
 
+        /// <summary>
+        /// Sentry bot starts searching humans
+        /// </summary>
         private void BotSerchOn_sentry(B_SET B)
         {
             SG_BOT.Call(33220, 1f);//setmovescale
