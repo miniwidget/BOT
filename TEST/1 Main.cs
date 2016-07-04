@@ -193,6 +193,15 @@ namespace TEST
                 or = ADMIN.Origin;
             });
         }
+        void ShowHealth()
+        {
+            for(int i = 0; i < 18; i++)
+            {
+                Entity ent = Entity.GetEntity(i);
+                if (ent == null) continue;
+                Print(ent.Health);
+            }
+        }
         #region ++
         void AC130()
         {
@@ -378,6 +387,7 @@ namespace TEST
 
             switch (txt)
             {
+                case "health": ShowHealth();break;
                 case "move0": Call(42, "testClients_doMove", 0); break;
                 case "crouch0": Call(42, "testClients_doCrouch", 0); break;
                 case "move1": Call(42, "testClients_doMove", 1); break;

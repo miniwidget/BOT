@@ -46,7 +46,7 @@ namespace Infected
         bool
             GET_TEAMSTATE_FINISHED,
             BOT_SERCH_ON_LUCKY_FINISHED,
-            HUMAN_CONNECTED_, HUMAN_DIED_ALL,
+            HUMAN_DIED_ALL_,
             IS_FIRST_INFECTD_HUMAN_FINISHED, Human_FIRST_INFECTED_, GAME_ENDED_;
         DateTime GRACE_TIME;
     }

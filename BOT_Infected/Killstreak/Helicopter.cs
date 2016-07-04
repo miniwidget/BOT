@@ -42,27 +42,26 @@ namespace Infected
         #endregion
 
         #region Call heli
-        internal bool IsHeliArea(Entity player)
-        {
-            if (HELI == null) return false;
 
-            var po = player.Origin;
-            if (po.DistanceTo(TL.Origin) > 140)
-            {
-                if (po.DistanceTo(TR.Origin) > 140)
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
-        internal bool IsUsingTurret(Entity player)
-        {
-            return (player.Call<int>(33539) == 1);
-        }
+        //internal bool IsHeliArea(Entity player)
+        //{
+        //    if (HELI == null) return false;
+
+        //    Vector3 handpos = player.Call<Vector3>(33128, "tag_weapon_left");
+
+        //    if (handpos.DistanceTo2D(TL.Origin) < 9) return true;
+        //    if (handpos.DistanceTo2D(TR.Origin) < 9 ) return true;
+
+        //    return false; 
+        //}
+        //internal bool IsUsingTurret(Entity player)
+        //{
+        //    return (player.Call<int>(33539) == 1);
+        //}
+
         internal void HeliCall(Entity player, bool Axis)
         {
-            Infected.H_FIELD[player.EntRef].USE_HELI = 2;
+            Infected.H_FIELD[player.EntRef].CAN_USE_HELI = true;
 
             var w = player.CurrentWeapon;
             player.TakeWeapon(w);
@@ -126,39 +125,39 @@ namespace Infected
 
         #region board heli
         internal bool HELI_ON_USE_;
+        byte helicount;
         internal byte HeliStart(Entity player,bool Axis)
         {
+            helicount++;
+            int hc = helicount;
             Common.StartOrEndThermal(player, true);
             if (HELI_ON_USE_)
             {
                 HELI_GUNNER = player;
                 return 0;
             }
-            Infected.H_FIELD[player.EntRef].USE_HELI =3;
+            Infected.H_FIELD[player.EntRef].CAN_USE_HELI = false;
 
             HELI_ON_USE_ = true;
             HELI_OWNER = player;
             
-            if (HELI_GUNNER != null)
-            {
-                if (HELI_GUNNER == player) HELI_GUNNER = null;
-                else Common.StartOrEndThermal(HELI_GUNNER, true);
-            }
+            if ( HELI_GUNNER == player) HELI_GUNNER = null;
 
             if (Axis)
             {
                 Utilities.RawSayAll("^1ENEMY HELICOPTER INBOUND");
                 player.Call(32771, "PC_1mc_enemy_ah6guard", "allies");//playsoundtoteam
-
             }
+
             Info.MessageRoop(player, 0, MESSAGE_KEY_INFO);
 
             player.Call(33256, HELI);//remotecontrolvehicle  
             player.AfterDelay(120000, x =>
             {
+                if (hc != helicount) return;
+
                 if (player != null && HELI_OWNER == player && HELI != null)
                 {
-                    Infected.H_FIELD[player.EntRef].USE_HELI = 0;
                     HeliEndUse(player, true);
                 }
             });
@@ -178,7 +177,7 @@ namespace Infected
         }
         internal void HeliEndUse(Entity player, bool unlink)
         {
-            Infected.H_FIELD[player.EntRef].USE_HELI = 0;
+            Infected.H_FIELD[player.EntRef].CAN_USE_HELI = false;
 
             if (unlink && Infected.human_List.Contains(player))
             {

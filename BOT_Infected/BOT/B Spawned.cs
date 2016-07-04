@@ -18,13 +18,16 @@ namespace Infected
         private void BotSpawned(Entity bot)
         {
             #region general
-
+            bot.Health = -1;
             bot.Call(32848);//hide
-            bot.Call(33220, 0f);//setmovescale
+            bot.Call(33220, 0f);//setmovespeedscale
 
             int num = bot.EntRef;
             B_SET B = B_FIELD[num];
 
+            int delay_time = 6100;
+
+            if (num == BOT_RPG_ENTREF || num == BOT_RIOT_ENTREF) delay_time = 10000;
             if (num == BOT_SENTRY_ENTREF)
             {
                 SentryExplode();
@@ -36,7 +39,6 @@ namespace Infected
                 bot.Call(33469, B.wep, 0);//setweaponammostock
                 bot.Call(33468, B.wep, 0);//setweaponammoclip
             }
-
             #endregion
 
             #region check perk to killer
@@ -66,7 +68,7 @@ namespace Infected
                     {
                         H.PERK_COUNT_HUD.SetText(H.PERK_TXT = "^1**********");
 
-                        H.USE_HELI = 1;
+                        H.CAN_USE_HELI = true;
                         HCT.HeliAttachFlagTag(killer);
                     }
                 }
@@ -76,10 +78,16 @@ namespace Infected
 
             #endregion
 
-            int delay_time = 6100;
+#if DEBUG
+            if (bot.EntRef != BOT_JUGG_ENTREF)
+            {
+                bot.Call("show");
+                bot.Health = 100;
+                bot.Call("setmovespeedscale", 0.5f);
+                return;
 
-            if (num == BOT_RPG_ENTREF || num == BOT_RIOT_ENTREF) delay_time = 10000;
-            else if (num != BOT_JUGG_ENTREF) bot.Health = -1;
+            }
+#endif
 
             bot.AfterDelay(delay_time, bot_ =>
             {
@@ -87,7 +95,7 @@ namespace Infected
 
                 if (num == BOT_RPG_ENTREF) BotSearchOn_slow(bot_, B);
 
-                else if (num == BOT_RIOT_ENTREF) bot.Call(33220, 2f);
+                else if (num == BOT_RIOT_ENTREF) { bot.Call(33220, 2f); bot.Health = 100; }
 
                 else if (num == BOT_JUGG_ENTREF) BotSearchOn(bot_, B, true);
 
@@ -104,62 +112,65 @@ namespace Infected
         /// </summary>
         private void BotSearchOn(Entity bot, B_SET B, bool Jugg)
         {
-            bot.Call(33220, 1f);//setmovescale
+            bot.Call(33220, 1f);//setmovespeedscale
             if (!Jugg) bot.Health = 120;
-            bool pause = false;
+            else bot.Health = 100;
+
             int death = B.death;
-            B.fire = true;
+            byte blockCount = 0;
 
             string weapon = B.wep;
 
             bot.OnInterval(2000, b =>
             {
-                if (death != B.death || GAME_ENDED_) return !(pause = true);
-                if (!HUMAN_CONNECTED_ || HUMAN_DIED_ALL) pause = true;
+                if (death != B.death) return B.fire = false;
+                if (HUMAN_DIED_ALL_) return !(B.fire = false);
 
                 Vector3 bo = b.Origin;
 
-                var target = B.target;
-                if (target != null)//이미 타겟을 찾은 경우
+                if (B.target != null)//이미 타겟을 찾은 경우
                 {
-                    if (human_List.Contains(target))
+                    if (human_List.Contains(B.target))
                     {
-                        var POD = target.Origin.DistanceTo(bo);
-                        if (POD < FIRE_DIST)
+                        var TOD = B.target.Origin.DistanceTo(bo);
+                        if (TOD < FIRE_DIST)
                         {
                             b.Call(33468, weapon, 500);//setweaponammoclip
                             b.Call(33523, weapon);//givemaxammo
-
-                            pause = false;
                             return true;
                         }
                     }
 
                     B.target = null;
-                    B.fire = false;
+                    b.Call(33469, weapon, 0);//setweaponammostock
+                    b.Call(33468, weapon, 0);//setweaponammoclip
                 }
-                b.Call(33469, weapon, 0);//setweaponammostock
-                b.Call(33468, weapon, 0);//setweaponammoclip
-                pause = true;
 
-                //타겟 찾기 시작
+                B.fire = false;
+
                 foreach (Entity human in human_List)
                 {
-                    var POD = human.Origin.DistanceTo(bo);
+                    var HOD = human.Origin.DistanceTo(bo);
 
-                    if (POD < FIRE_DIST)
+                    if (HOD < FIRE_DIST)
                     {
                         B.target = human;
-                        B.fire = true;
-                        pause = false;
+
                         b.Call(33468, weapon, 500);//setweaponammoclip
                         b.Call(33523, weapon);//givemaxammo
 
                         if (Jugg) if (human.Name != null) human.Call(33466, "AF_victory_music");//"playlocalsound"
 
+                        blockCount++;
+                        if (blockCount == 6) blockCount = 0;
+                        byte bc = blockCount;
+                        B.fire = true;
+
                         b.OnInterval(410, bb =>
                         {
-                            if (pause || !B.fire) return false;
+                            if (bc != blockCount ||  !B.fire) return false;
+
+                           //Print(bc + " " + human.Name + " " + bot.Name);
 
                             var TO = human.Origin;
                             var BO = bb.Origin;
@@ -186,7 +197,6 @@ namespace Infected
             });
 
         }
-
         /// <summary>
         /// Rpg bot starts searching humans
         /// </summary>
@@ -194,52 +204,43 @@ namespace Infected
         {
             bot.Call(33220, 0.7f);//setmovespeedscale
             bot.Health = 120;
-            bool pause = false;
             int death = B.death;
-            B.fire = true;
+            byte blockCount = 0;
 
             bot.OnInterval(2000, bot_ =>
             {
-                if (death != B.death || GAME_ENDED_) return !(pause = true);
-                if (!HUMAN_CONNECTED_ || HUMAN_DIED_ALL) pause = true;
+                if (death != B.death) return B.fire = false;
+                if (HUMAN_DIED_ALL_) return !(B.fire = false);
                 Vector3 bo = bot.Origin;
-                var target = B.target;
-                if (target != null)//이미 타겟을 찾은 경우
+
+                if (B.target != null)//이미 타겟을 찾은 경우
                 {
-                    if (human_List.Contains(target))
+                    if (human_List.Contains(B.target))
                     {
-                        var POD = target.Origin.DistanceTo(bo);
-                        if (POD < FIRE_DIST)
-                        {
-                            pause = false;
-                            return true;
-                        }
+                        if (B.target.Origin.DistanceTo(bo) < FIRE_DIST) return true;
                     }
 
                     B.target = null; //타겟과 거리가 멀어진 경우, 타겟 제거
-                    B.fire = false;
                     bot_.Call(33468, "rpg_mp", 0);//setweaponammoclip
                 }
 
-                pause = true;
-                //타겟 찾기 시작
+                B.fire = false;
+
                 foreach (Entity human in human_List)
                 {
-
                     var POD = human.Origin.DistanceTo(bo);
 
                     if (POD < FIRE_DIST)
                     {
                         B.target = human;
-                        B.fire = true;
-                        pause = false;
+                        blockCount++;
+                        byte bc = blockCount;
 
                         if (human.Name != null) human.Call(33466, "missile_incoming");
-
+                        B.fire = true;
                         bot_.OnInterval(1500, bb =>
                         {
-
-                            if (pause || !B.fire) return false;
+                            if (bc != blockCount || !B.fire) return false;
 
                             var TO = human.Origin;
                             var BO = bb.Origin;
@@ -273,70 +274,70 @@ namespace Infected
         /// </summary>
         private void BotSerchOn_lucky(Entity bot)
         {
-            BOT_SERCH_ON_LUCKY_FINISHED = true;
-            bot.Call(33220, 1f);//setmovescale
-            string weapon = bot.CurrentWeapon;
-
-            List<Entity> HumanAxis = new List<Entity>();
-            for (int i = 0; i < 18; i++)
-            {
-                Entity ent = Entity.GetEntity(i);
-                if (ent == null||ent.Name=="") continue;
-                if (!ent.Name.StartsWith("bot"))
-                {
-                    HumanAxis.Add(ent);
-                }
-            }
             Entity target = null;
-            bool fire = false;
-            bool pause = false;
-            Print(bot.EntRef);
             B_SET B = B_FIELD[bot.EntRef];
             int death = B.death;
 
+            BOT_SERCH_ON_LUCKY_FINISHED = true;
+            string weapon = bot.CurrentWeapon;
+            byte blockCount = 0;
+            bot.Call(33469, weapon, 0);//setweaponammostock
+            bot.Call(33468, weapon, 0);//setweaponammoclip
+
+            List<Entity> HumanAxis = new List<Entity>();
+
+            foreach (Entity player in Players)
+            {
+                if (player == null || !player.IsPlayer) continue;
+                if (player.Name.StartsWith("bot")) continue;
+
+                HumanAxis.Add(player);
+            }
+
             bot.OnInterval(2000, b =>
             {
-                if (death != B.death || GAME_ENDED_) return !(pause = true);
-                if (!HUMAN_CONNECTED_ || HUMAN_DIED_ALL) pause = true;
+                if (death != B.death) return false;
+
                 Vector3 bo = b.Origin;
 
                 if (target != null)//이미 타겟을 찾은 경우
                 {
                     if (HumanAxis.Contains(target))
                     {
-                        var POD = target.Origin.DistanceTo(bo);
-                        if (POD < FIRE_DIST)
+                        if (target.Origin.DistanceTo(bo) < FIRE_DIST)
                         {
                             b.Call(33468, weapon, 500);//setweaponammoclip
                             b.Call(33523, weapon);//givemaxammo
-
-                            pause = false;
                             return true;
                         }
                     }
 
                     target = null;
-                    fire = false;
+                    b.Call(33469, weapon, 0);//setweaponammostock
+                    b.Call(33468, weapon, 0);//setweaponammoclip
                 }
-                b.Call(33469, weapon, 0);//setweaponammostock
-                b.Call(33468, weapon, 0);//setweaponammoclip
-                pause = true;
 
-                //타겟 찾기 시작
+                B.fire = false;
+
                 foreach (Entity human in HumanAxis)
                 {
-                    var POD = human.Origin.DistanceTo(bo);
+                    var HOD = human.Origin.DistanceTo(bo);
 
-                    if (POD < FIRE_DIST)
+                    if (HOD < FIRE_DIST)
                     {
                         target = human;
-                        fire = true;
-                        pause = false;
+
                         b.Call(33468, weapon, 500);//setweaponammoclip
                         b.Call(33523, weapon);//givemaxammo
+
+                        blockCount++;
+                        if (blockCount == 6) blockCount = 0;
+                        byte bc = blockCount;
+                        B.fire = true;
+
                         b.OnInterval(300, bb =>
                         {
-                            if (pause || GAME_ENDED_ || !fire) return false;
+                            if (!B.fire || bc != blockCount) return false;
 
                             var TO = human.Origin;
                             var BO = bb.Origin;
@@ -365,11 +366,10 @@ namespace Infected
         /// <summary>
         /// Sentry bot starts searching humans
         /// </summary>
-        private void BotSerchOn_sentry( B_SET B)
+        private void BotSerchOn_sentry(B_SET B)
         {
-            SG_BOT.Call(33220, 1f);//setmovescale
+            SG_BOT.Call(33220, 1f);//setmovespeedscale
             SG_BOT.Health = 300;
-            bool pause = false;
             int death = B.death;
             B.fire = true;
             if (SG == null) SG = SpawnSentry();
@@ -378,49 +378,46 @@ namespace Infected
             SG.Call(33007, SG_BOT);//setsentrycarrier
             bool remote = false;
 
+            byte blockCount = 0;
+
             SG_BOT.OnInterval(2000, b =>
             {
-                if (death != B.death || GAME_ENDED_) return !(pause = true);
-                if (!HUMAN_CONNECTED_ || HUMAN_DIED_ALL) pause = true;
+                if (death != B.death) return B.fire = false;
+                if (HUMAN_DIED_ALL_) return !(B.fire = false);
                 //Print(SG.Health);
                 Vector3 bo = b.Origin;
 
-                var target = B.target;
-                if (target != null)//이미 타겟을 찾은 경우
+                if (B.target != null)//이미 타겟을 찾은 경우
                 {
-                    if (human_List.Contains(target))
+                    if (human_List.Contains(B.target))
                     {
-                        var POD = target.Origin.DistanceTo(bo);
-                        if (POD < FIRE_DIST)
-                        {
-                            pause = false;
-                            return true;
-                        }
+                        if (B.target.Origin.DistanceTo(bo) < FIRE_DIST) return true;
                     }
 
                     B.target = null;
-                    B.fire = false;
                     SG_BOT.Call(32980, SG);//RemoteControlTurretOff
                     remote = false;
                 }
-                pause = true;
 
-                //타겟 찾기 시작
+                B.fire = false;
+
                 foreach (Entity human in human_List)
                 {
-                    var POD = human.Origin.DistanceTo(bo);
 
-                    if (POD < FIRE_DIST)
+                    if (human.Origin.DistanceTo(bo) < FIRE_DIST)
                     {
                         B.target = human;
-                        B.fire = true;
-                        pause = false;
+
+                        blockCount++;
+                        if (blockCount == 6) blockCount = 0;
+                        byte bc = blockCount;
+
                         SG_BOT.Call(32979, SG);//remotecontrolturret
-                        Call(42, "testClients_doCrouch",1);
                         remote = true;
+                        B.fire = true;
                         b.OnInterval(200, bb =>
                         {
-                            if (pause || !B.fire) return false;
+                            if (bc != blockCount || !B.fire) return false;
 
                             var tagback = human.Origin; tagback.Z += 25;//Call<Vector3>(33128, "tag_weapon_left");//.
                             var aim = SG.Call<Vector3>(33128, "tag_aim");
@@ -470,7 +467,6 @@ namespace Infected
         void SentryExplode()
         {
             if (SG == null) return;
-            Call(42, "testClients_doCrouch", 0);
 
             SG.Call(32929, "sentry_minigun_weak_destroyed");//setmodel
             SG_BOT.Call(32980, SG);//"remotecontrolturretoff"
@@ -482,6 +478,5 @@ namespace Infected
                 SG.Call(32929, "sentry_minigun_weak");//setModel
             });//hide
         }
-
     }
 }

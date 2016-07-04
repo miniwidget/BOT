@@ -36,7 +36,7 @@ namespace Infected
                     case "infow": INFO.MessageInfoW(player, Axis); return;
 
                     case "sc":
-                        if (H_FIELD[player.EntRef].AX_WEP != 0) H_FIELD[player.EntRef].AX_WEP = 2;//자살로 죽음
+                        if (H_FIELD[player.EntRef].AXIS) H_FIELD[player.EntRef].AX_WEP = 2;//자살로 죽음
                         AfterDelay(100, () => player.Call(33341));//"suicide"
                         return;
 

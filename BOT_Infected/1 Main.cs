@@ -85,7 +85,7 @@ namespace Infected
                     }
                     if (human_List.Count == 0)
                     {
-                        HUMAN_CONNECTED_ = false;
+                        HUMAN_DIED_ALL_ = true;
                         BotDoAttack(false);
                     }
                 };
@@ -100,7 +100,8 @@ namespace Infected
                     foreach (var v in B_FIELD)
                     {
                         if (v == null) continue;
-                        v.fire = false;
+                        v.death += 1;
+                        //v.fire = false;
                     }
                     AfterDelay(20000, () => Utilities.ExecuteCommand("map_rotate"));
                 });

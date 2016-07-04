@@ -227,7 +227,7 @@ namespace Infected
             HUD.ServerHud();
             HCT.SetHeliPort();
 
-            if (HUMAN_CONNECTED_)
+            if (!HUMAN_DIED_ALL_)
             {
                  BotDoAttack(true);
             }

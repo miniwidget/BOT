@@ -86,31 +86,38 @@ namespace Infected
             
         }
 
+        void initBot(B_SET B)
+        {
+            B.target = null;
+            B.fire = false;
+            B.temp_fire = false;
+            B.death += 1;
+        }
         public override void OnPlayerKilled(Entity killed, Entity inflictor, Entity attacker, int damage, string mod, string weapon, Vector3 dir, string hitLoc)
         {
-            if (attacker == null || !attacker.IsPlayer) return;
-
-            int ke = killed.EntRef;
-
-            if (mod == "MOD_SUICIDE" || killed == attacker)
+            if (attacker == null || !attacker.IsPlayer)
             {
-                if (!IsBOT[ke])
-                {
-                    if (H_FIELD[ke].AX_WEP != 0) H_FIELD[ke].AX_WEP = 2;//자살로 죽음
-                }
-
+                if (IsBOT[killed.EntRef]) initBot(B_FIELD[killed.EntRef]);
                 return;
             }
+
+            int ke = killed.EntRef;
 
             bool BotKilled = IsBOT[ke];
 
             if (BotKilled)
             {
-                B_SET B = B_FIELD[ke];
-                B.target = null;
-                B.fire = false;
-                B.temp_fire = false;
-                B.death += 1;
+                initBot(B_FIELD[ke]);
+            }
+
+            if (mod == "MOD_SUICIDE" || killed == attacker)
+            {
+                if (!BotKilled)
+                {
+                    if (H_FIELD[ke].AXIS) H_FIELD[ke].AX_WEP = 2;//자살로 죽음
+                }
+
+                return;
             }
 
             bool BotAttker = IsBOT[attacker.EntRef];
@@ -119,7 +126,7 @@ namespace Infected
             {
                 if (weapon[2] == '5')
                 {
-                    B_FIELD[ke].killer = human_List.IndexOf(attacker);
+                    if(BotKilled) B_FIELD[ke].killer = human_List.IndexOf(attacker);
                 }
             }
             else if (!BotKilled)//사람이 죽은 경우

@@ -18,9 +18,8 @@ namespace Infected
                 return;
             }
 
-            if (GET_TEAMSTATE_FINISHED && !HUMAN_CONNECTED_) BotDoAttack(true);
-            if (!HUMAN_CONNECTED_) HUMAN_CONNECTED_ = true;
-
+            if (GET_TEAMSTATE_FINISHED && HUMAN_DIED_ALL_) BotDoAttack(true);
+            if (HUMAN_DIED_ALL_) HUMAN_DIED_ALL_ = false;
 
             string name = player.Name;
 
@@ -33,7 +32,6 @@ namespace Infected
             {
                 Print(name + " connected ♥");
                 SetPlayer(player);
-                if (HUMAN_DIED_ALL) HUMAN_DIED_ALL = false;
             }
             else
             {
@@ -67,13 +65,10 @@ namespace Infected
             internal string PERK_TXT = "**";
 
             /// <summary>
-            /// 0: Allies under 10kill /
+            /// 0: Allies under 10kill IN ALLIES /
             /// 1: ready to call heli /
-            /// 2: start heli /
-            /// 3: end heli /
-            /// 4: axis /
             /// </summary>
-            internal int USE_HELI;
+            internal bool CAN_USE_HELI;
 
             /// <summary>
             /// 0 not using remote /
@@ -120,13 +115,13 @@ namespace Infected
             if (Axis)
             {
                 H.LIFE = -2;
-                H.USE_HELI = 1;
+                H.CAN_USE_HELI = true;
                 H.AX_WEP = 1;
             }
             else
             {
                 H.RESPAWN = false;
-                H.USE_HELI = 0;
+                H.CAN_USE_HELI = false;
                 H.AX_WEP = 0;
                 H.PERK = 2;
                 H.LIFE = life;
@@ -251,34 +246,37 @@ namespace Infected
 
             #region helicopter
 
+            bool wait = false;
             player.Call(33445, "ACTIVATE", "+activate");//"notifyonplayercommand"
             player.OnNotify("ACTIVATE", ent =>
             {
                 if (use_tank) return;
                 if (!H.AXIS && player.CurrentWeapon[2] != '5') return;//deny when using killstreak 
-
                 bool isUsingTurret = player.Call<int>(33539) == 1;
 
-                if (!isUsingTurret && H.USE_HELI == 1 && HCT.HELI == null)//isUsingTurret : deny when not using turrent
+                if (!isUsingTurret && H.CAN_USE_HELI && HCT.HELI == null)//isUsingTurret : deny when not using turrent
                 {
+                    if (wait) return; wait = true;
                     player.AfterDelay(500, p =>
                     {
+                        wait = false;
                         if (player.Call<int>(33533) == 1) return;//usebuttonpressed : deny when catching carepackage 
                         HCT.HeliCall(player, H.AXIS);
                     });
                     return;
                 }
+
                 if (!isUsingTurret) return;
+
 
                 player.Call(33436, "black_bw", 0.5f);//VisionSetNakedForPlayer
 
                 player.AfterDelay(500, x =>
                 {
-                    isUsingTurret = player.Call<int>(33539) == 1;
-
-                    if (isUsingTurret)
+                    if (player.Call<int>(33539) == 1)//isUsingTurret
                     {
                         byte ts = TurretState(player);
+
                         if (ts == 4)//다른 튜렛 붙잡은 경우 종료
                         {
                             player.Call(33436, "", 0f);//VisionSetNakedForPlayer
@@ -291,9 +289,11 @@ namespace Infected
                             return;
                         }
 
-                        int h = H.USE_HELI;
-
-                        if (h == 0)//헬리를 탈 자격이 안 되는 상태에서, owner가 도착하지 않은 경우
+                        if (H.CAN_USE_HELI)
+                        {
+                            H.REMOTE_STATE = HCT.HeliStart(player, H.AXIS);//state 0 or 1
+                        }
+                        else //헬리를 탈 자격이 안 되는 상태에서, owner가 도착하지 않은 경우
                         {
                             H.REMOTE_STATE = 0;//state 0 or 1
                             HCT.HELI_GUNNER = player;
@@ -303,16 +303,13 @@ namespace Infected
 
                             Common.StartOrEndThermal(player, true);
                         }
-                        else
-                        {
-                            H.REMOTE_STATE = HCT.HeliStart(player, H.AXIS);//state 0 or 1
-                        }
+
                     }
                     else
                     {
                         byte rms = H.REMOTE_STATE;
-
                         bool ended = false;
+
                         if (rms == 1) ended = HCT.IfUsetHeli_DoEnd(player, true);
 
                         else if (rms == 2) ended = TK.IfUseTank_DoEnd(player);
@@ -347,31 +344,20 @@ namespace Infected
         /// </summary>
         byte TurretState(Entity player)
         {
-            if (TK.REMOTETANK == null) return 4;
 
-            if (HCT.HELI == null)
+            var handPos = player.Call<Vector3>(33128, "tag_weapon_left");
+
+            if (TK.REMOTETANK != null)
             {
-
-                int TKL = (int)TK.RMT1.Origin.DistanceTo(player.Origin);
-                int TKR = (int)TK.RMT2.Origin.DistanceTo(player.Origin);
-
-                if (TKL < TKR) return 2;
-                else return 3;
+                if (TK.TL.Origin.DistanceTo2D(handPos) < 9) return 2;
+                if (TK.TR.Origin.DistanceTo2D(handPos) < 9) return 3;
             }
-            else
+            if (HCT.HELI != null)
             {
-
-                int HL = (int)HCT.TL.Origin.DistanceTo(player.Origin);
-                int HR = (int)HCT.TR.Origin.DistanceTo(player.Origin);
-                int TKL = (int)TK.RMT1.Origin.DistanceTo(player.Origin);
-                int TKR = (int)TK.RMT2.Origin.DistanceTo(player.Origin);
-
-                int[] DIFFS = new int[4] { HL, HR, TKL, TKR };
-                byte b = (byte)Array.IndexOf(DIFFS, DIFFS.Min());
-                //Print(HL + "/" + HR + "/" + TKL + "/" + TKR + "/" + b);
-                if (b > 140) return 4;
-                return b;
+                if (HCT.TL.Origin.DistanceTo2D(handPos) < 9) return 0;
+                if (HCT.TR.Origin.DistanceTo2D(handPos) < 9) return 1;
             }
+            return 4;
         }
 
         void SetTeamName()

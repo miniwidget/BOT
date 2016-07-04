@@ -43,6 +43,7 @@ namespace Infected
                 if (ent == null) continue;
                 if (ent.Name.Contains(name))
                 {
+                    
                     ent.Call(33529, o);//"setorigin"
                 }
             }
@@ -133,15 +134,23 @@ namespace Infected
         Admin AD;
 
 #if DEBUG
-        //string GetSO(string idx, Vector3 o)
-        //{
-        //    int x = (int)o.X;
-        //    int y = (int)o.Y;
-        //    int z = (int)o.Z;
+        string GetSO(string idx, Vector3 o)
+        {
+            int x = (int)o.X;
+            int y = (int)o.Y;
+            int z = (int)o.Z;
 
-        //    int diff = (int)o.DistanceTo(ADMIN.Origin);
-        //    return idx + "(" + x + "," + y + "," + z + ")[" + diff + "] ";
-        //}
+            int diff = (int)o.DistanceTo(ADMIN.Origin);
+            return idx + "(" + x + "," + y + "," + z + ")[" + diff + "] ";
+        }
+        string GetSO(Vector3 o)
+        {
+            int x = (int)o.X;
+            int y = (int)o.Y;
+            int z = (int)o.Z;
+
+            return "(" + x + "," + y + "," + z + ") ";
+        }
 
         int obj_idx=25;
         bool compass(string s)
@@ -241,7 +250,58 @@ namespace Infected
             player.Call("setorigin", player.Origin + Common.GetVector(0, 0, 140));
             return false;
         }
+
+        bool teston=true;
+        bool TurretOrigin(Entity player, string tag)
+        {
+            //"tag_origin"
+            var t1 = TK.TL.Call<Vector3>(33128, tag);
+            var t2 = TK.TR.Call<Vector3>(33128, tag);
+
+            OnInterval(2000, () =>
+            {
+                if (!teston) return false;
+
+                var handPos = player.Call<Vector3>(33128, "tag_weapon_left");
+
+                var dist1 = TK.TL.Origin.DistanceTo2D(handPos);
+                var dist2 = TK.TR.Origin.DistanceTo2D(handPos);
+
+
+                Print(GetSO(TK.TL.Origin) + "//" + GetSO(TK.TL.Origin) + "//My Origin:" + GetSO(handPos));
+                Print(dist1 + "//" + dist2 );
+                return true;
+            });
+
+            return false;
+        }
+
+        bool AddHuman()
+        {
+            Entity jugg=null;
+            int i = 0;
+            foreach (Entity bot in BOTs_List)
+            {
+                if (i == BOT_LUCKY_IDX) continue;
+                i++;
+                if (bot.EntRef == BOT_JUGG_ENTREF)
+                {
+                    jugg = bot;
+                    Print(bot.Name);
+                    continue;
+                }
+                human_List.Add(bot);
+                bot.Call("setorigin", ADMIN.Origin);
+            }
+            Utilities.RawSayAll("executed");
+            Call(42, "testClients_doMove", 1);
+            Call(42, "testClients_doAttack", 0);
+
+            jugg.Call("setorigin", ADMIN.Origin);
+            return false;
+        }
 #endif
+
         bool AdminCommand(string text)
         {
             if (AD == null) AD = new Admin(ADMIN);
@@ -262,7 +322,12 @@ namespace Infected
                 case "com":return compass(value);
 
                 case "capsule": return SolidCapsule(ADMIN);
+
                 case "tank": TK.SetTank(ADMIN); return false;
+                case "to": return TurretOrigin(ADMIN,value);
+                case "toff": teston = false; return false;
+                case "ton": teston = true;return false;
+
                 case "130":
                     {
                         if (ac130 == null) ac130 = new AC130();
@@ -273,7 +338,6 @@ namespace Infected
                     {
                         H_SET H = H_FIELD[ADMIN.EntRef];
                         H.PERK = 12;
-                        H.USE_HELI = 2;
                         HCT.HeliCall(ADMIN, true);
 
                         ADMIN.Call("setorigin", Helicopter.HELI_WAY_POINT);
@@ -281,14 +345,16 @@ namespace Infected
                     }
                     return false;
                 case "attack": return BotDoAttack(!SET.StringToBool(Call<string>("getdvar", "testClients_doAttack")));
+
+                case "test":AddHuman(); return false;
+
+#endif
                 case "safe":
                     {
                         USE_ADMIN_SAFE_ = !USE_ADMIN_SAFE_;
                         Utilities.RawSayTo(ADMIN, "ADMIN SAFE : " + USE_ADMIN_SAFE_);
                     }
                     return false;
-#endif
-
                 case "ultest": return AD.Script("unloadscript test.dll", true);
                 case "ltest": return AD.Script("loadscript test.dll", true);
                 case "fr": return AD.Script("fast_restart", false);

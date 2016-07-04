@@ -58,9 +58,13 @@ namespace Infected
 
         internal static void MessageRoop(Entity e, int i, string[] lists)
         {
+            if (Infected.H_FIELD[e.EntRef].ON_MESSAGE) return;
+
             if(i==0) Infected.H_FIELD[e.EntRef].ON_MESSAGE = true;
+
             e.Call(33344, lists[i]);
             i++;
+
             if (i == lists.Length)
             {
                 Infected.H_FIELD[e.EntRef].ON_MESSAGE = false;
