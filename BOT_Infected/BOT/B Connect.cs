@@ -79,7 +79,7 @@ namespace Infected
 
         #region Bot_Connected
 
-        int BOT_RPG_ENTREF, BOT_RIOT_ENTREF, BOT_JUGG_ENTREF, BOT_SENTRY_ENTREF, BOT_LUCKY_IDX;
+        int BOT_RPG_ENTREF, BOT_RIOT_ENTREF, BOT_JUGG_ENTREF,  BOT_LUCKY_IDX;//BOT_SENTRY_ENTREF,
 
         private void Bot_Connected(Entity bot)
         {
@@ -98,12 +98,12 @@ namespace Infected
             if (i == 0) BOT_JUGG_ENTREF = be;
             else if (i == 1) BOT_RPG_ENTREF = be;
             else if (i == 2) BOT_RIOT_ENTREF = be;
-            else if (i == 3)
-            {
-                BOT_SENTRY_ENTREF = be;
-                i = 2;
-                SG_BOT = bot;
-            }
+            //else if (i == 3)
+            //{
+            //    BOT_SENTRY_ENTREF = be;
+            //    i = 2;
+            //    SG_BOT = bot;
+            //}
             if (i > 9)
             {
                 if (SET.BOT_CLASS_NUM > 9) SET.BOT_CLASS_NUM = 3;

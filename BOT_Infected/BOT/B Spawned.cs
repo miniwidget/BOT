@@ -28,17 +28,17 @@ namespace Infected
             int delay_time = 6100;
 
             if (num == BOT_RPG_ENTREF || num == BOT_RIOT_ENTREF) delay_time = 10000;
-            if (num == BOT_SENTRY_ENTREF)
-            {
-                SentryExplode();
-            }
-            else
-            {
+            //if (num == BOT_SENTRY_ENTREF)
+            //{
+            //    SentryExplode();
+            //}
+            //else
+            //{
                 if (B.wep == null) B.wep = bot.CurrentWeapon;
 
                 bot.Call(33469, B.wep, 0);//setweaponammostock
                 bot.Call(33468, B.wep, 0);//setweaponammoclip
-            }
+            //}
             #endregion
 
             #region check perk to killer
@@ -99,7 +99,7 @@ namespace Infected
 
                 else if (num == BOT_JUGG_ENTREF) BotSearchOn(bot_, B, true);
 
-                else if (num == BOT_SENTRY_ENTREF) BotSerchOn_sentry(B);
+                //else if (num == BOT_SENTRY_ENTREF) BotSerchOn_sentry(B);
 
                 else BotSearchOn(bot_, B, false);
 
@@ -274,7 +274,7 @@ namespace Infected
         /// </summary>
         private void BotSerchOn_lucky(Entity bot)
         {
-            SG_BOT.Call(33220, 1f);//setmovespeedscale
+            bot.Call(33220, 1f);//setmovespeedscale
             Entity target = null;
             B_SET B = B_FIELD[bot.EntRef];
             int death = B.death;
@@ -363,6 +363,8 @@ namespace Infected
 
             });
         }
+
+        /*
 
         /// <summary>
         /// Sentry bot starts searching humans
@@ -479,5 +481,6 @@ namespace Infected
                 SG.Call(32929, "sentry_minigun_weak");//setModel
             });//hide
         }
+        */
     }
 }
