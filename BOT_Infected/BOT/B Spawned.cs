@@ -274,6 +274,7 @@ namespace Infected
         /// </summary>
         private void BotSerchOn_lucky(Entity bot)
         {
+            SG_BOT.Call(33220, 1f);//setmovespeedscale
             Entity target = null;
             B_SET B = B_FIELD[bot.EntRef];
             int death = B.death;
