@@ -35,19 +35,21 @@ namespace Infected
             internal int killer = -1;
         }
         List<B_SET> B_FIELD = new List<B_SET>(18);
-        List<Entity> BOTs_List = new List<Entity>();
+        List<Entity> BOTs_List = new List<Entity>(18);
 
         /// <summary>
         /// HUMAN PLAYER SET class for custom fields set
         /// </summary>
         internal static List<H_SET> H_FIELD = new List<H_SET>(18);
-        internal static List<Entity> human_List = new List<Entity>();
+        internal static List<Entity> human_List = new List<Entity>(18);
 
         bool
             GET_TEAMSTATE_FINISHED,
             BOT_SERCH_ON_LUCKY_FINISHED,
             HUMAN_DIED_ALL_,
-            IS_FIRST_INFECTD_HUMAN_FINISHED, Human_FIRST_INFECTED_, GAME_ENDED_;
+            IS_FIRST_INFECTD_HUMAN_FINISHED, Human_FIRST_INFECTED_,
+            GAME_ENDED_;
+
         DateTime GRACE_TIME;
     }
 }

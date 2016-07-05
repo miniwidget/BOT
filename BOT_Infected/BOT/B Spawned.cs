@@ -11,7 +11,35 @@ namespace Infected
 {
     public partial class Infected
     {
+        void BotCheckPerk(int k)
+        {
+            if (human_List.Count > k)
+            {
+                Entity killer = human_List[k];
+                if (killer.EntRef > 17) return;
 
+                H_SET H = H_FIELD[killer.EntRef];
+                if (H.PERK > 34) return;
+
+                if (H.PERK_TXT.Length != 12) H.PERK_COUNT_HUD.SetText(H.PERK_TXT += "*");
+
+                var i = (H.PERK += 1);
+
+                if (i > 2 && i % 3 == 0)
+                {
+                    i = i / 3; if (i > 10) return;
+                    PK.Perk_Hud(killer, i);
+                    killer.Call(33466, "mp_killstreak_radar");
+                }
+                else if (i == 11)
+                {
+                    H.PERK_COUNT_HUD.SetText(H.PERK_TXT = "^1**********");
+
+                    H.CAN_USE_HELI = true;
+                    HCT.HeliAttachFlagTag(killer);
+                }
+            }
+        }
         /// <summary>
         /// Bot spawnded
         /// </summary>
@@ -46,33 +74,7 @@ namespace Infected
             int k = B.killer;
             if (k != -1)
             {
-                if (human_List.Count > k)
-                {
-                    Entity killer = human_List[k];
-                    if (killer.EntRef > 17) return;
-
-                    H_SET H = H_FIELD[killer.EntRef];
-                    if (H.PERK > 34) return;
-
-                    if (H.PERK_TXT.Length != 12) H.PERK_COUNT_HUD.SetText(H.PERK_TXT += "*");
-
-                    var i = (H.PERK += 1);
-
-                    if (i > 2 && i % 3 == 0)
-                    {
-                        i = i / 3; if (i > 10) return;
-                        PK.Perk_Hud(killer, i);
-                        killer.Call(33466, "mp_killstreak_radar");
-                    }
-                    else if (i == 11)
-                    {
-                        H.PERK_COUNT_HUD.SetText(H.PERK_TXT = "^1**********");
-
-                        H.CAN_USE_HELI = true;
-                        HCT.HeliAttachFlagTag(killer);
-                    }
-                }
-
+                BotCheckPerk(k);
                 B.killer = -1;
             }
 

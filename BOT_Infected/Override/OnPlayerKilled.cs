@@ -14,15 +14,14 @@ namespace Infected
         void BotTempFire(B_SET B, Entity bot, Entity target)
         {
             B.temp_fire = true;
-            string weapon = B.wep;
 
             int i = 0;
-            bot.Call(33468, weapon, 500);//setweaponammoclip
-            bot.Call(33523, weapon);//givemaxammo
+            bot.Call(33468, B.wep, 500);//setweaponammoclip
+            bot.Call(33523, B.wep);//givemaxammo
 
             bot.OnInterval(400, bb =>
             {
-                if (i == 6 || B.target != null)
+                if (i == 6 || B.target != null || !B.fire)
                 {
                     return B.temp_fire = false;
                 }
@@ -35,10 +34,10 @@ namespace Infected
                 float dz = BO.Z - TO.Z + 50;
 
                 int dist = (int)Math.Sqrt(dx * dx + dy * dy);
-                BO.X = (float)Math.Atan2(dz, dist) * 57.32f;
-                BO.Y = -10 + (float)Math.Atan2(dy, dx) * 57.32f;
+                BO.X = (float)Math.Atan2(dz, dist) * 57.3f;
+                BO.Y = -10 + (float)Math.Atan2(dy, dx) * 57.3f;
                 BO.Z = 0;
-                bb.Call(33531, BO);//SetPlayerAngles
+                bot.Call(33531, BO);//SetPlayerAngles
                 i++;
                 return true;
             });
@@ -47,8 +46,8 @@ namespace Infected
 
         public override void OnPlayerDamage(Entity player, Entity inflictor, Entity attacker, int damage, int dFlags, string mod, string weapon, Vector3 point, Vector3 dir, string hitLoc)
         {
-            if (weapon[2] != '5' && weapon != "rpg_mp") return;
-            
+            if (weapon[2] != '5' && weapon[0] != 'r') return;
+
             int pe = player.EntRef;
 
             if (IsBOT[pe])//in case of BOT
@@ -56,7 +55,7 @@ namespace Infected
                 if (pe == BOT_RIOT_ENTREF) return;
                 else if (pe == BOT_RPG_ENTREF)
                 {
-                    if (attacker == player && weapon == "rpg_mp")
+                    if (attacker == player && weapon[0] == 'r')//"rpg_mp")
                     {
                         player.Health += damage;
                         return;
@@ -70,7 +69,7 @@ namespace Infected
             }
             else//in case of HUMAN
             {
-                if (mod == "MOD_MELEE")
+                if (mod[4] == 'M')//"MOD_MELEE")
                 {
                     if (H_FIELD[pe].AXIS) return;
                     player.Health += damage;
@@ -83,7 +82,7 @@ namespace Infected
                     }
                 }
             }
-            
+
         }
 
         void initBot(B_SET B)
@@ -95,24 +94,18 @@ namespace Infected
         }
         public override void OnPlayerKilled(Entity killed, Entity inflictor, Entity attacker, int damage, string mod, string weapon, Vector3 dir, string hitLoc)
         {
-            if (attacker == null || !attacker.IsPlayer)
-            {
-                if (IsBOT[killed.EntRef]) initBot(B_FIELD[killed.EntRef]);
-                return;
-            }
-
             int ke = killed.EntRef;
 
             bool BotKilled = IsBOT[ke];
 
-            if (BotKilled)
+            if (BotKilled)//봇이 죽은 경우
             {
                 initBot(B_FIELD[ke]);
             }
 
             if (mod == "MOD_SUICIDE" || killed == attacker)
             {
-                if (!BotKilled)
+                if (!BotKilled)//사람이 죽은 경우
                 {
                     if (H_FIELD[ke].AXIS) H_FIELD[ke].AX_WEP = 2;//자살로 죽음
                 }
@@ -120,24 +113,21 @@ namespace Infected
                 return;
             }
 
-            bool BotAttker = IsBOT[attacker.EntRef];
+            if (attacker == null || !attacker.IsPlayer) return;
 
-            if (!BotAttker)//공격자가 사람인 경우, 퍼크 주기
+            if (!IsBOT[attacker.EntRef])//공격자가 사람인 경우, 퍼크 주기
             {
-                if (weapon[2] == '5')
+                if (weapon[2] == '5' && BotKilled)
                 {
-                    if(BotKilled) B_FIELD[ke].killer = human_List.IndexOf(attacker);
+                    B_FIELD[ke].killer = human_List.IndexOf(attacker);
                 }
             }
-            else if (!BotKilled)//사람이 죽은 경우
+            else if (!BotKilled)//봇이 사람을 죽인 경우, 봇 사격 중지
             {
-                if (BotAttker) // 봇이 사람을 죽인 경우, 봇 사격 중지
-                {
-                    Utilities.RawSayAll("^1BAD Luck :) ^7" + killed.Name + " killed by " + attacker.Name);
-                    B_SET B = B_FIELD[attacker.EntRef];
-                    B.fire = false;
-                    B.target = null;
-                }
+                Utilities.RawSayAll("^1BAD Luck :) ^7" + killed.Name + " killed by BOT");
+                B_SET B = B_FIELD[attacker.EntRef];
+                B.fire = false;
+                B.target = null;
             }
         }
 

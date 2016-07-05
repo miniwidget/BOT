@@ -266,7 +266,17 @@ namespace Infected
                     return;
                 }
 
-                if (!isUsingTurret) return;
+                if (!isUsingTurret)
+                {
+                    if (CARE_PACKAGE != null&&player.Origin.DistanceTo(CARE_PACKAGE.Origin) < 80)
+                    {
+                        player.Call(33344, "TEST. WHAT DO I DO FOR YOU?");
+                        
+                        //if (ac130 == null) ac130 = new AC130();
+                        //ac130.start(player);
+                    }
+                    return;
+                }
 
 
                 player.Call(33436, "black_bw", 0.5f);//VisionSetNakedForPlayer

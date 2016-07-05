@@ -205,7 +205,7 @@ namespace Infected
         {
             int alive = 0, max = BOTs_List.Count;
 
-            string s = null;
+            //string s = null;
             for (int i = 0; i < BOTs_List.Count; i++)
             {
                 Entity bot = BOTs_List[i];
@@ -235,6 +235,10 @@ namespace Infected
 
             GRACE_TIME = DateTime.Now.AddSeconds(166);
 
+            int num = rnd.Next(BOTs_List.Count);
+            if (num == BOT_LUCKY_IDX) num = 0;
+            CarePackage(BOTs_List[num].Origin);
+
             return false;
         }
         
@@ -256,5 +260,56 @@ namespace Infected
             }
             return false;
         }
+
+        Entity CARE_PACKAGE;
+        Entity GetBrushModel(string bm)
+        {
+            return Call<Entity>("getent", bm, "targetname");
+        }
+        void CarePackage(Vector3 origin)
+        {
+
+            Entity brushmodel = GetBrushModel("pf1_auto1");
+            if(brushmodel == null) brushmodel = GetBrushModel("pf3_auto1");
+
+            if (brushmodel != null)
+            {
+
+                CARE_PACKAGE = Call<Entity>("spawn", "script_model", origin);
+                CARE_PACKAGE.Call("setmodel", "com_plasticcase_friendly");//com_plasticcase_friendly
+                CARE_PACKAGE.Call(33353, brushmodel);
+
+                Call(431, 20, "active"); // objective_add
+                Call(435, 20, origin); // objective_position
+                Call(434, 20, "compass_waypoint_bomb"); //compass_objpoint_ac130_friendly compass_waypoint_bomb objective_icon
+
+                return;
+            }
+
+            for (int i = 18; i < 1024; i++)
+            {
+                brushmodel = Entity.GetEntity(i);
+                if (brushmodel == null) continue;
+                if (brushmodel.GetField<string>("classname") == "script_brushmodel")
+                {
+                    
+                    string targetName = brushmodel.GetField<string>("targetname");
+
+                    if (targetName == null) continue;
+                    Print(targetName + " entref " + i);
+                    CARE_PACKAGE = Call<Entity>("spawn", "script_model", origin);
+                    CARE_PACKAGE.Call("setmodel", "com_plasticcase_friendly");//com_plasticcase_friendly
+                    CARE_PACKAGE.Call(33353, brushmodel);
+
+                    Call(431, 20, "active"); // objective_add
+                    Call(435, 20, origin); // objective_position
+                    Call(434, 20, "compass_waypoint_bomb"); //compass_objpoint_ac130_friendly compass_waypoint_bomb objective_icon
+
+                    break;
+                }
+            }
+            Print(6);
+        }
+
     }
 }

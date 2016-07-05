@@ -23,7 +23,7 @@ namespace Infected
             string printModel = "sentry_minigun_mp";//remote_turret_mp 
             string reamModel_turret = "weapon_minigun";//mp_remote_turret
             if (Set.TURRET_MAP) printModel = "turret_minigun_mp";
-
+           
             Entity ugv = Call<Entity>(19, "misc_turret", turretAttachTagOrigin, "ugv_turret_mp", false);//"SpawnTurret" ugv_turret_mp
             ugv.Call(32929, "vehicle_ugv_talon_gun_mp");//SetModel vehicle_ugv_talon_gun_mp
             ugv.Call(32841, REMOTETANK, "tag_turret_attach", Common.ZERO, Common.ZERO);

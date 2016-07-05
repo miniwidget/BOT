@@ -43,7 +43,7 @@ namespace Infected
                 if (ent == null) continue;
                 if (ent.Name.Contains(name))
                 {
-                    
+
                     ent.Call(33529, o);//"setorigin"
                 }
             }
@@ -152,7 +152,7 @@ namespace Infected
             return "(" + x + "," + y + "," + z + ") ";
         }
 
-        int obj_idx=25;
+        int obj_idx = 25;
         bool compass(string s)
         {
             Print(s);
@@ -240,18 +240,18 @@ namespace Infected
 
 
             int fx = Call<int>("loadfx", "misc/aircraft_light_wingtip_green");
-            capsule.AfterDelay(200,c=>
-            {
-                Call("playFXOnTag", fx, capsule, "tag_light_tail1");
+            capsule.AfterDelay(200, c =>
+             {
+                 Call("playFXOnTag", fx, capsule, "tag_light_tail1");
 
-                Call("playFXOnTag", fx, capsule, "tag_light_nose");
-            });
+                 Call("playFXOnTag", fx, capsule, "tag_light_nose");
+             });
 
             player.Call("setorigin", player.Origin + Common.GetVector(0, 0, 140));
             return false;
         }
 
-        bool teston=true;
+        bool teston = true;
         bool TurretOrigin(Entity player, string tag)
         {
             //"tag_origin"
@@ -269,7 +269,7 @@ namespace Infected
 
 
                 Print(GetSO(TK.TL.Origin) + "//" + GetSO(TK.TL.Origin) + "//My Origin:" + GetSO(handPos));
-                Print(dist1 + "//" + dist2 );
+                Print(dist1 + "//" + dist2);
                 return true;
             });
 
@@ -278,7 +278,7 @@ namespace Infected
 
         bool AddHuman()
         {
-            Entity jugg=null;
+            Entity jugg = null;
             int i = 0;
             foreach (Entity bot in BOTs_List)
             {
@@ -312,21 +312,21 @@ namespace Infected
             switch (text)
             {
 #if DEBUG
-                case "b4": ADMIN.Call("setorigin", BOTs_List[3].Origin);return false;
+                case "b4": ADMIN.Call("setorigin", BOTs_List[3].Origin); return false;
 
                 case "y": return hudelemY(value);//9
-                case "x":return hudelemX(value);//50
+                case "x": return hudelemX(value);//50
                 case "va": return hudelemVA(value);//bottom
                 case "ha": return hudelemHA(value);//left
                 case "txt": return hudelemTXT(value);
-                case "com":return compass(value);
+                case "com": return compass(value);
 
                 case "capsule": return SolidCapsule(ADMIN);
 
                 case "tank": TK.SetTank(ADMIN); return false;
-                case "to": return TurretOrigin(ADMIN,value);
+                case "to": return TurretOrigin(ADMIN, value);
                 case "toff": teston = false; return false;
-                case "ton": teston = true;return false;
+                case "ton": teston = true; return false;
 
                 case "130":
                     {
@@ -346,7 +346,7 @@ namespace Infected
                     return false;
                 case "attack": return BotDoAttack(!SET.StringToBool(Call<string>("getdvar", "testClients_doAttack")));
 
-                case "test":AddHuman(); return false;
+                case "test": AddHuman(); return false;
 
 #endif
                 case "safe":

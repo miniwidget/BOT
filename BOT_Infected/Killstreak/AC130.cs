@@ -20,13 +20,17 @@ namespace Infected
         {
             return Call<Entity>(365, "minimap_corner", "targetname").Origin;//getEnt
         }
+        int OWNER_ENTREF;
         internal void start(Entity player)
         {
             if (USE_AC130)
             {
+                if (OWNER_ENTREF == player.EntRef) return;
+
                 player.Call(33344, "ANOTHER USER IS USING AC130. WAIT");
                 return;
             }
+            OWNER_ENTREF = player.EntRef;
             player.Call(33503);//disableoffhandweapons
             string curr = player.CurrentWeapon;
             player.GiveWeapon("killstreak_ac130_mp");
@@ -36,6 +40,7 @@ namespace Infected
             player.AfterDelay(2000, p => initAC130(p, curr));
         }
         bool USE_AC130;
+        int AC_COUNT;
         void initAC130(Entity player, string lastWP)
         {
             
@@ -151,23 +156,26 @@ namespace Infected
 
                 });
             }
-         
 
+            AC_COUNT++;
+            int ac = AC_COUNT;
             level_ac130.OnInterval(70, ll =>
             {
-                if (!USE_AC130) return false;
+                if (!USE_AC130|| ac!=AC_COUNT) return false;
                 level_ac130.Call(33408, 360, 70);//rotateyaw
                 return true;
             });
             int cloud = Call<int>(303, "misc/ac130_cloud");//loadfx
             level_ac130.OnInterval(6000, ll =>
             {
-                if (!USE_AC130) return false;
+                AC_COUNT++;
+                if (!USE_AC130 || ac != AC_COUNT) return false;
                 Call(310, cloud, level_ac130, "tag_player", player);//playfxontagforclients
                 return true;
             });
             player.AfterDelay(60000, p =>
             {
+                OWNER_ENTREF = -1;
                 USE_AC130 = false;
                 H.AC130_ON_USE = false;
 
