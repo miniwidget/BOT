@@ -268,6 +268,7 @@ namespace Infected
 
                 if (!isUsingTurret)
                 {
+                    /*
                     if (CARE_PACKAGE != null&&player.Origin.DistanceTo(CARE_PACKAGE.Origin) < 80)
                     {
                         player.Call(33344, "TEST. WHAT DO I DO FOR YOU?");
@@ -275,6 +276,7 @@ namespace Infected
                         //if (ac130 == null) ac130 = new AC130();
                         //ac130.start(player);
                     }
+                    */
                     return;
                 }
 

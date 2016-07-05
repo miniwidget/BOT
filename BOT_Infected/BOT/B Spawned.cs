@@ -43,8 +43,12 @@ namespace Infected
         /// <summary>
         /// Bot spawnded
         /// </summary>
+
+
         private void BotSpawned(Entity bot)
         {
+            if (GAME_ENDED_) return;
+
             #region general
             bot.Health = -1;
             bot.Call(32848);//hide
@@ -67,9 +71,9 @@ namespace Infected
                 bot.Call(33469, B.wep, 0);//setweaponammostock
                 bot.Call(33468, B.wep, 0);//setweaponammoclip
             //}
-            #endregion
+#endregion
 
-            #region check perk to killer
+#region check perk to killer
 
             int k = B.killer;
             if (k != -1)
@@ -78,17 +82,17 @@ namespace Infected
                 B.killer = -1;
             }
 
-            #endregion
+#endregion
 
 #if DEBUG
-            if (bot.EntRef != BOT_JUGG_ENTREF)
-            {
-                bot.Call("show");
-                bot.Health = 100;
-                bot.Call("setmovespeedscale", 0.5f);
-                return;
+            //if (bot.EntRef != BOT_JUGG_ENTREF)
+            //{
+            //    bot.Call("show");
+            //    bot.Health = 100;
+            //    bot.Call("setmovespeedscale", 0.5f);
+            //    return;
 
-            }
+            //}
 #endif
 
             bot.AfterDelay(delay_time, bot_ =>
@@ -236,6 +240,7 @@ namespace Infected
                     {
                         B.target = human;
                         blockCount++;
+                        if (blockCount == 6) blockCount = 0;
                         byte bc = blockCount;
 
                         if (human.Name != null) human.Call(33466, "missile_incoming");

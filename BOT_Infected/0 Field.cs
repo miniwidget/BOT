@@ -27,10 +27,10 @@ namespace Infected
         /// </summary>
         class B_SET
         {
-            internal Entity target;
-            internal int death;
-            internal bool fire;
-            internal bool temp_fire;
+            internal Entity target { get; set; }
+            internal int death { get; set; }
+            internal bool fire { get; set; }
+            internal bool temp_fire { get; set; }
             internal string wep;
             internal int killer = -1;
         }

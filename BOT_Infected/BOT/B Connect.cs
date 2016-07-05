@@ -95,9 +95,18 @@ namespace Infected
 
             if (i == SET.BOT_SETTING_NUM - 1) BotWaitOnFirstInfected();
 
-            if (i == 0) BOT_JUGG_ENTREF = be;
-            else if (i == 1) BOT_RPG_ENTREF = be;
-            else if (i == 2) BOT_RIOT_ENTREF = be;
+            if (i == 0)
+            {
+                BOT_JUGG_ENTREF = be;
+            }
+            else if (i == 1)
+            {
+                BOT_RPG_ENTREF = be;
+            }
+            else if (i == 2)
+            {
+                BOT_RIOT_ENTREF = be;
+            }
             //else if (i == 3)
             //{
             //    BOT_SENTRY_ENTREF = be;
@@ -111,12 +120,11 @@ namespace Infected
                 SET.BOT_CLASS_NUM++;
             }
 
-           
-
             bot.Notify("menuresponse", "changeclass", SET.BOTs_CLASS[i]);
             BOTs_List.Add(bot);
             IsBOT[be] = true;
             H_FIELD[be] = null;
+
         }
         #endregion
 
@@ -125,6 +133,8 @@ namespace Infected
             //my.print("■ waitOnFirstInfected");
 
             int failCount = 0;
+            bool human_infected = false;
+
             OnInterval(2000, () =>
             {
                 if (failCount == 6)//in case, if over 12 sec, in a state that no one got infected. ※ Infected time is 8 sec.
@@ -133,22 +143,54 @@ namespace Infected
                     return false;
                 }
 
-                foreach (Entity player in Players)
+                foreach (Entity firstInfected in Players)
                 {
-                    if (player == null) continue;
-                    if (player.GetField<string>("sessionteam") == "axis")//감염 시작
+                    if (firstInfected == null) continue;
+                    if (firstInfected.GetField<string>("sessionteam") != "axis") continue;
+                    //감염 시작
+
+                    var max = BOTs_List.Count - 1;
+                    BOT_LUCKY_IDX = max;
+
+                    if (firstInfected.Name.StartsWith("bot"))//봇이 감염된 경우
                     {
-                        if (player.Name.StartsWith("bot"))//봇이 감염된 경우
+                        if (BOTs_List.IndexOf(firstInfected) == max) BOT_LUCKY_IDX -= 1;
+                    }
+                    else//사람이 감염된 경우
+                    {
+                        human_infected = true;
+                    }
+
+                    BOTs_List[BOT_LUCKY_IDX].Notify("menuresponse", "changeclass", SET.BOTs_CLASS[0]);//Allies bot change to Jugg class
+
+                    int i = 0;
+                    OnInterval(250, () =>
+                    {
+                        Entity bot;
+
+                        if (i == max)
                         {
-                            BotToAxis(player, false);
+                            if (!human_infected)
+                            {
+                                firstInfected.SpawnedPlayer += () => BotSpawned(firstInfected);
+                                firstInfected.Call(33341);//suicide
+                                SetTeamName();
+                            }
+
+                            return GetTeamState(firstInfected.Name);
                         }
-                        else//사람이 감염된 경우
+                        if (i != BOT_LUCKY_IDX)
                         {
-                            BotToAxis(player, true);
+                            bot = BOTs_List[i];
+                            bot.SpawnedPlayer += () => BotSpawned(bot);
+                            bot.Call(33341);//suicide
                         }
 
-                        return false;
-                    }
+                        i++;
+                        return true;
+                    });
+
+                    return false;
 
                 }
 
@@ -156,51 +198,6 @@ namespace Infected
                 return true;
             });
         }
-
-        /// <summary>
-        /// 봇이 처음 감염된 경우 & 사람이 아무도 접속하지 않은 경우 = 대기상태를 만들기 위해 봇 1 마리를 살려 놓음
-        /// 사람이 접속했을 지라도, 팀변경을 위해 봇 1마리를 살려 놓음
-        /// </summary>
-        void BotToAxis(Entity fi, bool human_infected)
-        {
-            var max = BOTs_List.Count - 1;
-            BOT_LUCKY_IDX = max;
-
-            if (!human_infected)
-            {
-                if (BOTs_List.IndexOf(fi) == max) BOT_LUCKY_IDX -= 1;
-            }
-
-            BOTs_List[BOT_LUCKY_IDX].Notify("menuresponse", "changeclass", SET.BOTs_CLASS[0]);
-
-            int i = 0;
-            OnInterval(250, () =>
-            {
-                Entity bot;
-
-                if (i == max)
-                {
-                    if (!human_infected)
-                    {
-                        fi.SpawnedPlayer += () => BotSpawned(fi);
-                        fi.Call(33341);//suicide
-                        SetTeamName();
-                    }
-
-                    return GetTeamState(fi.Name);
-                }
-                if (i != BOT_LUCKY_IDX)
-                {
-                    bot = BOTs_List[i];
-                    bot.SpawnedPlayer += () => BotSpawned(bot);
-                    bot.Call(33341);//suicide
-                }
-
-                i++;
-                return true;
-            });
-        }
-
         bool GetTeamState(string first_inf_name)
         {
             int alive = 0, max = BOTs_List.Count;
@@ -231,13 +228,14 @@ namespace Infected
             {
                  BotDoAttack(true);
             }
+            Call(42, "scr_infect_timelimit", "12");
             GET_TEAMSTATE_FINISHED = true;
 
             GRACE_TIME = DateTime.Now.AddSeconds(166);
 
             int num = rnd.Next(BOTs_List.Count);
             if (num == BOT_LUCKY_IDX) num = 0;
-            CarePackage(BOTs_List[num].Origin);
+            //CarePackage(BOTs_List[num].Origin);
 
             return false;
         }
@@ -249,8 +247,6 @@ namespace Infected
                 Call(42, "testClients_doCrouch", 0);
                 Call(42, "testClients_doMove", 1);
                 Call(42, "testClients_doAttack", 1);
-                Call(42, "scr_infect_timelimit", "12");
-               
             }
             else
             {
@@ -261,6 +257,7 @@ namespace Infected
             return false;
         }
 
+        /*
         Entity CARE_PACKAGE;
         Entity GetBrushModel(string bm)
         {
@@ -308,8 +305,8 @@ namespace Infected
                     break;
                 }
             }
-            Print(6);
-        }
 
+        }
+        */
     }
 }

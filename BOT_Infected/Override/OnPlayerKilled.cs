@@ -49,7 +49,6 @@ namespace Infected
             if (weapon[2] != '5' && weapon[0] != 'r') return;
 
             int pe = player.EntRef;
-
             if (IsBOT[pe])//in case of BOT
             {
                 if (pe == BOT_RIOT_ENTREF) return;
@@ -66,6 +65,7 @@ namespace Infected
                 if (B.temp_fire || B.target != null) return;
 
                 BotTempFire(B, player, attacker);
+              
             }
             else//in case of HUMAN
             {
