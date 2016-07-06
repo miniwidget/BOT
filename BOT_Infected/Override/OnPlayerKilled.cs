@@ -118,11 +118,12 @@ namespace Infected
                 return;
             }
 
-            if (attacker == null || !attacker.IsPlayer) return;
+            //if (attacker == null || !attacker.IsPlayer) return;
+            if (weapon[2] != '5' && weapon[0] != 'r') return;
 
             if (!IsBOT[attacker.EntRef])//공격자가 사람인 경우, 퍼크 주기
             {
-                if (weapon[2] == '5' && BotKilled)
+                if (BotKilled)
                 {
                     B_FIELD[ke].killer = human_List.IndexOf(attacker);
                 }

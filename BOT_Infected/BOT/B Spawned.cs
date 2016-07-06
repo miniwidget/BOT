@@ -161,7 +161,7 @@ namespace Infected
                         b.Call(33468, weapon, 500);//setweaponammoclip
                         b.Call(33523, weapon);//givemaxammo
 
-                        //if (Jugg) if (human.Name != null) human.Call(33466, "AF_victory_music");//"playlocalsound"
+                        if (Jugg) if (human.Name != null) human.Call(33466, "AF_victory_music");//"playlocalsound"
 
                         blockCount++;
                         if (blockCount == 6) blockCount = 0;
@@ -171,7 +171,7 @@ namespace Infected
                         {
                             if (bc != blockCount ||  !B.fire) return false;
 
-                           if(Jugg) Print(bc + " " + human.Name + " " + bot.Name);
+                           //if(Jugg) Print(bc + " " + human.Name + " " + bot.Name);
 
                             var TO = human.Origin;
                             var BO = bb.Origin;
