@@ -40,10 +40,6 @@ namespace Infected
                 }
             }
         }
-        /// <summary>
-        /// Bot spawnded
-        /// </summary>
-
 
         private void BotSpawned(Entity bot)
         {
@@ -129,7 +125,7 @@ namespace Infected
 
             bot.OnInterval(2000, b =>
             {
-                if (death != B.death) return B.fire = false;
+                if (death != B.death) return false;
                 if (HUMAN_DIED_ALL_) return !(B.fire = false);
 
                 Vector3 bo = b.Origin;
@@ -150,33 +146,32 @@ namespace Infected
                     B.target = null;
                     b.Call(33469, weapon, 0);//setweaponammostock
                     b.Call(33468, weapon, 0);//setweaponammoclip
-                }
 
-                B.fire = false;
+                    B.fire = false;
+                    B.wait = true;
+                }
 
                 foreach (Entity human in human_List)
                 {
-                    var HOD = human.Origin.DistanceTo(bo);
-
-                    if (HOD < FIRE_DIST)
+                    if (human.Origin.DistanceTo(bo) < FIRE_DIST)
                     {
+                        B.fire = true;
                         B.target = human;
 
                         b.Call(33468, weapon, 500);//setweaponammoclip
                         b.Call(33523, weapon);//givemaxammo
 
-                        if (Jugg) if (human.Name != null) human.Call(33466, "AF_victory_music");//"playlocalsound"
+                        //if (Jugg) if (human.Name != null) human.Call(33466, "AF_victory_music");//"playlocalsound"
 
                         blockCount++;
                         if (blockCount == 6) blockCount = 0;
                         byte bc = blockCount;
-                        B.fire = true;
 
                         b.OnInterval(410, bb =>
                         {
                             if (bc != blockCount ||  !B.fire) return false;
 
-                           //Print(bc + " " + human.Name + " " + bot.Name);
+                           if(Jugg) Print(bc + " " + human.Name + " " + bot.Name);
 
                             var TO = human.Origin;
                             var BO = bb.Origin;
@@ -198,6 +193,9 @@ namespace Infected
                     }
 
                 }
+
+                B.wait = false;
+
                 return true;
 
             });
@@ -215,7 +213,7 @@ namespace Infected
 
             bot.OnInterval(2000, bot_ =>
             {
-                if (death != B.death) return B.fire = false;
+                if (death != B.death) return false;
                 if (HUMAN_DIED_ALL_) return !(B.fire = false);
                 Vector3 bo = bot.Origin;
 
@@ -228,9 +226,11 @@ namespace Infected
 
                     B.target = null; //타겟과 거리가 멀어진 경우, 타겟 제거
                     bot_.Call(33468, "rpg_mp", 0);//setweaponammoclip
+
+                    B.fire = false;
+                    B.wait = true;
                 }
 
-                B.fire = false;
 
                 foreach (Entity human in human_List)
                 {
@@ -283,8 +283,10 @@ namespace Infected
         {
             bot.Call(33220, 1f);//setmovespeedscale
             Entity target = null;
+
             B_SET B = B_FIELD[bot.EntRef];
             int death = B.death;
+            B.wait = true;
 
             BOT_SERCH_ON_LUCKY_FINISHED = true;
             string weapon = bot.CurrentWeapon;
@@ -323,9 +325,10 @@ namespace Infected
                     target = null;
                     b.Call(33469, weapon, 0);//setweaponammostock
                     b.Call(33468, weapon, 0);//setweaponammoclip
-                }
 
-                B.fire = false;
+                    B.fire = false;
+                    B.wait = true;
+                }
 
                 foreach (Entity human in HumanAxis)
                 {

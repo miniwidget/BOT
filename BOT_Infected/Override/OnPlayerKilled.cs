@@ -10,19 +10,22 @@ namespace Infected
 {
     public partial class Infected
     {
-
+        //int ttt;
         void BotTempFire(B_SET B, Entity bot, Entity target)
         {
             int i = 0;
             bot.Call(33468, B.wep, 500);//setweaponammoclip
             bot.Call(33523, B.wep);//givemaxammo
-            //Print( bot.Name + "//" +target.Name);
-            bot.OnInterval(400, bb =>
+            
+            int entref = bot.EntRef;
+            //ttt++;
+            bot.OnInterval(300, bb =>
             {
-                if (i == 6 || B.target != null )//|| !B.fire
+                if (i == 5 || B.target != null)//|| !B.fire
                 {
                     return B.temp_fire = false;
                 }
+            //if(entref == BOT_JUGG_ENTREF) Print(ttt +"데미지 " + bot.Name + "//" + target.Name);
 
                 var TO = target.Origin;
                 var BO = bb.Origin;
@@ -63,7 +66,7 @@ namespace Infected
                 if (IsBOT[attacker.EntRef]) return;
 
                 B_SET B = B_FIELD[pe];
-                if (B.temp_fire || B.target != null) return;
+                if (B.wait || B.temp_fire || B.target != null) return;
                 B.temp_fire = true;
 
                 BotTempFire(B, player, attacker);
@@ -92,6 +95,7 @@ namespace Infected
             B.fire = false;
             B.temp_fire = false;
             B.death += 1;
+            B.wait = true;
         }
         public override void OnPlayerKilled(Entity killed, Entity inflictor, Entity attacker, int damage, string mod, string weapon, Vector3 dir, string hitLoc)
         {

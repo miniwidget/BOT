@@ -31,6 +31,7 @@ namespace Infected
             internal int death { get; set; }
             internal bool fire { get; set; }
             internal bool temp_fire { get; set; }
+            internal bool wait { get; set; }
             internal string wep;
             internal int killer = -1;
         }
