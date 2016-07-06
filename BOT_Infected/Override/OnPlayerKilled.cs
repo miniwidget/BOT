@@ -13,15 +13,13 @@ namespace Infected
 
         void BotTempFire(B_SET B, Entity bot, Entity target)
         {
-            B.temp_fire = true;
-
             int i = 0;
             bot.Call(33468, B.wep, 500);//setweaponammoclip
             bot.Call(33523, B.wep);//givemaxammo
-
+            //Print( bot.Name + "//" +target.Name);
             bot.OnInterval(400, bb =>
             {
-                if (i == 6 || B.target != null || !B.fire)
+                if (i == 6 || B.target != null )//|| !B.fire
                 {
                     return B.temp_fire = false;
                 }
@@ -49,23 +47,26 @@ namespace Infected
             if (weapon[2] != '5' && weapon[0] != 'r') return;
 
             int pe = player.EntRef;
+
+            if (pe == BOT_RPG_ENTREF)
+            {
+                if (attacker == player)//"rpg_mp")
+                {
+                    player.Health += damage;
+                    return;
+                }
+            }
+            if (pe == BOT_RIOT_ENTREF) return;
+
             if (IsBOT[pe])//in case of BOT
             {
-                if (pe == BOT_RIOT_ENTREF) return;
-                else if (pe == BOT_RPG_ENTREF)
-                {
-                    if (attacker == player && weapon[0] == 'r')//"rpg_mp")
-                    {
-                        player.Health += damage;
-                        return;
-                    }
-                }
+                if (IsBOT[attacker.EntRef]) return;
 
                 B_SET B = B_FIELD[pe];
                 if (B.temp_fire || B.target != null) return;
+                B.temp_fire = true;
 
                 BotTempFire(B, player, attacker);
-              
             }
             else//in case of HUMAN
             {
