@@ -18,6 +18,7 @@ namespace Infected
         void Print(object s)
         {
             Log.Write(LogLevel.None, "{0}", s.ToString());
+
         }
 
 
