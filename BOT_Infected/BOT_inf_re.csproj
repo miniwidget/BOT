@@ -59,7 +59,7 @@
     <Compile Include="Override\OnPlayerKilled.cs" />
     <Compile Include="2 Set.cs" />
     <Compile Include="4 Perk.cs" />
-    <Compile Include="7 Admin.cs" />
+    <Compile Include="Override\OnSay_Admin.cs" />
     <Compile Include="1 Main.cs" />
     <Compile Include="5 Info.cs" />
     <Compile Include="3 Weapon.cs" />

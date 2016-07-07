@@ -73,12 +73,10 @@ namespace Infected
                 #endregion
 
             }
-            else if (length == 2)
+            else if (length == 2 && !Axis)
             {
-                if (Axis) return;
-
                 int i;
-                if (!int.TryParse(texts[1], out i)) return;
+                if (!int.TryParse(texts[1], out i)) i = 0; 
 
                 switch (text0)
                 {

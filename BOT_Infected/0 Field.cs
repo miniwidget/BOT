@@ -11,7 +11,6 @@ namespace Infected
         internal static Random rnd;
         internal Entity ADMIN;
         internal static int FIRE_DIST, PLAYER_LIFE = 2;
-        internal static bool USE_ADMIN_SAFE_;
         internal static string ADMIN_NAME;
 
         bool[] IsBOT = new bool[18];

@@ -351,8 +351,8 @@ namespace Infected
 #endif
                 case "safe":
                     {
-                        USE_ADMIN_SAFE_ = !USE_ADMIN_SAFE_;
-                        Utilities.RawSayTo(ADMIN, "ADMIN SAFE : " + USE_ADMIN_SAFE_);
+                        SET.USE_ADMIN_SAFE_ = !SET.USE_ADMIN_SAFE_;
+                        Utilities.RawSayTo(ADMIN, "ADMIN SAFE : " + SET.USE_ADMIN_SAFE_);
                     }
                     return false;
                 case "ultest": return AD.Script("unloadscript test.dll", true);

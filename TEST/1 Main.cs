@@ -65,18 +65,20 @@ namespace TEST
             Utilities.ExecuteCommand("sv_hostname TEST");
 
             //KickBOTsAll("");
+
         }
 
 
         void ShowHealth()
         {
-            for(int i = 0; i < 18; i++)
+            for (int i = 0; i < 18; i++)
             {
                 Entity ent = Entity.GetEntity(i);
                 if (ent == null) continue;
                 Print(ent.Health);
             }
         }
+
         #region ++
         void AC130()
         {
@@ -129,7 +131,6 @@ namespace TEST
             if (type == "model") table.GetModel();
             else if (type == "qq") table.tableValue(value);
             else if (type == "tn") table.GetTeamName(value);
-            else if (type == "qm") QueryModel();
 
         }
         void Vehicle_(string type, string value)
@@ -251,18 +252,76 @@ namespace TEST
             ADMIN.Call("setorigin", repos);
         }
         #endregion
+        List<Vector3> SpawnPoints = new List<Vector3>();
+        Vector3 tvector = new Vector3();
+        string GetSimplePos(Vector3 v)
+        {
+            tvector.X = (int)v.X;
+            tvector.Y = (int)v.Y;
+            tvector.Z = (int)v.Z;
+            return tvector.ToString();
+        }
+        Entity[] GetEntArray(string key, string value)
+        {
+            Entity[] EA = { };
+            int j = 0;
+            for (int i = 0; i < 1024; i++)
+            {
+                Entity ent = Entity.GetEntity(i);
+                if (ent == null) continue;
+                if (ent.GetField<string>(key) == value)
+                {
+                    EA[j] = ent;
+                    j++;
+                }
+            }
+            if (EA.Length > 0) return EA;
+            return null;
+        }
+        void spawnPos()
+        {
 
+            if (SB == null) SB = new StringBuilder();
+            SB.Length = 0;
 
+            //SpawnPoints.Clear();
+            SB.AppendLine("dom\n");
+            for (int i = 17; i < 1024; i++)
+            {
+                Entity ent = Entity.GetEntity(i);
+                if (ent == null) break;
+                if (ent.GetField<string>("classname") == "mp_dom_spawn")//"mp_dom_spawn")
+                {
+                    SB.AppendLine(GetSimplePos(ent.Origin));
+                }
+            }
+
+            SB.AppendLine("inf\n");
+            for (int i = 17; i < 1024; i++)
+            {
+                Entity ent = Entity.GetEntity(i);
+                if (ent == null) break;
+                if (ent.GetField<string>("classname") == "mp_tdm_spawn")//"mp_dom_spawn")
+                {
+                    SB.AppendLine(GetSimplePos(ent.Origin));
+                }
+            }
+            File.WriteAllText("z:\\mw3.txt", SB.ToString(), Encoding.Default);
+
+        }
         public override void OnSay(Entity player, string name, string text)
         {
             if (ADMIN == null) GetADMIN();
 
             string[] texts = text.Split(' '); string value = null, txt = null;
-            if (texts.Length > 1) { value = texts[1]; txt = texts[0]; } else  txt = text;
+            if (texts.Length > 1) { value = texts[1]; txt = texts[0]; } else txt = text;
 
             switch (txt)
             {
-                case "health": ShowHealth();break;
+                case "spos": spawnPos(); break;
+                case "s": SpawnModel(texts[1], texts[2]); break;
+                case "wm": WriteModel(); break;
+                case "health": ShowHealth(); break;
                 case "move0": Call(42, "testClients_doMove", 0); break;
                 case "crouch0": Call(42, "testClients_doCrouch", 0); break;
                 case "move1": Call(42, "testClients_doMove", 1); break;
@@ -329,74 +388,58 @@ namespace TEST
         }
 
         #region QueryModel
-        Entity Query;
-        void QueryModel()
-        {
-            //Entity vehicle_brushmodel = Call<Entity>("getent", "destructible_vehicle", "targetname");
-            //if (vehicle_brushmodel != null)
-            //{
 
-            //    Entity model = Call<Entity>("spawn", "script_model", ADMIN.Origin+ new Vector3(0,0,50));
-            //    model.Call("setmodel", "destructible_vehicle");
-            //    model.SetField("angles", new Vector3());
-            //    model.Call(33353, vehicle_brushmodel);
-            //}
-            //return;
-            for (int i = 0; i < 2048; i++)
+        Entity SOLID_MODEL, BRUSH_MODEL;
+        Entity GetBrushModel(string bm)
+        {
+            return Call<Entity>("getent", bm, "targetname");
+        }
+        Vector3 _30 = new Vector3(30, 30, 0);
+        void SpawnModel(string brush_model, string solid_model)
+        {
+            if (SOLID_MODEL != null) SOLID_MODEL.Call("delete");
+            if (BRUSH_MODEL != null) BRUSH_MODEL.Call("delete");
+            BRUSH_MODEL = GetBrushModel(brush_model);
+
+            SOLID_MODEL = Call<Entity>("spawn", "script_model", ADMIN.Origin + _30);
+            SOLID_MODEL.Call("setmodel", solid_model);
+            SOLID_MODEL.Call(33353, BRUSH_MODEL);
+        }
+
+        StringBuilder SB;
+        void WriteModel()
+        {
+            if (SB == null) SB = new StringBuilder();
+            SB.Length = 0;
+
+            SB.AppendLine("# " + Call<string>(47, "mapname") + " script_model");
+
+            for (int i = 0; i < 1024; i++)
             {
-                Entity e = Entity.GetEntity(i);
-                if (e == null) continue;
-                var fieldname = e.GetField<string>("player");
-                if (fieldname != null)
+                Entity ent = Entity.GetEntity(i);
+                if (ent == null) continue;
+                string script_model = ent.GetField<string>("classname");
+                if (script_model == "script_model")
                 {
-                    Print(fieldname + e.EntRef);
+                    SB.AppendLine(ent.GetField<string>("model"));
                 }
             }
-            return;
-            Query = Call<Entity>("getEntArray", "care_package", "targetname");
-            if (Query == null) Print("꽝");
-            else
+
+            SB.AppendLine("# " + Call<string>(47, "mapname") + " script_brushmodel");
+            for (int i = 0; i < 1024; i++)
             {
-                string s = Query.Name;
-                Print(s);
-                //Print(GetFieldContent("classname"));
-                //Print(GetFieldContent("targetname"));
-                //airdropCollision = Call<Entity>("getent", care_package.GetField<string>("target"), "targetname");
+                Entity ent = Entity.GetEntity(i);
+                if (ent == null) continue;
+                string script_model = ent.GetField<string>("classname");
+                if (script_model == "script_brushmodel")
+                {
+                    SB.AppendLine(ent.GetField<string>("targetname"));
+                }
             }
-            var ent = Call<Entity>("getent", "script_model", "classname");
 
-            var ent2 = Call<Entity>("getent", "???????????", "targetname");
-            //code_classname
-            //target
-            //script_linkname
-
-            /*
-            ■ classname
-
-            player
-            script_origin
-            script_model
-
-
-
-            ■ targetname
-            destructible_vehicle
-            destructible
-            destructible_toy
-            light_destructible
-            toggle
-             vending_machine
-             civilian_jet_origin
-             grenade
-             remoteMissileSpawn
-
-            Function.AddMapping("laseron", 32930);
-            Function.AddMapping("laseroff", 32931);
-            Function.AddMapping("laseraltviewon", 32932);
-            Function.AddMapping("laseraltviewoff", 32933);
-
-             */
+            File.WriteAllText("z:\\mw3txt.txt", SB.ToString(), Encoding.Default);
         }
+
         #endregion
 
         bool third;
@@ -429,9 +472,14 @@ namespace TEST
                 if (p.Name == "kwnav")
                 {
                     test.ADMIN = p;
+                    ADMIN.SpawnedPlayer += delegate
+                    {
+                        Print(GetSimplePos(ADMIN.Origin));
+                    };
                     break;
                 }
             }
+
             return true;
         }
         void Script(string command, bool restart)

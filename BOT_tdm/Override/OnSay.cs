@@ -28,20 +28,15 @@ namespace Tdm
             {
                 switch (texts[0])
                 {
-                    case "infoa": ShowInfoA(player); return;
-                    case "infow": ShowInfoW(player); return;
+                    case "infoa": INFO.MessageInfoA(player); return;
+                    case "infow": INFO.MessageInfoW (player); return;
 
                     case "sc": AfterDelay(100, () => player.Call("suicide")); return;
 
                     case "riot": giveWeaponTo(player, "riotshield_mp"); return;
                     case "javelin": giveWeaponTo(player, "javelin_mp"); return;
                     case "stinger": giveWeaponTo(player, "stinger_mp"); return;
-                    case "help": Utilities.RawSayTo(player, "information is in ^7[^2github.com/miniwidget/BOT-infected^7]"); return;
-                }
 
-
-                switch (texts[0])
-                {
                     case "ap": giveWeaponTo(player, AP()); return;
                     case "ag": giveWeaponTo(player, AG()); return;
                     case "ar": giveWeaponTo(player, AR()); return;
@@ -62,8 +57,7 @@ namespace Tdm
             {
                 var tx = texts[1];
                 int i = 0;
-                if (!int.TryParse(tx, out i)) return;
-                if (i > 9) return;
+                if (!int.TryParse(tx, out i)) i = 0;
 
                 switch (texts[0])
                 {

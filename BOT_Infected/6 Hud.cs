@@ -26,7 +26,6 @@ namespace Infected
 ^2[{+movedown}] ^7VIEWSCOPE";
         //^2[{+prone}] ^7ATTATCHMENT
 
-        internal HudElem elem;
         internal void AlliesHud(Entity player)
         {
             HudElem allies_info_hud = HudElem.CreateFontString(player, "hudbig", 0.4f);
@@ -50,7 +49,6 @@ namespace Infected
             //allies_weap_hud.Call(32895, 2f);//"moveovertime"
             //allies_weap_hud.X = 40;
 
-            elem = allies_weap_hud;
 
             player.OnNotify("CLOSE", e =>
             {

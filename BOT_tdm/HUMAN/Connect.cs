@@ -10,6 +10,30 @@ namespace Tdm
 {
     public partial class Tdm
     {
+
+        void Human_Connected(Entity player)
+        {
+            string name = player.Name;
+
+            if (player.Name == ADMIN_NAME)
+            {
+                ADMIN = player;
+                setADMIN();
+            }
+
+            if (!HUMAN_CONNECTED_) HUMAN_CONNECTED_ = true;
+            Print(name + " connected ♥");
+            Client_init_GAME_SET(player);
+            
+        }
+        void Tdm_PlayerDisConnected(Entity player)
+        {
+            H_ALLIES_LIST.Remove(player);
+            H_AXIS_LIST.Remove(player);
+            human_List.Remove(player);
+            if (human_List.Count == 0 ) HUMAN_CONNECTED_ = false;
+        }
+
         void setADMIN()
         {
             ADMIN.Call("notifyonplayercommand", "SPECT", "centerview");
@@ -34,27 +58,6 @@ namespace Tdm
                 ADMIN.Call("setmovespeedscale", 1.5f);
             }
         }
-        void Human_Connected(Entity player)
-        {
-            string name = player.Name;
 
-            if (player.Name == ADMIN_NAME)
-            {
-                ADMIN = player;
-                setADMIN();
-            }
-
-            if (!HUMAN_CONNECTED_) HUMAN_CONNECTED_ = true;
-            print(name + " connected ♥");
-            Client_init_GAME_SET(player);
-            
-        }
-        void Tdm_PlayerDisConnected(Entity player)
-        {
-            H_ALLIES_LIST.Remove(player);
-            H_AXIS_LIST.Remove(player);
-            human_List.Remove(player);
-            if (human_List.Count == 0 && !GAME_ENDED_) HUMAN_CONNECTED_ = false;
-        }
     }
 }

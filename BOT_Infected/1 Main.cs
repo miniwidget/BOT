@@ -107,9 +107,7 @@ namespace Infected
                 });
             });
 
-
         }
-
     }
     class Inf
     {

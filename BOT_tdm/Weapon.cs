@@ -138,7 +138,7 @@ namespace Tdm
                 var type = getWeaponType(CW);
                 if (type == null || type == "sn")
                 {
-                    showMessage(player, "[ ^2NOT APPLIED ^7] FOR THIS WEAPON");
+                    player.Call(33344, "[ ^2NOT APPLIED ^7] FOR THIS WEAPON");
                     return;
                 }
 
@@ -219,7 +219,7 @@ namespace Tdm
                 }
                 else
                 {
-                    showMessage(player, "[ ^2NOT APPLIED ^7] FOR THIS WEAPON");
+                    player.Call(33344, "[ ^2NOT APPLIED ^7] FOR THIS WEAPON");
                 }
 
             }

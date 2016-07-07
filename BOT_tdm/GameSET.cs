@@ -12,7 +12,7 @@ namespace Tdm
         #region field
         string
             SERVER_NAME, ADMIN_NAME,
-            NEXT_MAP, TEAMNAME_ALLIES, TEAMNAME_AXIS,
+            NEXT_MAP,
             WELLCOME_MESSAGE;
 
         bool
@@ -20,13 +20,17 @@ namespace Tdm
             GAME_ENDED_, HUMAN_CONNECTED_;
 
         float
-            INFECTED_TIMELIMIT, PLAYERWAIT_TIME, MATCHSTART_TIME;
+            PLAYERWAIT_TIME, MATCHSTART_TIME;
 
         int
             t0 = 100, t1 = 1000, t2 = 2000, t3 = 3000,
             SEARCH_TIME, FIRE_TIME, BOT_DELAY_TIME, BOT_SETTING_NUM, FIRE_DIST;
 
-        bool isAllies(Entity player) { return player.GetField<string>("sessionteam") == "allies"; }
+        bool[] IsBOT = new bool[18];
+        void Print(object s)
+        {
+            Log.Write(LogLevel.None, "{0}", s.ToString());
+        }
 
         Random rnd = new Random();
         Entity ADMIN;
@@ -38,8 +42,6 @@ namespace Tdm
         /// </summary>
         void Server_SetDvar()
         {
-            Call("setdvar", "g_TeamName_Allies", TEAMNAME_ALLIES);
-            Call("setdvar", "g_TeamName_Axis", TEAMNAME_AXIS);
             Call("setdvar", "scr_game_playerwaittime", PLAYERWAIT_TIME);
             Call("setdvar", "scr_game_matchstarttime", MATCHSTART_TIME);
 
@@ -91,23 +93,16 @@ namespace Tdm
             if (TEST_)
             {
                 Utilities.ExecuteCommand("seta g_password \"0\"");
+                Utilities.ExecuteCommand("sv_hostname TEST");
             }
             else
             {
                 Utilities.ExecuteCommand("seta g_password \"\"");
 
                 string content = NEXT_MAP + ",TDM,1";
-                File.WriteAllText(GetPath("admin\\TDM.dspl"), content);
+                File.WriteAllText("admin\\TDM.dspl", content);
             }
 
-        }
-        string GetPath(string path)
-        {
-            if (TEST_)
-            {
-                path = path.Replace("admin\\", "admin\\test\\");
-            }
-            return path;
         }
 
         #endregion
@@ -119,14 +114,16 @@ namespace Tdm
         /// </summary>
         class B_SET
         {
-            public Entity target { get; set; }
-            public int death { get; set; }
-            public bool fire { get; set; }
-            public bool temp_fire { get; set; }
-            public string wep { get; set; }
+            internal Entity target { get; set; }
+            internal int death { get; set; }
+            internal bool fire { get; set; }
+            internal bool temp_fire { get; set; }
+            internal bool wait { get; set; }
+            internal string wep;
+            internal int killer = -1;
+            internal bool Axis;
         }
         List<B_SET> B_FIELD = new List<B_SET>(18);
-        //Dictionary<int, int> BOT_ID = new Dictionary<int, int>();
         List<Entity> BOTs_List = new List<Entity>();
         #endregion
 
@@ -134,10 +131,10 @@ namespace Tdm
         /// <summary>
         /// HUMAN PLAYER SET class for custom fields set
         /// </summary>
-        class H_SET
+        internal class H_SET
         {
             int att = 0;
-            public int SIRENCERorHB
+            internal int SIRENCERorHB
             {
                 get
                 {
@@ -146,14 +143,32 @@ namespace Tdm
                     return this.att;
                 }
             }
-            public int PERK { get; set; }
-            public bool USE_TANK { get; set; }
-            public string TEAM { get; set; }
+            internal int PERK { get; set; }
+            internal HudElem PERK_COUNT_HUD;
+            internal string PERK_TXT = "**";
 
+            /// <summary>
+            /// 0: Allies under 10kill IN ALLIES /
+            /// 1: ready to call heli /
+            /// </summary>
+            internal bool CAN_USE_HELI;
+
+            /// <summary>
+            /// 0 not using remote /
+            /// 1 remote helicopter /
+            /// 2 remote tank /
+            /// </summary>
+            internal byte REMOTE_STATE;
+            /// <summary>
+            /// when roop massage, if on_message state, it blocks reapeted roop
+            /// </summary>
+            internal bool ON_MESSAGE;
+
+            internal bool Axis;
         }
-        List<H_SET> H_FIELD = new List<H_SET>(18);
+        internal static List<H_SET> H_FIELD = new List<H_SET>(18);
         //Dictionary<int, int> H_ID = new Dictionary<int, int>();
-        List<Entity> human_List = new List<Entity>();
+        internal static List<Entity> human_List = new List<Entity>();
 
         List<Entity> H_AXIS_LIST = new List<Entity>();
         List<Entity> H_ALLIES_LIST = new List<Entity>();
@@ -168,14 +183,12 @@ namespace Tdm
         /// </summary>
         void Client_init_GAME_SET(Entity player)
         {
-
+            player.Notify("menuresponse", "team_marinesopfor", "autoassign");
             #region set
             human_List.Add(player);
 
             H_SET H = H_FIELD[player.EntRef];
             H.PERK = 2;
-            H.TEAM = null;
-            H.USE_TANK = false;
             #endregion
 
             #region SetClientDvar
@@ -186,21 +199,6 @@ namespace Tdm
             player.SetClientDvar("lowAmmoWarningNoReloadColor1", "0 0 0 0");
             player.SetClientDvar("lowAmmoWarningColor2", "0 0 0 0");
             player.SetClientDvar("lowAmmoWarningColor1", "0 0 0 0");
-            player.SetClientDvar("cg_drawBreathHint", "0");
-            player.SetClientDvar("cg_scoreboardpingtext", "1");
-            player.SetClientDvar("cg_brass", "1");
-            player.SetClientDvar("waypointIconHeight", "13");
-            player.SetClientDvar("waypointIconWidth", "13");
-
-            //player.SetClientDvar("cg_fov", "75");
-            //player.SetClientDvar("clientsideeffects", "1");
-            //player.SetClientDvar("cl_maxpackets", "60");
-            //player.SetClientDvar("com_maxfps", "91");
-            //player.SetClientDvar("r_fog", "1");
-            //player.SetClientDvar("r_distortion", "1");
-            //player.SetClientDvar("r_dlightlimit", "4");
-            //player.SetClientDvar("fx_drawclouds", "1");
-            //player.SetClientDvar("snaps", "20");
 
             #endregion
 
@@ -247,35 +245,33 @@ namespace Tdm
                 giveOffhandWeapon(player, offhand);
             });
 
-            //player.OnNotify("menuresponse", (p, Menu, Response) =>
-            //{
-            //    string menu = Menu.ToString();
-            //    string resp = Response.ToString();
+            player.OnNotify("menuresponse", (p, Menu, Response) =>
+            {
+                string menu = Menu.ToString();
+                string resp = Response.ToString();
 
-            //    if (menu == "changeclass" && resp == "axis_recipe1")
-            //    {
-            //        p.AfterDelay(100, x =>
-            //        {
-            //            x.Notify("menuresponse", "changeclass", "back");
-            //            x.AfterDelay(100, xx =>
-            //            {
-            //                xx.Notify("menuresponse", "changeclass", "axis_recipe4");
-            //                xx.Call("suicide");
-            //            });
-            //        });
-            //    }
-            //});
+                if (menu == "class" && resp == "changeteam")
+                {
+                    p.AfterDelay(100, x =>
+                    {
+                        p.Notify("menuresponse", "team_marinesopfor", "back");
+                    });
+                }
+            });
+
             #region TANK
 
             Entity TANK = null;
+            bool use_tank = false;
+            bool axis = false;
             player.OnNotify("weapon_change", (Entity ent, Parameter newWeap) =>
             {
-                if (H.USE_TANK) return;
+                if (use_tank) return;
                 string weap = newWeap.ToString();
                 //print(weap);
                 if (weap == "killstreak_remote_tank_remote_mp")
                 {
-                    H.USE_TANK = true;
+                    use_tank = true;
                     TANK = null;
 
                     bool found = false;
@@ -292,21 +288,136 @@ namespace Tdm
                     }
                     if (!found) return;
 
-                    //print("들어왔다 "+TANK.Name);
-                    human_List.Add(TANK);
+                    player.Call(32936);
+                    if (H.Axis)
+                    {
+                        H_AXIS_LIST.Remove(player);
+                        H_AXIS_LIST.Add(TANK);
+                        axis = true;
+                    }
+                    else
+                    {
+                        H_ALLIES_LIST.Remove(player);
+                        H_ALLIES_LIST.Add(TANK);
+                        axis = false;
+                    }
                 }
             });
             player.OnNotify("end_remote", (Entity ent) =>
             {
-                if (H.USE_TANK)
+                if (!use_tank) return;
+                use_tank = false;
+                player.Call(32937);
+                if (axis)
                 {
-                    H.USE_TANK = false;
-                    human_List.Remove(TANK);
+                    H_AXIS_LIST.Remove(TANK);
+                    H_AXIS_LIST.Add(player);
+                }else
+                {
+                    H_ALLIES_LIST.Add(player);
+                    H_ALLIES_LIST.Remove(player);
                 }
             });
             #endregion
 
             #endregion
+
+
+            #region helicopter
+
+            bool wait = false;
+            player.Call(33445, "ACTIVATE", "+activate");//"notifyonplayercommand"
+            player.OnNotify("ACTIVATE", ent =>
+            {
+                if (use_tank) return;
+                if (player.CurrentWeapon[2] != '5') return;//deny when using killstreak 
+                bool isUsingTurret = player.Call<int>(33539) == 1;
+
+                if (!isUsingTurret && H.CAN_USE_HELI && HCT.HELI == null)//isUsingTurret : deny when not using turrent
+                {
+                    if (wait) return; wait = true;
+                    player.AfterDelay(500, p =>
+                    {
+                        wait = false;
+                        if (player.Call<int>(33533) == 1) return;//usebuttonpressed : deny when catching carepackage 
+                        HCT.HeliCall(player);
+                    });
+                    return;
+                }
+
+                if (!isUsingTurret)
+                {
+                    /*
+                    if (CARE_PACKAGE != null&&player.Origin.DistanceTo(CARE_PACKAGE.Origin) < 80)
+                    {
+                        player.Call(33344, "TEST. WHAT DO I DO FOR YOU?");
+                        
+                        //if (ac130 == null) ac130 = new AC130();
+                        //ac130.start(player);
+                    }
+                    */
+                    return;
+                }
+
+
+                player.Call(33436, "black_bw", 0.5f);//VisionSetNakedForPlayer
+
+                player.AfterDelay(500, x =>
+                {
+                    if (player.Call<int>(33539) == 1)//isUsingTurret
+                    {
+                        byte ts = TurretState(player);
+
+                        if (ts == 4)//다른 튜렛 붙잡은 경우 종료
+                        {
+                            player.Call(33436, "", 0f);//VisionSetNakedForPlayer
+                            H.REMOTE_STATE = 0;
+                            return;
+                        }
+                        if (ts > 1)//탱크 튜렛을 붙잡은 경우
+                        {
+                            H.REMOTE_STATE = TK.TankStart(player, ts);//state 0 or 2
+                            return;
+                        }
+
+                        if (H.CAN_USE_HELI)
+                        {
+                            H.REMOTE_STATE = HCT.HeliStart(player);//state 0 or 1
+                        }
+                        else //헬리를 탈 자격이 안 되는 상태에서, owner가 도착하지 않은 경우
+                        {
+                            H.REMOTE_STATE = 0;//state 0 or 1
+                            HCT.HELI_GUNNER = player;
+
+                            if (H.PERK < 10) Info.MessageRoop(player, 0, new[] { "^2" + (11 - H.PERK) + " KILL MORE ^7TO RIDE HELI", "YOU CAN RIDE HELI", "IF ANOTHER PLAYER ONBOARD" });
+                            else Info.MessageRoop(player, 0, HCT.MESSAGE_WAIT_PLAYER);
+
+                            Common.StartOrEndThermal(player, true);
+                        }
+
+                    }
+                    else
+                    {
+                        byte rms = H.REMOTE_STATE;
+                        bool ended = false;
+
+                        if (rms == 1) ended = HCT.IfUsetHeli_DoEnd(player, true);
+
+                        else if (rms == 2) ended = TK.IfUseTank_DoEnd(player);
+
+                        if (!ended) Common.StartOrEndThermal(player, false);
+
+                        H.REMOTE_STATE = 0;
+                    }
+
+                });
+
+
+            });
+
+            #endregion
+
+
 
             #region AlliesHud
             AlliesHud(player, offhand.Replace("_mp", "").ToUpper());
@@ -315,6 +426,34 @@ namespace Tdm
             player.SpawnedPlayer += () => human_spawned(player);
         }
         #endregion
+        bool IsAxis(Entity player)
+        {
+            return player.GetField<string>("sessionteam") == "axis";
+        }
+        /// <summary>
+        /// 0: Helicopter Left Turret /
+        /// 1: Helicopter Right Turret /
+        /// 2: Tank Left Turret /
+        /// 3: Tank Right Turret /
+        /// 4: Other turret /
+        /// </summary>
+        byte TurretState(Entity player)
+        {
+
+            var handPos = player.Call<Vector3>(33128, "tag_weapon_left");
+
+            if (TK.REMOTETANK != null)
+            {
+                if (TK.TL.Origin.DistanceTo2D(handPos) < 9) return 2;
+                if (TK.TR.Origin.DistanceTo2D(handPos) < 9) return 3;
+            }
+            if (HCT.HELI != null)
+            {
+                if (HCT.TL.Origin.DistanceTo2D(handPos) < 9) return 0;
+                if (HCT.TR.Origin.DistanceTo2D(handPos) < 9) return 1;
+            }
+            return 4;
+        }
 
     }
 }

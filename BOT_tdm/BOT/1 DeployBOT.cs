@@ -32,9 +32,7 @@ namespace Tdm
                     BOTs_List.Remove(p);
                     continue;
                 }
-                string name = p.Name;
-
-                if (name == "")
+                if (p.Name == "")
                 {
                     Players.Remove(p);
                     BOTs_List.Remove(p);
@@ -59,13 +57,13 @@ namespace Tdm
                     i = BOTs_List.Count;
                     if (i > max || Players.Count == 18)
                     {
-                        print("총 불러온 봇 수는 " + i + " 입니다.");
+                        Print("총 불러온 봇 수는 " + i + " 입니다.");
                         addMoreBot(i);
                         return false;
                     }
                     if (fail_count > 20)
                     {
-                        print("봇 추가로 불러오기 실패");
+                        Print("봇 추가로 불러오기 실패");
                         return false;
                     }
 
@@ -118,14 +116,12 @@ namespace Tdm
             Entity bot = Utilities.AddTestClient();
             if (bot == null)
             {
-                print("null");
+                Print("null");
                 Players.Remove(bot);
-                Utilities.AddTestClient();
-                return null;
+                return Utilities.AddTestClient();
             }
             else
             {
-
                 string team = getTeam;
                 string cls = getClass;
                 bot.OnNotify("joined_spectators", tc =>
@@ -137,22 +133,7 @@ namespace Tdm
                     b.Notify("menuresponse", "changeclass", cls);
                 });
 
-                switch (ADDING_BOT_COUNT)
-                {
-                    //Rpg
-                    case 2:
-                    case 3: bot.SpawnedPlayer += () => SpawnRpgBot(bot, team); break;
-
-                    ////Jugg
-                    //case 0:
-                    //case 1: bot.SpawnedPlayer += () => SpawnJuggBot(bot, team); break;
-
-                    ////riot
-                    //case 4:
-                    //case 5: bot.SpawnedPlayer += () => bot.Call(33220, 2f); break;
-
-                    default: bot.SpawnedPlayer += () => SpawnBot(bot); break;
-                }
+                bot.SpawnedPlayer += () => SpawnBot(bot);
 
                 ADDING_BOT_COUNT++;
 
@@ -172,7 +153,7 @@ namespace Tdm
             }
             if (i == -1)
             {
-                print("■ ■ IMPORTANT Bot_Connected -1 " + bot.Name);
+                Print("■ ■ IMPORTANT Bot_Connected -1 " + bot.Name);
                 Call("kick", bot.EntRef);
                 return;
             }

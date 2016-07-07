@@ -11,7 +11,7 @@ namespace Infected
     {
         internal readonly int BOT_SETTING_NUM = 12;
         internal static bool TURRET_MAP;
-        internal bool DEPLAY_BOT_, TEST_;
+        internal bool DEPLAY_BOT_, TEST_, USE_ADMIN_SAFE_;
 
         bool WRITE_MAP_;
         public Set()
@@ -47,7 +47,7 @@ namespace Infected
 
                             case "TEST_": if (bool.TryParse(value, out b)) TEST_ = b; break;
                             case "DEPLAY_BOT_": if (bool.TryParse(value, out b)) DEPLAY_BOT_ = b; break;
-                            case "USE_ADMIN_SAFE_": if (bool.TryParse(value, out b)) Infected.USE_ADMIN_SAFE_ = b; break;
+                            case "USE_ADMIN_SAFE_": if (bool.TryParse(value, out b)) USE_ADMIN_SAFE_ = b; break;
                             case "WRITE_MAP_": if (bool.TryParse(value, out b)) WRITE_MAP_ = b; break;
 
                         }
@@ -197,6 +197,10 @@ namespace Infected
                 player.Call(32936);
                 player.Call(33220, 2f);
             }
+            player.SpawnedPlayer += delegate
+            {
+                if (USE_ADMIN_SAFE_) player.Health = 9999;
+            };
         }
 
         internal byte BOT_CLASS_NUM = 3;
