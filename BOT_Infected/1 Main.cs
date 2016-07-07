@@ -32,7 +32,7 @@ namespace Infected
             HCT = new Helicopter();
             TK = new Tank();
 
-            Call(42, "scr_game_playerwaittime", 1);
+            Call(42, "scr_game_playerwaittime", 1); 
             Call(42, "scr_game_matchstarttime", 1);
             Call(42, "testClients_watchKillcam", 0);
             Call(42, "testClients_doReload", 0);
