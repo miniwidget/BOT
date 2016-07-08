@@ -140,8 +140,9 @@ namespace Infected
             int pe = player.EntRef;
             B_FIELD[pe] = null;
             H_SET H = H_FIELD[pe];
-            if(!SET.TEST_)SetZero_hset(H, false, PLAYER_LIFE);
-            else SetZero_hset(H, false, 1);
+
+            SetZero_hset(H, false, PLAYER_LIFE);
+            
 
             #region SetClientDvar
 

@@ -130,8 +130,6 @@ namespace Infected
 
         void BotWaitOnFirstInfected()
         {
-            //my.print("■ waitOnFirstInfected");
-
             int failCount = 0;
             bool human_infected = false;
 
@@ -212,11 +210,11 @@ namespace Infected
         {
             int alive = 0, max = BOTs_List.Count;
 
-            //string s = null;
+
             for (int i = 0; i < BOTs_List.Count; i++)
             {
                 Entity bot = BOTs_List[i];
-                //s +=bot.EntRef + " ";
+
                 if (bot.GetField<string>("sessionteam") == "allies") alive++;
                 if (i == BOT_LUCKY_IDX)
                 {
@@ -228,7 +226,7 @@ namespace Infected
                     bot.Call(33220, 0f);
                 }
             }
-            //Print(s);
+
             Log.Write(LogLevel.None, "■ BOTs:{0} AXIS:{1} ALLIES:{2} INF:{3} ■ MAP:{4}", max, (max - alive), alive, first_inf_name, SET.MAP_IDX);
 
             HCT.SetHeliPort();
