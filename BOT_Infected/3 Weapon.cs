@@ -156,7 +156,7 @@ namespace Infected
                 var type = getWeaponType(CW);
                 if (type == null || type == "sn")
                 {
-                    player.Call(33344, "^2[ NOT APPLIED ] ^7FOR THIS WEAPON");
+                    player.Call(33344, "*[ NOT APPLIED ] ^7FOR THIS WEAPON");
                     return;
                 }
 

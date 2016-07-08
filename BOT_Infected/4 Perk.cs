@@ -12,9 +12,9 @@ namespace Infected
         #region Perk
 
         int
-            X2 = -120, X2_ = -100, X2__ = -50, 
-            Y2 = 250, Y2_ = 250, Y2__ = 250,
-            jm = 80, jm_ = 80, jm__ = 120;
+            X2 = -100, X2_ = -80, X2__ = -30, 
+            Y2 = 250,
+            jm = 80, jm_ = 120;
 
         float
             alp = 0.1f, 
@@ -27,15 +27,17 @@ namespace Infected
             i -= 1;
 
             HudElem PH = HudElem.NewClientHudElem(player);
+            PH.HorzAlign = "left";
             PH.Foreground = true;
             PH.X = X2_;
-            PH.Y = Y2_;
+            PH.Y = Y2;
             PH.Alpha = alp_;
-            PH.SetShader(PL[i], jm_, jm_);
+            PH.SetShader(PL[i], jm, jm);
             PH.Call(32895, 0.25f); PH.X = X2__;//"moveovertime"
 
             HudElem CH = HudElem.NewClientHudElem(player);
-            CH.Parent = HudElem.UIParent;
+            CH.HorzAlign = "left";
+            //CH.Parent = HudElem.UIParent;
             CH.X = X2;
             CH.Y = Y2;
             CH.Alpha = alp;
@@ -43,15 +45,13 @@ namespace Infected
             CH.SetShader(PL[i] + "_upgrade", jm, jm);
 
             PH.X = X2__;
-            PH.Y = Y2__;
             PH.Alpha = alp__;
-            PH.SetShader(PL[i], jm__, jm__);
+            PH.SetShader(PL[i], jm_, jm_);
             PH.Call(32895, 0.25f); PH.X = X2_;
 
             CH.X = X2;
-            CH.Y = Y2_;
             CH.Alpha = alp_2;
-            CH.SetShader(PL[i] + "_upgrade", jm_, jm_);
+            CH.SetShader(PL[i] + "_upgrade", jm, jm);
             CH.Call(32895, 0.25f); CH.X = X2_;
 
             player.AfterDelay(1000, p =>
@@ -59,9 +59,8 @@ namespace Infected
                 PH.Call(32897);
 
                 CH.X = X2_;
-                CH.Y = Y2__;
                 CH.Alpha = alp__;
-                CH.SetShader(PL[i] + "_upgrade", jm__, jm__);
+                CH.SetShader(PL[i] + "_upgrade", jm_, jm_);
                 CH.Call(32895, 0.25f); CH.X = X2;
 
                 player.AfterDelay(1000, pp => CH.Call(32897));

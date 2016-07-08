@@ -21,7 +21,7 @@ namespace Infected
                 H_SET H = H_FIELD[killer.EntRef];
                 if (H.PERK > 34) return;
 
-                if (H.PERK_TXT.Length != 12) H.PERK_COUNT_HUD.SetText(H.PERK_TXT += "*");
+                if (H.PERK_TXT.Length != 12) H.HUD_PERK_COUNT.SetText(H.PERK_TXT += "*");
 
                 var i = (H.PERK += 1);
 
@@ -33,7 +33,7 @@ namespace Infected
                 }
                 else if (i == 11)
                 {
-                    H.PERK_COUNT_HUD.SetText(H.PERK_TXT = "^1**********");
+                    H.HUD_PERK_COUNT.SetText(H.PERK_TXT = "^1**********");
 
                     H.CAN_USE_HELI = true;
                     HCT.HeliAttachFlagTag(killer);

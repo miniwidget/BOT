@@ -52,9 +52,7 @@ namespace Infected
 
                         }
                     }
-
-                    //if (TEST_) SERVER_NAME = "^2BOT ^7TEST";
-                }
+               }
             }
 
 

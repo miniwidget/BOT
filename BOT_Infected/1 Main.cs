@@ -18,7 +18,7 @@ namespace Infected
 
         Helicopter HCT;
         Tank TK;
-        AC130 ac130;
+        //AC130 ac130;
 
         public Infected()
         {
@@ -96,7 +96,7 @@ namespace Infected
                     Call(42, "testClients_doAttack", 0);
 
                     GAME_ENDED_ = true;
-                    if (HUD.SERVER != null) HUD.SERVER.Call(32897);
+
                     foreach (var v in B_FIELD)
                     {
                         if (v == null) continue;
@@ -145,16 +145,23 @@ namespace Infected
         internal static void StartOrEndThermal(Entity player, bool start)
         {
             player.Call(33436, "", 0);//VisionSetNakedForPlayer
+            bool Axis = Infected.H_FIELD[player.EntRef].AXIS;
+
             if (start)
             {
-                player.Call(32936);//thermalvisionfofoverlayon
-                player.Health = 300;
+                if (!Axis)
+                {
+                    player.Call(32936);//thermalvisionfofoverlayon
+                    player.Health = 300;
+                }
 
                 return;
             }
-            player.Call(32937);//thermalvisionfofoverlayoff
+            if (!Axis) player.Call(32937);//thermalvisionfofoverlayoff
+            
             player.Health = 100;
             player.Call(33531, ZERO);
+
 
         }
         static Vector3 tempV = new Vector3();

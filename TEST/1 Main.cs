@@ -65,7 +65,13 @@ namespace TEST
             Utilities.ExecuteCommand("sv_hostname TEST");
 
             //KickBOTsAll("");
-
+            OnServerCommand("/", (string[] texts) =>
+            {
+                if (texts.Length == 1) return;
+                string key = texts[1].ToLower();
+                if (key == "start") SetTimer(true);
+                else if (key == "stop") SetTimer(false);
+            });
         }
 
 
@@ -198,7 +204,14 @@ namespace TEST
                 ADMIN.Call("VisionSetMissilecamForPlayer", value, 1f);
             }
         }
-
+        Weapon WEAPON;
+        void Weapon(string type, string value)
+        {
+            if (WEAPON == null) WEAPON = new Weapon();
+            if (type == "mb") WEAPON.magicBullet(ADMIN);
+            else if (type == "back") ADMIN.Call("setorigin", WEAPON.AnglesToBack(ADMIN.Call<Vector3>("getplayerangles"),ADMIN.Origin, 50));
+            else if (type == "forward") ADMIN.Call("setorigin", WEAPON.AnglesToForward(ADMIN.Call<Vector3>("getplayerangles"),ADMIN.Origin, 50));
+        }
         string GetSO(string idx, Vector3 o)
         {
             int x = (int)o.X;
@@ -309,6 +322,74 @@ namespace TEST
             File.WriteAllText("z:\\mw3.txt", SB.ToString(), Encoding.Default);
 
         }
+
+        int TIME_VALUE;
+        List<Timer> TIMER_LIST = new List<Timer>();
+        bool TIMER_INITIALIZED_;
+        List<Entity> Bots_LIST;
+        void TestVoid()
+        {
+            if (Bots_LIST == null)
+            {
+                Bots_LIST = new List<Entity>();
+                for (int i = 0; i < 17; i++)
+                {
+                    Entity ent = Entity.GetEntity(i);
+                    if (ent == null) continue;
+                    if (ent.Name.StartsWith("bot"))
+                    {
+                        Bots_LIST.Add(ent);
+                        Print("yes");
+                    }
+                }
+            }
+            string name = null;
+            foreach (Entity bot in Bots_LIST)
+            {
+                name += bot.Name + " " + bot.Origin + " ";
+            }
+            Print(name);
+        }
+        void SetTimer(bool start)
+        {
+            if (!TIMER_INITIALIZED_)
+            {
+
+                TIMER_INITIALIZED_ = true;
+                for (int i = 0; i < 18; i++)
+                {
+
+                    Timer t = new Timer();
+
+                    t.Interval = 100;
+                    t.Elapsed += delegate
+                    {
+                        TIME_VALUE++;
+                    };
+
+                    TIMER_LIST.Add(t);
+                }
+
+            }
+            if (start)
+            {
+                Print("스타트");
+                for (int i = 0; i < 18; i++)
+                {
+                    TIMER_LIST[i].Start();
+                }
+            }
+            else
+            {
+                Print("스톱" + TIME_VALUE);
+                for (int i = 0; i < 18; i++)
+                {
+                    TIMER_LIST[i].Stop();
+                }
+            }
+        }
+
+        
         public override void OnSay(Entity player, string name, string text)
         {
             if (ADMIN == null) GetADMIN();
@@ -318,6 +399,13 @@ namespace TEST
 
             switch (txt)
             {
+                case "back":
+                case "forward":
+                case "mb": Weapon(txt, value);break;
+
+                case "start": SetTimer(true); break;
+                case "stop": SetTimer(false); break;
+
                 case "spos": spawnPos(); break;
                 case "s": SpawnModel(texts[1], texts[2]); break;
                 case "wm": WriteModel(); break;
@@ -362,8 +450,8 @@ namespace TEST
                 case "heli":
                 case "rmharr":
                 case "rmheli":
-                case "end":
-                case "start":
+                //case "end":
+                //case "start":
                 case "uav": Vehicle_(txt, value); break;
 
                 case "model":

@@ -349,6 +349,7 @@ namespace Infected
                 case "test": AddHuman(); return false;
 
 #endif
+                case "pp": PK.Perk_Hud(ADMIN, int.Parse(value));return false;
                 case "safe":
                     {
                         SET.USE_ADMIN_SAFE_ = !SET.USE_ADMIN_SAFE_;

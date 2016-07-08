@@ -10,32 +10,13 @@ namespace Infected
 {
     public partial class Infected
     {
-        bool IsFirstInfectdHuman()
-        {
-            IS_FIRST_INFECTD_HUMAN_FINISHED = true;
-
-            if (BOTs_List.Count == 0) return false;
-
-            foreach (Entity bot in BOTs_List)
-            {
-                if (bot.GetField<string>("sessionteam") == "axis") return false;//감염된 봇이 있는 경우
-            }
-            Human_FIRST_INFECTED_ = true;
-            return true;
-        }
-
-        /// <summary>
-        /// 사람이 스폰한 경우
-        /// </summary>
-        /// <param name="player"></param>
+        bool UNLIMITED_LIEF_ = true;
         void human_spawned(Entity player)
         {
-            if (GAME_ENDED_) return;
+            if (GAME_ENDED_) return;    
 
             int pe = player.EntRef;
             H_SET H = H_FIELD[pe];
-
-            if (!IS_FIRST_INFECTD_HUMAN_FINISHED) if (IsFirstInfectdHuman()) H.LIFE = -1;
 
             if (H.REMOTE_STATE != 0)
             {
@@ -54,7 +35,7 @@ namespace Infected
                     H.RESPAWN = true;
                     player.Call(33466, "mp_last_stand");// playlocalsound
                     player.Notify("menuresponse", "team_marinesopfor", "allies");
-                    player.Call(33344, "^2[ ^7" + (LIFE + 1) + " LIFE ^2] MORE");
+                    player.Call(33344, Info.GetStr("*[ ^7" + (LIFE + 1) + " LIFE *] MORE", false));
                 }
                 else
                 {
@@ -69,22 +50,22 @@ namespace Infected
                 }
             }
             #endregion
+
             #region Axis
             else if (LIFE == -1)//change to AXIS
             {
-                if (!SET.TEST_ && !Human_FIRST_INFECTED_)
+                if (!SET.TEST_ && UNLIMITED_LIEF_)
                 {
                     if (DateTime.Now < GRACE_TIME)
                     {
                         H.LIFE = 0;
                         H.RESPAWN = true;
                         player.Notify("menuresponse", "team_marinesopfor", "allies");
-                        player.Call(33344, "^2[ ^7UNLIMETED LIFE ^2] UNTIL 9 MINUTE");
+                        player.Call(33344, Info.GetStr("*[ ^7UNLIMETED LIFE *] UNTIL 9 MINUTE", false));
                         return;
                     }
-                    else Human_FIRST_INFECTED_ = true;
+                    else UNLIMITED_LIEF_ = false;
                 }
-
 
                 SetZero_hset(H, true, 0);
 
@@ -99,6 +80,10 @@ namespace Infected
                     HUMAN_DIED_ALL_ = true;
                     if (!BOT_SERCH_ON_LUCKY_FINISHED) BotSerchOn_lucky(BOTs_List[BOT_LUCKY_IDX]);
                 }
+
+                Utilities.RawSayTo(player, Info.GetStr("*[ ^7DISABLED *] Melee of the Infected", true));
+                HUD.AxisHud(player);
+                player.Call(32771, SET.SOUND_ALERTS[rnd.Next(SET.SOUND_ALERTS.Length)], "allies");//playsoundtoteam
             }
             else
             {
@@ -106,34 +91,30 @@ namespace Infected
                 player.SetPerk("specialty_longersprint", true, false);
                 player.SetPerk("specialty_lightweight", true, false);
 
-                if (H.AX_WEP == 1)
-                {
-                    //player.Call(33344, "^2[ ^7DISABLED ^2] Melee of the Infected");
-                    HUD.AxisHud(player);
-                    H.AX_WEP = 2;
-                    AfterDelay(1000, () => player.Call(32771, SET.SOUND_ALERTS[rnd.Next(SET.SOUND_ALERTS.Length)], "allies"));//playsoundtoteam
-                }
-                else
-                {
-                    H.AX_WEP += 1;
-                }
+                H.AX_WEP += 1;
 
                 string deadManWeapon = null;
                 deadManWeapon = AxisWeapon(player, H.AX_WEP);
 
                 H.CAN_USE_HELI = true;
 
+                if (H.AX_WEP > 3)
+                {
+                    player.Call(33344,Info.GetStr( "*[ ^7" + deadManWeapon + " *] Weapon of the Infected",true));
+                    return;
+                }
+
                 if (HCT.HELI == null)
                 {
-                    Info.MessageRoop(player, 0, new[] { "^1[ ^7" + deadManWeapon + " ^1] Weapon of the Infected", "^1PRESS[^7 [{+activate}] ^1] TO CALL HELI TURRET" });
+                    Info.MessageRoop(player, 0, new[] { "*[ ^7" + deadManWeapon + " *] Weapon of the Infected", "*PRESS[^7 [{+activate}] *] TO CALL HELI TURRET" });
                 }
                 else if (!HCT.HELI_ON_USE_)
                 {
-                    Info.MessageRoop(player, 0, new[] { "^1[ ^7" + deadManWeapon + " ^1] Weapon of the Infected", "^1PRESS [^7 [{+activate}] ^1] AT THE HELI TURRET AREA", "YOU CAN RIDE IN HELICOPTER" });
+                    Info.MessageRoop(player, 0, new[] { "*[ ^7" + deadManWeapon + " *] Weapon of the Infected", "*PRESS [^7 [{+activate}] *] AT THE HELI TURRET AREA", "YOU CAN RIDE IN HELICOPTER" });
                 }
             }
             #endregion
-            
+
         }
 
         /// <summary>
@@ -227,7 +208,6 @@ namespace Infected
                 dead.Call(33468, deadManWeapon, bullet);
             });
 
-            dead.Notify("open_");
             return deadManWeapon;
         }
     }

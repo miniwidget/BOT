@@ -44,12 +44,10 @@ namespace Infected
         internal static List<H_SET> H_FIELD = new List<H_SET>(18);
         internal static List<Entity> human_List = new List<Entity>(18);
 
+        internal bool GET_TEAMSTATE_FINISHED;
         bool
-            GET_TEAMSTATE_FINISHED,
             BOT_SERCH_ON_LUCKY_FINISHED,
-            HUMAN_DIED_ALL_,
-            IS_FIRST_INFECTD_HUMAN_FINISHED, Human_FIRST_INFECTED_,
-            GAME_ENDED_;
+            HUMAN_DIED_ALL_, GAME_ENDED_;
 
         DateTime GRACE_TIME;
     }

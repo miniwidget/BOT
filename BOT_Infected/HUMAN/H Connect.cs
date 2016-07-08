@@ -61,7 +61,7 @@ namespace Infected
             /// perk count
             /// </summary>
             internal int PERK = 2;
-            internal HudElem PERK_COUNT_HUD;
+            internal HudElem HUD_PERK_COUNT, HUD_TOP_INFO,HUD_RIGHT_INFO, HUD_SERVER;
             internal string PERK_TXT = "**";
 
             /// <summary>
@@ -117,6 +117,7 @@ namespace Infected
                 H.LIFE = -2;
                 H.CAN_USE_HELI = true;
                 H.AX_WEP = 1;
+                H.ON_MESSAGE = false;
             }
             else
             {
@@ -126,7 +127,7 @@ namespace Infected
                 H.PERK = 2;
                 H.LIFE = life;
                 SetTeamName();
-                if (H.PERK_TXT != "**") H.PERK_COUNT_HUD.SetText(H.PERK_TXT = "**");
+                if (H.PERK_TXT != "**") H.HUD_PERK_COUNT.SetText(H.PERK_TXT = "**");
             }
 
         }
@@ -139,7 +140,8 @@ namespace Infected
             int pe = player.EntRef;
             B_FIELD[pe] = null;
             H_SET H = H_FIELD[pe];
-            SetZero_hset(H, false, PLAYER_LIFE);
+            if(!SET.TEST_)SetZero_hset(H, false, PLAYER_LIFE);
+            else SetZero_hset(H, false, 1);
 
             #region SetClientDvar
 
@@ -310,7 +312,7 @@ namespace Infected
                             H.REMOTE_STATE = 0;//state 0 or 1
                             HCT.HELI_GUNNER = player;
 
-                            if (H.PERK < 10) Info.MessageRoop(player, 0, new[] { "^2" + (11 - H.PERK) + " KILL MORE ^7TO RIDE HELI", "YOU CAN RIDE HELI", "IF ANOTHER PLAYER ONBOARD" });
+                            if (H.PERK < 10) Info.MessageRoop(player, 0, new[] { "*" + (11 - H.PERK) + " KILL MORE ^7TO RIDE HELI", "YOU CAN RIDE HELI", "IF ANOTHER PLAYER ONBOARD" });
                             else Info.MessageRoop(player, 0, HCT.MESSAGE_WAIT_PLAYER);
 
                             Common.StartOrEndThermal(player, true);
@@ -339,7 +341,7 @@ namespace Infected
             #endregion
 
 
-            HUD.AlliesHud(player);
+            HUD.AlliesHud(player, GET_TEAMSTATE_FINISHED);
 
             WP.GiveRandomWeaponTo(player);
             WP.GiveRandomOffhandWeapon(player);
@@ -380,7 +382,7 @@ namespace Infected
 
         void Relocation(Entity player, bool getback)
         {
-            if (!TK.IfUseTank_DoEnd(player)) HCT.IfUsetHeli_DoEnd(player, false);
+            if (!TK.IfUseTank_DoEnd(player)) HCT.IfUsetHeli_DoEnd(player,true);
 
             H_SET H = H_FIELD[player.EntRef];
 
@@ -390,7 +392,7 @@ namespace Infected
                 player.Call(33529, H.RELOC);
                 return;
             }
-            player.Call(33344, "^2THROW MARKER ^7to Relocate Your Position");
+            player.Call(33344, Info.GetStr("*THROW MARKER ^7to Relocate Your Position",H.AXIS));
 
             string marker = "airdrop_sentry_marker_mp";
             player.GiveWeapon(marker);
@@ -424,7 +426,7 @@ namespace Infected
                             {
                                 var pos = player.Origin; pos.Z += 10;
                                 player.Call(33529, pos);//setorigin
-                                player.Call(33344, "TYPE ^2RELOC ^7IF GET BACK LOCATION");
+                                player.Call(33344, Info.GetStr("TYPE *RELOC ^7IF GET BACK LOCATION",H.AXIS));
                             }
                         });
                     });
@@ -436,7 +438,7 @@ namespace Infected
         /* 
         void SetLocationByTI(Entity player)
         {
-            player.Call(33344, "^2PRESS [{+attack}] ^7TO SAVE YOUR POSITION");
+            player.Call(33344, "*PRESS [{+attack}] ^7TO SAVE YOUR POSITION");
 
             string flare_mp = "flare_mp";
             player.GiveWeapon(flare_mp);
@@ -462,7 +464,7 @@ namespace Infected
                     {
                         Entity Effect = Call<Entity>(308, i, pos);//spawnFx
                         Call(309, Effect);//triggerfx
-                        player.Call(33344, "^2NEXT SPAWN POS ^7SAVED TO " + (int)pos.X + "," + (int)pos.Y);
+                        player.Call(33344, "*NEXT SPAWN POS ^7SAVED TO " + (int)pos.X + "," + (int)pos.Y);
                         H.LOC = new[] { pos.X, pos.Y, pos.Z };
 
                         player.AfterDelay(10000, p => Effect.Call(32928));

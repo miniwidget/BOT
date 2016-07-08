@@ -45,7 +45,7 @@ namespace Infected
             TR.Call(33086, 180f);
         }
 
-        //readonly string[] MESSAGE_RUNNER = { "^2TANK RUNNER START [ ^7MOVE & FIRE ^2]", "^2PRESS [ ^7[{+smoke}] ^2] IF STUCK" };
+        //readonly string[] MESSAGE_RUNNER = { "*TANK RUNNER START [ ^7MOVE & FIRE *]", "*PRESS [ ^7[{+smoke}] *] IF STUCK" };
 
         /// <summary>
         /// 1: remote left /
@@ -96,12 +96,12 @@ namespace Infected
             {
                 player.Call(33256, REMOTETANK);//remotecontrolvehicle  
                 RMTK_OWNER_ENTREF = player.EntRef;
-                player.Call(33344, "^2TANK RUNNER START [ ^7MOVE & FIRE ^2]"); 
+                player.Call(33344, "*TANK RUNNER START [ ^7MOVE & FIRE *]"); 
                 return 2;//remote tank state
             }
             else
             {
-                player.Call(33344, "^2TANK GUNNER START [ ^7FIRE ^2]");
+                player.Call(33344, "*TANK GUNNER START [ ^7FIRE *]");
                 return 0;//not using remote state
             }
         }

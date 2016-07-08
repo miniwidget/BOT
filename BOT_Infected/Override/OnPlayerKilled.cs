@@ -57,7 +57,9 @@ namespace Infected
             if (weapon[2] != '5') if( weapon[1] != 'p') return;//iw5 rpg
 
             int pe = player.EntRef;
+
             if (!IsBOT[pe]) return;
+           
 
             if (pe == BOT_RIOT_ENTREF) return;
             else if (pe == BOT_RPG_ENTREF)

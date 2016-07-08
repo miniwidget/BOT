@@ -8,11 +8,11 @@ namespace Infected
 {
     class Helicopter : Inf
     {
-        internal readonly string[] MESSAGE_ALERT = { "YOU ARE NOT IN THE HELI AREA", "GO TO HELI AREA AND", "PRESS ^2[ [{+activate}] ] ^7AT THE HELI AREA" };
+        internal readonly string[] MESSAGE_ALERT = { "YOU ARE NOT IN THE HELI AREA", "GO TO HELI AREA AND", "PRESS *[ [{+activate}] ] ^7AT THE HELI AREA" };
         internal readonly string[] MESSAGE_WAIT_PLAYER = { "YOU CAN RIDE HELLI", "IF ANOTHER PLAYER ONBOARD" };
-        readonly string[] MESSAGE_KEY_INFO = { "^2HELICOPTER CONTROL INFO", "^2MOVE DOWN [^7 [{+breath_sprint}] ^2]", "^2MOVE UP [^7 [{+gostand}] ^2]", "^2PRESS [ ^7[{+smoke}] ^2] IF STUCK" };
-        internal readonly string[] MESSAGE_ACTIVATE = { "^2PRESS [^7 [{+activate}] ^2] AT THE HELI TURRET AREA", "YOU CAN RIDE IN HELICOPTER" };
-        internal readonly string MESSAGE_CALL = "^2PRESS [^7 [{+activate}] ^2] TO CALL HELI TURRET";
+        readonly string[] MESSAGE_KEY_INFO = { "*HELICOPTER CONTROL INFO", "*MOVE DOWN [^7 [{+breath_sprint}] *]", "*MOVE UP [^7 [{+gostand}] *]"};
+        internal readonly string[] MESSAGE_ACTIVATE = { "*PRESS [^7 [{+activate}] *] AT THE HELI TURRET AREA", "YOU CAN RIDE IN HELICOPTER" };
+        internal readonly string MESSAGE_CALL = "*PRESS [^7 [{+activate}] *] TO CALL HELI TURRET";
         internal Entity HELI, TL, TR, HELI_OWNER, HELI_GUNNER;
         internal static Vector3 HELI_WAY_POINT;
         internal void SetHeliPort()
@@ -30,7 +30,7 @@ namespace Infected
 
             if (HELI == null)
             {
-                player.Call(33344, MESSAGE_CALL);
+                player.Call(33344, Info.GetStr(MESSAGE_CALL,Infected.H_FIELD[player.EntRef].AXIS));
             }
             else
             {
@@ -43,24 +43,9 @@ namespace Infected
 
         #region Call heli
 
-        //internal bool IsHeliArea(Entity player)
-        //{
-        //    if (HELI == null) return false;
-
-        //    Vector3 handpos = player.Call<Vector3>(33128, "tag_weapon_left");
-
-        //    if (handpos.DistanceTo2D(TL.Origin) < 9) return true;
-        //    if (handpos.DistanceTo2D(TR.Origin) < 9 ) return true;
-
-        //    return false; 
-        //}
-        //internal bool IsUsingTurret(Entity player)
-        //{
-        //    return (player.Call<int>(33539) == 1);
-        //}
-
         internal void HeliCall(Entity player, bool Axis)
         {
+            if (HELI != null) return;
             Infected.H_FIELD[player.EntRef].CAN_USE_HELI = true;
 
             var w = player.CurrentWeapon;
@@ -82,13 +67,12 @@ namespace Infected
             });
 
             Info.MessageRoop(player, 0, MESSAGE_ACTIVATE);
-            if (Axis)
+            
+            foreach (Entity human in Infected.human_List)
             {
-                Utilities.RawSayAll("^1[ ^7"+player.Name +" ^1] CALLED HELICOPTER. WATCH OUT");
-            }
-            else
-            {
-                Utilities.RawSayAll("HELICOPTER ENABLED. GO TO THE AREA");
+                if (human == player) continue;
+                if(Axis) Utilities.RawSayTo(human, "^1[ ^7" + player.Name + " ^1] CALLED HELICOPTER. WATCH OUT");
+                else Utilities.RawSayTo(player,"HELICOPTER ENABLED. GO TO THE AREA");
             }
         }
         internal void HeliSetup(Entity player)
@@ -126,7 +110,7 @@ namespace Infected
         #region board heli
         internal bool HELI_ON_USE_;
         byte helicount;
-        internal byte HeliStart(Entity player,bool Axis)
+        internal byte HeliStart(Entity player,bool axis)
         {
             helicount++;
             int hc = helicount;
@@ -143,16 +127,22 @@ namespace Infected
             
             if ( HELI_GUNNER == player) HELI_GUNNER = null;
 
-            if (Axis)
+            int time = 80000;
+
+            if (axis)
             {
-                Utilities.RawSayAll("^1ENEMY HELICOPTER INBOUND");
+                time = 50000;
+                foreach(Entity human in Infected.human_List)
+                {
+                    Utilities.RawSayTo(human, "^1ENEMY HELICOPTER INBOUND");
+                }
                 player.Call(32771, "PC_1mc_enemy_ah6guard", "allies");//playsoundtoteam
             }
 
             Info.MessageRoop(player, 0, MESSAGE_KEY_INFO);
 
             player.Call(33256, HELI);//remotecontrolvehicle  
-            player.AfterDelay(120000, x =>
+            player.AfterDelay(time, x =>
             {
                 if (hc != helicount) return;
 

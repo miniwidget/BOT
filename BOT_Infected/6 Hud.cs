@@ -8,103 +8,85 @@ namespace Infected
 {
     internal class Hud
     {
-        internal HudElem SERVER;
         internal static string SERVER_NAME_;
-        readonly string ALLIES_HUD_TEXTS =
-@"^7TYPE FOLLOWING
-^2AP ^74 AKIMBO PISTOL
-^2AG ^76 AKIMBO GUN
-^2AR ^79 ASSAU RIFFLE
-^2SM ^76 SUB M_GUN
-^2LM ^75 LIGHT M_GUN
-^2SG ^74 SHOT GUN
-^2SN ^76 SNIPE GUN
-^2LOC ^7RE LOCATION
+        readonly string ALLIES_RIGHT_TEXTS =
+@"TYPE FOLLOWING
+*AP ^74 AKIMBO PISTOL
+*AG ^76 AKIMBO GUN
+*AR ^79 ASSAU RIFFLE
+*SM ^76 SUB M_GUN
+*LM ^75 LIGHT M_GUN
+*SG ^74 SHOT GUN
+*SN ^76 SNIPE GUN
+*LOC ^7RE LOCATION
 
-^7PRESS KEY
-^2[{+strafe}] ^7AMMO
-^2[{+movedown}] ^7VIEWSCOPE";
-        //^2[{+prone}] ^7ATTATCHMENT
-
-        internal void AlliesHud(Entity player)
+PRESS KEY
+*[{+strafe}] ^7AMMO
+*[{+movedown}] ^7VIEWSCOPE";
+        //*[{+prone}] ^7ATTATCHMENT
+        readonly string ALLIES_TOP_HUD_TEXTS = "ATTACHMENT *INFOA\n^7WEAPONINFO *INFOW";
+        internal void AlliesHud(Entity player, bool show)
         {
-            HudElem allies_info_hud = HudElem.CreateFontString(player, "hudbig", 0.4f);
-            allies_info_hud.Alpha = 0.8f;
-            allies_info_hud.X = -40;
-            allies_info_hud.Y = -10;
-            allies_info_hud.HorzAlign = "right";
-            allies_info_hud.HideWhenInMenu = true;
-            allies_info_hud.SetText("ATTACHMENT ^2INFOA\n^7WEAPONINFO ^2INFOW");
-            allies_info_hud.Call(32895, 2f);// "moveovertime"
-            allies_info_hud.Y = 5;
+            var H = Infected.H_FIELD[player.EntRef];
 
-            HudElem allies_weap_hud = HudElem.CreateFontString(player, "hudbig", 0.5f);
-            allies_weap_hud.HorzAlign = "right";
-            allies_weap_hud.Alpha = 0.6f;
-            allies_weap_hud.X = -40;
-            allies_weap_hud.Y = 150;
-            allies_weap_hud.HideWhenInMenu = true;
-            allies_weap_hud.Foreground = false;
-            allies_weap_hud.SetText(ALLIES_HUD_TEXTS);
-            //allies_weap_hud.Call(32895, 2f);//"moveovertime"
-            //allies_weap_hud.X = 40;
+            H.HUD_SERVER = HudElem.CreateFontString(player, "hudbig", 0.8f);
+            H.HUD_SERVER.X = 240;
+            H.HUD_SERVER.Y = 3;
+            if(show) H.HUD_SERVER.Alpha = 0.7f;
+            else H.HUD_SERVER.Alpha = 0;
+            H.HUD_SERVER.HideWhenInMenu = true;
+            H.HUD_SERVER.SetText(Info.GetStr(SERVER_NAME_, false));
 
+            H.HUD_TOP_INFO = HudElem.CreateFontString(player, "hudbig", 0.4f);
+            H.HUD_TOP_INFO.Alpha = 0.8f;
+            H.HUD_TOP_INFO.X = -40;
+            H.HUD_TOP_INFO.Y = -10;
+            H.HUD_TOP_INFO.HorzAlign = "right";
+            H.HUD_TOP_INFO.HideWhenInMenu = true;
+            H.HUD_TOP_INFO.SetText(Info.GetStr(ALLIES_TOP_HUD_TEXTS,false));
+            H.HUD_TOP_INFO.Call(32895, 2f);// "moveovertime"
+            H.HUD_TOP_INFO.Y = 5;
 
-            player.OnNotify("CLOSE", e =>
-            {
-                allies_weap_hud.Call(32897);
-            });
+            H.HUD_RIGHT_INFO = HudElem.CreateFontString(player, "hudbig", 0.5f);
+            H.HUD_RIGHT_INFO.HorzAlign = "right";
+            if (show) H.HUD_RIGHT_INFO.Alpha = 0.7f;
+            else H.HUD_RIGHT_INFO.Alpha = 0;
+            H.HUD_RIGHT_INFO.X = -40;
+            H.HUD_RIGHT_INFO.Y = 150;
+            H.HUD_RIGHT_INFO.HideWhenInMenu = true;
+            H.HUD_RIGHT_INFO.Foreground = false;
+            H.HUD_RIGHT_INFO.SetText(Info.GetStr(ALLIES_RIGHT_TEXTS, false));
 
-            HudElem  hud = HudElem.CreateFontString(player, "hudbig", 0.8f);
-            
-            hud.X = 0;
-            hud.Y = 9;
-            
-            hud.Foreground = false;
-            hud.VertAlign = "bottom";
-            hud.HorzAlign = "left";
+            H.HUD_PERK_COUNT = HudElem.CreateFontString(player, "hudbig", 0.8f);
 
-            hud.HideWhenInMenu = true;
-            hud.Alpha = 1f;
-            hud.SetText("");
-            Infected.H_FIELD[player.EntRef].PERK_COUNT_HUD = hud;
+            H.HUD_PERK_COUNT.X = 0;
+            H.HUD_PERK_COUNT.Y = 9;
+
+            H.HUD_PERK_COUNT.Foreground = false;
+            H.HUD_PERK_COUNT.VertAlign = "bottom";
+            H.HUD_PERK_COUNT.HorzAlign = "left";
+
+            H.HUD_PERK_COUNT.HideWhenInMenu = true;
+            H.HUD_PERK_COUNT.Alpha = 1f;
+            H.HUD_PERK_COUNT.SetText("");
+
 
         }
-        readonly string AXIS_HUD_TEXTS =
-@"^7type following
-^2infow ^7weapon info
-^2sc ^7 suicide
-^2riot ^7 riotshield
-^2stinger ^7stinger
-^2LOC ^7RE LOCATION";
+        readonly string AXIS_RIGHT_TEXTS =
+@"type following
+*infow ^7weapon info
+*sc ^7 suicide
+*riot ^7 riotshield
+*stinger ^7stinger
+*LOC ^7RE LOCATION";
 
         internal void AxisHud(Entity player)
         {
-            player.Notify("CLOSE");
+            var H = Infected.H_FIELD[player.EntRef];
 
-            HudElem axis_weap_hud = HudElem.CreateFontString(player, "hudbig", 0.5f);
-            axis_weap_hud.X = 740;
-            axis_weap_hud.Y = 150;
-            axis_weap_hud.AlignX = "right";
-            axis_weap_hud.HideWhenInMenu = true;
-            axis_weap_hud.Foreground = false;
-            axis_weap_hud.Alpha = 0f;
-            axis_weap_hud.SetText(AXIS_HUD_TEXTS);
-
-            player.OnNotify("open_", entity => axis_weap_hud.Alpha = 0.6f);
-            player.OnNotify("close_", entity => axis_weap_hud.Alpha = 0f);
-
-            player.AfterDelay(3000, x => player.Notify("open_"));
-        }
-        internal void ServerHud()
-        {
-            SERVER = HudElem.CreateServerFontString("hudbig", 0.8f);
-            SERVER.X = 240;
-            SERVER.Y = 3;
-            SERVER.Alpha = 0.7f;
-            SERVER.HideWhenInMenu = true;
-
-            SERVER.SetText(SERVER_NAME_);
+            H.HUD_SERVER.SetText(SERVER_NAME_.Replace("^2","^1"));
+            H.HUD_TOP_INFO.SetText(Info.GetStr(ALLIES_TOP_HUD_TEXTS, H.AXIS));
+            H.HUD_RIGHT_INFO.SetText(Info.GetStr(AXIS_RIGHT_TEXTS, H.AXIS));
         }
 
     }

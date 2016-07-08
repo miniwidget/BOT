@@ -135,12 +135,22 @@ namespace Infected
             int failCount = 0;
             bool human_infected = false;
 
+            byte finish = 0;  
             OnInterval(2000, () =>
             {
+                if (finish == 1)  finish = 2;
+                if (finish == 2) return false;
                 if (failCount == 6)//in case, if over 12 sec, in a state that no one got infected. ※ Infected time is 8 sec.
                 {
-                    Utilities.ExecuteCommand("map_restart");
-                    return false;
+                    //Utilities.ExecuteCommand("map_restart");
+                    if (human_List.Count > 0)
+                    {
+                        if (BOTs_List.Count > 1)
+                        {
+                            BOTs_List[1].Call(33341);
+                            finish = 1;
+                        }
+                    }
                 }
 
                 foreach (Entity firstInfected in Players)
@@ -221,7 +231,6 @@ namespace Infected
             //Print(s);
             Log.Write(LogLevel.None, "■ BOTs:{0} AXIS:{1} ALLIES:{2} INF:{3} ■ MAP:{4}", max, (max - alive), alive, first_inf_name, SET.MAP_IDX);
 
-            HUD.ServerHud();
             HCT.SetHeliPort();
 
             if (!HUMAN_DIED_ALL_)
@@ -237,6 +246,11 @@ namespace Infected
             if (num == BOT_LUCKY_IDX) num = 0;
             //CarePackage(BOTs_List[num].Origin);
 
+            foreach(Entity human in human_List)
+            {
+                H_FIELD[human.EntRef].HUD_SERVER.Alpha = 0.7f;
+                H_FIELD[human.EntRef].HUD_RIGHT_INFO.Alpha = 0.7f;
+            }
             return false;
         }
         
