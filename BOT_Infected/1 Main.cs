@@ -109,6 +109,7 @@ namespace Infected
 
         }
     }
+
     class Inf
     {
         protected TReturn Call<TReturn>(string func, params Parameter[] parameters)
