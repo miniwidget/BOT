@@ -154,7 +154,7 @@ namespace Infected
                         b.Call(33468, weapon, 500);//setweaponammoclip
                         b.Call(33523, weapon);//givemaxammo
 
-                        if (Jugg) if (human.Name != null) human.Call(33466, "AF_victory_music");//"playlocalsound"
+                        if (Jugg) if (human.Name != null) human.Call(33466, "AF_victory_music");//"playlocalsound" //deny remote tank !important if not deny, server cause crash
 
                         blockCount++;
                         if (blockCount == 6) blockCount = 0;
