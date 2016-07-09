@@ -210,8 +210,10 @@ namespace Infected
             GRACE_TIME = DateTime.Now.AddSeconds(166);
 
             HCT.SetHeliPort();
-            CarePackage();
 
+#if DEBUG
+            CarePackage();
+#endif
             foreach (Entity human in human_List)
             {
                 H_FIELD[human.EntRef].HUD_SERVER.Alpha = 0.7f;
@@ -227,7 +229,7 @@ namespace Infected
 
             return false;
         }
-
+#if DEBUG
         void CarePackage()
         {
             Entity ent = Call<Entity>("getent", "mp_dom_spawn", "classname"); if (ent == null) return;
@@ -275,6 +277,7 @@ namespace Infected
             }
 
         }
-
+#endif
     }
+
 }

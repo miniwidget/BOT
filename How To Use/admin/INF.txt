@@ -1,6 +1,11 @@
 SERVER_NAME=^2BOT ^7INF SERVER//server name
 ADMIN_NAME=kwnav//server admin name 
+
+BOT_SETTING_NUM=12//
+PLAYER_LIFE=4//
+
 DEPLAY_BOT_=true//
 USE_ADMIN_SAFE_=false//
+MAP_ROTATE_=true//
 TEST_=false//
-WRITE_MAP_=true//
+ATTACK_=true//

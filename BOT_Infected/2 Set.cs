@@ -88,7 +88,7 @@ namespace Infected
         internal readonly int BOT_SETTING_NUM;
         internal static bool TURRET_MAP;
         internal bool DEPLAY_BOT_, TEST_, USE_ADMIN_SAFE_, ATTACK_;
-        internal int PLAYER_LIFE = 3;
+        internal int PLAYER_LIFE;
         internal byte BOT_CLASS_NUM = 3;
         bool MAP_ROTATE_;
 
@@ -124,6 +124,8 @@ namespace Infected
                             case "ADMIN_NAME": Infected.ADMIN_NAME = value; break;
 
                             case "BOT_SETTING_NUM": if (int.TryParse(value, out num)) BOT_SETTING_NUM = num; break;
+                            case "PLAYER_LIFE": if (int.TryParse(value, out num)) PLAYER_LIFE = num; break;
+
                             case "DEPLAY_BOT_": if (bool.TryParse(value, out b)) DEPLAY_BOT_ = b; break;
                             case "USE_ADMIN_SAFE_": if (bool.TryParse(value, out b)) USE_ADMIN_SAFE_ = b; break;
                             case "MAP_ROTATE_": if (bool.TryParse(value, out b)) MAP_ROTATE_ = b; break;

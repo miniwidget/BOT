@@ -39,7 +39,7 @@ namespace Infected
             Call(42, "testClients_doCrouch", 1);
             Call(42, "testClients_doMove", 0);
             Call(42, "testClients_doAttack", 0);
-
+      
             for (int i = 0; i < 18; i++)
             {
                 B_FIELD.Add(new B_SET());

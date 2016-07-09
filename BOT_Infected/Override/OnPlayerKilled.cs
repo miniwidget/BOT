@@ -94,7 +94,10 @@ namespace Infected
 
             bool BotKilled = IsBOT[ke];
 
-            if (BotKilled) initBot(B_FIELD[ke]);//봇이 죽은 경우
+            if (BotKilled)
+            {
+                initBot(B_FIELD[ke]);//봇이 죽은 경우
+            }
             else if (killed == attacker)//사람이 죽은 경우
             {
                 if (!BotKilled) if (H_FIELD[ke].AXIS) H_FIELD[ke].AX_WEP = 2;//자살로 죽음
