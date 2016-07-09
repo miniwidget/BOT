@@ -7,13 +7,91 @@ using InfinityScript;
 
 namespace Infected
 {
-    internal class Set
+    /// <summary>
+    /// BOT SET class for custom fields set
+    /// </summary>
+    class B_SET
     {
-        internal readonly int BOT_SETTING_NUM = 12;
-        internal static bool TURRET_MAP;
-        internal bool DEPLAY_BOT_, TEST_, USE_ADMIN_SAFE_;
+        internal Entity target { get; set; }
+        internal int death { get; set; }
+        internal bool fire { get; set; }
+        internal bool temp_fire { get; set; }
+        internal bool wait { get; set; }
+        internal string wep;
+        internal int killer = -1;
+    }
 
-        bool WRITE_MAP_;
+    class H_SET
+    {
+        public H_SET(int life)
+        {
+            this.LIFE = life;
+        }
+        /// <summary>
+        /// player life chances before being infected
+        /// </summary>
+        internal int LIFE;
+        internal bool RESPAWN;
+
+        /// <summary>
+        /// perk count
+        /// </summary>
+        internal int PERK = 2;
+        internal HudElem HUD_PERK_COUNT, HUD_TOP_INFO, HUD_RIGHT_INFO, HUD_SERVER;
+        internal string PERK_TXT = "**";
+
+        /// <summary>
+        /// 0: Allies under 10kill IN ALLIES /
+        /// 1: ready to call heli /
+        /// </summary>
+        internal bool CAN_USE_HELI;
+
+        /// <summary>
+        /// 0 not using remote /
+        /// 1 remote helicopter /
+        /// 2 remote tank /
+        /// </summary>
+        internal byte REMOTE_STATE;
+        /// <summary>
+        /// when roop massage, if on_message state, it blocks reapeted roop
+        /// </summary>
+        internal bool ON_MESSAGE;
+
+        /// <summary>
+        /// related to relocation
+        /// </summary>
+        internal bool LOC_NOTIFIED;
+        internal bool LOC_DO;
+        internal Vector3 RELOC;
+
+        /// <summary>
+        /// test ac130
+        /// </summary>
+        internal bool AC130_NOTIFIED;
+        internal bool AC130_ON_USE;
+
+
+        /// <summary>
+        /// is Axis
+        /// </summary>
+        internal bool AXIS;
+        /// <summary>
+        /// Axis weapon state count
+        /// </summary>
+        internal int AX_WEP;
+
+
+    }
+
+    class Set
+    {
+        internal readonly int BOT_SETTING_NUM;
+        internal static bool TURRET_MAP;
+        internal bool DEPLAY_BOT_, TEST_, USE_ADMIN_SAFE_, ATTACK_;
+        internal int PLAYER_LIFE = 3;
+        internal byte BOT_CLASS_NUM = 3;
+        bool MAP_ROTATE_;
+
         public Set()
         {
 
@@ -26,7 +104,7 @@ namespace Infected
                 using (StreamReader set = new StreamReader(setFile))
                 {
                     bool b;
-
+                    int num;
                     while (!set.EndOfStream)
                     {
                         string line = set.ReadLine();
@@ -45,11 +123,12 @@ namespace Infected
                             case "SERVER_NAME": Hud.SERVER_NAME_ = value; break;
                             case "ADMIN_NAME": Infected.ADMIN_NAME = value; break;
 
-                            case "TEST_": if (bool.TryParse(value, out b)) TEST_ = b; break;
+                            case "BOT_SETTING_NUM": if (int.TryParse(value, out num)) BOT_SETTING_NUM = num; break;
                             case "DEPLAY_BOT_": if (bool.TryParse(value, out b)) DEPLAY_BOT_ = b; break;
                             case "USE_ADMIN_SAFE_": if (bool.TryParse(value, out b)) USE_ADMIN_SAFE_ = b; break;
-                            case "WRITE_MAP_": if (bool.TryParse(value, out b)) WRITE_MAP_ = b; break;
-
+                            case "MAP_ROTATE_": if (bool.TryParse(value, out b)) MAP_ROTATE_ = b; break;
+                            case "TEST_": if (bool.TryParse(value, out b)) TEST_ = b; break;
+                            case "ATTACK_": if (bool.TryParse(value, out b)) ATTACK_ = b; break;
                         }
                     }
                }
@@ -126,7 +205,7 @@ namespace Infected
             if (new byte[] { 23, 24, 25, 26, 28, 29, 30 }.Contains(MAP_IDX))//small map
             {
                 Infected.FIRE_DIST = 600;
-                Infected.PLAYER_LIFE += 1;
+                PLAYER_LIFE += 1;
             }
             else if (new byte[] { 8, 16, 17, 31 }.Contains(MAP_IDX))//large map
             {
@@ -157,21 +236,15 @@ namespace Infected
             {
                 Utilities.ExecuteCommand("seta g_password \"\"");
             }
-            if (!WRITE_MAP_) return;
-            string content = map + ",INF,1";
-            File.WriteAllText("admin\\INF.dspl", content);
+            if (!MAP_ROTATE_) return;
+            
+            if (Directory.Exists("INF_dspl")) Utilities.ExecuteCommand("sv_maprotation INF_dspl\\" + map );
+            else
+            {
+                string content = map + ",INF,1";
+                File.WriteAllText("admin\\INF.dspl", content);
+            }
         }
-
-        internal bool StringToBool(string s)
-        {
-            if (s == "1") return true;
-            else return false;
-        }
-
-        internal readonly string[] SOUND_ALERTS =
-        {
-            "AF_1mc_losing_fight", "AF_1mc_lead_lost", "PC_1mc_losing_fight", "PC_1mc_take_positions", "PC_1mc_positions_lock"
-        };
         internal void SetADMIN(Entity player)
         {
             player.Call(33445, "SPECT", "centerview");
@@ -190,20 +263,113 @@ namespace Infected
                 }
                 spect = !spect;
             });
-            if (TEST_)
-            {
-                player.Call(32936);
-                player.Call(33220, 2f);
-            }
+
             player.SpawnedPlayer += delegate
             {
                 if (USE_ADMIN_SAFE_) player.Health = 9999;
+                if (!ATTACK_)
+                {
+                    Function.SetEntRef(-1); Function.Call(42, "testClients_doCrouch", 1);
+                    Function.SetEntRef(-1); Function.Call(42, "testClients_doMove", 0);
+                    Function.SetEntRef(-1); Function.Call(42, "testClients_doAttack", 0);
+                }
             };
         }
 
-        internal byte BOT_CLASS_NUM = 3;
-        internal readonly string[] BOTs_CLASS = { "axis_recipe1", "axis_recipe2", "axis_recipe3", "class0", "class1", "class2", "class4", "class5", "class6", "class6" };
+        internal bool StringToBool(string s)
+        {
+            if (s == "1") return true;
+            else return false;
+        }
+
+        internal readonly string[] SOUND_ALERTS =
+        {
+            "AF_1mc_losing_fight", "AF_1mc_lead_lost", "PC_1mc_losing_fight", "PC_1mc_take_positions", "PC_1mc_positions_lock"
+        };
+
+        internal readonly string[] BOTs_CLASS = {
+            "axis_recipe1",//jugg
+            "axis_recipe2",//rpg
+            "axis_recipe3",//riot
+            "axis_recipe3",//heli
+            "class0",
+            "class1",
+            "class2",
+            //"class3",//sniper
+            "class4",
+            "class5",
+            "class6",
+            "class6" };
 
 
     }
+
+    class Inf
+    {
+        protected TReturn Call<TReturn>(string func, params Parameter[] parameters)
+        {
+            Function.SetEntRef(-1);
+            return Function.Call<TReturn>(func, parameters);
+        }
+        protected TReturn Call<TReturn>(int func, params Parameter[] parameters)
+        {
+            Function.SetEntRef(-1);
+            return Function.Call<TReturn>(func, parameters);
+        }
+
+        protected void Call(string func, params Parameter[] parameters)
+        {
+            Function.SetEntRef(-1);
+            Function.Call(func, parameters);
+        }
+        protected void Call(int func, params Parameter[] parameters)
+        {
+            Function.SetEntRef(-1);
+            Function.Call(func, parameters);
+        }
+        protected void Print(object s)
+        {
+            Log.Write(LogLevel.None, "{0}", s.ToString());
+        }
+    }
+
+    class Common
+    {
+        internal static Vector3 ZERO = new Vector3();
+        //internal static Vector3 
+        //internal static Vector3 AC130_WAY_POS;
+
+        internal static void StartOrEndThermal(Entity player, bool start)
+        {
+            player.Call(33436, "", 0);//VisionSetNakedForPlayer
+            bool Axis = Infected.H_FIELD[player.EntRef].AXIS;
+
+            if (start)
+            {
+                if (!Axis)
+                {
+                    player.Call(32936);//thermalvisionfofoverlayon
+                    player.Health = 300;
+                }
+
+                return;
+            }
+            if (!Axis) player.Call(32937);//thermalvisionfofoverlayoff
+
+            player.Health = 100;
+            player.Call(33531, ZERO);
+
+
+        }
+        static Vector3 tempV = new Vector3();
+        internal static Vector3 GetVector(float x, float y, float z)
+        {
+            tempV.X = x;
+            tempV.Y = y;
+            tempV.Z = z;
+            return tempV;
+        }
+
+    }
+
 }

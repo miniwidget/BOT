@@ -45,67 +45,6 @@ namespace Infected
             }
         }
 
-        internal class H_SET
-        {
-            public H_SET(int life)
-            {
-                this.LIFE = life;
-            }
-            /// <summary>
-            /// player life chances before being infected
-            /// </summary>
-            internal int LIFE;
-            internal bool RESPAWN;
-
-            /// <summary>
-            /// perk count
-            /// </summary>
-            internal int PERK = 2;
-            internal HudElem HUD_PERK_COUNT, HUD_TOP_INFO,HUD_RIGHT_INFO, HUD_SERVER;
-            internal string PERK_TXT = "**";
-
-            /// <summary>
-            /// 0: Allies under 10kill IN ALLIES /
-            /// 1: ready to call heli /
-            /// </summary>
-            internal bool CAN_USE_HELI;
-
-            /// <summary>
-            /// 0 not using remote /
-            /// 1 remote helicopter /
-            /// 2 remote tank /
-            /// </summary>
-            internal byte REMOTE_STATE;
-            /// <summary>
-            /// when roop massage, if on_message state, it blocks reapeted roop
-            /// </summary>
-            internal bool ON_MESSAGE;
-
-            /// <summary>
-            /// related to relocation
-            /// </summary>
-            internal bool LOC_NOTIFIED;
-            internal bool LOC_DO;
-            internal Vector3 RELOC;
-
-            /// <summary>
-            /// test ac130
-            /// </summary>
-            internal bool AC130_NOTIFIED;
-            internal bool AC130_ON_USE;
-
-
-            /// <summary>
-            /// is Axis
-            /// </summary>
-            internal bool AXIS;
-            /// <summary>
-            /// Axis weapon state count
-            /// </summary>
-            internal int AX_WEP;
-
-
-        }
         void SetZero_hset(H_SET H, bool Axis, int life)
         {
             H.LOC_DO = false;
@@ -141,9 +80,8 @@ namespace Infected
             B_FIELD[pe] = null;
             H_SET H = H_FIELD[pe];
 
-            SetZero_hset(H, false, PLAYER_LIFE);
+            SetZero_hset(H, false, SET.PLAYER_LIFE);
             
-
             #region SetClientDvar
 
             //player.SetClientDvar("cl_maxpackets", "100");
@@ -350,6 +288,7 @@ namespace Infected
             player.SpawnedPlayer += () => human_spawned(player);
             player.Call(33531, Common.ZERO);//setplayerangles
         }
+  
         /// <summary>
         /// 0: Helicopter Left Turret /
         /// 1: Helicopter Right Turret /
@@ -434,7 +373,6 @@ namespace Infected
                 });
             }
         }
-
 
         /* 
         void SetLocationByTI(Entity player)

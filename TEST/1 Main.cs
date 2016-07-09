@@ -142,6 +142,7 @@ namespace TEST
         void Vehicle_(string type, string value)
         {
             if (vehicle == null) vehicle = new Vehicle();
+
             if (type == "sp") vehicle.spawn(value);
             else if (type == "plane") vehicle.spawnPlane();
             else if (type == "rm") vehicle.remoteTestModel(value);
@@ -151,7 +152,14 @@ namespace TEST
             else if (type == "rmheli") vehicle.remoteHeli();
             else if (type == "end") vehicle.EndRemoteControl();
             else if (type == "start") vehicle.StartRemoteControl();
-            else if (type == "uav") vehicle.StartRemoteUAV(ADMIN);
+            else if (type == "uav")
+            {
+                Vector3 angle = ADMIN.Call<Vector3>("getplayerangles");
+                Vector3 spawnPos = WEAPON.AnglesToForward(angle, ADMIN.Origin, 50);
+
+                //StartRemoteUAV(ADMIN, spawnPos, angle);
+            }
+
         }
         void Vision(string type, string value)
         {
@@ -209,8 +217,8 @@ namespace TEST
         {
             if (WEAPON == null) WEAPON = new Weapon();
             if (type == "mb") WEAPON.magicBullet(ADMIN);
-            else if (type == "back") ADMIN.Call("setorigin", WEAPON.AnglesToBack(ADMIN.Call<Vector3>("getplayerangles"),ADMIN.Origin, 50));
-            else if (type == "forward") ADMIN.Call("setorigin", WEAPON.AnglesToForward(ADMIN.Call<Vector3>("getplayerangles"),ADMIN.Origin, 50));
+            else if (type == "back") ADMIN.Call("setorigin", WEAPON.AnglesToBack(ADMIN.Call<Vector3>("getplayerangles"), ADMIN.Origin, 50));
+            else if (type == "forward") ADMIN.Call("setorigin", WEAPON.AnglesToForward(ADMIN.Call<Vector3>("getplayerangles"), ADMIN.Origin, 50));
         }
         string GetSO(string idx, Vector3 o)
         {
@@ -389,7 +397,236 @@ namespace TEST
             }
         }
 
+        Entity rp = null;
+
+        internal Vector3 AnglesToForward(Vector3 angle, Vector3 v, int scalar)
+        {
+
+            float hor = angle.Y;
+            float vert = angle.X;
+            float y = (float)Math.Abs(Math.Tan(angle.Y / 57.3) * scalar);
+
+            float x0 = v.X;
+            float y0 = v.Y;
+
+            if (hor > 0)
+            {
+                if (hor < 90)//2사분면
+                {
+                    v.X += scalar;
+                }
+                else//3사분면
+                {
+                    v.X -= scalar;
+                }
+                v.Y += y;
+            }
+            else
+            {
+                if (hor > -90)//1사분면
+                {
+                    v.X += scalar;
+                }
+                else//4사분면
+                {
+                    v.X -= scalar;
+                }
+                v.Y -= y;
+            }
+
+            //x0 = v.X - x0;
+            //y0 = v.Y - y0;
+            //float dist = (float)Math.Sqrt(x0 * x0 + y0 * y0);
+            //float radians = angle.X * 57.3f;
+
+            //if (angle.Z < 0)//위로 보고 있을 경우
+            //{
+            //    v.Z += dist * (float)Math.Tan(radians);
+            //}
+            //else//아래로 보고 있을 경우
+            //{
+            //    v.Z -= dist * (float)Math.Tan(radians);
+            //}
+            v.Z += 500;
+            return v;
+        }
+        internal Vector3 AnglesToBack(Vector3 angle, Vector3 v, int scalar)
+        {
+            float hor = angle.Y;
+            float vert = angle.X;
+            float y = (float)Math.Abs(Math.Tan(angle.Y / 57.3) * scalar);
+
+            if (hor > 0)
+            {
+                if (hor < 90)//2사분면
+                {
+                    v.X -= scalar;
+                }
+                else//3사분면
+                {
+                    v.X += scalar;
+                }
+                v.Y -= y;
+            }
+            else
+            {
+                if (hor > -90)//1사분면
+                {
+                    v.X -= scalar;
+                }
+                else//4사분면
+                {
+                    v.X += scalar;
+                }
+                v.Y += y;
+            }
+            v.Z += 1000;
+            return v;
+        }
+
+        internal void magicBullet(Entity player)
+        {
+            player.Call("setorigin", new Vector3(-2944, -29, 527));
+            player.OnNotify("weapon_fired", (p, weaponName) =>
+            {
+                if (rp != null) return;
+                Vector3 angle = player.Call<Vector3>("getPlayerAngles");
+                Vector3 handpos = player.Call<Vector3>("getTagOrigin", "tag_weapon_left");
+
+                Vector3 startPos = AnglesToBack(angle, handpos, 2000);
+                Vector3 endPos = AnglesToForward(angle, handpos, 1000);
+
+                rp = Call<Entity>("MagicBullet", "remotemissile_projectile_mp", startPos, endPos, player);
+
+                //Call<Vector3>("anglestoforward", player.Call<Vector3>("getPlayerAngles")) * 1000000, // end point
+                //player); // ignore entity
+                rp.Call("setCanDamage", true);
+                player.Call("VisionSetMissilecamForPlayer", "black_bw", 0f);
+                player.Call("VisionSetMissilecamForPlayer", "thermalVision", 1f);
+                player.Call("CameraLinkTo", rp, "tag_origin");
+                player.Call("ControlsLinkTo", rp);
+                rp.OnNotify("death", _rp =>
+                {
+                    player.Call("ControlsUnlink");
+                    player.Call("freezeControls", false);
+                    player.Call("CameraUnlink");
+                    player.Notify("stopped_using_remote");
+                    rp = null;
+                });
+            });
+        }
+        void smaw(Entity player)
+        {
+            player.GiveWeapon("smaw_mp");
+            player.SwitchToWeaponImmediate("smaw_mp");
+
+            Print("왔다");
+            player.Call("notifyonplayercommand", "fff", "+toggleads_throw");
+            player.OnNotify("fff", ent =>
+            {
+                string weapon = ent.CurrentWeapon;
+                Print(weapon);
+                if (weapon != "iw5_smaw_mp") return;
+                player.Call(33469, weapon, 1);//setweaponammostock
+                player.Call(33468, weapon, 1);//setweaponammoclip
+                if (rp != null) return;
+                Vector3 angle = player.Call<Vector3>("getPlayerAngles");
+                Vector3 handpos = player.Call<Vector3>("getTagOrigin", "tag_weapon_left");
+
+                Vector3 startPos = AnglesToBack(angle, handpos, 2000);
+                Vector3 endPos = AnglesToForward(angle, handpos, 1000);
+
+                rp = Call<Entity>("MagicBullet", "remotemissile_projectile_mp", startPos, endPos, player);
+
+                //Call<Vector3>("anglestoforward", player.Call<Vector3>("getPlayerAngles")) * 1000000, // end point
+                //player); // ignore entity
+                rp.Call("setCanDamage", true);
+                player.Call("VisionSetMissilecamForPlayer", "black_bw", 0f);
+                player.Call("VisionSetMissilecamForPlayer", "thermalVision", 1f);
+                player.Call("CameraLinkTo", rp, "tag_origin");
+                player.Call("ControlsLinkTo", rp);
+                rp.OnNotify("death", _rp =>
+                {
+                    player.Call("ControlsUnlink");
+                    player.Call("freezeControls", false);
+                    player.Call("CameraUnlink");
+                    //player.Notify("stopped_using_remote");
+                    rp = null;
+                });
+            });
+
+        }
+        Entity remoteUAV;
+        internal void StartRemoteUAV(Entity player)
+        {
+            //if (Call<int>("getdvarint", "camera_thirdPerson") == 1)
+            //{
+
+            //}
+            Vector3 v30 = new Vector3(0, 0, 30);
+            //if (WEAPON == null) WEAPON = new TEST.Weapon();
+            //player.GiveWeapon("uav_remote_mp");
+            //player.SwitchToWeaponImmediate("uav_remote_mp");
+            //player.Call("VisionSetNakedForPlayer","black_bw", 0f );
+            //player.Notify("remoteuav_unlock");
+
+            //Vector3 angle = player.Call<Vector3>("getplayerangles");
+            //Vector3 spawnPos = WEAPON.AnglesToForward(player.Origin, ADMIN.Origin, 50);
+
+            //Print(spawnPos + "." + angle);
+            remoteUAV = Call<Entity>("spawnhelicopter", player, player.Origin + new Vector3(0,0,250), new Vector3(),
+                 "attack_littlebird_mp",//minimap model
+                 "vehicle_remote_uav");//real model vehicle_remote_uav
         
+            Entity TL = Call<Entity>(19, "misc_turret", player.Origin + v30, "sentry_minigun_mp", false);
+            TL.Call(32929, "weapon_minigun");
+            TL.Call(32841, remoteUAV, "tag_light_nose", new Vector3(0,0,-100), new Vector3());
+            TL.Call(33084, 180f);
+            TL.Call(33083, 180f);
+            TL.Call(33086, 180f);
+
+       
+            //Entity carepackage = Call<Entity>("spawn", "script_model", remoteUAV.Origin + v50);
+            //carepackage.Call("setmodel", "com_plasticcase_friendly");
+            //carepackage.Call("linkto", remoteUAV);
+
+            //pack.Call(33353, brushmodel);
+
+            //player.Call("setorigin", pack.Origin + new Vector3(0, 0, 50));
+            //player.Call("linkto", pack);
+            //player.Call("setorigin", carepackage.Origin);
+
+
+            //ADMIN.Call("linkto", carepackage);
+            //player.Call("cameralinkto", remoteUAV,"tag_origin");
+
+            //player.Call("remotecontrolvehicle", remoteUAV);
+
+            //TL.Call("hide");
+            //return;
+            //ADMIN.Call("controllinkto", carepackage);
+            //int fx = Call<int>("loadfx", "misc/aircraft_light_wingtip_green");
+            //remoteUAV.AfterDelay(200, c =>
+            //{
+            //    Call("playFXOnTag", fx, remoteUAV, "tag_light_tail1");
+            //    Call("playFXOnTag", fx, remoteUAV, "tag_light_nose");
+            //});
+        }
+        void testremote()
+        {
+            ADMIN.Call(33256, remoteUAV);
+            //for(int i = 0; i < 17; i++)
+            //{
+            //    Entity ent = Entity.GetEntity(i);
+            //    if (ent == null) continue;
+            //    if (ent.Name.StartsWith("bot"))
+            //    {
+            //        ent.Call(33256, remoteUAV);
+            //        Call(42, "testClients_doMove", 1);
+
+            //    }
+            //}
+        }
         public override void OnSay(Entity player, string name, string text)
         {
             if (ADMIN == null) GetADMIN();
@@ -399,9 +636,12 @@ namespace TEST
 
             switch (txt)
             {
+                case "smaw": smaw(ADMIN); break;
+                //case "rr": testremote(); break;
+                //case "ru": StartRemoteUAV(ADMIN); break;
                 case "back":
                 case "forward":
-                case "mb": Weapon(txt, value);break;
+                case "mb": Weapon(txt, value); break;
 
                 case "start": SetTimer(true); break;
                 case "stop": SetTimer(false); break;

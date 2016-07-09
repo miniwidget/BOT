@@ -9,6 +9,7 @@ using System.Timers;
 
 namespace Infected
 {
+
     public partial class Infected
     {
         void BotCheckPerk(int k)
@@ -40,7 +41,6 @@ namespace Infected
                 }
             }
         }
-
         private void BotSpawned(Entity bot)
         {
             if (GAME_ENDED_) return;
@@ -56,20 +56,15 @@ namespace Infected
             int delay_time = 6100;
 
             if (num == BOT_RPG_ENTREF || num == BOT_RIOT_ENTREF) delay_time = 10000;
-            //if (num == BOT_SENTRY_ENTREF)
-            //{
-            //    SentryExplode();
-            //}
-            //else
-            //{
-                if (B.wep == null) B.wep = bot.CurrentWeapon;
 
-                bot.Call(33469, B.wep, 0);//setweaponammostock
-                bot.Call(33468, B.wep, 0);//setweaponammoclip
-            //}
-#endregion
+            if (B.wep == null) B.wep = bot.CurrentWeapon;
 
-#region check perk to killer
+            bot.Call(33469, B.wep, 0);//setweaponammostock
+            bot.Call(33468, B.wep, 0);//setweaponammoclip
+                                      //}
+            #endregion
+
+            #region check perk to killer
 
             int k = B.killer;
             if (k != -1)
@@ -78,7 +73,7 @@ namespace Infected
                 B.killer = -1;
             }
 
-#endregion
+            #endregion
 
 #if DEBUG
             //if (bot.EntRef != BOT_JUGG_ENTREF)
@@ -91,21 +86,19 @@ namespace Infected
             //}
 #endif
 
-            bot.AfterDelay(delay_time, bot_ =>
+            bot.AfterDelay(delay_time, x =>
             {
                 if (GAME_ENDED_) return;
 
-                if (num == BOT_RPG_ENTREF) BotSearchOn_slow(bot_, B);
+                if (num == BOT_RPG_ENTREF) BotSearchOn_slow(bot, B);
 
                 else if (num == BOT_RIOT_ENTREF) { bot.Call(33220, 2f); bot.Health = 100; }
 
-                else if (num == BOT_JUGG_ENTREF) BotSearchOn(bot_, B, true);
+                else if (num == BOT_JUGG_ENTREF) BotSearchOn(bot, B, true);
 
-                //else if (num == BOT_SENTRY_ENTREF) BotSerchOn_sentry(B);
+                else BotSearchOn(bot, B, false);
 
-                else BotSearchOn(bot_, B, false);
-
-                bot_.Call(32847);//show
+                bot.Call(32847);//show
             });
         }
 
@@ -169,9 +162,9 @@ namespace Infected
 
                         b.OnInterval(410, bb =>
                         {
-                            if (bc != blockCount ||  !B.fire) return false;
+                            if (bc != blockCount || !B.fire) return false;
 
-                           //if(Jugg) Print(bc + " " + human.Name + " " + bot.Name);
+                            //if(Jugg) Print(bc + " " + human.Name + " " + bot.Name);
 
                             var TO = human.Origin;
                             var BO = bb.Origin;
@@ -373,124 +366,5 @@ namespace Infected
 
             });
         }
-
-        /*
-
-        /// <summary>
-        /// Sentry bot starts searching humans
-        /// </summary>
-        private void BotSerchOn_sentry(B_SET B)
-        {
-            SG_BOT.Call(33220, 1f);//setmovespeedscale
-            SG_BOT.Health = 300;
-            int death = B.death;
-            B.fire = true;
-            if (SG == null) SG = SpawnSentry();
-            SG.Call(32847);//show
-            SG.Call(33006, SG_BOT);//setsentryowner
-            SG.Call(33007, SG_BOT);//setsentrycarrier
-            bool remote = false;
-
-            byte blockCount = 0;
-
-            SG_BOT.OnInterval(2000, b =>
-            {
-                if (death != B.death) return B.fire = false;
-                if (HUMAN_DIED_ALL_) return !(B.fire = false);
-                //Print(SG.Health);
-                Vector3 bo = b.Origin;
-
-                if (B.target != null)//이미 타겟을 찾은 경우
-                {
-                    if (human_List.Contains(B.target))
-                    {
-                        if (B.target.Origin.DistanceTo(bo) < FIRE_DIST) return true;
-                    }
-
-                    B.target = null;
-                    SG_BOT.Call(32980, SG);//RemoteControlTurretOff
-                    remote = false;
-                }
-
-                B.fire = false;
-
-                foreach (Entity human in human_List)
-                {
-
-                    if (human.Origin.DistanceTo(bo) < FIRE_DIST)
-                    {
-                        B.target = human;
-
-                        blockCount++;
-                        if (blockCount == 6) blockCount = 0;
-                        byte bc = blockCount;
-
-                        SG_BOT.Call(32979, SG);//remotecontrolturret
-                        remote = true;
-                        B.fire = true;
-                        b.OnInterval(200, bb =>
-                        {
-                            if (bc != blockCount || !B.fire) return false;
-
-                            var tagback = human.Origin; tagback.Z += 25;//Call<Vector3>(33128, "tag_weapon_left");//.
-                            var aim = SG.Call<Vector3>(33128, "tag_aim");
-                            Vector3 angle = Call<Vector3>(247, tagback - aim);//vectortoangles
-                            SG_BOT.Call(33531, angle);//SetPlayerAngles
-                            return true;
-                        });
-
-                        return true;
-                    }
-
-                }
-
-                if (remote)
-                {
-                    remote = false;
-                    SG_BOT.Call(32980, SG);//RemoteControlTurretOff
-                }
-                return true;
-
-            });
-        }
-
-        /// <summary>
-        /// Sentry Gun Entity
-        /// </summary>
-        Entity SG;
-        /// <summary>
-        /// Sentry Gun Bot Entity
-        /// </summary>
-        Entity SG_BOT;
-        Entity SpawnSentry()
-        {
-            SG = Call<Entity>(19, "misc_turret", SG_BOT.Origin, "sentry_minigun_mp");
-            var angle = SG_BOT.Call<Vector3>("getplayerangles");
-            SG.SetField("angles", new Vector3(0, angle.Y, 0));
-            SG.Call(33008, true);//"setturretminimapvisible"
-            SG.Call(32929, "sentry_minigun_weak");//setModel
-            SG.Call(33084, 180f);//SetLeftArc
-            SG.Call(33083, 180f);//SetRightArc
-            SG.Call(32864, "sentry");//setmode : sentry sentry_offline
-            //SG.Call("setCanDamage", true);
-            SG.Call("makeTurretSolid");
-            //SG.Health = 100;
-            return SG;
-        }
-        void SentryExplode()
-        {
-            if (SG == null) return;
-
-            SG.Call(32929, "sentry_minigun_weak_destroyed");//setmodel
-            SG_BOT.Call(32980, SG);//"remotecontrolturretoff"
-            int i = Call<int>(303, "explosions/sentry_gun_explosion");//loadfx
-            Call(305, i, SG, "tag_origin");//playfxontag
-            SG.AfterDelay(2500, sg =>
-            {
-                SG.Call(32848);
-                SG.Call(32929, "sentry_minigun_weak");//setModel
-            });//hide
-        }
-        */
     }
 }

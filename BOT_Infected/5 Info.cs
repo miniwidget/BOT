@@ -7,7 +7,7 @@ using InfinityScript;
 
 namespace Infected
 {
-    internal class Info
+     class Info
     {
         readonly string[] MESSAGES_ALLIES_INFO_A =
         {

@@ -9,29 +9,40 @@ namespace TEST
     class Vehicle : InfinityBase
     {
 
-        internal void StartRemoteUAV(Entity player)
+        internal void StartRemoteUAV(Entity player,Vector3 spawnPos,Vector3 angle)
         {
-            player.AfterDelay(400, x =>
+            Print(spawnPos + "." + angle);
+            Entity remoteUAV = Call<Entity>("spawnhelicopter", player, spawnPos, angle,
+                 "attack_littlebird_mp",//minimap model
+                 "vehicle_remote_uav");//real model
+
+            //Entity brushmodel = Call<Entity>("getent", "pf1_auto1", "targetname"); 
+            //if (brushmodel == null) brushmodel = Call<Entity>("getent", "pf3_auto1", "targetname");
+            //if (brushmodel == null) return;
+            //remoteUAV.Call(33353, brushmodel);
+
+            player.Call("setorigin", remoteUAV.Origin + new Vector3(0, 0, 50));
+            player.Call(33256, remoteUAV);
+
+            int fx = Call<int>("loadfx", "misc/aircraft_light_wingtip_green");
+            remoteUAV.AfterDelay(200, c =>
             {
-                //player.GiveWeapon("uav_remote_mp");
-                //player.SwitchToWeaponImmediate("uav_remote_mp");
-                //player.Call("VisionSetNakedForPlayer", "black_bw", 0.5f);
-
-
-                Entity remoteUAV =
-                 Call<Entity>("spawnhelicopter", player, player.Origin + new Vector3(0, 0, 25), new Vector3(0,0,0),
-                 "attack_littlebird_mp", "vehicle_remote_uav");
-                 //Call<Entity>("spawnhelicopter", test.ADMIN, spawnPos, Angles, minimap_model, realModel);
-
-                float UAV_REMOTE_COLLISION_RADIUS = 18,
-                    UAV_REMOTE_Z_OFFSET = -9;
-
-                remoteUAV.Call("MakeVehicleSolidCapsule",
-                    UAV_REMOTE_COLLISION_RADIUS,
-                   UAV_REMOTE_Z_OFFSET,
-                    UAV_REMOTE_COLLISION_RADIUS);
+                Call("playFXOnTag", fx, remoteUAV, "tag_light_tail1");
+                Call("playFXOnTag", fx, remoteUAV, "tag_light_nose");
             });
-          
+
+
+
+            //player.AfterDelay(400, x =>
+            //{
+            //player.GiveWeapon("uav_remote_mp");
+            //player.SwitchToWeaponImmediate("uav_remote_mp");
+            //player.Call("VisionSetNakedForPlayer", "black_bw", 0.5f);
+
+            //float UAV_REMOTE_COLLISION_RADIUS = 18, UAV_REMOTE_Z_OFFSET = -9;
+            //remoteUAV.Call("MakeVehicleSolidCapsule", UAV_REMOTE_COLLISION_RADIUS, UAV_REMOTE_Z_OFFSET, UAV_REMOTE_COLLISION_RADIUS);
+            //});
+
 
         }
 

@@ -5,50 +5,51 @@ using System.Linq;
 using System.Text;
 
 namespace Infected
-{
+{       
+
     public partial class Infected
     {
+        Entity ADMIN;
+        List<Entity> BOTs_List = new List<Entity>(18);
+        internal static List<Entity> human_List = new List<Entity>(18);
+
         internal static Random rnd;
-        internal Entity ADMIN;
-        internal static int FIRE_DIST, PLAYER_LIFE = 2;
+        internal static int FIRE_DIST = 3;
         internal static string ADMIN_NAME;
 
         bool[] IsBOT = new bool[18];
+        bool GET_TEAMSTATE_FINISHED;
+        bool
+            BOT_SERCH_ON_LUCKY_FINISHED, HUMAN_DIED_ALL_ = true,
+            GAME_ENDED_;
+
+        List<B_SET> B_FIELD = new List<B_SET>(18);
+        internal static List<H_SET> H_FIELD = new List<H_SET>(18);
+
+        DateTime GRACE_TIME;
 
         void Print(object s)
         {
             Log.Write(LogLevel.None, "{0}", s.ToString());
-
         }
 
-
-        /// <summary>
-        /// BOT SET class for custom fields set
-        /// </summary>
-        class B_SET
+        bool BotDoAttack(bool attack)
         {
-            internal Entity target { get; set; }
-            internal int death { get; set; }
-            internal bool fire { get; set; }
-            internal bool temp_fire { get; set; }
-            internal bool wait { get; set; }
-            internal string wep;
-            internal int killer = -1;
+            if (attack)
+            {
+                Call(42, "testClients_doCrouch", 0);
+                Call(42, "testClients_doMove", 1);
+                Call(42, "testClients_doAttack", 1);
+            }
+            else
+            {
+                Call(42, "testClients_doCrouch", 1);
+                Call(42, "testClients_doMove", 0);
+                Call(42, "testClients_doAttack", 0);
+            }
+            return false;
         }
-        List<B_SET> B_FIELD = new List<B_SET>(18);
-        List<Entity> BOTs_List = new List<Entity>(18);
 
-        /// <summary>
-        /// HUMAN PLAYER SET class for custom fields set
-        /// </summary>
-        internal static List<H_SET> H_FIELD = new List<H_SET>(18);
-        internal static List<Entity> human_List = new List<Entity>(18);
-
-        internal bool GET_TEAMSTATE_FINISHED;
-        bool
-            BOT_SERCH_ON_LUCKY_FINISHED,
-            HUMAN_DIED_ALL_, GAME_ENDED_;
-
-        DateTime GRACE_TIME;
     }
+
 }

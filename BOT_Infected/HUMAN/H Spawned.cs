@@ -11,9 +11,23 @@ namespace Infected
     public partial class Infected
     {
         bool UNLIMITED_LIEF_ = true;
+
+        /// <summary>
+        /// change initial human infected to Allies
+        /// </summary>
+        /// <param name="player"></param>
+        void CheckInf(Entity player)
+        {
+            BOT_TO_AXIS_COMP = true;
+            player.Notify("menuresponse", "team_marinesopfor", "allies");
+            player.Call("suicide");
+        }
+
         void human_spawned(Entity player)
         {
-            if (GAME_ENDED_) return;    
+            if (GAME_ENDED_) return;
+
+            if (!BOT_TO_AXIS_COMP) CheckInf(player);
 
             int pe = player.EntRef;
             H_SET H = H_FIELD[pe];
@@ -100,7 +114,7 @@ namespace Infected
 
                 if (H.AX_WEP > 3)
                 {
-                    player.Call(33344,Info.GetStr( "*[ ^7" + deadManWeapon + " *] Weapon of the Infected",true));
+                    player.Call(33344, Info.GetStr("*[ ^7" + deadManWeapon + " *] Weapon of the Infected", true));
                     return;
                 }
 

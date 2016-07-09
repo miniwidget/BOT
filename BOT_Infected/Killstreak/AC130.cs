@@ -6,6 +6,7 @@ using System.Text;
 
 namespace Infected
 {
+#if DEBUG
     class AC130 : Inf
     {
         //private string getKillstreakWeapon(string streakName)
@@ -85,7 +86,7 @@ namespace Infected
             //float rotateTime = (70 / 360) * rampupDegrees;
             //level_ac130.Call(33408, level_ac130.GetField<Vector3>("angles").Y + rampupDegrees, rotateTime, rotateTime, 0);//rotateyaw
 
-            Infected.H_SET H = Infected.H_FIELD[player.EntRef];
+            H_SET H = Infected.H_FIELD[player.EntRef];
 
             player.Call(33306, "ac130Ammo105mm", 1);//SetPlayerData
             player.Call(33306, "ac130Ammo40mm", 4);
@@ -203,4 +204,5 @@ namespace Infected
 
         }
     }
+#endif
 }

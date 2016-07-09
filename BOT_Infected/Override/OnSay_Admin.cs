@@ -312,6 +312,9 @@ namespace Infected
             switch (text)
             {
 #if DEBUG
+                case "hh": ADMIN.Health = 100; return false;
+                case "pp": PK.Perk_Hud(ADMIN, int.Parse(value));return false;
+
                 case "b4": ADMIN.Call("setorigin", BOTs_List[3].Origin); return false;
 
                 case "y": return hudelemY(value);//9
@@ -349,7 +352,6 @@ namespace Infected
                 case "test": AddHuman(); return false;
 
 #endif
-                case "pp": PK.Perk_Hud(ADMIN, int.Parse(value));return false;
                 case "safe":
                     {
                         SET.USE_ADMIN_SAFE_ = !SET.USE_ADMIN_SAFE_;

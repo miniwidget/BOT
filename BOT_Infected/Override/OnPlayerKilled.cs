@@ -61,7 +61,7 @@ namespace Infected
             if (!IsBOT[pe]) return;
            
 
-            if (pe == BOT_RIOT_ENTREF) return;
+            if (pe == BOT_RIOT_ENTREF|| pe==BOT_HELI_ENTREF) return;
             else if (pe == BOT_RPG_ENTREF)
             {
                 if (attacker == player)

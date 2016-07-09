@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Infected
 {
-    internal class Hud
+    class Hud
     {
         internal static string SERVER_NAME_;
         readonly string ALLIES_RIGHT_TEXTS =

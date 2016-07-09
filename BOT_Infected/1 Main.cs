@@ -101,80 +101,15 @@ namespace Infected
                     {
                         if (v == null) continue;
                         v.death += 1;
-                        //v.fire = false;
+                        v.fire = false;
                     }
-                    AfterDelay(20000, () => Utilities.ExecuteCommand("map_rotate"));
+                    //AfterDelay(20000, () => Utilities.ExecuteCommand("map_rotate"));
                 });
             });
 
         }
     }
 
-    class Inf
-    {
-        protected TReturn Call<TReturn>(string func, params Parameter[] parameters)
-        {
-            Function.SetEntRef(-1);
-            return Function.Call<TReturn>(func, parameters);
-        }
-        protected TReturn Call<TReturn>(int func, params Parameter[] parameters)
-        {
-            Function.SetEntRef(-1);
-            return Function.Call<TReturn>(func, parameters);
-        }
-
-        protected void Call(string func, params Parameter[] parameters)
-        {
-            Function.SetEntRef(-1);
-            Function.Call(func, parameters);
-        }
-        protected void Call(int func, params Parameter[] parameters)
-        {
-            Function.SetEntRef(-1);
-            Function.Call(func, parameters);
-        }
-        protected void Print(object s)
-        {
-            Log.Write(LogLevel.None, "{0}", s.ToString());
-        }
-    }
-    class Common
-    {
-        internal static Vector3 ZERO = new Vector3();
-        //internal static Vector3 AC130_WAY_POS;
-
-        internal static void StartOrEndThermal(Entity player, bool start)
-        {
-            player.Call(33436, "", 0);//VisionSetNakedForPlayer
-            bool Axis = Infected.H_FIELD[player.EntRef].AXIS;
-
-            if (start)
-            {
-                if (!Axis)
-                {
-                    player.Call(32936);//thermalvisionfofoverlayon
-                    player.Health = 300;
-                }
-
-                return;
-            }
-            if (!Axis) player.Call(32937);//thermalvisionfofoverlayoff
-            
-            player.Health = 100;
-            player.Call(33531, ZERO);
-
-
-        }
-        static Vector3 tempV = new Vector3();
-        internal static Vector3 GetVector(float x, float y, float z)
-        {
-            tempV.X = x;
-            tempV.Y = y;
-            tempV.Z = z;
-            return tempV;
-        }
-
-    }
 
 }
 

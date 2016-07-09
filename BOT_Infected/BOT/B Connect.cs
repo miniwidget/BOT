@@ -11,6 +11,10 @@ namespace Infected
 {
     public partial class Infected
     {
+        Entity CARE_PACKAGE;
+        int BOT_RPG_ENTREF, BOT_RIOT_ENTREF, BOT_JUGG_ENTREF, BOT_LUCKY_IDX, BOT_HELI_ENTREF;
+        bool BOT_TO_AXIS_COMP; 
+
         #region deplay
         void BotDeplay()
         {
@@ -79,11 +83,9 @@ namespace Infected
 
         #region Bot_Connected
 
-        int BOT_RPG_ENTREF, BOT_RIOT_ENTREF, BOT_JUGG_ENTREF,  BOT_LUCKY_IDX;//BOT_SENTRY_ENTREF,
-
         private void Bot_Connected(Entity bot)
         {
-            
+
             var i = BOTs_List.Count;
             int be = bot.EntRef;
             if (i > SET.BOT_SETTING_NUM)
@@ -93,7 +95,10 @@ namespace Infected
             }
             if (be == -1) return;
 
-            if (i == SET.BOT_SETTING_NUM - 1) BotWaitOnFirstInfected();
+            if (i == SET.BOT_SETTING_NUM - 1)
+            {
+                AfterDelay(4000,()=>BotWaitOnFirstInfected());
+            }
 
             if (i == 0)
             {
@@ -107,15 +112,14 @@ namespace Infected
             {
                 BOT_RIOT_ENTREF = be;
             }
-            //else if (i == 3)
-            //{
-            //    BOT_SENTRY_ENTREF = be;
-            //    i = 2;
-            //    SG_BOT = bot;
-            //}
+            else if (i == 3)
+            {
+                BOT_HELI_ENTREF = be;
+            }
+
             if (i > 9)
             {
-                if (SET.BOT_CLASS_NUM > 9) SET.BOT_CLASS_NUM = 3;
+                if (SET.BOT_CLASS_NUM > 10) SET.BOT_CLASS_NUM = 4;
                 i = SET.BOT_CLASS_NUM;
                 SET.BOT_CLASS_NUM++;
             }
@@ -124,49 +128,25 @@ namespace Infected
             BOTs_List.Add(bot);
             IsBOT[be] = true;
             H_FIELD[be] = null;
-
         }
         #endregion
 
         void BotWaitOnFirstInfected()
         {
-            int failCount = 0;
-            bool human_infected = false;
-
-            byte finish = 0;  
-            OnInterval(2000, () =>
+            OnInterval(1000, () =>
             {
-                if (finish == 1)  finish = 2;
-                if (finish == 2) return false;
-                if (failCount == 6)//in case, if over 12 sec, in a state that no one got infected. ※ Infected time is 8 sec.
+                foreach (Entity ent in Players)
                 {
-                    //Utilities.ExecuteCommand("map_restart");
-                    if (human_List.Count > 0)
-                    {
-                        if (BOTs_List.Count > 1)
-                        {
-                            BOTs_List[1].Call(33341);
-                            finish = 1;
-                        }
-                    }
-                }
+                    if (ent == null) continue;
+                    if (ent.GetField<string>("sessionteam") != "axis") continue;
+                    BOT_TO_AXIS_COMP = true;
+                   
+                    var max = BOTs_List.Count - 1;//11
+                    BOT_LUCKY_IDX = max;//11
 
-                foreach (Entity firstInfected in Players)
-                {
-                    if (firstInfected == null) continue;
-                    if (firstInfected.GetField<string>("sessionteam") != "axis") continue;
-                    //감염 시작
-
-                    var max = BOTs_List.Count - 1;
-                    BOT_LUCKY_IDX = max;
-
-                    if (firstInfected.Name.StartsWith("bot"))//봇이 감염된 경우
+                    if (ent.Name.StartsWith("bot"))//봇이 감염된 경우
                     {
-                        if (BOTs_List.IndexOf(firstInfected) == max) BOT_LUCKY_IDX -= 1;
-                    }
-                    else//사람이 감염된 경우
-                    {
-                        human_infected = true;
+                        if (BOTs_List.IndexOf(ent) == max) BOT_LUCKY_IDX -= 1;//10
                     }
 
                     BOTs_List[BOT_LUCKY_IDX].Notify("menuresponse", "changeclass", SET.BOTs_CLASS[0]);//Allies bot change to Jugg class
@@ -174,24 +154,18 @@ namespace Infected
                     int i = 0;
                     OnInterval(250, () =>
                     {
-                        Entity bot;
+                        Entity bot = BOTs_List[i];
 
-                        if (i == max)
-                        {
-                            if (!human_infected)
-                            {
-                                firstInfected.SpawnedPlayer += () => BotSpawned(firstInfected);
-                                firstInfected.Call(33341);//suicide
-                                SetTeamName();
-                            }
-
-                            return GetTeamState(firstInfected.Name);
-                        }
                         if (i != BOT_LUCKY_IDX)
                         {
-                            bot = BOTs_List[i];
-                            bot.SpawnedPlayer += () => BotSpawned(bot);
+                            if (i == 3) bot.SpawnedPlayer += () => BotHeliSpawned(bot);
+                            else bot.SpawnedPlayer += () => BotSpawned(bot);
+
                             bot.Call(33341);//suicide
+                        }
+                        if (i == max)
+                        {
+                            return GetTeamState(ent.Name);
                         }
 
                         i++;
@@ -202,10 +176,10 @@ namespace Infected
 
                 }
 
-                failCount++;
                 return true;
             });
         }
+
         bool GetTeamState(string first_inf_name)
         {
             int alive = 0, max = BOTs_List.Count;
@@ -229,58 +203,40 @@ namespace Infected
 
             Log.Write(LogLevel.None, "■ BOTs:{0} AXIS:{1} ALLIES:{2} INF:{3} ■ MAP:{4}", max, (max - alive), alive, first_inf_name, SET.MAP_IDX);
 
-            HCT.SetHeliPort();
-
-            if (!HUMAN_DIED_ALL_)
-            {
-                 BotDoAttack(true);
-            }
             Call(42, "scr_infect_timelimit", "12");
+
             GET_TEAMSTATE_FINISHED = true;
 
             GRACE_TIME = DateTime.Now.AddSeconds(166);
 
-            int num = rnd.Next(BOTs_List.Count);
-            if (num == BOT_LUCKY_IDX) num = 0;
-            //CarePackage(BOTs_List[num].Origin);
+            HCT.SetHeliPort();
+            CarePackage();
 
-            foreach(Entity human in human_List)
+            foreach (Entity human in human_List)
             {
                 H_FIELD[human.EntRef].HUD_SERVER.Alpha = 0.7f;
                 H_FIELD[human.EntRef].HUD_RIGHT_INFO.Alpha = 0.7f;
             }
-            return false;
-        }
-        
-        bool BotDoAttack(bool attack)
-        {
-            if (attack)
+
+            if (!HUMAN_DIED_ALL_)
             {
-                Call(42, "testClients_doCrouch", 0);
-                Call(42, "testClients_doMove", 1);
-                Call(42, "testClients_doAttack", 1);
+                BotDoAttack(true);
             }
-            else
-            {
-                Call(42, "testClients_doCrouch", 1);
-                Call(42, "testClients_doMove", 0);
-                Call(42, "testClients_doAttack", 0);
-            }
+
+            SetTeamName();
+
             return false;
         }
 
-        /*
-        Entity CARE_PACKAGE;
-        Entity GetBrushModel(string bm)
+        void CarePackage()
         {
-            return Call<Entity>("getent", bm, "targetname");
-        }
-        void CarePackage(Vector3 origin)
-        {
+            Entity ent = Call<Entity>("getent", "mp_dom_spawn", "classname"); if (ent == null) return;
 
-            Entity brushmodel = GetBrushModel("pf1_auto1");
-            if(brushmodel == null) brushmodel = GetBrushModel("pf3_auto1");
+            Vector3 origin = ent.Origin; ent = null;
 
+            Entity brushmodel = Call<Entity>("getent", "pf1_auto1", "targetname");
+
+            if (brushmodel == null) brushmodel = Call<Entity>("getent", "pf3_auto1", "targetname");
             if (brushmodel != null)
             {
 
@@ -301,7 +257,7 @@ namespace Infected
                 if (brushmodel == null) continue;
                 if (brushmodel.GetField<string>("classname") == "script_brushmodel")
                 {
-                    
+
                     string targetName = brushmodel.GetField<string>("targetname");
 
                     if (targetName == null) continue;
@@ -319,6 +275,6 @@ namespace Infected
             }
 
         }
-        */
+
     }
 }

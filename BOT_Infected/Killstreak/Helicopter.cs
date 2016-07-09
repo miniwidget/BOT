@@ -78,9 +78,9 @@ namespace Infected
         internal void HeliSetup(Entity player)
         {
             if (HELI != null) return;
-            
-            string realModel = "vehicle_little_bird_armed";
+
             string minimap_model = "attack_littlebird_mp";
+            string realModel = "vehicle_little_bird_armed";
 
             string printModel = "pavelow_minigun_mp";// littlebird_guard_minigun_mp sentry_minigun_mp apache_minigun_mp
             string realModel_turret = "weapon_minigun";//turret_minigun_mp weapon_minigun
