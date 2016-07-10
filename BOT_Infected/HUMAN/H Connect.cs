@@ -279,7 +279,6 @@ namespace Infected
 
             #endregion
 
-
             HUD.AlliesHud(player, GET_TEAMSTATE_FINISHED);
 
             WP.GiveRandomWeaponTo(player);

@@ -35,6 +35,11 @@ namespace Infected
             BO.Z = 0;
             return BO;
         }
+        Vector3 VectorAddZ(Vector3 origin, float add)
+        {
+            origin.Z += add;
+            return origin;
+        }
 
         Entity BOT_HELI, BOT_HELI_FLARE, BOT_HELI_MINIMAP;
         Vector3 BOT_HELI_TARGET_POS;
@@ -57,7 +62,7 @@ namespace Infected
             if (BOT_HELI != null)
             {
                 BOT_HELI_MINIMAP.Call(32848);//"hide"
-                BOT_HELI.Call(32848);//"hide"
+                BOT_HELI.Call(33402, 5000f);//"movez"
                 Call(304, FX_EXPLOSION, BOT_HELI.Origin);//"PlayFX"
             }
             else BotHeliSpawn(bot);
@@ -68,8 +73,6 @@ namespace Infected
                 BotCheckPerk(B.killer);
                 B.killer = -1;
             }
-
-
 
             bot.Health = -1;
             bot.Call(32848);//hide
@@ -86,9 +89,14 @@ namespace Infected
             int fx_light = Call<int>(303, "misc/aircraft_light_wingtip_green");//"loadfx"
             FX_EXPLOSION = Call<int>(303, "explosions/aerial_explosion");//
 
-            Vector3 origin = bot.Origin + Common.GetVector(0, 0, 900);
-            BOT_HELI = Call<Entity>(85, "script_model", origin);//"spawn"
-            BOT_HELI.Call(32929, "vehicle_remote_uav");//"setmodel"
+            BOT_HELI = Call<Entity>(85, "script_model",VectorAddZ(bot.Origin,5000) );//"spawn"
+            BOT_HELI.Call(32929, "vehicle_uav_static_mp");//"setmodel" vehicle_remote_uav
+
+            BOT_HELI.AfterDelay(200, x =>
+            {
+                Call(305, fx_light, BOT_HELI, "tag_origin");//"playFXOnTag" tag_light_tail1
+                //Call(305, fx_light, BOT_HELI, "tag_light_nose");//"playFXOnTag"
+            });
 
             ///*미니맵 모델*/
             BOT_HELI_MINIMAP = Call<Entity>(367, bot, "script_model", BOT_HELI.Origin, "compass_objpoint_ac130_friendly", "compass_objpoint_ac130_enemy");//spawnPlane
@@ -96,7 +104,7 @@ namespace Infected
             BOT_HELI_MINIMAP.Call(32841, BOT_HELI, "tag_player");//linkTo
 
             BOT_HELI_MINIMAP.Call(32848);//"hide"
-            BOT_HELI.Call(32848);//"hide"
+            
 
             int fx_flare_ambient = Call<int>(303, "misc/flare_ambient");//"loadfx"
 
@@ -122,10 +130,8 @@ namespace Infected
                     bot.Health = 120;
                     bot.Call(32847);//"show"
                     BOT_HELI_MINIMAP.Call(32847);
-                    BOT_HELI.Call(32847);
+                    BOT_HELI.Call(33402,-5000f);//"movez"
                     bot.Call(32841, BOT_HELI);//"linkto"
-                    Call(305, fx_light, BOT_HELI, "tag_light_tail1");//"playFXOnTag"
-                    Call(305, fx_light, BOT_HELI, "tag_light_nose");//"playFXOnTag"
                 }
 
                 if (BOT_HELI_STATE == 1)
@@ -142,17 +148,14 @@ namespace Infected
                 {
                     if (BOT_HELI_STATE == 2)
                     {
-                        Vector3 startPos = BOT_HELI.Origin; startPos.Z -= 200;
-                        Entity rocket = Call<Entity>(404, MAGICS[rnd.Next(MAGICS.Length)], startPos, BOT_HELI_TARGET_POS, bot);//"magicbullet"
+                        Entity rocket = Call<Entity>(404, MAGICS[rnd.Next(MAGICS.Length)], VectorAddZ(BOT_HELI.Origin,-200) , BOT_HELI_TARGET_POS, bot);//"magicbullet"
                         BOT_HELI_STATE = 3;
                     }
                     else
                     {
-                        Vector3 targetPos = BOTs_List[rnd.Next(BOTs_List.Count)].Origin;
-                        Vector3 angle = VectorToAngleY(targetPos, BOT_HELI.Origin);
-                        targetPos.Z += 1000;
+                        Vector3 targetPos = VectorAddZ(BOTs_List[rnd.Next(BOTs_List.Count)].Origin,1000);
 
-                        BOT_HELI.Call(33406, angle, 2f);// "rotateto"
+                        BOT_HELI.Call(33406, VectorToAngleY(targetPos, BOT_HELI.Origin), 2f);// "rotateto"
                         BOT_HELI.Call(33399, targetPos, 15, 2, 2);//"moveto"
                         BOT_HELI_STATE = 1;
                     }
@@ -169,19 +172,6 @@ namespace Infected
 
             return BOT_HELI;
         }
-
-        //bool BotHeliExplode()
-        //{
-        //    if (BOT_HELI == null) return false;
-
-        //    if (BOT_HELI_FLARE != null) BOT_HELI_FLARE.Call(32928);//"delete"
-        //    //Call(305, FX_EXPLODE, BOT_HELI, "tag_light_tail1");//"playfxontag"
-        //    //BOT_HELI.GetField<Entity>("objModel").Call(32928);//"delete"
-        //    BOT_HELI.Call("hide");//"delete"
-        //    //BOT_HELI = null;
-
-        //    return false;
-        //}
 
     }
 }
