@@ -96,23 +96,23 @@ namespace Infected
 
             #region notifyonplayercommand
 
-            player.Call(33445, "HOLD_STRAFE", "+strafe");//notifyonplayercommand
-            player.OnNotify("HOLD_STRAFE", ent =>
-            {
-                if (H.AXIS) return;
-                var weapon = player.CurrentWeapon;
-                if (weapon[2] == '5')
-                {
-                    player.Call(33523, weapon);//"givemaxammo"
-                }
-            });
+            //player.Call(33445, "HOLD_STRAFE", "+strafe");//notifyonplayercommand
+            //player.OnNotify("HOLD_STRAFE", ent =>
+            //{
+            //    if (H.AXIS) return;
+            //    var weapon = player.CurrentWeapon;
+            //    if (weapon[2] == '5')
+            //    {
+            //        player.Call(33523, weapon);//"givemaxammo"
+            //    }
+            //});
 
-            player.Call(33445, "HOLD_CROUCH", "+movedown");//notifyonplayercommand
-            player.OnNotify("HOLD_CROUCH", ent =>//view scope
-            {
-                if (H.AXIS) return;
-                WP.GiveAttachScope(player);
-            });
+            //player.Call(33445, "HOLD_CROUCH", "+movedown");//notifyonplayercommand
+            //player.OnNotify("HOLD_CROUCH", ent =>//view scope
+            //{
+            //    if (H.AXIS) return;
+            //    WP.GiveAttachScope(player);
+            //});
 
             //player.Call(33445, "HOLD_STANCE", "+stance");
             //player.OnNotify("HOLD_STANCE", ent =>//offhand weapon
@@ -154,7 +154,7 @@ namespace Infected
                 human_List.Add(TANK);
                 human_List.Remove(player);
             });
-            player.OnNotify("end_remote", (Entity ent) =>
+            player.OnNotify("end_remote",  ent =>
             {
                 if (!use_tank) return;
                 use_tank = false;
@@ -251,7 +251,7 @@ namespace Infected
                             H.REMOTE_STATE = 0;//state 0 or 1
                             HCT.HELI_GUNNER = player;
 
-                            if (H.PERK < 10) Info.MessageRoop(player, 0, new[] { "*" + (11 - H.PERK) + " KILL MORE ^7TO RIDE HELI", "YOU CAN RIDE HELI", "IF ANOTHER PLAYER ONBOARD" });
+                            if (H.PERK < 10) Info.MessageRoop(player, 0, new[] { "*" + (11 - H.PERK) + " KILL MORE ^7TO RIDE HELI", "YOU CAN RIDE HELI IF ANOTHER PLAYER ONBOARD" });
                             else Info.MessageRoop(player, 0, HCT.MESSAGE_WAIT_PLAYER);
 
                             Common.StartOrEndThermal(player, true);

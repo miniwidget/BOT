@@ -18,8 +18,8 @@ namespace Infected
             {
                 Entity killer = human_List[k];
                 if (killer.EntRef > 17) return;
-
                 H_SET H = H_FIELD[killer.EntRef];
+                if (H.AXIS) return;
                 if (H.PERK > 34) return;
 
                 if (H.PERK_TXT.Length != 12) H.HUD_PERK_COUNT.SetText(H.PERK_TXT += "*");
@@ -41,10 +41,13 @@ namespace Infected
                 }
             }
         }
+
         private void BotSpawned(Entity bot)
         {
             if (GAME_ENDED_) return;
-
+            //Print(bot.Name +" " + bot.EntRef +" " + bot.CurrentWeapon);
+            //if (bot.EntRef == BOT_JUGG_ENTREF) Print(DateTime.Now.Millisecond + " " + DateTime.Now.Second);
+            
             #region general
             bot.Health = -1;
             bot.Call(32848);//hide
@@ -164,7 +167,7 @@ namespace Infected
                         {
                             if (bc != blockCount || !B.fire) return false;
 
-                            //if(Jugg) Print(bc + " " + human.Name + " " + bot.Name);
+                            //if(Jugg) Print(DateTime.Now.Millisecond);
 
                             var TO = human.Origin;
                             var BO = bb.Origin;
@@ -174,8 +177,8 @@ namespace Infected
                             float dz = BO.Z - TO.Z + 50;
 
                             int dist = (int)Math.Sqrt(dx * dx + dy * dy);
-                            BO.X = (float)Math.Atan2(dz, dist) * 57.32f;
-                            BO.Y = -10 + (float)Math.Atan2(dy, dx) * 57.32f;
+                            BO.X = (float)Math.Atan2(dz, dist) * 57.3f;
+                            BO.Y = -10 + (float)Math.Atan2(dy, dx) * 57.3f;
                             BO.Z = 0;
 
                             bb.Call(33531, BO);//SetPlayerAngles
@@ -250,8 +253,8 @@ namespace Infected
                             float dz = BO.Z - TO.Z + 50;
 
                             int dist = (int)Math.Sqrt(dx * dx + dy * dy);
-                            BO.X = (float)Math.Atan2(dz, dist) * 57.32f;
-                            BO.Y = -10 + (float)Math.Atan2(dy, dx) * 57.32f;
+                            BO.X = (float)Math.Atan2(dz, dist) * 57.3f;
+                            BO.Y = -10 + (float)Math.Atan2(dy, dx) * 57.3f;
                             BO.Z = 0;
 
                             bb.Call(33531, BO);//SetPlayerAngles
@@ -351,8 +354,8 @@ namespace Infected
                             float dz = BO.Z - TO.Z + 50;
 
                             int dist = (int)Math.Sqrt(dx * dx + dy * dy);
-                            BO.X = (float)Math.Atan2(dz, dist) * 57.32f;
-                            BO.Y = -10 + (float)Math.Atan2(dy, dx) * 57.32f;
+                            BO.X = (float)Math.Atan2(dz, dist) * 57.3f;
+                            BO.Y = -10 + (float)Math.Atan2(dy, dx) * 57.3f;
                             BO.Z = 0;
 
                             bb.Call(33531, BO);//SetPlayerAngles

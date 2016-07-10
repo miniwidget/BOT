@@ -96,6 +96,8 @@ namespace Infected
 
             if (BotKilled)
             {
+                    //if (killed.EntRef == BOT_JUGG_ENTREF) Print(DateTime.Now.Millisecond+" " +DateTime.Now.Second);
+
                 initBot(B_FIELD[ke]);//봇이 죽은 경우
             }
             else if (killed == attacker)//사람이 죽은 경우

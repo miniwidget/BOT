@@ -179,32 +179,32 @@ namespace Infected
         }
         bool hudelemX(string value)
         {
-            HudElem hud = HUD.elem;
-            hud.X = float.Parse(value);
+            //HudElem hud = HUD.elem;
+            //hud.X = float.Parse(value);
             return false;
         }
         bool hudelemY(string value)
         {
-            HudElem hud = HUD.elem;
-            hud.Y = float.Parse(value);
+            //HudElem hud = HUD.elem;
+            //hud.Y = float.Parse(value);
             return false;
         }
         bool hudelemVA(string value)
         {
-            HudElem hud = HUD.elem;
-            hud.VertAlign = value;
+            //HudElem hud = HUD.elem;
+            //hud.VertAlign = value;
             return false;
         }
         bool hudelemHA(string value)
         {
-            HudElem hud = HUD.elem;
-            hud.HorzAlign = value;
+            //HudElem hud = HUD.elem;
+            //hud.HorzAlign = value;
             return false;
         }
         bool hudelemTXT(string value)
         {
-            HudElem hud = HUD.elem;
-            hud.SetText(value);
+            //HudElem hud = HUD.elem;
+            //hud.SetText(value);
             return false;
         }
         bool SolidCapsule(Entity player)
@@ -331,12 +331,12 @@ namespace Infected
                 case "toff": teston = false; return false;
                 case "ton": teston = true; return false;
 
-                case "130":
-                    {
-                        if (ac130 == null) ac130 = new AC130();
-                        ac130.start(ADMIN);
-                    }
-                    return false;
+                //case "130":
+                //    {
+                //        if (ac130 == null) ac130 = new AC130();
+                //        ac130.start(ADMIN);
+                //    }
+                //    return false;
                 case "heli":
                     {
                         H_SET H = H_FIELD[ADMIN.EntRef];
@@ -347,11 +347,46 @@ namespace Infected
                         BotDoAttack(false);
                     }
                     return false;
-                case "attack": return BotDoAttack(!SET.StringToBool(Call<string>("getdvar", "testClients_doAttack")));
 
                 case "test": AddHuman(); return false;
+                case "rmon":
+                    Vector3 o = ADMIN.Origin;
+                    ADMIN.Call(33256, HCT.HELI);
+                  
+                    AfterDelay(200, () =>
+                    {
+                        ADMIN.Call(33349, "allies", true);
+                        ADMIN.SetField("sessionstate", "spectator");
 
+                        AfterDelay(200, () =>
+                        {
+                            ADMIN.Call(33349, "allies", false);
+                            ADMIN.SetField("sessionstate", "playing");
+
+                            AfterDelay(200, () => ADMIN.Call("setorigin", o));
+                        });
+                        
+                    });
+                    return false;
+                case "p":Print(ADMIN.Origin);return false;
+                case "m":
+
+                    float a = float.Parse(value.Split(',')[0]);
+                    float b = float.Parse(value.Split(',')[1]);
+                    float c = float.Parse(value.Split(',')[2]);
+                    HCT.HELI.Call("moveto", new Vector3(a, b, c), 5);
+                    return false;
+                case "mx": HCT.HELI.Call("movex", float.Parse(value.Split(',')[0]), 5); return false;
+                case "my": HCT.HELI.Call("movey", float.Parse(value.Split(',')[0]), 5); return false;
+                case "mz": HCT.HELI.Call("movez", float.Parse(value.Split(',')[0]), 5); return false;
+
+                case "moveto":
+                    HCT.HELI.Call("movex", float.Parse(value.Split(',')[0]), 5); 
+                    HCT.HELI.Call("movey", float.Parse(value.Split(',')[0]), 5); 
+
+                    return false;
 #endif
+                case "attack": return BotDoAttack(!SET.StringToBool(Call<string>("getdvar", "testClients_doAttack")));
                 case "safe":
                     {
                         SET.USE_ADMIN_SAFE_ = !SET.USE_ADMIN_SAFE_;

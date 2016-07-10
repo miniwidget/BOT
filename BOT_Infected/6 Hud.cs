@@ -11,6 +11,7 @@ namespace Infected
         internal static string SERVER_NAME_;
         readonly string ALLIES_RIGHT_TEXTS =
 @"TYPE FOLLOWING
+
 *AP ^74 AKIMBO PISTOL
 *AG ^76 AKIMBO GUN
 *AR ^79 ASSAU RIFFLE
@@ -19,11 +20,13 @@ namespace Infected
 *SG ^74 SHOT GUN
 *SN ^76 SNIPE GUN
 *LOC ^7RE LOCATION
+*AMMO ^7GET AMMO
+*SCOPE ^7VIEW SCOPE";
 
-PRESS KEY
-*[{+strafe}] ^7AMMO
-*[{+movedown}] ^7VIEWSCOPE";
-        //*[{+prone}] ^7ATTATCHMENT
+//PRESS KEY
+//*[{+strafe}] ^7AMMO
+//*[{+movedown}] ^7VIEWSCOPE";
+//*[{+prone}] ^7ATTATCHMENT
         readonly string ALLIES_TOP_HUD_TEXTS = "ATTACHMENT *INFOA\n^7WEAPONINFO *INFOW";
         internal void AlliesHud(Entity player, bool show)
         {
@@ -74,6 +77,7 @@ PRESS KEY
         }
         readonly string AXIS_RIGHT_TEXTS =
 @"type following
+
 *infow ^7weapon info
 *sc ^7 suicide
 *riot ^7 riotshield
@@ -83,6 +87,7 @@ PRESS KEY
         internal void AxisHud(Entity player)
         {
             var H = Infected.H_FIELD[player.EntRef];
+            if (H.HUD_SERVER == null) AlliesHud(player, true);
 
             H.HUD_SERVER.SetText(SERVER_NAME_.Replace("^2","^1"));
             H.HUD_TOP_INFO.SetText(Info.GetStr(ALLIES_TOP_HUD_TEXTS, H.AXIS));

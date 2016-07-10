@@ -294,14 +294,16 @@ namespace Infected
             "axis_recipe2",//rpg
             "axis_recipe3",//riot
             "axis_recipe3",//heli
-            "class0",
-            "class1",
-            "class2",
+            "class0",//AR g36c
+            "class1",//SMG ump45
+            "class2",//LMG mk46
             //"class3",//sniper
-            "class4",
-            "class5",
-            "class6",
-            "class6" };
+            "class4",//SG striker
+            "class4",//SG striker
+            "class5",//AR m4
+            "class6",//SMG mp5
+            //Jugg Allies
+        };
 
 
     }

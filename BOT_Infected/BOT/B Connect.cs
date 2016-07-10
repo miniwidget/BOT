@@ -11,14 +11,16 @@ namespace Infected
 {
     public partial class Infected
     {
+#if DEBUG
         Entity CARE_PACKAGE;
+#endif
         int BOT_RPG_ENTREF, BOT_RIOT_ENTREF, BOT_JUGG_ENTREF, BOT_LUCKY_IDX, BOT_HELI_ENTREF;
         bool BOT_TO_AXIS_COMP; 
 
-        #region deplay
+#region deplay
         void BotDeplay()
         {
-            #region remove Bot
+#region remove Bot
             List<int> tempStrList = null;
             int botCount = 0;
             foreach (Entity p in Players)
@@ -47,9 +49,9 @@ namespace Infected
                 }
                 tempStrList.Clear();
             }
-            #endregion
+#endregion
 
-            #region deploy bot
+#region deploy bot
             i = BOTs_List.Count;
             if (botCount < SET.BOT_SETTING_NUM || i < SET.BOT_SETTING_NUM)
             {
@@ -76,12 +78,12 @@ namespace Infected
                     return true;
                 });
             }
-            #endregion
+#endregion
 
         }
-        #endregion
+#endregion
 
-        #region Bot_Connected
+#region Bot_Connected
 
         private void Bot_Connected(Entity bot)
         {
@@ -100,24 +102,29 @@ namespace Infected
                 AfterDelay(4000,()=>BotWaitOnFirstInfected());
             }
 
-            if (i == 0)
-            {
-                BOT_JUGG_ENTREF = be;
-            }
-            else if (i == 1)
-            {
-                BOT_RPG_ENTREF = be;
-            }
-            else if (i == 2)
-            {
-                BOT_RIOT_ENTREF = be;
-            }
-            else if (i == 3)
-            {
-                BOT_HELI_ENTREF = be;
-            }
+            /*
 
-            if (i > 9)
+                    internal readonly string[] BOTs_CLASS = {
+                        "axis_recipe1",//jugg
+                        "axis_recipe2",//rpg
+                        "axis_recipe3",//riot
+                        "axis_recipe3",//heli
+                        "class0",//AR g36c
+                        "class1",//SMG ump45
+                        "class2",//LMG mk46
+                        //"class3",//sniper
+                        "class4",//SG striker
+                        "class5",//AR m4
+                        "class6",//SMG mp5
+                        "class6"// riotshield
+                    };    
+            */
+            if (i == 0) BOT_JUGG_ENTREF = be;
+            else if (i == 1) BOT_RPG_ENTREF = be;
+            else if (i == 2) BOT_RIOT_ENTREF = be;
+            else if (i == 3) BOT_HELI_ENTREF = be;
+
+            if (i > 10)
             {
                 if (SET.BOT_CLASS_NUM > 10) SET.BOT_CLASS_NUM = 4;
                 i = SET.BOT_CLASS_NUM;
@@ -129,7 +136,7 @@ namespace Infected
             IsBOT[be] = true;
             H_FIELD[be] = null;
         }
-        #endregion
+#endregion
 
         void BotWaitOnFirstInfected()
         {

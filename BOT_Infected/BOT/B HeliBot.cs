@@ -13,6 +13,29 @@ namespace Infected
     public partial class Infected
     {
 
+        Vector3 VectorToAngle(Vector3 TO, Vector3 BO)
+        {
+            float dx = TO.X - BO.X;
+            float dy = TO.Y - BO.Y;
+            float dz = BO.Z - TO.Z + 50;
+
+            int dist = (int)Math.Sqrt(dx * dx + dy * dy);
+            BO.X = (float)Math.Atan2(dz, dist) * 57.3f;
+            BO.Y = -10 + (float)Math.Atan2(dy, dx) * 57.3f;
+            BO.Z = 0;
+            return BO;
+        }
+        Vector3 VectorToAngleY(Vector3 TO, Vector3 BO)
+        {
+            float dx = TO.X - BO.X;
+            float dy = TO.Y - BO.Y;
+
+            BO.X = 0;
+            BO.Y = -10 + (float)Math.Atan2(dy, dx) * 57.3f;
+            BO.Z = 0;
+            return BO;
+        }
+
         Entity BOT_HELI, BOT_HELI_FLARE, BOT_HELI_MINIMAP;
         Vector3 BOT_HELI_TARGET_POS;
         bool BOT_HELI_SHOW, BOT_HELI_SPAWNED;
@@ -22,6 +45,7 @@ namespace Infected
 
         void BotHeliSpawned(Entity bot)
         {
+            //return;
             if (GAME_ENDED_) return;
             BOT_HELI_SPAWNED = BOT_HELI_SHOW = false;
             BOT_HELI_STATE = 3;
@@ -60,19 +84,11 @@ namespace Infected
         Entity BotHeliSpawn(Entity bot)
         {
             int fx_light = Call<int>(303, "misc/aircraft_light_wingtip_green");//"loadfx"
+            FX_EXPLOSION = Call<int>(303, "explosions/aerial_explosion");//
 
             Vector3 origin = bot.Origin + Common.GetVector(0, 0, 900);
             BOT_HELI = Call<Entity>(85, "script_model", origin);//"spawn"
             BOT_HELI.Call(32929, "vehicle_remote_uav");//"setmodel"
-
-            BOT_HELI.AfterDelay(200, c =>
-            {
-                Call(305, fx_light, BOT_HELI, "tag_light_tail1");//"playFXOnTag"
-
-                Call(305, fx_light, BOT_HELI, "tag_light_nose");//"playFXOnTag"
-
-                FX_EXPLOSION = Call<int>(303, "explosions/aerial_explosion");//
-            });
 
             ///*미니맵 모델*/
             BOT_HELI_MINIMAP = Call<Entity>(367, bot, "script_model", BOT_HELI.Origin, "compass_objpoint_ac130_friendly", "compass_objpoint_ac130_enemy");//spawnPlane
@@ -108,18 +124,19 @@ namespace Infected
                     BOT_HELI_MINIMAP.Call(32847);
                     BOT_HELI.Call(32847);
                     bot.Call(32841, BOT_HELI);//"linkto"
+                    Call(305, fx_light, BOT_HELI, "tag_light_tail1");//"playFXOnTag"
+                    Call(305, fx_light, BOT_HELI, "tag_light_nose");//"playFXOnTag"
                 }
 
                 if (BOT_HELI_STATE == 1)
                 {
                     Entity target = human_List[rnd.Next(hc)];
-                    if (target.Name == null) return true;//deny remote tank //deny remote tank !important if not deny, server cause crash
 
                     BOT_HELI_TARGET_POS = target.Origin;
                     BOT_HELI_FLARE = Call<Entity>(308, fx_flare_ambient, BOT_HELI_TARGET_POS);//"spawnFx"
                     Call(309, BOT_HELI_FLARE);//"triggerfx"
                     BOT_HELI_STATE = 2;
-                    target.Call(33466, "javelin_clu_lock");//"playlocalsound"
+                    if (target.Name != null) target.Call(33466, "javelin_clu_lock");//"playlocalsound" //deny remote tank //deny remote tank !important if not deny, server cause crash
                 }
                 else
                 {
@@ -132,11 +149,8 @@ namespace Infected
                     else
                     {
                         Vector3 targetPos = BOTs_List[rnd.Next(BOTs_List.Count)].Origin;
-                        Vector3 angle = Call<Vector3>(247, targetPos - BOT_HELI.Origin);
-                        angle.X = 0;
-                        angle.Z = 0;
-
-                        targetPos.Z += 800;
+                        Vector3 angle = VectorToAngleY(targetPos, BOT_HELI.Origin);
+                        targetPos.Z += 1000;
 
                         BOT_HELI.Call(33406, angle, 2f);// "rotateto"
                         BOT_HELI.Call(33399, targetPos, 15, 2, 2);//"moveto"
