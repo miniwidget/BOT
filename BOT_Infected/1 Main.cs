@@ -101,7 +101,7 @@ namespace Infected
                     {
                         if (v == null) continue;
                         v.death += 1;
-                        v.fire = false;
+                        //v.fire = false;
                     }
                     //AfterDelay(20000, () => Utilities.ExecuteCommand("map_rotate"));
                 });

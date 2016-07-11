@@ -14,11 +14,13 @@ namespace Infected
     {
         internal Entity target { get; set; }
         internal int death { get; set; }
-        internal bool fire { get; set; }
-        internal bool temp_fire { get; set; }
-        internal bool wait { get; set; }
         internal string wep;
         internal int killer = -1;
+        internal bool not_fire;
+
+        //internal bool temp_fire { get; set; }
+        //internal bool fire { get; set; }
+        //internal bool wait { get; set; }
     }
 
     class H_SET
@@ -70,7 +72,6 @@ namespace Infected
         internal bool AC130_NOTIFIED;
         internal bool AC130_ON_USE;
 
-
         /// <summary>
         /// is Axis
         /// </summary>
@@ -80,7 +81,8 @@ namespace Infected
         /// </summary>
         internal int AX_WEP;
 
-
+        internal bool USE_PREDATOR;
+        internal bool PREDATOR_NOTIFIED;
     }
 
     class Set
@@ -95,7 +97,7 @@ namespace Infected
         public Set()
         {
 
-            #region Load Custom Setting from a set.txt file
+#region Load Custom Setting from a set.txt file
 
             string setFile = "admin\\INF.txt";
 
@@ -137,7 +139,7 @@ namespace Infected
             }
 
 
-            #endregion
+#endregion
 
             var assembly = System.Reflection.Assembly.GetExecutingAssembly();
 
@@ -290,19 +292,19 @@ namespace Infected
         };
 
         internal readonly string[] BOTs_CLASS = {
-            "axis_recipe1",//jugg
-            "axis_recipe2",//rpg
-            "axis_recipe3",//riot
-            "axis_recipe3",//heli
-            "class0",//AR g36c
-            "class1",//SMG ump45
-            "class2",//LMG mk46
-            //"class3",//sniper
-            "class4",//SG striker
-            "class4",//SG striker
-            "class5",//AR m4
-            "class6",//SMG mp5
-            //Jugg Allies
+            "axis_recipe1",//jugg 0
+            "axis_recipe2",//rpg 1
+            "axis_recipe3",//riot 2
+            "axis_recipe3",//heli 3
+            "axis_recipe3",//riot 4
+
+            "class0",//AR g36c 5
+            "class1",//SMG ump45 6
+            "class2",//LMG mk46 7
+            "class4",//SG striker 8
+            "class5",//AR m4 9
+            "class6",//SMG mp5 10
+            "class3",//sniper 11 Jugg Allies
         };
 
 

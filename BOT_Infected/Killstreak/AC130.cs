@@ -6,7 +6,6 @@ using System.Text;
 
 namespace Infected
 {
-#if DEBUG
     class AC130 : Inf
     {
         //private string getKillstreakWeapon(string streakName)
@@ -204,5 +203,4 @@ namespace Infected
 
         }
     }
-#endif
 }

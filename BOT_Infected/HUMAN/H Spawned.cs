@@ -23,7 +23,7 @@ namespace Infected
             player.Call("suicide");
         }
 
-        void human_spawned(Entity player)
+        void human_spawned(Entity player, string name)
         {
             if (GAME_ENDED_) return;
 
@@ -58,9 +58,11 @@ namespace Infected
 
                     if (!human_List.Contains(player)) human_List.Add(player);
 
-                    SetZero_hset(H, false, --H.LIFE);
+                    SetZero_hset(H, false, --H.LIFE, name);
 
                     if (HUMAN_DIED_ALL_) HUMAN_DIED_ALL_ = false;
+
+                    if (PREDATOR_OWNER == player) PredatorEnd(player, H, true);
                 }
             }
             #endregion
@@ -81,13 +83,13 @@ namespace Infected
                     else UNLIMITED_LIEF_ = false;
                 }
 
-                SetZero_hset(H, true, 0);
+                SetZero_hset(H, true, 0, name);
 
                 player.SetField("sessionteam", "axis");
                 human_List.Remove(player);
                 player.Call(33341);//suicde
                 player.Notify("menuresponse", "changeclass", "axis_recipe4");
-                Print(player.Name + " : Infected ⊙..⊙");
+                Print(name + " : Infected ⊙..⊙");
 
                 if (human_List.Count == 0)
                 {

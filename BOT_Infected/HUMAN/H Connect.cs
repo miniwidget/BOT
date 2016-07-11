@@ -10,6 +10,8 @@ namespace Infected
 {
     public partial class Infected
     {
+        Dictionary<string, int> PLAYER_STATE = new Dictionary<string, int>();
+
         void Human_Connected(Entity player)
         {
             if (human_List.Count > 6)
@@ -23,29 +25,40 @@ namespace Infected
 
             string name = player.Name;
 
-            if (name == ADMIN_NAME)
-            {
-                SET.SetADMIN((ADMIN = player));
-            }
+            if (!PLAYER_STATE.ContainsKey(name)) PLAYER_STATE.Add(name, SET.PLAYER_LIFE);
+
+            if (name == ADMIN_NAME) SET.SetADMIN((ADMIN = player));
 
             if (player.GetField<string>("sessionteam") == "allies")
             {
                 Print(name + " connected ♥");
-                SetPlayer(player);
+
+                SetPlayer(player, SET.PLAYER_LIFE, name);
             }
             else
             {
-                player.SpawnedPlayer += () => human_spawned(player);
+                if (PLAYER_STATE[name] == -2)
+                {
+                    Print("AXIS connected ☜");
+                    player.Notify("menuresponse", "changeclass", "axis_recipe4");
+                    H_FIELD[player.EntRef].LIFE = -1;
 
-                player.Notify("menuresponse", "changeclass", "axis_recipe4");
-                Print("AXIS connected ☜");
-                H_FIELD[player.EntRef].LIFE = -1;
-
-                player.Call(33341);//"suicide"
+                    player.Call(33341);//"suicide"
+                }
+                else
+                {
+                    player.AfterDelay(100, x =>
+                    {
+                        SetPlayer(player, PLAYER_STATE[name] + 1, name);
+                        player.Call(33341);//"suicide"
+                    });
+                }
             }
+
+            player.SpawnedPlayer += () => human_spawned(player, name);
         }
 
-        void SetZero_hset(H_SET H, bool Axis, int life)
+        void SetZero_hset(H_SET H, bool Axis, int life, string name)
         {
             H.LOC_DO = false;
             H.AXIS = Axis;
@@ -62,26 +75,29 @@ namespace Infected
             {
                 H.RESPAWN = false;
                 H.CAN_USE_HELI = false;
+                H.USE_PREDATOR = false;
                 H.AX_WEP = 0;
                 H.PERK = 2;
                 H.LIFE = life;
                 SetTeamName();
-                if (H.PERK_TXT != "**") H.HUD_PERK_COUNT.SetText(H.PERK_TXT = "**");
+                if (H.PERK_TXT != "**") H.HUD_PERK_COUNT.SetText(H.PERK_TXT = "HELI **");
             }
 
+            PLAYER_STATE[name] = H.LIFE;
         }
 
-        void SetPlayer(Entity player)
+        void SetPlayer(Entity player, int life, string name)
         {
+
             player.Notify("menuresponse", "changeclass", "allies_recipe" + rnd.Next(1, 6));
 
             if (!human_List.Contains(player)) human_List.Add(player);
             int pe = player.EntRef;
             B_FIELD[pe] = null;
             H_SET H = H_FIELD[pe];
+            SetZero_hset(H, false, life, name);
+            H.PREDATOR_NOTIFIED = false;
 
-            SetZero_hset(H, false, SET.PLAYER_LIFE);
-            
             #region SetClientDvar
 
             //player.SetClientDvar("cl_maxpackets", "100");
@@ -91,35 +107,6 @@ namespace Infected
             player.SetClientDvar("lowAmmoWarningNoReloadColor1", "0 0 0 0");
             player.SetClientDvar("lowAmmoWarningColor2", "0 0 0 0");
             player.SetClientDvar("lowAmmoWarningColor1", "0 0 0 0");
-
-            #endregion
-
-            #region notifyonplayercommand
-
-            //player.Call(33445, "HOLD_STRAFE", "+strafe");//notifyonplayercommand
-            //player.OnNotify("HOLD_STRAFE", ent =>
-            //{
-            //    if (H.AXIS) return;
-            //    var weapon = player.CurrentWeapon;
-            //    if (weapon[2] == '5')
-            //    {
-            //        player.Call(33523, weapon);//"givemaxammo"
-            //    }
-            //});
-
-            //player.Call(33445, "HOLD_CROUCH", "+movedown");//notifyonplayercommand
-            //player.OnNotify("HOLD_CROUCH", ent =>//view scope
-            //{
-            //    if (H.AXIS) return;
-            //    WP.GiveAttachScope(player);
-            //});
-
-            //player.Call(33445, "HOLD_STANCE", "+stance");
-            //player.OnNotify("HOLD_STANCE", ent =>//offhand weapon
-            //{
-            //    if (IsAXIS[pe]) return;
-            //    WP.GiveRandomOffhandWeapon(player);
-            //});
 
             #endregion
 
@@ -154,14 +141,14 @@ namespace Infected
                 human_List.Add(TANK);
                 human_List.Remove(player);
             });
-            player.OnNotify("end_remote",  ent =>
-            {
-                if (!use_tank) return;
-                use_tank = false;
-                player.Call(32937);
-                human_List.Remove(TANK);
-                human_List.Add(player);
-            });
+            player.OnNotify("end_remote", ent =>
+           {
+               if (!use_tank) return;
+               use_tank = false;
+               player.Call(32937);
+               human_List.Remove(TANK);
+               human_List.Add(player);
+           });
 
             //player.Call(33445, "LINK_AGAIN", "+smoke");//notifyonplayercommand
             //player.OnNotify("LINK_AGAIN", ent =>
@@ -206,22 +193,15 @@ namespace Infected
                     });
                     return;
                 }
-
                 if (!isUsingTurret)
                 {
-                    /*
-                    if (CARE_PACKAGE != null&&player.Origin.DistanceTo(CARE_PACKAGE.Origin) < 80)
+                    if (CARE_PACKAGE != null && player.Origin.DistanceTo(CARE_PACKAGE.Origin) < 80)
                     {
-                        player.Call(33344, "TEST. WHAT DO I DO FOR YOU?");
-                        
-                        //if (ac130 == null) ac130 = new AC130();
-                        //ac130.start(player);
+                        CarePackageDo(player, H);
                     }
-                    */
+
                     return;
                 }
-
-
                 player.Call(33436, "black_bw", 0.5f);//VisionSetNakedForPlayer
 
                 player.AfterDelay(500, x =>
@@ -238,7 +218,7 @@ namespace Infected
                         }
                         if (ts > 1)//탱크 튜렛을 붙잡은 경우
                         {
-                            H.REMOTE_STATE = TK.TankStart(player, ts);//state 0 or 2
+                            H.REMOTE_STATE = TK.TankStart(player, ts, H.AXIS);//state 0 or 2
                             return;
                         }
 
@@ -260,6 +240,7 @@ namespace Infected
                     }
                     else
                     {
+
                         byte rms = H.REMOTE_STATE;
                         bool ended = false;
 
@@ -284,10 +265,9 @@ namespace Infected
             WP.GiveRandomWeaponTo(player);
             WP.GiveRandomOffhandWeapon(player);
 
-            player.SpawnedPlayer += () => human_spawned(player);
             player.Call(33531, Common.ZERO);//setplayerangles
         }
-  
+
         /// <summary>
         /// 0: Helicopter Left Turret /
         /// 1: Helicopter Right Turret /
@@ -319,98 +299,105 @@ namespace Infected
             Call(42, "g_TeamName_Axis", "BOTs");//setdvar
         }
 
-        void Relocation(Entity player, bool getback)
+
+        Entity CARE_PACKAGE;
+
+        void CarePackage(Entity player)
         {
-            if (!TK.IfUseTank_DoEnd(player)) HCT.IfUsetHeli_DoEnd(player,true);
-
-            H_SET H = H_FIELD[player.EntRef];
-
-            if (getback)
-            {
-                if (!H.LOC_NOTIFIED) return;
-                player.Call(33529, H.RELOC);
-                return;
-            }
-            player.Call(33344, Info.GetStr("*THROW MARKER ^7to Relocate Your Position",H.AXIS));
+            player.Call(33344, Info.GetStr("*THROW MARKER ^7to GET CARE PACKAGE", false));
 
             string marker = "airdrop_sentry_marker_mp";
             player.GiveWeapon(marker);
             player.SwitchToWeaponImmediate(marker);
 
-            H.LOC_DO = true;
-
-            if (!H.LOC_NOTIFIED)
+            bool finished = false;
+            player.OnNotify("grenade_fire", (Entity owner, Parameter mk, Parameter weaponName) =>
             {
-                H.LOC_NOTIFIED = true;
+                if (finished) return;
+                if (weaponName.ToString() != "airdrop_sentry_marker_mp") return;
 
-                player.OnNotify("grenade_fire", (Entity owner, Parameter mk, Parameter weaponName) =>
+                Entity Marker = mk.As<Entity>();
+                if (Marker == null) return;
+                player.AfterDelay(3000, p =>
                 {
-                    if (!H.LOC_DO) return;
-                    if (weaponName.ToString() != "airdrop_sentry_marker_mp") return;
+                    finished = true;
+                    Vector3 MO = Marker.Origin; MO.Z += 45;
+                    Marker.Call(32928);//delete
 
-                    H.LOC_DO = false;
-                    Entity ent = mk.As<Entity>();
-                    if (ent == null) return;
-                    H.RELOC = player.Origin;
-                    player.Call(32841, ent);//linkto
-                    player.AfterDelay(3000, p =>
+                    Entity ent = Call<Entity>("getent", "mp_dom_spawn", "classname"); if (ent == null) return;
+
+                    Entity brushmodel = Call<Entity>("getent", "pf1_auto1", "targetname");
+
+                    if (brushmodel == null) brushmodel = Call<Entity>("getent", "pf3_auto1", "targetname");
+                    if (brushmodel != null)
                     {
-                        player.Call(32843);//unlink
-                        ent.Call(32928);//delete
 
-                        p.AfterDelay(200, x =>
-                        {
-                            int ground = player.Call<int>(33538);
-                            if (ground == 0)
-                            {
-                                var pos = player.Origin; pos.Z += 10;
-                                player.Call(33529, pos);//setorigin
-                                player.Call(33344, Info.GetStr("TYPE *RELOC ^7IF GET BACK LOCATION",H.AXIS));
-                            }
-                        });
-                    });
-                });
-            }
-        }
+                        CARE_PACKAGE = Call<Entity>("spawn", "script_model", MO);
+                        CARE_PACKAGE.Call("setmodel", "com_plasticcase_friendly");//com_plasticcase_friendly
+                        CARE_PACKAGE.Call(33353, brushmodel);
 
-        /* 
-        void SetLocationByTI(Entity player)
-        {
-            player.Call(33344, "*PRESS [{+attack}] ^7TO SAVE YOUR POSITION");
+                        Call(431, 20, "active"); // objective_add
+                        Call(435, 20, MO); // objective_position
+                        Call(434, 20, "compass_objpoint_ammo_friendly"); //objective_icon compass_objpoint_ac130_friendly compass_waypoint_bomb objective_icon
 
-            string flare_mp = "flare_mp";
-            player.GiveWeapon(flare_mp);
-            player.SwitchToWeaponImmediate(flare_mp);
-
-            int pe = player.EntRef;
-            H_SET H = H_FIELD[pe];
-            H.TI_DO = true;
-
-            if (!H.TI_NOTIFIED)
-            {
-                H.TI_NOTIFIED = true;
-
-                player.OnNotify("grenade_fire", (Entity owner, Parameter entity, Parameter weaponName) =>
-                {
-                    if (!H.TI_DO) return;
-                    if (H.AXIS) return;
-                    if (weaponName.ToString() != flare_mp) return;
-                    H.TI_DO = false;
-                    Vector3 pos = player.Origin;
-                    int i = Call<int>(303, "misc/flare_ambient");//loadfx
-                    if (i > 0)
-                    {
-                        Entity Effect = Call<Entity>(308, i, pos);//spawnFx
-                        Call(309, Effect);//triggerfx
-                        player.Call(33344, "*NEXT SPAWN POS ^7SAVED TO " + (int)pos.X + "," + (int)pos.Y);
-                        H.LOC = new[] { pos.X, pos.Y, pos.Z };
-
-                        player.AfterDelay(10000, p => Effect.Call(32928));
-
+                        return;
                     }
+
+                    for (int i = 18; i < 1024; i++)
+                    {
+                        brushmodel = Entity.GetEntity(i);
+                        if (brushmodel == null) continue;
+                        if (brushmodel.GetField<string>("classname") == "script_brushmodel")
+                        {
+
+                            string targetName = brushmodel.GetField<string>("targetname");
+
+                            if (targetName == null) continue;
+                            Print(targetName + " entref " + i);
+                            CARE_PACKAGE = Call<Entity>("spawn", "script_model", MO);
+                            CARE_PACKAGE.Call("setmodel", "com_plasticcase_friendly");//com_plasticcase_friendly
+                            CARE_PACKAGE.Call(33353, brushmodel);
+
+                            Call(431, 20, "active"); // objective_add
+                            Call(435, 20, MO); // objective_position
+                            Call(434, 20, "compass_waypoint_bomb"); //compass_objpoint_ac130_friendly compass_waypoint_bomb objective_icon
+
+                            break;
+                        }
+                    }
+
+                  
                 });
-            }
+            });
         }
-        */
+
+        void CarePackageDo(Entity player, H_SET H)
+        {
+            string weapon = player.CurrentWeapon;
+            player.Call(33523, weapon);//givemaxammo
+            player.Call(33469, weapon, 500);//setweaponammostock
+            player.Call(33468, weapon, 500);//setweaponammoclip
+
+            player.Call(33466, "ammo_crate_use");//playLocalSound
+            if (H.AXIS) return;
+
+            if (USE_PLANE)
+            {
+                player.Call(33344, "PREDATOR IS ALREADY IN THE AIR. WAIT");
+                return;
+            }
+            if (H.PERK < 8)
+            {
+                player.Call(33344, 8 - H.PERK + "KILL MORE to RIDE PREDATOR");
+                return;
+            }
+            if (H.USE_PREDATOR)
+            {
+                player.Call(33344, "PREDATOR FINISHED");
+                return;
+            }
+
+            PredatorStart(player, H);
+        }
     }
 }

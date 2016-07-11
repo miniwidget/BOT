@@ -11,16 +11,15 @@ namespace Infected
 {
     public partial class Infected
     {
-#if DEBUG
-        Entity CARE_PACKAGE;
-#endif
-        int BOT_RPG_ENTREF, BOT_RIOT_ENTREF, BOT_JUGG_ENTREF, BOT_LUCKY_IDX, BOT_HELI_ENTREF;
-        bool BOT_TO_AXIS_COMP; 
 
-#region deplay
+
+        int BOT_RPG_ENTREF, BOT_LUCKY_IDX, BOT_LUCKY_ENTREF;
+        bool BOT_TO_AXIS_COMP;
+
+        #region deplay
         void BotDeplay()
         {
-#region remove Bot
+            #region remove Bot
             List<int> tempStrList = null;
             int botCount = 0;
             foreach (Entity p in Players)
@@ -49,9 +48,9 @@ namespace Infected
                 }
                 tempStrList.Clear();
             }
-#endregion
+            #endregion
 
-#region deploy bot
+            #region deploy bot
             i = BOTs_List.Count;
             if (botCount < SET.BOT_SETTING_NUM || i < SET.BOT_SETTING_NUM)
             {
@@ -78,55 +77,72 @@ namespace Infected
                     return true;
                 });
             }
-#endregion
+            #endregion
 
         }
-#endregion
+        #endregion
 
-#region Bot_Connected
+        #region Bot_Connected
 
         private void Bot_Connected(Entity bot)
         {
 
             var i = BOTs_List.Count;
             int be = bot.EntRef;
-            if (i > SET.BOT_SETTING_NUM)
+            if (be == -1 || i > SET.BOT_SETTING_NUM)
             {
                 Call(286, be);//kick
                 return;
             }
-            if (be == -1) return;
 
             if (i == SET.BOT_SETTING_NUM - 1)
             {
-                AfterDelay(4000,()=>BotWaitOnFirstInfected());
+                 BotWaitOnFirstInfected();
             }
 
-            /*
+            B_SET B = B_FIELD[be];
 
-                    internal readonly string[] BOTs_CLASS = {
-                        "axis_recipe1",//jugg
-                        "axis_recipe2",//rpg
-                        "axis_recipe3",//riot
-                        "axis_recipe3",//heli
-                        "class0",//AR g36c
-                        "class1",//SMG ump45
-                        "class2",//LMG mk46
-                        //"class3",//sniper
-                        "class4",//SG striker
-                        "class5",//AR m4
-                        "class6",//SMG mp5
-                        "class6"// riotshield
-                    };    
-            */
-            if (i == 0) BOT_JUGG_ENTREF = be;
-            else if (i == 1) BOT_RPG_ENTREF = be;
-            else if (i == 2) BOT_RIOT_ENTREF = be;
-            else if (i == 3) BOT_HELI_ENTREF = be;
+            string alertSound = null;
+            int delay_time = 0;
 
-            if (i > 10)
+            if (i == 0)
             {
-                if (SET.BOT_CLASS_NUM > 10) SET.BOT_CLASS_NUM = 4;
+                alertSound = "AF_victory_music";
+                delay_time = 6100;
+            }
+            else if (i == 1)
+            {
+                BOT_RPG_ENTREF = be;
+                alertSound = "missile_incoming";
+                delay_time = 10000;
+            }
+            else if (i == 2 || i == 3)
+            {
+                B.not_fire = true;
+                bot.SpawnedPlayer += delegate
+                {
+                    bot.Call(33220, 2f);
+                    int k = B.killer;
+                    if (k != -1)
+                    {
+                        BotCheckPerk(k);
+                        B.killer = -1;
+                    }
+                };
+            }
+            else if (i == 4)
+            {
+                B.not_fire = true;
+                bot.SpawnedPlayer += () => BotHeliSpawned(bot);
+            }
+            else
+            {
+                delay_time = 6100;
+            }
+
+            if (i > 11)
+            {
+                if (SET.BOT_CLASS_NUM > 11) SET.BOT_CLASS_NUM = 5;
                 i = SET.BOT_CLASS_NUM;
                 SET.BOT_CLASS_NUM++;
             }
@@ -135,8 +151,86 @@ namespace Infected
             BOTs_List.Add(bot);
             IsBOT[be] = true;
             H_FIELD[be] = null;
+
+            if (B.not_fire) return;
+
+            int ammo = 0;
+            string weapon = null;
+
+            bot.SpawnedPlayer += delegate
+            {
+                if (GAME_ENDED_) return;
+
+                bot.Health = -1;
+                bot.Call(32848);//hide
+                bot.Call(33220, 0f);//setmovespeedscale
+
+                if (weapon == null)
+                {
+                    weapon = bot.CurrentWeapon;
+                    bot.Call(33523, weapon);
+                    ammo = bot.Call<int>(33470, weapon);
+                }
+
+                bot.Call(33469, weapon, 0);//setweaponammostock
+                bot.Call(33468, weapon, 0);//setweaponammoclip
+
+                #region check perk to killer
+
+                int k = B.killer;
+                if (k != -1)
+                {
+                    BotCheckPerk(k);
+                    B.killer = -1;
+                }
+
+                #endregion
+
+                bot.AfterDelay(delay_time, x =>
+                {
+                    if (GAME_ENDED_) return;
+
+                    if (i == 0) bot.Health = 100;
+                    else bot.Health = 120;
+
+                    bot.Call(33220, 1f);//setmovespeedscale
+
+                    BotSearchOn(bot, B, alertSound, weapon, ammo);
+
+                    bot.Call(32847);//show
+                });
+
+            };
+            bool fire = true;
+            bot.OnNotify("weapon_fired", (p, wp) =>
+            {
+                if (!fire)
+                {
+                    fire = true;
+                    return;
+                }
+                fire = false;
+
+                if (B.target == null) return;
+
+                var TO = B.target.Origin;
+                var BO = bot.Origin;
+
+                float dx = TO.X - BO.X;
+                float dy = TO.Y - BO.Y;
+                float dz = BO.Z - TO.Z + 50;
+
+                int dist = (int)Math.Sqrt(dx * dx + dy * dy);
+                BO.X = (float)Math.Atan2(dz, dist) * 57.3f;
+                BO.Y = -5 + (float)Math.Atan2(dy, dx) * 57.3f;
+                BO.Z = 0;
+
+                bot.Call(33531, BO);//SetPlayerAngles
+
+            });
         }
-#endregion
+
+        #endregion
 
         void BotWaitOnFirstInfected()
         {
@@ -147,7 +241,7 @@ namespace Infected
                     if (ent == null) continue;
                     if (ent.GetField<string>("sessionteam") != "axis") continue;
                     BOT_TO_AXIS_COMP = true;
-                   
+
                     var max = BOTs_List.Count - 1;//11
                     BOT_LUCKY_IDX = max;//11
 
@@ -165,9 +259,6 @@ namespace Infected
 
                         if (i != BOT_LUCKY_IDX)
                         {
-                            if (i == 3) bot.SpawnedPlayer += () => BotHeliSpawned(bot);
-                            else bot.SpawnedPlayer += () => BotSpawned(bot);
-
                             bot.Call(33341);//suicide
                         }
                         if (i == max)
@@ -199,9 +290,10 @@ namespace Infected
                 if (bot.GetField<string>("sessionteam") == "allies") alive++;
                 if (i == BOT_LUCKY_IDX)
                 {
+                    BOT_LUCKY_ENTREF = bot.EntRef;
                     TK.SetTank(bot);
                     string wep = bot.CurrentWeapon;
-                    B_FIELD[bot.EntRef].wep = wep;
+                    B_FIELD[BOT_LUCKY_ENTREF].wep = wep;
                     bot.Call(33469, wep, 0);//setweaponammostock
                     bot.Call(33468, wep, 0);//setweaponammoclip
                     bot.Call(33220, 0f);
@@ -218,9 +310,6 @@ namespace Infected
 
             HCT.SetHeliPort();
 
-#if DEBUG
-            CarePackage();
-#endif
             foreach (Entity human in human_List)
             {
                 H_FIELD[human.EntRef].HUD_SERVER.Alpha = 0.7f;
@@ -236,55 +325,7 @@ namespace Infected
 
             return false;
         }
-#if DEBUG
-        void CarePackage()
-        {
-            Entity ent = Call<Entity>("getent", "mp_dom_spawn", "classname"); if (ent == null) return;
 
-            Vector3 origin = ent.Origin; ent = null;
-
-            Entity brushmodel = Call<Entity>("getent", "pf1_auto1", "targetname");
-
-            if (brushmodel == null) brushmodel = Call<Entity>("getent", "pf3_auto1", "targetname");
-            if (brushmodel != null)
-            {
-
-                CARE_PACKAGE = Call<Entity>("spawn", "script_model", origin);
-                CARE_PACKAGE.Call("setmodel", "com_plasticcase_friendly");//com_plasticcase_friendly
-                CARE_PACKAGE.Call(33353, brushmodel);
-
-                Call(431, 20, "active"); // objective_add
-                Call(435, 20, origin); // objective_position
-                Call(434, 20, "compass_waypoint_bomb"); //compass_objpoint_ac130_friendly compass_waypoint_bomb objective_icon
-
-                return;
-            }
-
-            for (int i = 18; i < 1024; i++)
-            {
-                brushmodel = Entity.GetEntity(i);
-                if (brushmodel == null) continue;
-                if (brushmodel.GetField<string>("classname") == "script_brushmodel")
-                {
-
-                    string targetName = brushmodel.GetField<string>("targetname");
-
-                    if (targetName == null) continue;
-                    Print(targetName + " entref " + i);
-                    CARE_PACKAGE = Call<Entity>("spawn", "script_model", origin);
-                    CARE_PACKAGE.Call("setmodel", "com_plasticcase_friendly");//com_plasticcase_friendly
-                    CARE_PACKAGE.Call(33353, brushmodel);
-
-                    Call(431, 20, "active"); // objective_add
-                    Call(435, 20, origin); // objective_position
-                    Call(434, 20, "compass_waypoint_bomb"); //compass_objpoint_ac130_friendly compass_waypoint_bomb objective_icon
-
-                    break;
-                }
-            }
-
-        }
-#endif
     }
 
 }

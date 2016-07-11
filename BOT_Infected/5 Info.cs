@@ -9,18 +9,18 @@ namespace Infected
 {
      class Info
     {
-        readonly string[] MESSAGES_ALLIES_INFO_A =
-        {
-             "ATTACHMENT INFORMATION",
-             "BIND FOLLOWING KEYS  IF SHOW *UNBOUND",
-             "Press *ESC ^7and Goto *OPTIONS",
-             "Goto *CONTROLS ^7 -> *MOVEMENT",
-             "Bind follwing Keys",
+        //readonly string[] MESSAGES_ALLIES_INFO_A =
+        //{
+        //     "ATTACHMENT INFORMATION",
+        //     "BIND FOLLOWING KEYS  IF SHOW *UNBOUND",
+        //     "Press *ESC ^7and Goto *OPTIONS",
+        //     "Goto *CONTROLS ^7 -> *MOVEMENT",
+        //     "Bind follwing Keys",
 
-             "1. *HOLD STRAFE ^7to any key for *AMMO",
-             "2. *HOLD CROUCH ^7to any key for *VIEWSCOPE",
-             "3. *CHANGE STANCE ^7to any key for *OFFHANDS"
-        };
+        //     "1. *HOLD STRAFE ^7to any key for *AMMO",
+        //     "2. *HOLD CROUCH ^7to any key for *VIEWSCOPE",
+        //     "3. *CHANGE STANCE ^7to any key for *OFFHANDS"
+        //};
         readonly string[] MESSAGES_ALLIES_INFO_W =
         {
             "WEAPON  INFORMATION",
@@ -41,13 +41,13 @@ namespace Infected
             "*[ ^7STINGER *] TO GET STINGER",
         };
 
-        internal void MessageInfoA(Entity ent, bool Axis)
-        {
-            if (!Axis)
-                MessageRoop(ent, 0, MESSAGES_ALLIES_INFO_A);
-            else
-                ent.Call(33344, "NO FUNCTION. BYE");
-        }
+        //internal void MessageInfoA(Entity ent, bool Axis)
+        //{
+        //    if (!Axis)
+        //        MessageRoop(ent, 0, MESSAGES_ALLIES_INFO_A);
+        //    else
+        //        ent.Call(33344, "NO FUNCTION. BYE");
+        //}
         internal void MessageInfoW(Entity ent, bool Axis)
         {
             if (!Axis)

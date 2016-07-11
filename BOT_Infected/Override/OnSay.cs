@@ -32,7 +32,7 @@ namespace Infected
                 #region Public Say
                 switch (text0)
                 {
-                    case "infoa": INFO.MessageInfoA(player, Axis); return;
+                    //case "infoa": INFO.MessageInfoA(player, Axis); return;
                     case "infow": INFO.MessageInfoW(player, Axis); return;
 
                     case "sc":
@@ -43,10 +43,6 @@ namespace Infected
                     case "riot": WP.GiveWeaponTo(player, "riotshield_mp"); return;
                     case "javelin": WP.GiveWeaponTo(player, "javelin_mp"); return;
                     case "stinger": WP.GiveWeaponTo(player, "stinger_mp"); return;
-
-                    case "loc": Relocation(player,false); return;
-                    case "reloc": Relocation(player, true);return;
-                        // case "ti": SetLocationByTI(player);return;
                 }
                 #endregion
 

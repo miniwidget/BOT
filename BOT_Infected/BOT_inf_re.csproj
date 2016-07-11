@@ -55,7 +55,7 @@
     <Compile Include="BOT\B Connect.cs" />
     <Compile Include="HUMAN\H Connect.cs" />
     <Compile Include="HUMAN\H Spawned.cs" />
-    <Compile Include="Killstreak\AC130.cs" />
+    <None Include="Killstreak\AC130.cs" />
     <Compile Include="Override\OnSay.cs" />
     <Compile Include="Override\OnPlayerKilled.cs" />
     <Compile Include="2 Set.cs" />

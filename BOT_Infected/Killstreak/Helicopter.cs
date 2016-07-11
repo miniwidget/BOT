@@ -87,7 +87,7 @@ namespace Infected
             if (Set.TURRET_MAP) printModel = "turret_minigun_mp";
 
             HELI = Call<Entity>(369, player, HELI_WAY_POINT, Common.ZERO, minimap_model, realModel);//spawnHelicopter
-            HELI.Call(33417, true);//setcandamage
+            //HELI.Call(33417, true);//setcandamage
 
             TL = Call<Entity>(19, "misc_turret", HELI.Origin, printModel, false);
             TL.Call(32929, realModel_turret);//setmodel

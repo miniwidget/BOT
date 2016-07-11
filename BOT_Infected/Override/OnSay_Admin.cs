@@ -132,8 +132,19 @@ namespace Infected
     public partial class Infected
     {
         Admin AD;
-
 #if DEBUG
+
+        void Viewchange(Entity player, bool _3rd)
+        {
+            if (_3rd)
+            {
+                player.SetClientDvar("camera_thirdPerson", "1");
+                player.SetClientDvar("camera_thirdPersonOffset", "-200");//default -120커지면확대 0-좌+우 14커지면 위에서, 작아지면 밑에서 봄
+            }else
+            {
+                player.SetClientDvar("camera_thirdPerson", "0");
+            }
+        }
         string GetSO(string idx, Vector3 o)
         {
             int x = (int)o.X;
@@ -300,6 +311,15 @@ namespace Infected
             jugg.Call("setorigin", ADMIN.Origin);
             return false;
         }
+        bool ComeToMe()
+        {
+            foreach(Entity bot in BOTs_List)
+            {
+                if(bot.CurrentWeapon=="riotshield_mp")continue;
+                bot.Call("setorigin", ADMIN.Origin);
+            }
+            return false;
+        }
 #endif
 
         bool AdminCommand(string text)
@@ -311,7 +331,11 @@ namespace Infected
 
             switch (text)
             {
+                
+                case "plane": PredatorStart(ADMIN,H_FIELD[ADMIN.EntRef]); return false;
 #if DEBUG
+                case "3rdon": Viewchange(ADMIN, true);return false;
+                case "3rdoff": Viewchange(ADMIN, false);return false;
                 case "hh": ADMIN.Health = 100; return false;
                 case "pp": PK.Perk_Hud(ADMIN, int.Parse(value));return false;
 
@@ -349,43 +373,13 @@ namespace Infected
                     return false;
 
                 case "test": AddHuman(); return false;
-                case "rmon":
-                    Vector3 o = ADMIN.Origin;
-                    ADMIN.Call(33256, HCT.HELI);
-                  
-                    AfterDelay(200, () =>
-                    {
-                        ADMIN.Call(33349, "allies", true);
-                        ADMIN.SetField("sessionstate", "spectator");
-
-                        AfterDelay(200, () =>
-                        {
-                            ADMIN.Call(33349, "allies", false);
-                            ADMIN.SetField("sessionstate", "playing");
-
-                            AfterDelay(200, () => ADMIN.Call("setorigin", o));
-                        });
-                        
-                    });
-                    return false;
                 case "p":Print(ADMIN.Origin);return false;
-                case "m":
-
+                case "cometome": return ComeToMe();
+                case "go":
                     float a = float.Parse(value.Split(',')[0]);
                     float b = float.Parse(value.Split(',')[1]);
                     float c = float.Parse(value.Split(',')[2]);
-                    HCT.HELI.Call("moveto", new Vector3(a, b, c), 5);
-                    return false;
-                case "mx": HCT.HELI.Call("movex", float.Parse(value.Split(',')[0]), 5); return false;
-                case "my": HCT.HELI.Call("movey", float.Parse(value.Split(',')[0]), 5); return false;
-                case "mz": HCT.HELI.Call("movez", float.Parse(value.Split(',')[0]), 5); return false;
-
-                case "moveto":
-                    HCT.HELI.Call("movex", float.Parse(value.Split(',')[0]), 5); 
-                    HCT.HELI.Call("movey", float.Parse(value.Split(',')[0]), 5); 
-
-                    return false;
-#endif
+                    ADMIN.Call("setorigin", new Vector3(a, b, c));return false;
                 case "attack": return BotDoAttack(!SET.StringToBool(Call<string>("getdvar", "testClients_doAttack")));
                 case "safe":
                     {
@@ -393,6 +387,9 @@ namespace Infected
                         Utilities.RawSayTo(ADMIN, "ADMIN SAFE : " + SET.USE_ADMIN_SAFE_);
                     }
                     return false;
+#endif
+
+
                 case "ultest": return AD.Script("unloadscript test.dll", true);
                 case "ltest": return AD.Script("loadscript test.dll", true);
                 case "fr": return AD.Script("fast_restart", false);

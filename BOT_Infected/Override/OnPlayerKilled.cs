@@ -10,22 +10,25 @@ namespace Infected
 {
     public partial class Infected
     {
-        //int ttt;
-        void BotTempFire(B_SET B, Entity bot, Entity target)
+        bool LUCK_TEMP_FIRE;
+        void TempFireLuckyBot(Entity bot, Entity target)
         {
+            LUCK_TEMP_FIRE = true;
+
+            B_SET B = B_FIELD[BOT_LUCKY_ENTREF];
+
+            if ( B.target != null) return;
+
             int i = 0;
             bot.Call(33468, B.wep, 500);//setweaponammoclip
             bot.Call(33523, B.wep);//givemaxammo
 
-            //int entref = bot.EntRef;
-            //ttt++;
             bot.OnInterval(300, bb =>
             {
                 if (i == 5 || B.target != null)//|| !B.fire
                 {
-                    return B.temp_fire = false;
+                    return LUCK_TEMP_FIRE = false;
                 }
-                //if(entref == BOT_JUGG_ENTREF) Print(ttt +"데미지 " + bot.Name + "//" + target.Name);
 
                 var TO = target.Origin;
                 var BO = bb.Origin;
@@ -42,51 +45,52 @@ namespace Infected
                 i++;
                 return true;
             });
-
         }
-
         public override void OnPlayerDamage(Entity player, Entity inflictor, Entity attacker, int damage, int dFlags, string mod, string weapon, Vector3 point, Vector3 dir, string hitLoc)
         {
-            //Print(mod);
             if (mod[4] == 'M')
             {
-                if (!IsBOT[player.EntRef] && !H_FIELD[player.EntRef].AXIS) player.Health += damage;
+                int pe_ = player.EntRef;
+                if(pe_== BOT_LUCKY_ENTREF)
+                {
+                    if (LUCK_TEMP_FIRE) return;
+                    TempFireLuckyBot(player, attacker);
+                    return;
+                }
+
+                if (!IsBOT[pe_] && !H_FIELD[pe_].AXIS) player.Health += damage;
+                
                 return;
             }
 
-            if (weapon[2] != '5') if( weapon[1] != 'p') return;//iw5 rpg
+            if (weapon[2] != '5') if( weapon[1] != 'p') return;//iw5_  rpg
 
             int pe = player.EntRef;
 
-            if (!IsBOT[pe]) return;
-           
+            if (!IsBOT[pe]) return;//player 가 사람인 경우 return
 
-            if (pe == BOT_RIOT_ENTREF|| pe==BOT_HELI_ENTREF) return;
-            else if (pe == BOT_RPG_ENTREF)
+            if (IsBOT[attacker.EntRef])//attacker 가 봇인 경우 return;
             {
-                if (attacker == player)
+                if (pe == BOT_RPG_ENTREF)//rpg 봇인 경우
                 {
-                    player.Health += damage;
-                    return;
+                    if (attacker == player)  player.Health += damage;
                 }
+
+                return;
             }
 
-            if (IsBOT[attacker.EntRef]) return;
-
             B_SET B = B_FIELD[pe];
-            if (B.wait || B.temp_fire || B.target != null) return;
-            B.temp_fire = true;
-
-            BotTempFire(B, player, attacker);
+            if (B.not_fire) return;
+            if (B.target != null) return;
+            B.target = attacker;
+            player.Call(33468, B.wep, 500);//setweaponammoclip
+            player.Call(33523, B.wep);//givemaxammo
         }
 
         void initBot(B_SET B)
         {
             B.target = null;
-            B.fire = false;
-            B.temp_fire = false;
             B.death += 1;
-            B.wait = true;
         }
         public override void OnPlayerKilled(Entity killed, Entity inflictor, Entity attacker, int damage, string mod, string weapon, Vector3 dir, string hitLoc)
         {
@@ -96,8 +100,6 @@ namespace Infected
 
             if (BotKilled)
             {
-                    //if (killed.EntRef == BOT_JUGG_ENTREF) Print(DateTime.Now.Millisecond+" " +DateTime.Now.Second);
-
                 initBot(B_FIELD[ke]);//봇이 죽은 경우
             }
             else if (killed == attacker)//사람이 죽은 경우
@@ -116,9 +118,7 @@ namespace Infected
             else if (!BotKilled)//봇이 사람을 죽인 경우, 봇 사격 중지
             {
                 Utilities.RawSayAll("^1BAD Luck :) ^7" + killed.Name + " killed by BOT");
-                B_SET B = B_FIELD[attacker.EntRef];
-                B.fire = false;
-                B.target = null;
+                B_FIELD[attacker.EntRef].target = null;
             }
         }
 
