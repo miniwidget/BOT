@@ -40,7 +40,7 @@ namespace Infected
         /// </summary>
         internal int PERK = 2;
         internal HudElem HUD_PERK_COUNT, HUD_TOP_INFO, HUD_RIGHT_INFO, HUD_SERVER;
-        internal string PERK_TXT = "**";
+        internal string PERK_TXT = "PRDT **";
 
         /// <summary>
         /// 0: Allies under 10kill IN ALLIES /

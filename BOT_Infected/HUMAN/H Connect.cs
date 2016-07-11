@@ -80,7 +80,7 @@ namespace Infected
                 H.PERK = 2;
                 H.LIFE = life;
                 SetTeamName();
-                if (H.PERK_TXT != "**") H.HUD_PERK_COUNT.SetText(H.PERK_TXT = "HELI **");
+                if (H.HUD_PERK_COUNT!=null)H.HUD_PERK_COUNT.SetText(H.PERK_TXT = "PRDT **");
             }
 
             PLAYER_STATE[name] = H.LIFE;
@@ -195,7 +195,7 @@ namespace Infected
                 }
                 if (!isUsingTurret)
                 {
-                    if (CARE_PACKAGE != null && player.Origin.DistanceTo(CARE_PACKAGE.Origin) < 80)
+                    if (CARE_PACKAGE != null && player.Origin.DistanceTo(CARE_PACKAGE.Origin) < 90)
                     {
                         CarePackageDo(player, H);
                     }
@@ -304,7 +304,7 @@ namespace Infected
 
         void CarePackage(Entity player)
         {
-            player.Call(33344, Info.GetStr("*THROW MARKER ^7to GET CARE PACKAGE", false));
+            Info.MessageRoop(player, 0, new[] { "*THROW MARKER ^7TO GET RIDE PREDATOR", "^2PRESS [^7 [{+activate}] ^2] AT THE CARE PACKAGE" });
 
             string marker = "airdrop_sentry_marker_mp";
             player.GiveWeapon(marker);
@@ -321,7 +321,7 @@ namespace Infected
                 player.AfterDelay(3000, p =>
                 {
                     finished = true;
-                    Vector3 MO = Marker.Origin; MO.Z += 45;
+                    Vector3 MO = Marker.Origin; MO.Z += 8;
                     Marker.Call(32928);//delete
 
                     Entity ent = Call<Entity>("getent", "mp_dom_spawn", "classname"); if (ent == null) return;

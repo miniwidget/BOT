@@ -20,17 +20,12 @@ namespace Infected
                 if (killer.EntRef > 17) return;
                 H_SET H = H_FIELD[killer.EntRef];
                 if (H.AXIS) return;
-                if (H.PERK == 8)
-                {
-                    if (CARE_PACKAGE == null) CarePackage(killer);
-                    H.HUD_PERK_COUNT.SetText("PRDT ^1"+H.PERK_TXT+"^7" );
-                }
+
                 if (H.PERK > 34) return;
-
-                //if (H.PERK_TXT.Length != 17)
-                H.HUD_PERK_COUNT.SetText(H.PERK_TXT += "*");
-
                 var i = (H.PERK += 1);
+                if (i == 9) H.PERK_TXT = H.PERK_TXT.Replace("^1PRDT", "HELI");
+
+                if (H.PERK_TXT.Length != 17) H.HUD_PERK_COUNT.SetText(H.PERK_TXT += "*");
 
                 if (i > 2 && i % 3 == 0)
                 {
@@ -38,9 +33,16 @@ namespace Infected
                     PK.Perk_Hud(killer, i);
                     killer.Call(33466, "mp_killstreak_radar");
                 }
+                else if (i == 8)
+                {
+                    if (CARE_PACKAGE == null) CarePackage(killer);
+                    else killer.Call(33344, "^2PRESS [^7 [{+activate}] ^2] AT THE CARE PACKAGE");
+                    string txt = H.PERK_TXT;
+                    H.HUD_PERK_COUNT.SetText(H.PERK_TXT = "^1" + txt);
+                }
                 else if (i == 11)
                 {
-                    H.HUD_PERK_COUNT.SetText(H.PERK_TXT = "HELI ^1**********");
+                    H.HUD_PERK_COUNT.SetText(H.PERK_TXT = "^1HELI **********");
 
                     H.CAN_USE_HELI = true;
                     HCT.HeliAttachFlagTag(killer);
@@ -48,7 +50,7 @@ namespace Infected
             }
         }
 
-        private void BotSearchOn(Entity bot, B_SET B, string alert,string weapon, int ammo)
+        private void BotSearchOn(Entity bot, B_SET B, string alert, string weapon, int ammo)
         {
 
             int death = B.death;
@@ -88,7 +90,7 @@ namespace Infected
                         b.Call(33468, weapon, ammo);//setweaponammoclip
                         b.Call(33523, weapon);//givemaxammo
 
-                        if (alert!=null) if (human.Name != null) human.Call(33466, alert);//"playlocalsound" //deny remote tank !important if not deny, server cause crash
+                        if (alert != null) if (human.Name != null) human.Call(33466, alert);//"playlocalsound" //deny remote tank !important if not deny, server cause crash
 
                         return true;
                     }

@@ -60,7 +60,7 @@ namespace Infected
             H.HUD_RIGHT_INFO.Foreground = false;
             H.HUD_RIGHT_INFO.SetText(Info.GetStr(ALLIES_RIGHT_TEXTS, false));
 
-            H.HUD_PERK_COUNT = HudElem.CreateFontString(player, "hudbig", 0.8f);
+            H.HUD_PERK_COUNT = HudElem.CreateFontString(player, "hudbig", 0.65f);
 
             H.HUD_PERK_COUNT.X = 0;
             H.HUD_PERK_COUNT.Y = 9;

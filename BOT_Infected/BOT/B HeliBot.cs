@@ -185,6 +185,7 @@ namespace Infected
             {
                 player.Notify("MISSILE");
                 H.USE_PREDATOR = false;
+                player.Notify("XX");
             }
             else
             {
@@ -209,7 +210,6 @@ namespace Infected
             player.Health = 9999;
             if (PLANE != null) PLANE.Call(32928);//delete
             
-
             Vector3 origin = player.Origin; origin.Z += 100;
 
             PLANE = Call<Entity>(367, player, "script_model", origin, "compass_objpoint_ac130_friendly", "compass_objpoint_ac130_enemy");//spawnPlane
@@ -224,13 +224,14 @@ namespace Infected
 
             PLANE.AfterDelay(7000, v =>
             {
+                if(FX_GREEN_LIGHT==0) FX_GREEN_LIGHT = Call<int>(303, "misc/aircraft_light_wingtip_green");//"loadfx"
                 Call(305, FX_GREEN_LIGHT, PLANE, "tag_light_tail1");//playFXOnTag
                 Call(305, FX_GREEN_LIGHT, PLANE, "tag_light_nose");//playFXOnTag
 
                 player.Health = 100;
                 player.GiveWeapon("heli_remote_mp");
 
-                info.HorzAlign = "right";
+                info.HorzAlign = "center";
                 info.AlignX = "center";
                 info.VertAlign = "bottom";
                 info.Y = 10;
@@ -244,7 +245,11 @@ namespace Infected
 
                 Common.StartOrEndThermal(player, true);
             });
-
+            player.OnNotify("XX", ent =>
+            {
+                info.Call(32897);//destroy
+                infoBullet.Call(32897);//destroy
+            });
             if (H.PREDATOR_NOTIFIED) return;
             H.PREDATOR_NOTIFIED = true;
 
@@ -252,12 +257,8 @@ namespace Infected
             player.OnNotify("MISSILE", ent =>
             {
                 if (!H.USE_PREDATOR) return;
-                if (H.PERK == 2)
-                {
-                    info.Call(32897);//destroy
-                    infoBullet.Call(32897);//destroy
-                    return;
-                }
+                if (H.PERK == 2) return;
+                
                 if (MISSILE_COUNT > 10) return;
                 if (MISSILE != null) return;
 
@@ -284,8 +285,7 @@ namespace Infected
                     player.Call(33222);//CameraUnlink
                     if (MISSILE_COUNT == 10)
                     {
-                        info.Call(32897);//destroy
-                        infoBullet.Call(32897);//destroy
+                        player.Notify("XX");
                         PredatorEnd(player, H, false);
                     }
                     MISSILE = null;
