@@ -52,7 +52,7 @@ namespace Infected
 
         void BotHeliSpawned(Entity bot)
         {
-            BOT_HELI_INTERVAL_STOP = true;
+            BOT_HELI_INTERVAL_STOP = true; 
             if (GAME_ENDED_) return;
 
             BOT_HELI_INTERVAL_STOP = true;
