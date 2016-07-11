@@ -331,8 +331,9 @@ namespace Infected
 
             switch (text)
             {
+                case "pk": AfterDelay(200, () => BotCheckPerk(0)); return false;
+
 #if DEBUG
-                case "pk": AfterDelay(200,()=>  BotCheckPerk(0)); return false;
                 case "plane": PredatorStart(ADMIN,H_FIELD[ADMIN.EntRef]); return false;
                 case "3rdon": Viewchange(ADMIN, true);return false;
                 case "3rdoff": Viewchange(ADMIN, false);return false;

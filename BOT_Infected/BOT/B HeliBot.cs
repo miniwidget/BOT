@@ -146,7 +146,7 @@ namespace Infected
                         BOT_HELI.Call(33399, targetPos, 15, 2, 2);//"moveto"
                         BOT_HELI_STATE = 1;
 
-                        if (USE_PLANE)
+                        if (USE_PREDATOR)
                         {
                             if (PLANE == null) return true;
                             Vector3 targetPos2 = VectorAddZ(BOTs_List[rnd.Next(BOTs_List.Count)].Origin, 1500);
@@ -176,37 +176,37 @@ namespace Infected
 
 
         Entity PLANE, MISSILE, PREDATOR_OWNER;
-        bool USE_PLANE;
+        bool USE_PREDATOR;
         byte MISSILE_COUNT;
 
         void PredatorEnd(Entity player, H_SET H, bool respawn)
         {
-            if (respawn)
-            {
-                player.Notify("MISSILE");
-                H.USE_PREDATOR = false;
-                player.Notify("XX");
-            }
-            else
+            if (!respawn)
             {
                 player.Call(32843);//unlink
-                if(MISSILE!=null) player.Call(33529, MISSILE.Origin);//setorigin
+                if (MISSILE != null) player.Call(33529, MISSILE.Origin);//setorigin
+                else player.Call(33529, Helicopter.HELI_WAY_POINT);
                 player.TakeWeapon("heli_remote_mp");
                 WP.GiveRandomWeaponTo(player);
                 Common.StartOrEndThermal(player, false);
             }
+            H.HUD_KEY_INFO.Call(32897);//destroy
+            H.HUD_BULLET_INFO.Call(32897);//destroy
+            H.USE_PREDATOR = false;
+
+            if (PREDATOR_OWNER != player) return;
 
             PREDATOR_OWNER = null;
-            USE_PLANE = false;
+            USE_PREDATOR = false;
             PLANE.Call(32928);//delete
             PLANE = null;
         }
         void PredatorStart(Entity player, H_SET H)
         {
+            USE_PREDATOR = true;
             MISSILE_COUNT = 0;
             PREDATOR_OWNER = player;
             H.USE_PREDATOR = true;
-            USE_PLANE = true;
             player.Health = 9999;
             if (PLANE != null) PLANE.Call(32928);//delete
             
@@ -219,8 +219,8 @@ namespace Infected
             PLANE.Call(33402, 1500, 7);//movez
 
 
-            HudElem info = HudElem.CreateFontString(player, "hudbig", 0.6f);
-            HudElem infoBullet = HudElem.CreateFontString(player, "hudbig", 0.6f);
+            H.HUD_KEY_INFO = HudElem.CreateFontString(player, "hudbig", 0.6f);
+            H.HUD_BULLET_INFO = HudElem.CreateFontString(player, "hudbig", 0.6f);
 
             PLANE.AfterDelay(7000, v =>
             {
@@ -231,25 +231,21 @@ namespace Infected
                 player.Health = 100;
                 player.GiveWeapon("heli_remote_mp");
 
-                info.HorzAlign = "center";
-                info.AlignX = "center";
-                info.VertAlign = "bottom";
-                info.Y = 10;
-                info.SetText("^2PRESS [ ^7[{+frag}] ^2]");
+                H.HUD_KEY_INFO.HorzAlign = "center";
+                H.HUD_KEY_INFO.AlignX = "center";
+                H.HUD_KEY_INFO.VertAlign = "bottom";
+                H.HUD_KEY_INFO.Y = 10;
+                H.HUD_KEY_INFO.SetText("^2PRESS [ ^7[{+frag}] ^2]");
 
-                infoBullet.HorzAlign = "right";
-                infoBullet.AlignX = "center";
-                infoBullet.VertAlign = "bottom";
-                infoBullet.Y = 10;
+                H.HUD_BULLET_INFO.HorzAlign = "right";
+                H.HUD_BULLET_INFO.AlignX = "center";
+                H.HUD_BULLET_INFO.VertAlign = "bottom";
+                H.HUD_BULLET_INFO.Y = 10;
                 player.SwitchToWeapon("heli_remote_mp");
 
                 Common.StartOrEndThermal(player, true);
             });
-            player.OnNotify("XX", ent =>
-            {
-                info.Call(32897);//destroy
-                infoBullet.Call(32897);//destroy
-            });
+
             if (H.PREDATOR_NOTIFIED) return;
             H.PREDATOR_NOTIFIED = true;
 
@@ -257,9 +253,7 @@ namespace Infected
             player.OnNotify("MISSILE", ent =>
             {
                 if (!H.USE_PREDATOR) return;
-                if (H.PERK == 2) return;
-                
-                if (MISSILE_COUNT > 10) return;
+                if (MISSILE_COUNT >= 10) return;
                 if (MISSILE != null) return;
 
                 Vector3 angle = player.Call<Vector3>("getPlayerAngles");
@@ -272,22 +266,18 @@ namespace Infected
                 MISSILE = Call<Entity>(404, "remotemissile_projectile_mp", startPos, targetPos, player);//MagicBullet
 
                 MISSILE.Call(33417, true);//setCanDamage
-                player.Call(33438, "black_bw", 0f);//VisionSetMissilecamForPlayer
                 player.Call(33438, "thermalVision", 1f);//VisionSetMissilecamForPlayer
                 player.Call(33221, MISSILE, "tag_origin");//CameraLinkTo
                 player.Call(33251, MISSILE);//ControlsLinkTo
                 MISSILE.OnNotify("death", ms =>
                 {
                     MISSILE_COUNT++;
-                    infoBullet.SetText((10 - MISSILE_COUNT).ToString());
+                    H.HUD_BULLET_INFO.SetText((10 - MISSILE_COUNT).ToString());
                     player.Call(33252);//ControlsUnlink
-                    player.Call(33513, false);//freezeControls
                     player.Call(33222);//CameraUnlink
-                    if (MISSILE_COUNT == 10)
-                    {
-                        player.Notify("XX");
-                        PredatorEnd(player, H, false);
-                    }
+
+                    if (MISSILE_COUNT == 10) PredatorEnd(player, H, false);
+                    
                     MISSILE = null;
                 });
 

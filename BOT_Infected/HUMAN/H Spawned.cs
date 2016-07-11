@@ -62,7 +62,7 @@ namespace Infected
 
                     if (HUMAN_DIED_ALL_) HUMAN_DIED_ALL_ = false;
 
-                    if (PREDATOR_OWNER == player) PredatorEnd(player, H, true);
+                    if (H.USE_PREDATOR) PredatorEnd(player, H, true);
                 }
             }
             #endregion
@@ -100,6 +100,9 @@ namespace Infected
                 Utilities.RawSayTo(player, Info.GetStr("*[ ^7DISABLED *] Melee of the Infected", true));
                 HUD.AxisHud(player);
                 player.Call(32771, SET.SOUND_ALERTS[rnd.Next(SET.SOUND_ALERTS.Length)], "allies");//playsoundtoteam
+
+                if (H.USE_PREDATOR) PredatorEnd(player, H, true);
+
             }
             else
             {

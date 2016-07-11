@@ -60,7 +60,6 @@ namespace Infected
 
         void SetZero_hset(H_SET H, bool Axis, int life, string name)
         {
-            H.LOC_DO = false;
             H.AXIS = Axis;
             H.REMOTE_STATE = 0;
 
@@ -381,7 +380,7 @@ namespace Infected
             player.Call(33466, "ammo_crate_use");//playLocalSound
             if (H.AXIS) return;
 
-            if (USE_PLANE)
+            if (USE_PREDATOR)
             {
                 player.Call(33344, "PREDATOR IS ALREADY IN THE AIR. WAIT");
                 return;

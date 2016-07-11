@@ -39,8 +39,8 @@ namespace Infected
         /// perk count
         /// </summary>
         internal int PERK = 2;
-        internal HudElem HUD_PERK_COUNT, HUD_TOP_INFO, HUD_RIGHT_INFO, HUD_SERVER;
         internal string PERK_TXT = "PRDT **";
+        internal HudElem HUD_PERK_COUNT, HUD_TOP_INFO, HUD_RIGHT_INFO, HUD_SERVER,HUD_BULLET_INFO,HUD_KEY_INFO;
 
         /// <summary>
         /// 0: Allies under 10kill IN ALLIES /
@@ -59,21 +59,15 @@ namespace Infected
         /// </summary>
         internal bool ON_MESSAGE;
 
-        /// <summary>
-        /// related to relocation
-        /// </summary>
-        internal bool LOC_NOTIFIED;
-        internal bool LOC_DO;
-        internal Vector3 RELOC;
+
+        ///// <summary>
+        ///// test ac130
+        ///// </summary>
+        //internal bool AC130_NOTIFIED;
+        //internal bool AC130_ON_USE;
 
         /// <summary>
-        /// test ac130
-        /// </summary>
-        internal bool AC130_NOTIFIED;
-        internal bool AC130_ON_USE;
-
-        /// <summary>
-        /// is Axis
+        /// if sessionteam Axis
         /// </summary>
         internal bool AXIS;
         /// <summary>
