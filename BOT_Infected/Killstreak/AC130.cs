@@ -111,7 +111,7 @@ namespace Infected
                     {
                         Call("earthquake", 0.2f, 1, ac130model.Origin, 1000);
                         ammoCount = player.Call<int>(33470, w);//"GetWeaponAmmoClip"
-                        player.Call(33306, "ac130Ammo105mm", ammoCount);
+                        player.Call(33306, "ac130Ammo105mm", ammoCount);//setplayerdata
                     }
                     else if (w == "ac130_40mm_mp")
                     {
@@ -168,13 +168,13 @@ namespace Infected
             int cloud = Call<int>(303, "misc/ac130_cloud");//loadfx
             level_ac130.OnInterval(6000, ll =>
             {
-                AC_COUNT++;
                 if (!USE_AC130 || ac != AC_COUNT) return false;
                 Call(310, cloud, level_ac130, "tag_player", player);//playfxontagforclients
                 return true;
             });
             player.AfterDelay(60000, p =>
             {
+                AC_COUNT++;
                 OWNER_ENTREF = -1;
                 USE_AC130 = false;
                 H.AC130_ON_USE = false;

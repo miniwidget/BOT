@@ -17,11 +17,12 @@ namespace Infected
             if (human_List.Count > k)
             {
                 Entity killer = human_List[k];
-                if (killer.EntRef > 17) return;
+                if (killer.EntRef > 17) return;//deny tank
+
                 H_SET H = H_FIELD[killer.EntRef];
                 if (H.AXIS) return;
-
                 if (H.PERK > 34) return;
+
                 var i = (H.PERK += 1);
                 if (i == 9) H.PERK_TXT = H.PERK_TXT.Replace("^1PRDT", "HELI");
 
@@ -66,8 +67,7 @@ namespace Infected
                 {
                     if (human_List.Contains(B.target))
                     {
-                        var TOD = B.target.Origin.DistanceTo(bo);
-                        if (TOD < FIRE_DIST)
+                        if (B.target.Origin.DistanceTo(bo) < FIRE_DIST)
                         {
                             b.Call(33468, weapon, ammo);//setweaponammoclip
                             b.Call(33523, weapon);//givemaxammo
@@ -155,9 +155,7 @@ namespace Infected
 
                 foreach (Entity human in HumanAxis)
                 {
-                    var HOD = human.Origin.DistanceTo(bo);
-
-                    if (HOD < FIRE_DIST)
+                    if (human.Origin.DistanceTo(bo) < FIRE_DIST)
                     {
                         B.target = human;
 

@@ -48,15 +48,15 @@ namespace Infected
         string[] MAGICS = { "sam_projectile_mp", "javelin_mp", "ims_projectile_mp", "ac130_40mm_mp", "ac130_105mm_mp", "rpg_mp", "uav_strike_projectile_mp" };
         bool BOT_HELI_INTERVAL_STOP;
         int FX_EXPLOSION, FX_FLARE_AMBIENT, FX_GREEN_LIGHT;
-        byte BOT_HELI_STATE;
+        byte BOT_HELI_FIRE;
 
         void BotHeliSpawned(Entity bot)
         {
-            BOT_HELI_INTERVAL_STOP = true; 
+            BOT_HELI_INTERVAL_STOP = true;
             if (GAME_ENDED_) return;
 
             BOT_HELI_INTERVAL_STOP = true;
-            BOT_HELI_STATE = 3;
+            BOT_HELI_FIRE = 2;
             if (BOT_HELI_FLARE != null)
             {
                 BOT_HELI_FLARE.Call(32928);//"delete"
@@ -70,7 +70,6 @@ namespace Infected
             else
             {
                 BOT_HELI = Call<Entity>(367, bot, "script_model", VectorAddZ(bot.Origin, 5000), "compass_objpoint_ac130_friendly", "compass_objpoint_ac130_enemy");//spawnPlane
-                //BOT_HELI.Call(33416);//notSolid
                 BOT_HELI.Call(32929, "vehicle_uav_static_mp");//"setmodel" vehicle_remote_uav
                 BOT_HELI.Call(32848);//"hide"
 
@@ -90,7 +89,7 @@ namespace Infected
             bot.Call(32848);//hide
             bot.Call(33220, 0f);//setmovespeedscale
 
-            bot.AfterDelay(10000, b =>
+            bot.AfterDelay(11000, b =>
             {
                 BOT_HELI_INTERVAL_STOP = false;
                 bot.Health = 120;
@@ -105,6 +104,8 @@ namespace Infected
         void BotHeliInterval(Entity bot)
         {
             byte count = 0;
+            bool slow = true;
+            bool wait = true;
 
             BOT_HELI.OnInterval(5000, b =>
             {
@@ -120,41 +121,64 @@ namespace Infected
                     }
                     return true;
                 }
+                else if (hc > 2)
+                {
+                    slow = false;
+                }
 
-                if (BOT_HELI_STATE == 1)
+                if (count % 3 == 0)
+                {
+                    Vector3 targetPos = VectorAddZ(BOTs_List[rnd.Next(BOTs_List.Count)].Origin, 1000);
+
+                    BOT_HELI.Call(33406, VectorToAngleY(targetPos, BOT_HELI.Origin), 2f);// "rotateto"
+                    BOT_HELI.Call(33399, targetPos, 15, 2, 2);//"moveto"
+
+                    if (USE_PREDATOR)
+                    {
+                        if (PLANE == null) return true;
+                        Vector3 targetPos2 = VectorAddZ(BOTs_List[rnd.Next(BOTs_List.Count)].Origin, 1500);
+
+                        PLANE.Call(33406, VectorToAngleY(targetPos2, PLANE.Origin), 2f);// "rotateto"
+                        PLANE.Call(33399, targetPos2, 15, 2, 2);//"moveto"
+                    }
+                    if (count > 33)
+                    {
+                        bot.Call(33341);//"suicide"
+                        return false;
+                    }
+                }
+                count++;
+
+                if (slow)
+                {
+                    if (wait && BOT_HELI_FIRE == 0) return !(wait = false);
+
+                    wait = true;
+                }
+
+                if (BOT_HELI_FIRE == 0)
                 {
                     Entity target = human_List[rnd.Next(hc)];
 
                     BOT_HELI_TARGET_POS = VectorAddZ(target.Origin, 40);
                     BOT_HELI_FLARE = Call<Entity>(308, FX_FLARE_AMBIENT, BOT_HELI_TARGET_POS);//"spawnFx"
                     Call(309, BOT_HELI_FLARE);//"triggerfx"
-                    BOT_HELI_STATE = 2;
+
+                    BOT_HELI_FIRE = 1;
                     if (target.Name != null) target.Call(33466, "javelin_clu_lock");//"playlocalsound" //deny remote tank //deny remote tank !important if not deny, server cause crash
+
                 }
                 else
                 {
-                    if (BOT_HELI_STATE == 2)
+                    if (BOT_HELI_FIRE == 1)
                     {
                         Entity rocket = Call<Entity>(404, MAGICS[rnd.Next(MAGICS.Length)], VectorAddZ(BOT_HELI.Origin, -200), BOT_HELI_TARGET_POS, bot);//"magicbullet"
-                        BOT_HELI_STATE = 3;
+
+                        BOT_HELI_FIRE = 2;
                     }
-                    else
+                    else if (BOT_HELI_FIRE == 2)
                     {
-                        Vector3 targetPos = VectorAddZ(BOTs_List[rnd.Next(BOTs_List.Count)].Origin, 1000);
-
-                        BOT_HELI.Call(33406, VectorToAngleY(targetPos, BOT_HELI.Origin), 2f);// "rotateto"
-                        BOT_HELI.Call(33399, targetPos, 15, 2, 2);//"moveto"
-                        BOT_HELI_STATE = 1;
-
-                        if (USE_PREDATOR)
-                        {
-                            if (PLANE == null) return true;
-                            Vector3 targetPos2 = VectorAddZ(BOTs_List[rnd.Next(BOTs_List.Count)].Origin, 1500);
-
-                            PLANE.Call(33406, VectorToAngleY(targetPos2, PLANE.Origin), 2f);// "rotateto"
-                            PLANE.Call(33399, targetPos2, 15, 2, 2);//"moveto"
-                        }
-                        count++;
+                        BOT_HELI_FIRE = 0;
                     }
 
                     if (BOT_HELI_FLARE != null)
@@ -163,13 +187,9 @@ namespace Infected
                         BOT_HELI_FLARE = null;
                     }
 
-                    if (count > 10)
-                    {
-                        bot.Call(33341);//"suicide"
-                        return false;
-                    }
                 }
 
+               
                 return true;
             });
         }
@@ -209,7 +229,7 @@ namespace Infected
             H.USE_PREDATOR = true;
             player.Health = 9999;
             if (PLANE != null) PLANE.Call(32928);//delete
-            
+
             Vector3 origin = player.Origin; origin.Z += 100;
 
             PLANE = Call<Entity>(367, player, "script_model", origin, "compass_objpoint_ac130_friendly", "compass_objpoint_ac130_enemy");//spawnPlane
@@ -224,9 +244,12 @@ namespace Infected
 
             PLANE.AfterDelay(7000, v =>
             {
-                if(FX_GREEN_LIGHT==0) FX_GREEN_LIGHT = Call<int>(303, "misc/aircraft_light_wingtip_green");//"loadfx"
-                Call(305, FX_GREEN_LIGHT, PLANE, "tag_light_tail1");//playFXOnTag
-                Call(305, FX_GREEN_LIGHT, PLANE, "tag_light_nose");//playFXOnTag
+                if (FX_GREEN_LIGHT == 0) FX_GREEN_LIGHT = Call<int>(303, "misc/aircraft_light_wingtip_green");//"loadfx"
+                if (FX_GREEN_LIGHT != 0)
+                {
+                    Call(305, FX_GREEN_LIGHT, PLANE, "tag_light_tail1");//playFXOnTag
+                    Call(305, FX_GREEN_LIGHT, PLANE, "tag_light_nose");//playFXOnTag
+                }
 
                 player.Health = 100;
                 player.GiveWeapon("heli_remote_mp");
@@ -277,7 +300,7 @@ namespace Infected
                     player.Call(33222);//CameraUnlink
 
                     if (MISSILE_COUNT == 10) PredatorEnd(player, H, false);
-                    
+
                     MISSILE = null;
                 });
 
@@ -286,7 +309,7 @@ namespace Infected
         float[] GMP = { 0, 0 };
         float[] GetMissilePos(Vector3 angle, Vector3 origin)
         {
-            var degreeToRadian = (float)Math.PI / 180;// 0.01745f;// 
+            var degreeToRadian = 0.01745f;// (float)Math.PI / 180;
 
             var dist = (float)Math.Abs(origin.Z / Math.Tan(angle.X * degreeToRadian));
 
@@ -300,7 +323,7 @@ namespace Infected
             var x = dist * (float)Math.Abs(Math.Cos(rad));
             var y = dist * (float)Math.Abs(Math.Sin(rad));
 
-           // Print("(" + (int)origin.X + ", " + (int)origin.Y + ")[" + (int)angle.X + "," + (int)angle.Y + "]" + (int)x + " " + (int)y);
+            // Print("(" + (int)origin.X + ", " + (int)origin.Y + ")[" + (int)angle.X + "," + (int)angle.Y + "]" + (int)x + " " + (int)y);
 
             if (Hor_Degree < 0)
             {

@@ -55,19 +55,16 @@ namespace Infected
             if (botCount < SET.BOT_SETTING_NUM || i < SET.BOT_SETTING_NUM)
             {
                 i = SET.BOT_SETTING_NUM - i;
-                //print(i + "의 봇이 모자랍니다.");
 
                 int fail_count = 0, max = SET.BOT_SETTING_NUM - 1;
                 OnInterval(250, () =>
                 {
                     if (BOTs_List.Count > max || Players.Count == 18)
                     {
-                        //print("총 불러온 봇 수는 " + getBOTCount + " 입니다.");
                         return false;
                     }
                     if (fail_count > 20)
                     {
-                        //print("봇 추가로 불러오기 실패");
                         return false;
                     }
 
@@ -325,6 +322,24 @@ namespace Infected
 
             return false;
         }
+
+        bool BotDoAttack(bool attack)
+        {
+            if (attack)
+            {
+                Call(42, "testClients_doCrouch", 0);
+                Call(42, "testClients_doMove", 1);
+                Call(42, "testClients_doAttack", 1);
+            }
+            else
+            {
+                Call(42, "testClients_doCrouch", 1);
+                Call(42, "testClients_doMove", 0);
+                Call(42, "testClients_doAttack", 0);
+            }
+            return false;
+        }
+
 
     }
 

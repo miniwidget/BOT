@@ -106,6 +106,8 @@ namespace Infected
             }
             else
             {
+                if (!H.CAN_USE_HELI) H.CAN_USE_HELI = true;
+
                 player.SetPerk("specialty_scavenger", true, false);
                 player.SetPerk("specialty_longersprint", true, false);
                 player.SetPerk("specialty_lightweight", true, false);

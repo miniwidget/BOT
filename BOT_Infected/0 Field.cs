@@ -14,7 +14,7 @@ namespace Infected
         internal static List<Entity> human_List = new List<Entity>(18);
 
         internal static Random rnd;
-        internal static int FIRE_DIST = 3;
+        internal static int FIRE_DIST;
         internal static string ADMIN_NAME;
 
         bool[] IsBOT = new bool[18];
@@ -31,23 +31,6 @@ namespace Infected
         void Print(object s)
         {
             Log.Write(LogLevel.None, "{0}", s.ToString());
-        }
-
-        bool BotDoAttack(bool attack)
-        {
-            if (attack)
-            {
-                Call(42, "testClients_doCrouch", 0);
-                Call(42, "testClients_doMove", 1);
-                Call(42, "testClients_doAttack", 1);
-            }
-            else
-            {
-                Call(42, "testClients_doCrouch", 1);
-                Call(42, "testClients_doMove", 0);
-                Call(42, "testClients_doAttack", 0);
-            }
-            return false;
         }
 
     }

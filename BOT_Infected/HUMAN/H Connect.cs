@@ -12,7 +12,7 @@ namespace Infected
     {
         Dictionary<string, int> PLAYER_STATE = new Dictionary<string, int>();
 
-        void Human_Connected(Entity player)
+        void Human_Connected(Entity player, string name)
         {
             if (human_List.Count > 6)
             {
@@ -22,8 +22,6 @@ namespace Infected
 
             if (GET_TEAMSTATE_FINISHED && HUMAN_DIED_ALL_) BotDoAttack(true);
             if (HUMAN_DIED_ALL_) HUMAN_DIED_ALL_ = false;
-
-            string name = player.Name;
 
             if (!PLAYER_STATE.ContainsKey(name)) PLAYER_STATE.Add(name, SET.PLAYER_LIFE);
 
@@ -56,6 +54,7 @@ namespace Infected
             }
 
             player.SpawnedPlayer += () => human_spawned(player, name);
+            
         }
 
         void SetZero_hset(H_SET H, bool Axis, int life, string name)
@@ -84,7 +83,6 @@ namespace Infected
 
             PLAYER_STATE[name] = H.LIFE;
         }
-
         void SetPlayer(Entity player, int life, string name)
         {
 
@@ -119,10 +117,8 @@ namespace Infected
 
                 string weap = newWeap.ToString();
                 if (weap != "killstreak_remote_tank_remote_mp") return;
-                use_tank = true;
                 TANK = null;
 
-                bool found = false;
                 for (int i = 18; i < 2048; i++)
                 {
                     TANK = Entity.GetEntity(i);
@@ -130,11 +126,13 @@ namespace Infected
                     var model = TANK.GetField<string>("model");
                     if (model == "vehicle_ugv_talon_mp")
                     {
-                        found = true;
+                        if (human_List.Contains(TANK)) continue;
+
+                        use_tank = true;
                         break;
                     }
                 }
-                if (!found) return;
+                if (!use_tank)  return;
 
                 player.Call(32936);
                 human_List.Add(TANK);
@@ -149,26 +147,6 @@ namespace Infected
                human_List.Add(player);
            });
 
-            //player.Call(33445, "LINK_AGAIN", "+smoke");//notifyonplayercommand
-            //player.OnNotify("LINK_AGAIN", ent =>
-            //{
-            //    if (H.TURRET_STATE == 0) return;
-
-            //    byte th = TurretHolding(player);
-
-            //    if (th > 1)
-            //    {
-            //        if (TK.IfTankOwner_DoEnd(player)) TK.TankStart(player, th);
-            //    }
-            //    else
-            //    {
-            //        if (HCT.HELI_OWNER != player) return;
-            //        player.Call(32843);//unlink
-            //        player.Call(33257);//remotecontrolvehicleoff
-            //        player.Call(33256, HCT.HELI);//remotecontrolvehicle  
-            //    }
-            //});
-
             #endregion
 
             #region helicopter
@@ -177,7 +155,6 @@ namespace Infected
             player.Call(33445, "ACTIVATE", "+activate");//"notifyonplayercommand"
             player.OnNotify("ACTIVATE", ent =>
             {
-                if (use_tank) return;
                 if (!H.AXIS && player.CurrentWeapon[2] != '5') return;//deny when using killstreak 
                 bool isUsingTurret = player.Call<int>(33539) == 1;
 
@@ -303,7 +280,7 @@ namespace Infected
 
         void CarePackage(Entity player)
         {
-            Info.MessageRoop(player, 0, new[] { "*THROW MARKER ^7TO GET RIDE PREDATOR", "^2PRESS [^7 [{+activate}] ^2] AT THE CARE PACKAGE" });
+            Info.MessageRoop(player, 0, new[] { "*THROW MARKER ^7TO GET RIDE PREDATOR", "*PRESS [^7 [{+activate}] *] AT THE CARE PACKAGE" });
 
             string marker = "airdrop_sentry_marker_mp";
             player.GiveWeapon(marker);
@@ -374,7 +351,6 @@ namespace Infected
         {
             string weapon = player.CurrentWeapon;
             player.Call(33523, weapon);//givemaxammo
-            player.Call(33469, weapon, 500);//setweaponammostock
             player.Call(33468, weapon, 500);//setweaponammoclip
 
             player.Call(33466, "ammo_crate_use");//playLocalSound

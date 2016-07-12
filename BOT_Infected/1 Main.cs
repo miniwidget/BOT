@@ -62,13 +62,15 @@ namespace Infected
 
             PlayerConnected += player =>
             {
-                if (player.Name.StartsWith("bot"))
+                string name = player.Name;
+
+                if (name.StartsWith("bot"))
                 {
                     Bot_Connected(player);
                 }
                 else
                 {
-                    Human_Connected(player);
+                    Human_Connected(player,name);
                 }
             };
 

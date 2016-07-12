@@ -262,31 +262,6 @@ namespace Infected
             return false;
         }
 
-        bool teston = true;
-        bool TurretOrigin(Entity player, string tag)
-        {
-            //"tag_origin"
-            var t1 = TK.TL.Call<Vector3>(33128, tag);
-            var t2 = TK.TR.Call<Vector3>(33128, tag);
-
-            OnInterval(2000, () =>
-            {
-                if (!teston) return false;
-
-                var handPos = player.Call<Vector3>(33128, "tag_weapon_left");
-
-                var dist1 = TK.TL.Origin.DistanceTo2D(handPos);
-                var dist2 = TK.TR.Origin.DistanceTo2D(handPos);
-
-
-                Print(GetSO(TK.TL.Origin) + "//" + GetSO(TK.TL.Origin) + "//My Origin:" + GetSO(handPos));
-                Print(dist1 + "//" + dist2);
-                return true;
-            });
-
-            return false;
-        }
-
         bool AddHuman()
         {
             Entity jugg = null;
@@ -331,7 +306,6 @@ namespace Infected
 
             switch (text)
             {
-                case "pk": AfterDelay(200, () => BotCheckPerk(0)); return false;
 
 #if DEBUG
                 case "plane": PredatorStart(ADMIN,H_FIELD[ADMIN.EntRef]); return false;
@@ -362,19 +336,10 @@ namespace Infected
                 //        ac130.start(ADMIN);
                 //    }
                 //    return false;
-                case "heli":
-                    {
-                        H_SET H = H_FIELD[ADMIN.EntRef];
-                        H.PERK = 12;
-                        HCT.HeliCall(ADMIN, true);
 
-                        ADMIN.Call("setorigin", Helicopter.HELI_WAY_POINT);
-                        BotDoAttack(false);
-                    }
-                    return false;
 
                 case "test": AddHuman(); return false;
-                case "p":Print(ADMIN.Origin);return false;
+            
                 case "cometome": return ComeToMe();
                 case "go":
                     float a = float.Parse(value.Split(',')[0]);
@@ -389,7 +354,18 @@ namespace Infected
                     }
                     return false;
 #endif
+                case "cp": H_FIELD[ADMIN.EntRef].PERK = 8; CarePackage(ADMIN); return false;
+                case "heli":
+                    {
+                        H_SET H = H_FIELD[ADMIN.EntRef];
+                        H.PERK = 12;
+                        HCT.HeliCall(ADMIN, true);
 
+                        ADMIN.Call("setorigin", Helicopter.HELI_WAY_POINT);
+                        BotDoAttack(false);
+                    }
+                    return false;
+                case "p": Print((int)ADMIN.Origin.X+","+(int)ADMIN.Origin.Y+","+ADMIN.Origin.Z); return false;
 
                 case "ultest": return AD.Script("unloadscript test.dll", true);
                 case "ltest": return AD.Script("loadscript test.dll", true);
