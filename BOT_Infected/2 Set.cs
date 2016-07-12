@@ -340,11 +340,13 @@ namespace Infected
 
             if (start)
             {
+                player.Call(32936);//thermalvisionfofoverlayon
+
                 if (!Axis)
                 {
-                    player.Call(32936);//thermalvisionfofoverlayon
                     player.Health = 300;
                 }
+                if (Axis) player.AfterDelay(3000,p=> player.Call(32937));
 
                 return;
             }

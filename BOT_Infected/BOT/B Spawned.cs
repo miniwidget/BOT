@@ -133,8 +133,7 @@ namespace Infected
             {
                 if (player == null || !player.IsPlayer) continue;
                 if (player.Name.StartsWith("bot")) continue;
-
-                HumanAxis_LIST.Add(player);
+                if(H_FIELD[player.EntRef].AXIS) HumanAxis_LIST.Add(player);
             }
 
             B.wait = false;
