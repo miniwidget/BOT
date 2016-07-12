@@ -112,14 +112,16 @@ namespace Infected
         byte helicount;
         internal byte HeliStart(Entity player,bool axis)
         {
-            helicount++;
-            int hc = helicount;
             Common.StartOrEndThermal(player, true);
             if (HELI_ON_USE_)
             {
                 HELI_GUNNER = player;
                 return 0;
             }
+
+            helicount++;
+            int hc = helicount;
+
             Infected.H_FIELD[player.EntRef].CAN_USE_HELI = false;
 
             HELI_ON_USE_ = true;
@@ -131,7 +133,7 @@ namespace Infected
 
             if (axis)
             {
-                time = 50000;
+                time = 60000;
                 foreach(Entity human in Infected.human_List)
                 {
                     Utilities.RawSayTo(human, "^1ENEMY HELICOPTER INBOUND");
@@ -187,6 +189,8 @@ namespace Infected
             TR.Call(32928);
             HELI.Call(32928);
             HELI = null;
+
+
         }
         internal bool IfUsetHeli_DoEnd(Entity player,bool unlink)
         {

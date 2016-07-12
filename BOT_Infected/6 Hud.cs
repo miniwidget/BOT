@@ -20,6 +20,7 @@ namespace Infected
 *SG ^74 SHOT GUN
 *SN ^76 SNIPE GUN
 
+*SC ^7 SUICIDE
 *AMMO ^7GET AMMO
 *SCOPE ^7VIEW SCOPE";
 
@@ -76,13 +77,13 @@ namespace Infected
 
         }
         readonly string AXIS_RIGHT_TEXTS =
-@"type following
+@"TYPE FOLLOWING
 
-*infow ^7weapon info
-*sc ^7 suicide
-*riot ^7 riotshield
-*stinger ^7stinger
-*LOC ^7RE LOCATION";
+*INFOW ^7WEAPON INFO
+*SC ^7 SUICIDE
+*RIOT ^7 RIOTSHIELD
+*STINGER ^7STINGER
+*JAVELIN ^7JAVELIN";
 
         internal void AxisHud(Entity player)
         {

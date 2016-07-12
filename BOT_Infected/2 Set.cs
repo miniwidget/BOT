@@ -13,22 +13,15 @@ namespace Infected
     class B_SET
     {
         internal Entity target { get; set; }
-        internal int death { get; set; }
-        internal string wep;
+        internal string weapon;
         internal int killer = -1;
-        internal bool not_fire;
-
-        //internal bool temp_fire { get; set; }
-        //internal bool fire { get; set; }
-        //internal bool wait { get; set; }
+        internal int ammoClip;
+        internal string alert;
+        internal bool wait;
     }
 
     class H_SET
     {
-        public H_SET(int life)
-        {
-            this.LIFE = life;
-        }
         /// <summary>
         /// player life chances before being infected
         /// </summary>
@@ -193,9 +186,9 @@ namespace Infected
                 case 30: fff = new float[3] { 724.9f, -1579.8f, 186.1f }; break;
                 case 31: fff = new float[3] { -1808.4f, 619.3f, 240.2f }; break;
                 case 32: fff = new float[3] { -1542.8f, -626.9f, 117.1f };  break;
-                case 33: fff = new float[3] { -1528.6f, 298.8f, 1392.1f }; break;
+                case 33: fff = new float[3] { -918, -261, 966 }; break;
                 case 34: fff = new float[3] { -838.4f, -1980.2f, 198.3f }; break;
-                case 35: fff = new float[3] { -448.7f, -275.8f, 820.5f }; break;
+                case 35: fff = new float[3] { 1209, -563, 707 }; break;
             }
 
             Helicopter.HELI_WAY_POINT = new Vector3(fff[0], fff[1], fff[2] + 150);
@@ -261,6 +254,7 @@ namespace Infected
                 }
                 spect = !spect;
             });
+           
 
             player.SpawnedPlayer += delegate
             {

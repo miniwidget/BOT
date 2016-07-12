@@ -30,7 +30,6 @@ namespace Infected
             if (player.GetField<string>("sessionteam") == "allies")
             {
                 Print(name + " connected ♥");
-
                 SetPlayer(player, SET.PLAYER_LIFE, name);
             }
             else
@@ -53,11 +52,28 @@ namespace Infected
                 }
             }
 
-            player.SpawnedPlayer += () => human_spawned(player, name);
+            player.SpawnedPlayer += delegate
+            {
+                if (GAME_ENDED_) return;
+
+                H_SET H = H_FIELD[player.EntRef];
+
+                if (!H.AXIS) HumanAlliesSpawned(player, name, H);
+                else HumanAxisSpawned(player, name, H);
+
+                if (H.REMOTE_STATE != 0)
+                {
+                    if (H.REMOTE_STATE == 1) HCT.IfUsetHeli_DoEnd(player, false);
+                    else if (H.REMOTE_STATE == 2) TK.IfUseTank_DoEnd(player);
+
+                    H.REMOTE_STATE = 0;
+                }
+                if (H.USE_PREDATOR) PRDT.PredatorEnd(player, H, true, null);
+            };
             
         }
 
-        void SetZero_hset(H_SET H, bool Axis, int life, string name)
+        void SetZero_hset(H_SET H, bool Axis, int life, string name,bool init)
         {
             H.AXIS = Axis;
             H.REMOTE_STATE = 0;
@@ -81,19 +97,20 @@ namespace Infected
                 if (H.HUD_PERK_COUNT!=null)H.HUD_PERK_COUNT.SetText(H.PERK_TXT = "PRDT **");
             }
 
+            if (init)
+            {
+                H.PREDATOR_NOTIFIED = false;
+            }
             PLAYER_STATE[name] = H.LIFE;
         }
         void SetPlayer(Entity player, int life, string name)
         {
-
             player.Notify("menuresponse", "changeclass", "allies_recipe" + rnd.Next(1, 6));
 
             if (!human_List.Contains(player)) human_List.Add(player);
             int pe = player.EntRef;
-            B_FIELD[pe] = null;
             H_SET H = H_FIELD[pe];
-            SetZero_hset(H, false, life, name);
-            H.PREDATOR_NOTIFIED = false;
+            SetZero_hset(H, false, life, name,true);
 
             #region SetClientDvar
 
@@ -116,6 +133,10 @@ namespace Infected
                 if (use_tank) return;
 
                 string weap = newWeap.ToString();
+                //if (player == ADMIN)
+                //{
+                //    Print(weap);
+                //}
                 if (weap != "killstreak_remote_tank_remote_mp") return;
                 TANK = null;
 
@@ -139,13 +160,13 @@ namespace Infected
                 human_List.Remove(player);
             });
             player.OnNotify("end_remote", ent =>
-           {
-               if (!use_tank) return;
-               use_tank = false;
-               player.Call(32937);
-               human_List.Remove(TANK);
-               human_List.Add(player);
-           });
+            {
+                if (!use_tank) return;
+                use_tank = false;
+                player.Call(32937);
+                human_List.Remove(TANK);
+                human_List.Add(player);
+            });
 
             #endregion
 
@@ -158,26 +179,28 @@ namespace Infected
                 if (!H.AXIS && player.CurrentWeapon[2] != '5') return;//deny when using killstreak 
                 bool isUsingTurret = player.Call<int>(33539) == 1;
 
-                if (!isUsingTurret && H.CAN_USE_HELI && HCT.HELI == null)//isUsingTurret : deny when not using turrent
-                {
-                    if (wait) return; wait = true;
-                    player.AfterDelay(500, p =>
-                    {
-                        wait = false;
-                        if (player.Call<int>(33533) == 1) return;//usebuttonpressed : deny when catching carepackage 
-                        HCT.HeliCall(player, H.AXIS);
-                    });
-                    return;
-                }
                 if (!isUsingTurret)
                 {
                     if (CARE_PACKAGE != null && player.Origin.DistanceTo(CARE_PACKAGE.Origin) < 90)
                     {
                         CarePackageDo(player, H);
+                        return;
                     }
 
+                    if (HCT.HELI == null&& H.CAN_USE_HELI )//isUsingTurret : deny when not using turrent
+                    {
+                        if (wait) return; wait = true;
+                        player.AfterDelay(500, p =>
+                        {
+                            wait = false;
+                            if (player.Call<int>(33533) == 1) return;//usebuttonpressed : deny when catching carepackage 
+                            HCT.HeliCall(player, H.AXIS);
+                        });
+                    }
                     return;
                 }
+             
+              
                 player.Call(33436, "black_bw", 0.5f);//VisionSetNakedForPlayer
 
                 player.AfterDelay(500, x =>
@@ -275,104 +298,5 @@ namespace Infected
             Call(42, "g_TeamName_Axis", "BOTs");//setdvar
         }
 
-
-        Entity CARE_PACKAGE;
-
-        void CarePackage(Entity player)
-        {
-            Info.MessageRoop(player, 0, new[] { "*THROW MARKER ^7TO GET RIDE PREDATOR", "*PRESS [^7 [{+activate}] *] AT THE CARE PACKAGE" });
-
-            string marker = "airdrop_sentry_marker_mp";
-            player.GiveWeapon(marker);
-            player.SwitchToWeaponImmediate(marker);
-
-            bool finished = false;
-            player.OnNotify("grenade_fire", (Entity owner, Parameter mk, Parameter weaponName) =>
-            {
-                if (finished) return;
-                if (weaponName.ToString() != "airdrop_sentry_marker_mp") return;
-
-                Entity Marker = mk.As<Entity>();
-                if (Marker == null) return;
-                player.AfterDelay(3000, p =>
-                {
-                    finished = true;
-                    Vector3 MO = Marker.Origin; MO.Z += 8;
-                    Marker.Call(32928);//delete
-
-                    Entity ent = Call<Entity>("getent", "mp_dom_spawn", "classname"); if (ent == null) return;
-
-                    Entity brushmodel = Call<Entity>("getent", "pf1_auto1", "targetname");
-
-                    if (brushmodel == null) brushmodel = Call<Entity>("getent", "pf3_auto1", "targetname");
-                    if (brushmodel != null)
-                    {
-
-                        CARE_PACKAGE = Call<Entity>("spawn", "script_model", MO);
-                        CARE_PACKAGE.Call("setmodel", "com_plasticcase_friendly");//com_plasticcase_friendly
-                        CARE_PACKAGE.Call(33353, brushmodel);
-
-                        Call(431, 20, "active"); // objective_add
-                        Call(435, 20, MO); // objective_position
-                        Call(434, 20, "compass_objpoint_ammo_friendly"); //objective_icon compass_objpoint_ac130_friendly compass_waypoint_bomb objective_icon
-
-                        return;
-                    }
-
-                    for (int i = 18; i < 1024; i++)
-                    {
-                        brushmodel = Entity.GetEntity(i);
-                        if (brushmodel == null) continue;
-                        if (brushmodel.GetField<string>("classname") == "script_brushmodel")
-                        {
-
-                            string targetName = brushmodel.GetField<string>("targetname");
-
-                            if (targetName == null) continue;
-                            Print(targetName + " entref " + i);
-                            CARE_PACKAGE = Call<Entity>("spawn", "script_model", MO);
-                            CARE_PACKAGE.Call("setmodel", "com_plasticcase_friendly");//com_plasticcase_friendly
-                            CARE_PACKAGE.Call(33353, brushmodel);
-
-                            Call(431, 20, "active"); // objective_add
-                            Call(435, 20, MO); // objective_position
-                            Call(434, 20, "compass_waypoint_bomb"); //compass_objpoint_ac130_friendly compass_waypoint_bomb objective_icon
-
-                            break;
-                        }
-                    }
-
-                  
-                });
-            });
-        }
-
-        void CarePackageDo(Entity player, H_SET H)
-        {
-            string weapon = player.CurrentWeapon;
-            player.Call(33523, weapon);//givemaxammo
-            player.Call(33468, weapon, 500);//setweaponammoclip
-
-            player.Call(33466, "ammo_crate_use");//playLocalSound
-            if (H.AXIS) return;
-
-            if (USE_PREDATOR)
-            {
-                player.Call(33344, "PREDATOR IS ALREADY IN THE AIR. WAIT");
-                return;
-            }
-            if (H.PERK < 8)
-            {
-                player.Call(33344, 8 - H.PERK + "KILL MORE to RIDE PREDATOR");
-                return;
-            }
-            if (H.USE_PREDATOR)
-            {
-                player.Call(33344, "PREDATOR FINISHED");
-                return;
-            }
-
-            PredatorStart(player, H);
-        }
     }
 }

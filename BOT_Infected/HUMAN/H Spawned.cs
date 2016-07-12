@@ -11,36 +11,27 @@ namespace Infected
     public partial class Infected
     {
         bool UNLIMITED_LIEF_ = true;
-
         /// <summary>
         /// change initial human infected to Allies
         /// </summary>
         /// <param name="player"></param>
         void CheckInf(Entity player)
         {
+            INITIAL_HUMAN_INF_IDX = human_List.IndexOf(player);
             BOT_TO_AXIS_COMP = true;
+            HUMAN_FIRST_INF = true;
             player.Notify("menuresponse", "team_marinesopfor", "allies");
-            player.Call("suicide");
+            player.Notify("menuresponse", "team_marinesopfor", "allies");
         }
 
-        void human_spawned(Entity player, string name)
+        void HumanAlliesSpawned(Entity player, string name,H_SET H)
         {
-            if (GAME_ENDED_) return;
-
-            if (!BOT_TO_AXIS_COMP) CheckInf(player);
-
-            int pe = player.EntRef;
-            H_SET H = H_FIELD[pe];
-
-            if (H.REMOTE_STATE != 0)
+            if (!BOT_TO_AXIS_COMP)
             {
-                if (H.REMOTE_STATE == 1) HCT.IfUsetHeli_DoEnd(player, false);
-                else if (H.REMOTE_STATE == 2) TK.IfUseTank_DoEnd(player);
-
-                H.REMOTE_STATE = 0;
+                CheckInf(player);
+                return;
             }
 
-            #region Allies
             var LIFE = H.LIFE;
             if (LIFE > -1)
             {
@@ -58,17 +49,12 @@ namespace Infected
 
                     if (!human_List.Contains(player)) human_List.Add(player);
 
-                    SetZero_hset(H, false, --H.LIFE, name);
+                    SetZero_hset(H, false, --H.LIFE, name,false);
 
                     if (HUMAN_DIED_ALL_) HUMAN_DIED_ALL_ = false;
-
-                    if (H.USE_PREDATOR) PredatorEnd(player, H, true);
                 }
             }
-            #endregion
-
-            #region Axis
-            else if (LIFE == -1)//change to AXIS
+            else if (LIFE == -1)
             {
                 if (!SET.TEST_ && UNLIMITED_LIEF_)
                 {
@@ -82,66 +68,61 @@ namespace Infected
                     }
                     else UNLIMITED_LIEF_ = false;
                 }
-
-                SetZero_hset(H, true, 0, name);
-
-                player.SetField("sessionteam", "axis");
-                human_List.Remove(player);
-                player.Call(33341);//suicde
-                player.Notify("menuresponse", "changeclass", "axis_recipe4");
-                Print(name + " : Infected ⊙..⊙");
-
-                if (human_List.Count == 0)
-                {
-                    HUMAN_DIED_ALL_ = true;
-                    if (!BOT_SERCH_ON_LUCKY_FINISHED) BotSerchOn_lucky(BOTs_List[BOT_LUCKY_IDX]);
-                }
-
-                Utilities.RawSayTo(player, Info.GetStr("*[ ^7DISABLED *] Melee of the Infected", true));
-                HUD.AxisHud(player);
-                player.Call(32771, SET.SOUND_ALERTS[rnd.Next(SET.SOUND_ALERTS.Length)], "allies");//playsoundtoteam
-
-                if (H.USE_PREDATOR) PredatorEnd(player, H, true);
-
+                HumanAlliesToAxis(player, name, H);
             }
-            else
-            {
-                if (!H.CAN_USE_HELI) H.CAN_USE_HELI = true;
 
-                player.SetPerk("specialty_scavenger", true, false);
-                player.SetPerk("specialty_longersprint", true, false);
-                player.SetPerk("specialty_lightweight", true, false);
+        }
+        void HumanAlliesToAxis(Entity player, string name, H_SET H)
+        {
+            SetZero_hset(H, true, 0, name,false);
 
-                H.AX_WEP += 1;
+            player.SetField("sessionteam", "axis");
+            human_List.Remove(player);
+            player.Call(33341);//suicde
+            player.Notify("menuresponse", "changeclass", "axis_recipe4");
+            Print(name + " : Infected ⊙..⊙");
 
-                string deadManWeapon = null;
-                deadManWeapon = AxisWeapon(player, H.AX_WEP);
+            if (human_List.Count == 0) HUMAN_DIED_ALL_ = true;
 
-                H.CAN_USE_HELI = true;
+            Utilities.RawSayTo(player, Info.GetStr("*[ ^7DISABLED *] Melee of the Infected", true));
+            HUD.AxisHud(player);
+            player.Call(32771, SET.SOUND_ALERTS[rnd.Next(SET.SOUND_ALERTS.Length)], "allies");//playsoundtoteam
 
-                if (H.AX_WEP > 3)
-                {
-                    player.Call(33344, Info.GetStr("*[ ^7" + deadManWeapon + " *] Weapon of the Infected", true));
-                    return;
-                }
-
-                if (HCT.HELI == null)
-                {
-                    Info.MessageRoop(player, 0, new[] { "*[ ^7" + deadManWeapon + " *] Weapon of the Infected", "*PRESS[^7 [{+activate}] *] TO CALL HELI TURRET" });
-                }
-                else if (!HCT.HELI_ON_USE_)
-                {
-                    Info.MessageRoop(player, 0, new[] { "*[ ^7" + deadManWeapon + " *] Weapon of the Infected", "*PRESS [^7 [{+activate}] *] AT THE HELI TURRET AREA", "YOU CAN RIDE IN HELICOPTER" });
-                }
-            }
-            #endregion
+            if (!BOT_SERCH_ON_LUCKY_FINISHED) BotSerchOn_lucky();
+            if (!HumanAxis_LIST.Contains(player)) HumanAxis_LIST.Add(player);
 
         }
 
-        /// <summary>
-        /// 감염자가 계속 죽을 경우 총기를 주는 어드밴티지를 줌.
-        /// </summary>
-        /// <param name="player"></param>
+        void HumanAxisSpawned(Entity player, string name, H_SET H)
+        {
+            if (!H.CAN_USE_HELI) H.CAN_USE_HELI = true;
+
+            player.SetPerk("specialty_scavenger", true, false);
+            player.SetPerk("specialty_longersprint", true, false);
+            player.SetPerk("specialty_lightweight", true, false);
+
+            H.AX_WEP += 1;
+
+            string deadManWeapon = null;
+            deadManWeapon = AxisWeapon(player, H.AX_WEP);
+
+            H.CAN_USE_HELI = true;
+
+            if (H.AX_WEP > 3)
+            {
+                player.Call(33344, Info.GetStr("*[ ^7" + deadManWeapon + " *] Weapon of the Infected", true));
+                return;
+            }
+
+            if (HCT.HELI == null)
+            {
+                Info.MessageRoop(player, 0, new[] { "*[ ^7" + deadManWeapon + " *] Weapon of the Infected", "*PRESS[^7 [{+activate}] *] TO CALL HELI TURRET" });
+            }
+            else if (!HCT.HELI_ON_USE_)
+            {
+                Info.MessageRoop(player, 0, new[] { "*[ ^7" + deadManWeapon + " *] Weapon of the Infected", "*PRESS [^7 [{+activate}] *] AT THE HELI TURRET AREA", "YOU CAN RIDE IN HELICOPTER" });
+            }
+        }
         string AxisWeapon(Entity dead, int aw)
         {
             dead.TakeWeapon(dead.CurrentWeapon);

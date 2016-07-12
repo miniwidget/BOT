@@ -10,6 +10,14 @@ namespace Tdm
 {
     public partial class Tdm : BaseScript
     {
+        /*
+
+            Not yet fully tested enough
+            and I'm still making this code.
+            
+            Until BOT_INFECTD work finish, I can't mod or edit BOT_TDM codes.
+
+        */
         Perk PK;
         Info INFO;
         Tank TK;

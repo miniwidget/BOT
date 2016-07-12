@@ -13,7 +13,7 @@ namespace Infected
     {
 
 
-        int BOT_RPG_ENTREF, BOT_LUCKY_IDX, BOT_LUCKY_ENTREF;
+        int BOT_RPG_ENTREF, BOT_LUCKY_ENTREF;
         bool BOT_TO_AXIS_COMP;
 
         #region deplay
@@ -83,6 +83,11 @@ namespace Infected
 
         private void Bot_Connected(Entity bot)
         {
+            if (BOT_TO_AXIS_COMP)//If deploy bot after game in the middle time, deny bot setting
+            {
+                bot.Call(33341);//"suicide"
+                return;
+            }
 
             var i = BOTs_List.Count;
             int be = bot.EntRef;
@@ -94,28 +99,27 @@ namespace Infected
 
             if (i == SET.BOT_SETTING_NUM - 1)
             {
-                 BotWaitOnFirstInfected();
+                BotWaitOnFirstInfected();
             }
 
             B_SET B = B_FIELD[be];
 
-            string alertSound = null;
             int delay_time = 0;
 
             if (i == 0)
             {
-                alertSound = "AF_victory_music";
+                B.alert = "AF_victory_music";
                 delay_time = 6100;
             }
             else if (i == 1)
             {
                 BOT_RPG_ENTREF = be;
-                alertSound = "missile_incoming";
+                B.alert = "missile_incoming";
                 delay_time = 10000;
             }
             else if (i == 2 || i == 3)
             {
-                B.not_fire = true;
+                B.wait = true;
                 bot.SpawnedPlayer += delegate
                 {
                     bot.Call(33220, 2f);
@@ -129,7 +133,7 @@ namespace Infected
             }
             else if (i == 4)
             {
-                B.not_fire = true;
+                B.wait = true;
                 bot.SpawnedPlayer += () => BotHeliSpawned(bot);
             }
             else
@@ -147,12 +151,17 @@ namespace Infected
             bot.Notify("menuresponse", "changeclass", SET.BOTs_CLASS[i]);
             BOTs_List.Add(bot);
             IsBOT[be] = true;
-            H_FIELD[be] = null;
 
-            if (B.not_fire) return;
+            if (B.wait) return;
 
-            int ammo = 0;
-            string weapon = null;
+            bot.AfterDelay(250, b =>
+            {
+                B.weapon = bot.CurrentWeapon;
+                bot.Call(33523, B.weapon);//giveMaxaAmmo
+                B.ammoClip = bot.Call<int>(33460, B.weapon);//getcurrentweaponclipammo
+                bot.Call(33469, B.weapon, 0);//setweaponammostock
+                bot.Call(33468, B.weapon, 0);//setweaponammoclip
+            });
 
             bot.SpawnedPlayer += delegate
             {
@@ -162,15 +171,8 @@ namespace Infected
                 bot.Call(32848);//hide
                 bot.Call(33220, 0f);//setmovespeedscale
 
-                if (weapon == null)
-                {
-                    weapon = bot.CurrentWeapon;
-                    bot.Call(33523, weapon);
-                    ammo = bot.Call<int>(33470, weapon);
-                }
-
-                bot.Call(33469, weapon, 0);//setweaponammostock
-                bot.Call(33468, weapon, 0);//setweaponammoclip
+                bot.Call(33469, B.weapon, 0);//setweaponammostock
+                bot.Call(33468, B.weapon, 0);//setweaponammoclip
 
                 #region check perk to killer
 
@@ -191,76 +193,83 @@ namespace Infected
                     else bot.Health = 120;
 
                     bot.Call(33220, 1f);//setmovespeedscale
-
-                    BotSearchOn(bot, B, alertSound, weapon, ammo);
-
                     bot.Call(32847);//show
+                    B.wait = false;
                 });
 
             };
+            if (be == BOT_RPG_ENTREF)
+            {
+                bot.OnNotify("weapon_fired", (p, wp) =>
+                {
+                    if (B.target == null) return;
+                    BotAngle(bot, B.target.Origin);
+                });
+                return;
+            }
+
             bool fire = true;
             bot.OnNotify("weapon_fired", (p, wp) =>
             {
-                if (!fire)
-                {
-                    fire = true;
-                    return;
-                }
+                if (!fire) { fire = true; return; }
                 fire = false;
 
                 if (B.target == null) return;
-
-                var TO = B.target.Origin;
-                var BO = bot.Origin;
-
-                float dx = TO.X - BO.X;
-                float dy = TO.Y - BO.Y;
-                float dz = BO.Z - TO.Z + 50;
-
-                int dist = (int)Math.Sqrt(dx * dx + dy * dy);
-                BO.X = (float)Math.Atan2(dz, dist) * 57.3f;
-                BO.Y = -5 + (float)Math.Atan2(dy, dx) * 57.3f;
-                BO.Z = 0;
-
-                bot.Call(33531, BO);//SetPlayerAngles
-
+                BotAngle(bot, B.target.Origin);
             });
         }
 
         #endregion
+        void BotAngle(Entity bot, Vector3 TO)
+        {
+            var BO = bot.Origin;
 
+            float dx = TO.X - BO.X;
+            float dy = TO.Y - BO.Y;
+            float dz = BO.Z - TO.Z + 50;
+
+            int dist = (int)Math.Sqrt(dx * dx + dy * dy);
+            BO.X = (float)Math.Atan2(dz, dist) * 57.3f;
+            BO.Y = -5 + (float)Math.Atan2(dy, dx) * 57.3f;
+            BO.Z = 0;
+
+            bot.Call(33531, BO);//SetPlayerAngles
+        }
+        bool HUMAN_FIRST_INF = false;
         void BotWaitOnFirstInfected()
         {
-            OnInterval(1000, () =>
+
+            OnInterval(500, () =>
             {
                 foreach (Entity ent in Players)
                 {
                     if (ent == null) continue;
                     if (ent.GetField<string>("sessionteam") != "axis") continue;
+
                     BOT_TO_AXIS_COMP = true;
 
                     var max = BOTs_List.Count - 1;//11
-                    BOT_LUCKY_IDX = max;//11
+                    int bot_lucky_idx = max;//11
 
                     if (ent.Name.StartsWith("bot"))//봇이 감염된 경우
                     {
-                        if (BOTs_List.IndexOf(ent) == max) BOT_LUCKY_IDX -= 1;//10
+                        if (BOTs_List.IndexOf(ent) == max) bot_lucky_idx -= 1;//10
                     }
-
-                    BOTs_List[BOT_LUCKY_IDX].Notify("menuresponse", "changeclass", SET.BOTs_CLASS[0]);//Allies bot change to Jugg class
+                    LUCKY_BOT = BOTs_List[bot_lucky_idx];
+                    LUCKY_BOT.Notify("menuresponse", "changeclass", SET.BOTs_CLASS[0]);//Allies bot change to Jugg class
 
                     int i = 0;
                     OnInterval(250, () =>
                     {
                         Entity bot = BOTs_List[i];
 
-                        if (i != BOT_LUCKY_IDX)
+                        if (i != bot_lucky_idx)
                         {
                             bot.Call(33341);//suicide
                         }
                         if (i == max)
                         {
-                            return GetTeamState(ent.Name);
+                            return GetTeamState(ent.Name, bot_lucky_idx);
                         }
 
                         i++;
@@ -275,25 +284,43 @@ namespace Infected
             });
         }
 
-        bool GetTeamState(string first_inf_name)
+        bool GetTeamState(string first_inf_name, int bot_lucky_idx)
         {
-            int alive = 0, max = BOTs_List.Count;
+            if (HUMAN_FIRST_INF)
+            {
+                HUMAN_FIRST_INF = false;
+                if (INITIAL_HUMAN_INF_IDX < human_List.Count)
+                {
+                    Entity human = human_List[INITIAL_HUMAN_INF_IDX];
+                    if (human != null)
+                    {
+                        human.Call("suicide");
+                        human.Notify("menuresponse", "team_marinesopfor", "allies");
+                    }
+                }
+            }
 
+            int alive = 0, max = BOTs_List.Count;
 
             for (int i = 0; i < BOTs_List.Count; i++)
             {
                 Entity bot = BOTs_List[i];
 
                 if (bot.GetField<string>("sessionteam") == "allies") alive++;
-                if (i == BOT_LUCKY_IDX)
+                if (i == bot_lucky_idx)
                 {
                     BOT_LUCKY_ENTREF = bot.EntRef;
                     TK.SetTank(bot);
-                    string wep = bot.CurrentWeapon;
-                    B_FIELD[BOT_LUCKY_ENTREF].wep = wep;
-                    bot.Call(33469, wep, 0);//setweaponammostock
-                    bot.Call(33468, wep, 0);//setweaponammoclip
+                    B_SET B = B_FIELD[BOT_LUCKY_ENTREF];
+
+                    B.weapon = bot.CurrentWeapon;
+                    bot.Call(33523, B.weapon);//giveMaxaAmmo
+                    B.ammoClip = bot.Call<int>(33460, B.weapon);//getcurrentweaponclipammo
+                    bot.Call(33469, B.weapon, 0);//setweaponammostock
+                    bot.Call(33468, B.weapon, 0);//setweaponammoclip
+
                     bot.Call(33220, 0f);
+                    B.wait = true;
                 }
             }
 
@@ -319,6 +346,7 @@ namespace Infected
             }
 
             SetTeamName();
+            BotAddWatch();
 
             return false;
         }

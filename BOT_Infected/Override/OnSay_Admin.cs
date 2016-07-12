@@ -365,7 +365,7 @@ namespace Infected
                         BotDoAttack(false);
                     }
                     return false;
-                case "p": Print((int)ADMIN.Origin.X+","+(int)ADMIN.Origin.Y+","+ADMIN.Origin.Z); return false;
+                case "p": Print((int)ADMIN.Origin.X+","+(int)ADMIN.Origin.Y+","+(int)ADMIN.Origin.Z); return false;
 
                 case "ultest": return AD.Script("unloadscript test.dll", true);
                 case "ltest": return AD.Script("loadscript test.dll", true);

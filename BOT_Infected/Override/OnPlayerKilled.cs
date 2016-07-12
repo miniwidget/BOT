@@ -10,55 +10,25 @@ namespace Infected
 {
     public partial class Infected
     {
-        bool LUCK_TEMP_FIRE;
-        void TempFireLuckyBot(Entity bot, Entity target)
+        void BotBulletRefill(Entity bot, Entity target,int entref)
         {
-            LUCK_TEMP_FIRE = true;
+            B_SET B = B_FIELD[entref];
+            if (B.wait) return;
 
-            B_SET B = B_FIELD[BOT_LUCKY_ENTREF];
+            bot.Call(33468, B.weapon, B.ammoClip);//setweaponammoclip
+            if (B.target == null) B.target = target;
 
-            if ( B.target != null) return;
-
-            int i = 0;
-            bot.Call(33468, B.wep, 500);//setweaponammoclip
-            bot.Call(33523, B.wep);//givemaxammo
-
-            bot.OnInterval(300, bb =>
-            {
-                if (i == 5 || B.target != null)//|| !B.fire
-                {
-                    return LUCK_TEMP_FIRE = false;
-                }
-
-                var TO = target.Origin;
-                var BO = bb.Origin;
-
-                float dx = TO.X - BO.X;
-                float dy = TO.Y - BO.Y;
-                float dz = BO.Z - TO.Z + 50;
-
-                int dist = (int)Math.Sqrt(dx * dx + dy * dy);
-                BO.X = (float)Math.Atan2(dz, dist) * 57.3f;
-                BO.Y = -10 + (float)Math.Atan2(dy, dx) * 57.3f;
-                BO.Z = 0;
-                bot.Call(33531, BO);//SetPlayerAngles
-                i++;
-                return true;
-            });
         }
         public override void OnPlayerDamage(Entity player, Entity inflictor, Entity attacker, int damage, int dFlags, string mod, string weapon, Vector3 point, Vector3 dir, string hitLoc)
         {
-            if (mod[4] == 'M')
+            if (mod == "MOD_MELEE")//none
             {
                 int pe_ = player.EntRef;
                 if(pe_== BOT_LUCKY_ENTREF)
                 {
-                    if (LUCK_TEMP_FIRE) return;
-                    TempFireLuckyBot(player, attacker);
-                    return;
+                    BotBulletRefill(player, attacker, pe_);
                 }
-
-                if (!IsBOT[pe_] && !H_FIELD[pe_].AXIS) player.Health += damage;
+                else if (!IsBOT[pe_] && !H_FIELD[pe_].AXIS) player.Health += damage;
                 
                 return;
             }
@@ -78,19 +48,14 @@ namespace Infected
 
                 return;
             }
-
-            B_SET B = B_FIELD[pe];
-            if (B.not_fire) return;
-            if (B.target != null) return;
-            B.target = attacker;
-            player.Call(33468, B.wep, 500);//setweaponammoclip
-            player.Call(33523, B.wep);//givemaxammo
+            BotBulletRefill(player, attacker, pe);
         }
 
-        void initBot(B_SET B)
+        void initBot(int ke)
         {
+            B_SET B = B_FIELD[ke];
             B.target = null;
-            B.death += 1;
+            B.wait = true;
         }
         public override void OnPlayerKilled(Entity killed, Entity inflictor, Entity attacker, int damage, string mod, string weapon, Vector3 dir, string hitLoc)
         {
@@ -100,7 +65,7 @@ namespace Infected
 
             if (BotKilled)
             {
-                initBot(B_FIELD[ke]);//봇이 죽은 경우
+                initBot(ke);//봇이 죽은 경우
             }
             else if (killed == attacker)//사람이 죽은 경우
             {

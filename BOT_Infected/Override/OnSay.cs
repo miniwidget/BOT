@@ -61,9 +61,9 @@ namespace Infected
                     case "sn": WP.GiveWeaponTo(player, 6); return;
 
                     case "scope": WP.GiveAttachScope(player); return;
-                    case "ammo":
-                        player.Call(33523, player.CurrentWeapon);//givemaxammo
-                        player.Call(33468, player.CurrentWeapon, 500);//setweaponammoclip
+                    case "ammo": 
+                        player.Call(33523, player.CurrentWeapon);//givemaxammo = full stock & not clip
+                        player.Call(33468, player.CurrentWeapon, 100);//setweaponammoclip
                         return;
                     case "rpg": WP.GiveWeaponTo(player, "rpg_mp"); return;
                     case "smaw": WP.GiveWeaponTo(player, "iw5_smaw_mp"); return;

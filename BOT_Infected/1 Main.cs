@@ -16,9 +16,10 @@ namespace Infected
         Hud HUD;
         Info INFO;
 
-        Helicopter HCT;
-        Tank TK;
         //AC130 ac130;
+        Helicopter HCT;
+        Predator PRDT;
+        Tank TK;
 
         public Infected()
         {
@@ -36,14 +37,13 @@ namespace Infected
             Call(42, "scr_game_matchstarttime", 1);
             Call(42, "testClients_watchKillcam", 0);
             Call(42, "testClients_doReload", 0);
-            Call(42, "testClients_doCrouch", 1);
-            Call(42, "testClients_doMove", 0);
-            Call(42, "testClients_doAttack", 0);
-      
+            BotDoAttack(false);
+
+
             for (int i = 0; i < 18; i++)
             {
                 B_FIELD.Add(new B_SET());
-                H_FIELD.Add(new H_SET(0));
+                H_FIELD.Add(new H_SET());
             }
 
             PlayerConnecting += player =>
@@ -64,14 +64,10 @@ namespace Infected
             {
                 string name = player.Name;
 
-                if (name.StartsWith("bot"))
-                {
-                    Bot_Connected(player);
-                }
-                else
-                {
-                    Human_Connected(player,name);
-                }
+                if (name.StartsWith("bot"))  Bot_Connected(player);
+                
+                else Human_Connected(player,name);
+                
             };
 
             OnNotify("prematch_done", () =>
@@ -81,10 +77,10 @@ namespace Infected
 
                 PlayerDisconnected += player =>
                 {
-                    if (human_List.Contains(player))// 봇 타겟리스트에서 접속 끊은 사람 제거
-                    {
-                        human_List.Remove(player);
-                    }
+                    if (human_List.Contains(player)) human_List.Remove(player);// 봇 타겟리스트에서 접속 끊은 사람 제거
+
+                    else if (HumanAxis_LIST.Contains(player)) HumanAxis_LIST.Remove(player);
+                    
                     if (human_List.Count == 0)
                     {
                         HUMAN_DIED_ALL_ = true;
@@ -94,18 +90,9 @@ namespace Infected
 
                 OnNotify("game_ended", (level) =>
                 {
+                    GAME_ENDED_ = true;
                     Call(42, "testClients_doMove", 0);
                     Call(42, "testClients_doAttack", 0);
-
-                    GAME_ENDED_ = true;
-
-                    foreach (var v in B_FIELD)
-                    {
-                        if (v == null) continue;
-                        v.death += 1;
-                        //v.fire = false;
-                    }
-                    //AfterDelay(20000, () => Utilities.ExecuteCommand("map_rotate"));
                 });
             });
 
