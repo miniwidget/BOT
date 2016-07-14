@@ -108,7 +108,7 @@ namespace Infected
         void SetPlayer(H_SET H, Entity player, int life, string name)
         {
             #region H_SET human field
-            player.Notify("menuresponse", "changeclass", "allies_recipe1");// + rnd.Next(1, 6));
+            player.Notify("menuresponse", "changeclass", "allies_recipe"+ rnd.Next(1, 6));
 
             if (!human_List.Contains(player)) human_List.Add(player);
 
@@ -136,23 +136,14 @@ namespace Infected
                 if (weap[2] == '5') return;
                 if (weap == "none") return;
 
-                if (SET.TEST_) Print("WEAPON_CHANGE: " + weap);
+                //uif (SET.TEST_) Print("WEAPON_CHANGE: " + weap);
 
                 if (weap == "killstreak_remote_tank_remote_mp") VehicleAddTank(player, H);
                 else if (vehicles.Contains(weap)) Vehicles(player, weap);
             });
 
-            //PREDATOR 키 수정 요망
-            player.Call(33445, "PREDATOR", "+actionslot 4");//"notifyonplayercommand"
-            player.OnNotify("PREDATOR", ent =>
-            {
-                if (!H.AXIS && player.CurrentWeapon[2] != '5') return;//deny when using killstreak 
 
-                if (CARE_PACKAGE == null && H.REMOTE_STATE == 0 && H.CAN_USE_PREDATOR) CarePackageMarker(player);
-            });
-
-            //HELICOPTER or TURRET TANK 
-
+            //HELICOPTER or TURRET TANK or RIDE PREDATOR
             player.Call(33445, "ACTIVATE", "+activate");//"notifyonplayercommand"
             player.OnNotify("ACTIVATE", ent =>
             {
@@ -215,16 +206,6 @@ namespace Infected
             Call(42, "g_TeamName_Axis", "BOTs");//setdvar
         }
 
-        void WaitEndCall(Entity player,H_SET H, Action func)
-        {
-            player.AfterDelay(500, p =>
-            {
-                H.WAIT = false;
-                if (player.Call<int>(33533) == 1) return;
-
-                func.Invoke();
-            });
-        }
         void WaitOnCall(Entity player, H_SET H)
         {
             if (CARE_PACKAGE != null && player.Origin.DistanceTo(CARE_PACKAGE.Origin) < 90)
@@ -247,6 +228,17 @@ namespace Infected
                 return;
             }
         }
+        void WaitEndCall(Entity player, H_SET H, Action func)
+        {
+            player.AfterDelay(500, p =>
+            {
+                H.WAIT = false;
+                if (player.Call<int>(33533) == 1) return;
+
+                func.Invoke();
+            });
+        }
+
         void WaitOnRemote(Entity player, H_SET H)
         {
             player.Call(33436, "black_bw", 0.5f);//VisionSetNakedForPlayer
