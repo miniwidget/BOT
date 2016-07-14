@@ -9,26 +9,39 @@ namespace Infected
 {
     class Info
     {
+        readonly string[] MESSAGES_KILLSTREAKS =
+        {
+            "KILLSTREAKS  INFORMATION",
+            "1. IF PRDT APPEARS LEFT BOTTOM,",
+            "PRESS [ *[{+activate}] ^7] TO GET RIDE PREDATOR",
+            "2. IF HELI APPEARS LEFT BOTTOM,",
+            "PRESS [ *[{+activate}] ^7] TO AT THE HELICOPTER AREA",
+            "3. IF KEY CODE MESSAGE APPEARS,",
+            "TYPE KEY CODE IMMEDIATLY TO GET RIDE VEHICLES"
+        };
         readonly string[] MESSAGES_ALLIES_INFO_W =
         {
             "WEAPON  INFORMATION",
-            "^7TYPE *[ ^7FOLLOWING *] ^7TO GET WEAPONS",
-            "*AP ^7| *AG ^7| *AR ^7| *SM ^7| *LM ^7| *SG ^7| *SN",
-            "*[ ^7AP *] TO GET AKIMBO PISTOL",
-            "*[ ^7AG *] TO GET AKIMBO GUN",
-            "*[ ^7AR *] TO GET ASSAULT RIFFLE",
-            "*[ ^7SM *] TO GET SUB MACHINE GUN",
-            "*[ ^7LM *] TO GET LIGHT MACHINE GUN",
-            "*[ ^7SG *] TO GET SHOT GUN",
-            "*[ ^7SN *] TO GET SNIPE GUN",
+            "TYPE [ *FOLLOWING ^7] 7TO GET WEAPONS",
+            "[ *AP ^7] TO GET AKIMBO PISTOL",
+            "[ *AG ^7] TO GET AKIMBO GUN",
+            "[ *AR ^7] TO GET ASSAULT RIFFLE",
+            "[ *SM ^7] TO GET SUB MACHINE GUN",
+            "[ *LM ^7] TO GET LIGHT MACHINE GUN",
+            "[ *SG ^7] TO GET SHOT GUN",
+            "[ *SN ^7] TO GET SNIPE GUN",
       };
         readonly string[] MESSAGES_AXIS_INFO_W =
         {
-            "^7TYPE *[ ^7FOLLOWING *] ^7TO GET WEAPONS",
-            "*[ ^7RIOT *] TO GET RIOTSHIELD",
-            "*[ ^7STINGER *] TO GET STINGER",
+            "TYPE [ *FOLLOWING *] TO GET WEAPONS",
+            "[ *RIOT ^7] TO GET RIOTSHIELD",
+            "[ *STINGER ^7] TO GET STINGER",
+            "[ *JAVELIN ^7] TO GET JAVELIN",
         };
-
+        internal void MessageInfoK(Entity ent, bool Axis)
+        {
+            MessageRoop(ent, 0, MESSAGES_KILLSTREAKS);
+        }
         internal void MessageInfoW(Entity ent, bool Axis)
         {
             if (!Axis)

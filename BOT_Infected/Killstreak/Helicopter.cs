@@ -70,6 +70,7 @@ namespace Infected
             
             foreach (Entity human in Infected.human_List)
             {
+                if (human.EntRef > 17) continue;
                 if (human == player) continue;
                 if(Axis) Utilities.RawSayTo(human, "^1[ ^7" + player.Name + " ^1] CALLED HELICOPTER. WATCH OUT");
                 else Utilities.RawSayTo(player,"HELICOPTER ENABLED. GO TO THE AREA");
@@ -136,6 +137,7 @@ namespace Infected
                 time = 60000;
                 foreach(Entity human in Infected.human_List)
                 {
+                    if (human.EntRef > 17) continue;
                     Utilities.RawSayTo(human, "^1ENEMY HELICOPTER INBOUND");
                 }
                 player.Call(32771, "PC_1mc_enemy_ah6guard", "allies");//playsoundtoteam

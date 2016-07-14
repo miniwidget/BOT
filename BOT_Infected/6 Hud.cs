@@ -24,7 +24,7 @@ namespace Infected
 *AMMO ^7GET AMMO
 *SCOPE ^7VIEW SCOPE";
 
-        readonly string ALLIES_TOP_HUD_TEXTS = "ATTACHMENT *INFOA\n^7WEAPONINFO *INFOW";
+        readonly string ALLIES_TOP_HUD_TEXTS = "WEAPONINFO *INFOW\n^7KILLSTERAKS *INFOK";
         internal void AlliesHud(Entity player, bool show)
         {
             var H = Infected.H_FIELD[player.EntRef];

@@ -41,6 +41,7 @@ namespace Infected
                 #region Public Say
                 switch (text0)
                 {
+                    case "infok": INFO.MessageInfoK(player, Axis);return;
                     case "infow": INFO.MessageInfoW(player, Axis); return;
 
                     case "sc":

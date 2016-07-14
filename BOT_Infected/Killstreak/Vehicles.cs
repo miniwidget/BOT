@@ -125,15 +125,13 @@ namespace Infected
 
                         player.Call(33504);//enableOffhandWeapons
                         Common.StartOrEndThermal(player, false);
-                        player.AfterDelay(1000, x =>
-                        {
-                            WP.GiveRandomWeaponTo(player);
-                        });
+
+                        WP.GiveRandomWeaponTo(player);
 
                         if (H.REMOTE_STATE == 4) H.REMOTE_STATE = 0;
                     }
 
-                    turret.Call("delete");
+                    if(turret!=null) turret.Call("delete");
                 });
 
             }
@@ -227,7 +225,7 @@ namespace Infected
 
         Entity VehicleSearch(string vehicleModel, bool addHumanList)
         {
-            for (int i = 18; i < 2048; i++)
+            for (int i = 18; i < 1024; i++)
             {
                 Entity vehicle = Entity.GetEntity(i);
                 if (vehicle == null) continue;
@@ -238,7 +236,6 @@ namespace Infected
                     {
                         if (vehicle == TK.REMOTETANK || human_List.Contains(vehicle)) continue;
                     }
-
                     return vehicle;
                 }
             }
@@ -250,6 +247,7 @@ namespace Infected
             foreach (Entity player in human_List)
             {
                 if (player.EntRef == pe) continue;
+                if (player.EntRef > 17) continue;
                 player.Call(33344, message);
             }
         }
