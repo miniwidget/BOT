@@ -92,8 +92,7 @@ namespace Infected
             {
                 Entity turret = Call<Entity>(19, "misc_turret", vehicle.Call<Vector3>(33128, "tag_origin"), "pavelow_minigun_mp", false);//spawnturret
                 turret.Call(32929, "mp_remote_turret");//setmodel
-                turret.SetField("angles", vehicle.GetField<Vector3>("angles"));
-                turret.Call(32841, vehicle, tag, Common.GetVector(30f, 30f, -50f), Common.ZERO);//linkto
+                turret.Call(32841, vehicle, tag, Common.GetVector(30f, 30f, -50f), vehicle.Call<Vector3>("getTagAngles", tag));//linkto
                 turret.Call(33084, 180f);
                 turret.Call(33083, 180f);
                 turret.Call(33086, 180f);
