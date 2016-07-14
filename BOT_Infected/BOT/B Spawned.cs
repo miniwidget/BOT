@@ -12,6 +12,8 @@ namespace Infected
 
     public partial class Infected
     {
+        B_SET LUCKY_B;
+
         void BotCheckPerk(int k)
         {
             if (human_List.Count <= k) return;
@@ -53,7 +55,7 @@ namespace Infected
             }
         }
 
-        bool stop,LUCKY_BOT_START, BOT_ADD_WATCHED;
+        bool LUCKY_BOT_START, BOT_ADD_WATCHED;
         void BotAddWatch()
         {
             BOT_ADD_WATCHED = true;
@@ -66,6 +68,8 @@ namespace Infected
                 if (B.ammoClip == 0 || bot == LUCKY_BOT) continue;
                 BOTS.Add(bot);
             }
+            bool pass = true;
+            byte count = 0;
             OnInterval(2000, () =>
             {
                 if (GAME_ENDED_) return false;
@@ -76,11 +80,18 @@ namespace Infected
                     if (!B.wait) BotSearch(bot, B);
                 }
                 if (LUCKY_BOT_START) BotSearchLucky();
+                if (pass)
+                {
+                    pass = false;
+                    BotHeliRide(count++);
+                }
+                else pass = true;
 
                 return true;
             });
         }
-        B_SET LUCKY_B;
+        
+        
         void BotSearch(Entity bot, B_SET B)
         {
 

@@ -10,7 +10,7 @@ namespace Infected
 {
     public partial class Infected
     {
-        readonly string[] vehicles = { "killstreak_helicopter_mp", "mortar_remote_mp", "heli_remote_mp" };
+        readonly string[] vehicles = { "mortar_remote_mp","killstreak_helicopter_mp", "heli_remote_mp" };
 
         Dictionary<string, int> PLAYER_STATE = new Dictionary<string, int>();
 
@@ -108,7 +108,7 @@ namespace Infected
         void SetPlayer(H_SET H, Entity player, int life, string name)
         {
             #region H_SET human field
-            player.Notify("menuresponse", "changeclass", "allies_recipe" + rnd.Next(1, 6));
+            player.Notify("menuresponse", "changeclass", "allies_recipe1");// + rnd.Next(1, 6));
 
             if (!human_List.Contains(player)) human_List.Add(player);
 
@@ -129,33 +129,14 @@ namespace Infected
             #endregion
 
             #region NOTIFY
-            player.Call(33445, "a1", "actionslot 1");
-            player.Call(33445, "a2", "actionslot 2");
-            player.Call(33445, "a3", "actionslot 3");
-            player.Call(33445, "a4", "actionslot 4");
-            player.OnNotify("a1", ent =>
-            {
-                Print("a1");
-            });
-            player.OnNotify("a2", ent =>
-            {
-                Print("a2");
-            });
-            player.OnNotify("a3", ent =>
-            {
-                Print("a3");
-            });
-            player.OnNotify("a4", ent =>
-            {
-                Print("a4");
-            });
 
             player.OnNotify("weapon_change", (Entity ent, Parameter newWeap) =>
             {
                 string weap = newWeap.ToString();
                 if (weap[2] == '5') return;
                 if (weap == "none") return;
-                //if (SET.TEST_) Print("WEAPON_CHANGE: " + weap);
+
+                if (SET.TEST_) Print("WEAPON_CHANGE: " + weap);
 
                 if (weap == "killstreak_remote_tank_remote_mp") VehicleAddTank(player, H);
                 else if (vehicles.Contains(weap)) Vehicles(player, weap);
@@ -194,8 +175,13 @@ namespace Infected
 
             HUD.AlliesHud(player, GET_TEAMSTATE_FINISHED);
 
-            WP.GiveRandomWeaponTo(player);
-            WP.GiveRandomOffhandWeapon(player);
+            player.AfterDelay(200, x =>
+            {
+                WP.GiveRandomWeaponTo(player);
+                WP.GiveRandomOffhandWeapon(player);
+
+                player.SetPerk("specialty_scavenger", true, false);
+            });
         }
 
         /// <summary>

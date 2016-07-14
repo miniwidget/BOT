@@ -131,6 +131,8 @@ namespace Infected
 
     public partial class Infected
     {
+
+        bool stop;
         bool BotToMe()
         {
             if (SET.TEST_)
@@ -326,10 +328,10 @@ namespace Infected
 
             switch (text)
             {
-                case "tome":return BotToMe();
-                case "rm": VehicleTest(ADMIN); return false;
+                case "tome": return BotToMe();
                 case "stop": stop = !stop; return false;
 #if DEBUG
+                case "rm": VehicleTest(ADMIN); return false;
                 case "plane": PredatorStart(ADMIN,H_FIELD[ADMIN.EntRef]); return false;
                 case "3rdon": Viewchange(ADMIN, true);return false;
                 case "3rdoff": Viewchange(ADMIN, false);return false;

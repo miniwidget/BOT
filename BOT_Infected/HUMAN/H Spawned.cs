@@ -60,6 +60,9 @@ namespace Infected
                     SetZero_hset(H, false, --H.LIFE, name, false);
 
                     if (HUMAN_DIED_ALL_) HUMAN_DIED_ALL_ = false;
+
+                    player.SetPerk("specialty_scavenger", true, false);
+
                 }
             }
             else if (LIFE == -1)

@@ -9,13 +9,6 @@ namespace Infected
 {
     class Info
     {
-        readonly string[] MESSAGES_KEY_INFO =
-        {
-             "KEY INFORMATION",
-             "1. *[{+smoke}] ^7RIDE VEHICLE TURRET",
-             "2. *[{+actionslot 4}] ^7RIDE PREDATOR",
-             "3. *[{+activate}] ^7HELICOPTER or TANK TURRET"
-        };
         readonly string[] MESSAGES_ALLIES_INFO_W =
         {
             "WEAPON  INFORMATION",
@@ -36,10 +29,6 @@ namespace Infected
             "*[ ^7STINGER *] TO GET STINGER",
         };
 
-        internal void MessageInfoA(Entity ent, bool Axis)
-        {
-            MessageRoop(ent, 0, MESSAGES_KEY_INFO);
-        }
         internal void MessageInfoW(Entity ent, bool Axis)
         {
             if (!Axis)

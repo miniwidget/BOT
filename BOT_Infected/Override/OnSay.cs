@@ -24,7 +24,7 @@ namespace Infected
             {
                 if(text == VEHICLE_CODE)
                 {
-                    VehicleStartRemote(player, H_FIELD[player.EntRef].VEHICLE, null);
+                    VehicleStartRemote(player, VEHICLE, null);
                     return;
                 }
             }
@@ -41,7 +41,6 @@ namespace Infected
                 #region Public Say
                 switch (text0)
                 {
-                    case "infoa": INFO.MessageInfoA(player, Axis); return;
                     case "infow": INFO.MessageInfoW(player, Axis); return;
 
                     case "sc":

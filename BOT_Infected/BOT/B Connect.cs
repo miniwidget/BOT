@@ -127,6 +127,7 @@ namespace Infected
             {
                 B.wait = true;
                 bot.SpawnedPlayer += () => BotHeliSpawned(bot);
+                BOT_HELI_RIDER = bot;
             }
             else
             {

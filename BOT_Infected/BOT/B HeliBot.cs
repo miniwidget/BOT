@@ -43,9 +43,9 @@ namespace Infected
         }
         Vector3 BOT_HELI_TARGET_POS;
 
-        Entity BOT_HELI, BOT_HELI_FLARE;
+        Entity BOT_HELI, BOT_HELI_FLARE,BOT_HELI_RIDER;
         string[] MAGICS = { "sam_projectile_mp", "javelin_mp", "ims_projectile_mp", "ac130_40mm_mp", "ac130_105mm_mp", "rpg_mp", "uav_strike_projectile_mp" };
-        bool BOT_HELI_INTERVAL_STOP;
+        bool BOT_HELI_INTERVAL_STOP=true;
         int FX_EXPLOSION, FX_FLARE_AMBIENT;
         byte BOT_HELI_FIRE;
 
@@ -54,8 +54,8 @@ namespace Infected
             BOT_HELI_INTERVAL_STOP = true;
             if (GAME_ENDED_) return;
 
-            BOT_HELI_INTERVAL_STOP = true;
             BOT_HELI_FIRE = 2;
+
             if (BOT_HELI_FLARE != null)
             {
                 BOT_HELI_FLARE.Call(32928);//"delete"
@@ -87,113 +87,82 @@ namespace Infected
             bot.Call(32848);//hide
             bot.Call(33220, 0f);//setmovespeedscale
 
-            bot.AfterDelay(11000, b =>
+            bot.AfterDelay(11000, x =>
             {
                 if (GAME_ENDED_) return;
 
-                BotHeliInterval(bot);
+                bot.Health = 120;
+                bot.Call(32847);//"show"
+                BOT_HELI.Call(32847);//"show"
+                bot.Call(32841, BOT_HELI);//"linkto"
+                BOT_HELI_INTERVAL_STOP = false;
             });
         }
 
-        void BotHeliInterval(Entity bot)
+        void BotHeliRide(byte count)
         {
-            bot.Health = 120;
-            bot.Call(32847);//"show"
-            BOT_HELI.Call(32847);//"show"
-            bot.Call(32841, BOT_HELI);//"linkto"
-            BOT_HELI_INTERVAL_STOP = false;
+            if (BOT_HELI_INTERVAL_STOP) return;
 
-            byte count = 0;
-            bool slow = true;
-            bool wait = true;
+            int hc = human_List.Count;
 
-            BOT_HELI.OnInterval(5000, b =>
+            if (hc == 0)
             {
-                if (BOT_HELI_INTERVAL_STOP) return false;
-
-                int hc = human_List.Count;
-                if (hc == 0)
+                if (BOT_HELI_FLARE != null)
                 {
-                    if (BOT_HELI_FLARE != null)
-                    {
-                        BOT_HELI_FLARE.Call(32928);//"delete"
-                        BOT_HELI_FLARE = null;
-                    }
-                    return true;
+                    BOT_HELI_FLARE.Call(32928);//"delete"
+                    BOT_HELI_FLARE = null;
                 }
-                else if (hc > 2)
+                return;
+            }
+
+            if (count % 4 == 0) BotHeliMove();
+
+            if (BOT_HELI_FIRE == 0)
+            {
+                BOT_HELI_FIRE = 1;
+
+                Entity target = human_List[rnd.Next(hc)];
+                if (target != null)
                 {
-                    slow = false;
-                }
+                    BOT_HELI_TARGET_POS = VectorAddZ(target.Origin, 40);
+                    BOT_HELI_FLARE = Call<Entity>(308, FX_FLARE_AMBIENT, BOT_HELI_TARGET_POS);//"spawnFx"
+                    Call(309, BOT_HELI_FLARE);//"triggerfx"
 
-                if (count % 3 == 0)
+                    if (target.Name != null) target.Call(33466, "javelin_clu_lock");//"playlocalsound" //deny remote tank //deny remote tank !important if not deny, server cause crash
+                }
+            }
+            else
+            {
+                if (BOT_HELI_FIRE == 1) Call<Entity>(404, MAGICS[rnd.Next(MAGICS.Length)], VectorAddZ(BOT_HELI.Origin, -200), BOT_HELI_TARGET_POS, BOT_HELI_RIDER);//"magicbullet"
+
+                if (BOT_HELI_FIRE != 4) BOT_HELI_FIRE++;
+                else BOT_HELI_FIRE = 0;
+
+                if (BOT_HELI_FLARE != null)
                 {
-                    Vector3 targetPos = VectorAddZ(BOTs_List[rnd.Next(BOTs_List.Count)].Origin, 1000);
-
-                    BOT_HELI.Call(33406, VectorToAngleY(targetPos, BOT_HELI.Origin), 2f);// "rotateto"
-                    BOT_HELI.Call(33399, targetPos, 15, 2, 2);//"moveto"
-
-                    if (USE_PREDATOR)
-                    {
-                        if (PRDT.PLANE != null)
-                        {
-                            targetPos= VectorAddZ(BOTs_List[rnd.Next(BOTs_List.Count)].Origin, 1500);
-
-                            PRDT.PLANE.Call(33406, VectorToAngleY(targetPos, PRDT.PLANE.Origin), 2f);// "rotateto"
-                            PRDT.PLANE.Call(33399, targetPos, 15, 2, 2);//"moveto"
-                        }
-                    }
-                    if (count > 33)
-                    {
-                        bot.Call(33341);//"suicide"
-                        return false;
-                    }
+                    BOT_HELI_FLARE.Call(32928);//"delete"
+                    BOT_HELI_FLARE = null;
                 }
-                count++;
-
-                if (slow)
-                {
-                    if (wait && BOT_HELI_FIRE == 0) return !(wait = false);
-                    wait = true;
-                }
-
-                if (BOT_HELI_FIRE == 0)
-                {
-                    BOT_HELI_FIRE = 1;
-
-                    Entity target = human_List[rnd.Next(hc)];
-                    if (target != null)
-                    {
-                        BOT_HELI_TARGET_POS = VectorAddZ(target.Origin, 40);
-                        BOT_HELI_FLARE = Call<Entity>(308, FX_FLARE_AMBIENT, BOT_HELI_TARGET_POS);//"spawnFx"
-                        Call(309, BOT_HELI_FLARE);//"triggerfx"
-
-                        if (target.Name != null) target.Call(33466, "javelin_clu_lock");//"playlocalsound" //deny remote tank //deny remote tank !important if not deny, server cause crash
-                    }
-                }
-                else
-                {
-                    if (BOT_HELI_FIRE == 1)
-                    {
-                        BOT_HELI_FIRE = 2;
-
-                        Entity rocket = Call<Entity>(404, MAGICS[rnd.Next(MAGICS.Length)], VectorAddZ(BOT_HELI.Origin, -200), BOT_HELI_TARGET_POS, bot);//"magicbullet"
-                    }
-                    else if (BOT_HELI_FIRE == 2)
-                    {
-                        BOT_HELI_FIRE = 0;
-                    }
-
-                    if (BOT_HELI_FLARE != null)
-                    {
-                        BOT_HELI_FLARE.Call(32928);//"delete"
-                        BOT_HELI_FLARE = null;
-                    }
-                }
-
-                return true;
-            });
+            }
         }
 
+        void BotHeliMove()//4초간격
+        {
+            Vector3 targetPos = VectorAddZ(BOTs_List[rnd.Next(BOTs_List.Count)].Origin, 1000);
+
+            BOT_HELI.Call(33406, VectorToAngleY(targetPos, BOT_HELI.Origin), 2f);// "rotateto"
+            BOT_HELI.Call(33399, targetPos, 16, 2, 2);//"moveto"
+
+            if (USE_PREDATOR)
+            {
+                if (PRDT.PLANE != null)
+                {
+                    targetPos = VectorAddZ(BOTs_List[rnd.Next(BOTs_List.Count)].Origin, 1500);
+
+                    PRDT.PLANE.Call(33406, VectorToAngleY(targetPos, PRDT.PLANE.Origin), 2f);// "rotateto"
+                    PRDT.PLANE.Call(33399, targetPos, 16, 2, 2);//"moveto"
+                }
+            }
+        }
     }
 }
