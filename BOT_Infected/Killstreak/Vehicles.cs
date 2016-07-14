@@ -85,7 +85,6 @@ namespace Infected
             }
             else notifyString = "leaving";//choper
 
-
             int death = player.GetField<int>("deaths");
 
             if (remoteTurret)
@@ -107,7 +106,7 @@ namespace Infected
                         Common.StartOrEndThermal(player, true);
                         player.GiveWeapon("killstreak_remote_turret_remote_mp");
                         player.SwitchToWeapon("killstreak_remote_turret_remote_mp");
-                        player.Call("RemoteControlTurret", turret);
+                        player.Call("RemoteControlTurret", turret);//RemoteControlTurret
                     });
                 });
 
@@ -117,8 +116,8 @@ namespace Infected
                 {
                     if (death == player.GetField<int>("deaths"))
                     {
-                        player.Call("RemoteControlTurretOff", turret);
-                        player.Call("unlink");
+                        player.Call(32980, turret);//RemoteControlTurretOff
+                        player.Call(32843);//unlink
 
                         player.TakeWeapon("killstreak_remote_turret_remote_mp");
                         player.TakeWeapon("killstreak_remote_turret_laptop_mp");
@@ -131,7 +130,7 @@ namespace Infected
                         if (H.REMOTE_STATE == 4) H.REMOTE_STATE = 0;
                     }
 
-                    if(turret!=null) turret.Call("delete");
+                    if(turret!=null) turret.Call("delete");//delete
                 });
 
             }
@@ -197,7 +196,7 @@ namespace Infected
             float x = GMP[0], y = GMP[1];
             Vector3 targetPos = Common.GetVector(sp.X + x, sp.Y + y, 0);
             Vector3 startPos = Common.GetVector(sp.X - x, sp.Y - y, sp.Z);
-            Entity rocket = Call<Entity>("MagicBullet", "remote_tank_projectile_mp", startPos, targetPos, player);
+            Entity rocket = Call<Entity>(404, "remote_tank_projectile_mp", startPos, targetPos, player);//MagicBullet
         }
         void VehicleEndMissile(Entity player, string weapon, H_SET H)
         {
@@ -209,11 +208,11 @@ namespace Infected
             player.TakeWeapon("mortar_remote_mp");
             player.TakeWeapon("mortar_remote_zoom_mp");
 
-            player.Call("unlink");//unlink
-            player.Call("setplayerangles", Common.ZERO);//setplayerangles
+            player.Call(32843);//unlink
+            player.Call(33531, Common.ZERO);//setplayerangles
 
-            player.Call("enableOffhandWeapons");//enableOffhandWeapons
-            player.Call("freezeControls", false);//freezeControls
+            player.Call(33504);//enableOffhandWeapons
+            player.Call(33513, false);//freezeControls
 
             player.GiveWeapon(weapon);
             player.SwitchToWeapon(weapon);

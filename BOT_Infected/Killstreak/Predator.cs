@@ -43,7 +43,7 @@ namespace Infected
             }
         }
         string thermalVision;
-        internal void PredatorStart(Entity player, H_SET H, int height)
+        internal void PredatorStart(Entity player, H_SET H,int height)
         {
             if (H.REMOTE_STATE != 0) return;
 
@@ -62,7 +62,7 @@ namespace Infected
             PLANE.Call(32929, "vehicle_remote_uav");//setModel
 
             player.Call(32841, PLANE, "tag_origin");//linkto
-            PLANE.Call(33402, 1500, 7);//movez
+            PLANE.Call(33402, height, 7);//movez
             player.Call(33466, "PC_1mc_acheive_bomb");//playlocalsound
 
             PLANE.AfterDelay(7000, v =>
@@ -80,7 +80,7 @@ namespace Infected
                 Common.BulletHudInfoCreate(player, H, 10);
 
                 player.SwitchToWeapon("heli_remote_mp");
-                
+
                 H.CAN_USE_PREDATOR = true;
                 Common.StartOrEndThermal(player, true);
             });
@@ -93,7 +93,8 @@ namespace Infected
             player.Call(33445, "MISSILE", "+frag");//notifyonplayercommand
             player.OnNotify("MISSILE", ent =>
             {
-                if (H.REMOTE_STATE != 6 || !H.CAN_USE_PREDATOR) return;
+                if (H.REMOTE_STATE != 6) return;
+                if (!H.CAN_USE_PREDATOR) return;
                 if (H.MISSILE_COUNT <= 0) return;
 
                 if (wait) return;
@@ -105,28 +106,32 @@ namespace Infected
                 float x = GMP[0], y = GMP[1];
                 Vector3 targetPos = Common.GetVector(Ori.X + x, Ori.Y + y, 0);
                 Vector3 startPos = Common.GetVector(Ori.X - x, Ori.Y - y, Ori.Z * 4);
-                Entity MISSILE = Call<Entity>(404, "remotemissile_projectile_mp", startPos, targetPos, player);//MagicBullet
-                MISSILE.Call(33417, true);//setCanDamage
-                MISSILE.OnNotify("death", ms =>
+                Entity missile = Call<Entity>(404, "remotemissile_projectile_mp", startPos, targetPos, player);//MagicBullet
+                if (missile == null){wait = false;return;}
+
+                missile.Call(33417, true);//setCanDamage
+                missile.OnNotify("death", ms =>
                 {
                     wait = false;
+                    if (player == null) return;
+
                     player.Call(33252);//ControlsUnlink
                     player.Call(33222);//CameraUnlink
 
                     H.MISSILE_COUNT--;
                     H.HUD_BULLET_INFO.SetText(H.MISSILE_COUNT.ToString());
 
-                    if (H.MISSILE_COUNT ==0) PredatorEnd(player, H, false, weapon);
+                    if (H.MISSILE_COUNT == 0) PredatorEnd(player, H, false, weapon);
                 });
                 player.Call(33438, thermalVision, 1f);//VisionSetMissilecamForPlayer
-                player.Call(33221, MISSILE, "tag_origin");//CameraLinkTo
-                player.Call(33251, MISSILE);//ControlsLinkTo
+                player.Call(33221, missile, "tag_origin");//CameraLinkTo
+                player.Call(33251, missile);//ControlsLinkTo
             });
         }
 
         private string GetThermalVision()
         {
-            if (Call<string>("getMapCustom", "thermal") == "invert")
+            if (Call<string>(221, "thermal") == "invert")//getMapCustom
             {
                 return "thermal_snowlevel_mp";
             }

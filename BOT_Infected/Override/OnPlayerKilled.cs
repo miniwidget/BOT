@@ -27,7 +27,7 @@ namespace Infected
         }
         public override void OnPlayerDamage(Entity player, Entity inflictor, Entity attacker, int damage, int dFlags, string mod, string weapon, Vector3 point, Vector3 dir, string hitLoc)
         {
-            if (player == ADMIN) player.Health += damage;// damage;
+            //if (player == ADMIN) player.Health += damage;// damage;
 
             if (mod[4] == 'M'){ DamageModMelee(player, attacker,damage); return; }
 

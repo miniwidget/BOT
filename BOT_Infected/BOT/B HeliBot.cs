@@ -68,7 +68,8 @@ namespace Infected
             }
             else
             {
-                BOT_HELI = Call<Entity>(367, bot, "script_model", VectorAddZ(bot.Origin, 5000), "compass_objpoint_ac130_friendly", "compass_objpoint_ac130_enemy");//spawnPlane
+                if (SET.MAP_IDX == 5) BOT_HELI_HEIGHT += 1000;
+                BOT_HELI = Call<Entity>(367, bot, "script_model", VectorAddZ(bot.Origin, BOT_HELI_HEIGHT), "compass_objpoint_ac130_friendly", "compass_objpoint_ac130_enemy");//spawnPlane
                 BOT_HELI.Call(32929, "vehicle_uav_static_mp");//"setmodel" vehicle_remote_uav
                 BOT_HELI.Call(32848);//"hide"
 
@@ -145,10 +146,10 @@ namespace Infected
                 }
             }
         }
-
+        int BOT_HELI_HEIGHT = 1500;
         void BotHeliMove()//4초간격
         {
-            Vector3 targetPos = VectorAddZ(BOTs_List[rnd.Next(BOTs_List.Count)].Origin, 1000);
+            Vector3 targetPos = VectorAddZ(BOTs_List[rnd.Next(BOTs_List.Count)].Origin, BOT_HELI_HEIGHT);
 
             BOT_HELI.Call(33406, VectorToAngleY(targetPos, BOT_HELI.Origin), 2f);// "rotateto"
             BOT_HELI.Call(33399, targetPos, 16, 2, 2);//"moveto"
@@ -157,7 +158,7 @@ namespace Infected
             {
                 if (PRDT.PLANE != null)
                 {
-                    targetPos = VectorAddZ(BOTs_List[rnd.Next(BOTs_List.Count)].Origin, 1500);
+                    targetPos = VectorAddZ(BOTs_List[rnd.Next(BOTs_List.Count)].Origin, BOT_HELI_HEIGHT+500);
 
                     PRDT.PLANE.Call(33406, VectorToAngleY(targetPos, PRDT.PLANE.Origin), 2f);// "rotateto"
                     PRDT.PLANE.Call(33399, targetPos, 16, 2, 2);//"moveto"

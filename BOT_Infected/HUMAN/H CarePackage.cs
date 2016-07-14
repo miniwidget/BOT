@@ -62,7 +62,7 @@ namespace Infected
 
                             if (targetName == null) continue;
 
-                            Print(targetName + " entref " + i);//map : 5 exchange // taxi_ad_clip entref ( 425 )
+                            //Print(targetName + " entref " + i);//map : 5 exchange // taxi_ad_clip entref ( 425 )
 
                             SpawnCarePackage(MO, brushmodel);
 
@@ -112,9 +112,7 @@ namespace Infected
                 player.Call(33344, "PREDATOR FINISHED");
                 return;
             }
-            int height = 0;
-            if (SET.MAP_IDX == 5) height = 2000;
-            PRDT.PredatorStart(player, H, height);
+            PRDT.PredatorStart(player, H,BOT_HELI_HEIGHT);
         }
     }
 }
