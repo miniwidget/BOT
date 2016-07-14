@@ -10,45 +10,37 @@ namespace Infected
 {
     public partial class Infected
     {
-        void BotBulletRefill(Entity bot, Entity target,int entref)
+        void BotBulletRefill(Entity bot, Entity target)
         {
-            B_SET B = B_FIELD[entref];
+            B_SET B = B_FIELD[bot.EntRef];
             if (B.wait) return;
 
             bot.Call(33468, B.weapon, B.ammoClip);//setweaponammoclip
             if (B.target == null) B.target = target;
 
         }
-        public override void OnPlayerDamage(Entity player, Entity inflictor, Entity attacker, int damage, int dFlags, string mod, string weapon, Vector3 point, Vector3 dir, string hitLoc)
+        void DamageModMelee(Entity player, Entity attacker,int damage)
         {
-            if (mod == "MOD_MELEE")//none
-            {
-                int pe_ = player.EntRef;
-                if(pe_== BOT_LUCKY_ENTREF)
-                {
-                    BotBulletRefill(player, attacker, pe_);
-                }
-                else if (!IsBOT[pe_] && !H_FIELD[pe_].AXIS) player.Health += damage;
-                
-                return;
-            }
-
-            if (weapon[2] != '5') if( weapon[1] != 'p') return;//iw5_  rpg
-
             int pe = player.EntRef;
 
-            if (!IsBOT[pe]) return;//player 가 사람인 경우 return
+            if (!IsBOT[pe] && !H_FIELD[pe].AXIS) player.Health +=damage;
+        }
+        public override void OnPlayerDamage(Entity player, Entity inflictor, Entity attacker, int damage, int dFlags, string mod, string weapon, Vector3 point, Vector3 dir, string hitLoc)
+        {
+            if (player == ADMIN) player.Health += damage;// damage;
 
-            if (IsBOT[attacker.EntRef])//attacker 가 봇인 경우 return;
+            if (mod[4] == 'M'){ DamageModMelee(player, attacker,damage); return; }
+
+            if (weapon[2] != '5')//iw5_
             {
-                if (pe == BOT_RPG_ENTREF)//rpg 봇인 경우
-                {
-                    if (attacker == player)  player.Health += damage;
-                }
+                if (weapon != "rpg_mp") return;//rpg
 
-                return;
+                if (attacker == player){player.Health += damage; return;}
             }
-            BotBulletRefill(player, attacker, pe);
+
+            if (!IsBOT[player.EntRef] || IsBOT[attacker.EntRef]) return;//player 가 사람인 경우 or attacker 가 봇인 경우 return;
+
+            BotBulletRefill(player, attacker);
         }
 
         void initBot(int ke)
@@ -74,7 +66,7 @@ namespace Infected
                 return;
             }
 
-            if (weapon[2] != '5') if (weapon[1] != 'p') return; //iw5_ rpg_
+            if (weapon[2] != '5') if (weapon != "rpg_mp") return; //iw5_ rpg_
 
             if (!IsBOT[attacker.EntRef])//공격자가 사람인 경우, 퍼크 주기
             {

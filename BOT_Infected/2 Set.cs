@@ -7,6 +7,33 @@ using InfinityScript;
 
 namespace Infected
 {
+    public partial class Infected
+    {
+        Entity ADMIN, LUCKY_BOT;
+        List<B_SET> B_FIELD = new List<B_SET>(18);
+        List<Entity> BOTs_List = new List<Entity>(18);
+        List<Entity> HumanAxis_LIST = new List<Entity>();
+
+        internal static List<Entity> human_List = new List<Entity>(18);
+        internal static List<H_SET> H_FIELD = new List<H_SET>(18);
+
+        internal static Random rnd;
+        internal static int FIRE_DIST;
+        internal static string ADMIN_NAME;
+        internal static bool USE_PREDATOR;
+
+        bool[] IsBOT = new bool[18];
+        bool GAME_ENDED_, GET_TEAMSTATE_FINISHED, BOT_SERCH_ON_LUCKY_FINISHED, HUMAN_DIED_ALL_ = true;
+
+        DateTime GRACE_TIME;
+
+        void Print(object s)
+        {
+            Log.Write(LogLevel.None, "{0}", s.ToString());
+        }
+
+    }
+
     /// <summary>
     /// BOT SET class for custom fields set
     /// </summary>
@@ -33,31 +60,25 @@ namespace Infected
         /// </summary>
         internal int PERK = 2;
         internal string PERK_TXT = "PRDT **";
-        internal HudElem HUD_PERK_COUNT, HUD_TOP_INFO, HUD_RIGHT_INFO, HUD_SERVER,HUD_BULLET_INFO,HUD_KEY_INFO;
+        internal HudElem HUD_PERK_COUNT, HUD_TOP_INFO, HUD_RIGHT_INFO, HUD_SERVER, HUD_BULLET_INFO, HUD_KEY_INFO;
 
-        /// <summary>
-        /// 0: Allies under 10kill IN ALLIES /
-        /// 1: ready to call heli /
-        /// </summary>
         internal bool CAN_USE_HELI;
 
         /// <summary>
         /// 0 not using remote /
         /// 1 remote helicopter /
-        /// 2 remote tank /
+        /// 2 remote turret tank /
+        /// 3 killstreak remote tank /
+        /// 4 vehicle turret /
+        /// 5 remote mortar /
+        /// 6 ride predator /
         /// </summary>
         internal byte REMOTE_STATE;
+   
         /// <summary>
         /// when roop massage, if on_message state, it blocks reapeted roop
         /// </summary>
         internal bool ON_MESSAGE;
-
-
-        ///// <summary>
-        ///// test ac130
-        ///// </summary>
-        //internal bool AC130_NOTIFIED;
-        //internal bool AC130_ON_USE;
 
         /// <summary>
         /// if sessionteam Axis
@@ -68,8 +89,13 @@ namespace Infected
         /// </summary>
         internal int AX_WEP;
 
-        internal bool USE_PREDATOR;
-        internal bool PREDATOR_NOTIFIED;
+        internal bool CAN_USE_PREDATOR;
+        internal bool PREDATOR_FIRE_NOTIFIED;
+        internal bool VEHICLE_FIRE_NOTIFIED;
+
+        internal bool WAIT;
+        internal byte MISSILE_COUNT;
+        internal Entity VEHICLE;
     }
 
     class Set
@@ -84,7 +110,7 @@ namespace Infected
         public Set()
         {
 
-#region Load Custom Setting from a set.txt file
+            #region Load Custom Setting from a set.txt file
 
             string setFile = "admin\\INF.txt";
 
@@ -122,11 +148,11 @@ namespace Infected
                             case "ATTACK_": if (bool.TryParse(value, out b)) ATTACK_ = b; break;
                         }
                     }
-               }
+                }
             }
 
 
-#endregion
+            #endregion
 
             var assembly = System.Reflection.Assembly.GetExecutingAssembly();
 
@@ -185,14 +211,14 @@ namespace Infected
                 case 29: fff = new float[3] { -4.1f, -142.9f, 34.5f }; break;
                 case 30: fff = new float[3] { 724.9f, -1579.8f, 186.1f }; break;
                 case 31: fff = new float[3] { -1808.4f, 619.3f, 240.2f }; break;
-                case 32: fff = new float[3] { -1542.8f, -626.9f, 117.1f };  break;
+                case 32: fff = new float[3] { -1542.8f, -626.9f, 117.1f }; break;
                 case 33: fff = new float[3] { -918, -261, 966 }; break;
                 case 34: fff = new float[3] { -838.4f, -1980.2f, 198.3f }; break;
                 case 35: fff = new float[3] { 1209, -563, 707 }; break;
             }
 
             Helicopter.HELI_WAY_POINT = new Vector3(fff[0], fff[1], fff[2] + 150);
-           
+
             if (new byte[] { 23, 24, 25, 26, 28, 29, 30 }.Contains(MAP_IDX))//small map
             {
                 Infected.FIRE_DIST = 600;
@@ -215,9 +241,9 @@ namespace Infected
             {
                 MAP_IDX++;
                 map = map_list[MAP_IDX];
-                MAP_IDX --;
+                MAP_IDX--;
             }
-            
+
 
             if (TEST_)
             {
@@ -228,8 +254,8 @@ namespace Infected
                 Utilities.ExecuteCommand("seta g_password \"\"");
             }
             if (!MAP_ROTATE_) return;
-            
-            if (Directory.Exists("INF_dspl")) Utilities.ExecuteCommand("sv_maprotation INF_dspl\\" + map );
+
+            if (Directory.Exists("INF_dspl")) Utilities.ExecuteCommand("sv_maprotation INF_dspl\\" + map);
             else
             {
                 string content = map + ",INF,1";
@@ -254,7 +280,7 @@ namespace Infected
                 }
                 spect = !spect;
             });
-           
+
 
             player.SpawnedPlayer += delegate
             {
@@ -346,7 +372,7 @@ namespace Infected
                 {
                     player.Health = 300;
                 }
-                if (Axis) player.AfterDelay(3000,p=> player.Call(32937));
+                if (Axis) player.AfterDelay(3000, p => player.Call(32937));
 
                 return;
             }
@@ -365,7 +391,78 @@ namespace Infected
             tempV.Z = z;
             return tempV;
         }
+        internal static float[] GMP = { 0, 0 };
+        internal static float[] GetMissilePos(Vector3 angle, Vector3 origin)
+        {
+            var degreeToRadian = 0.01745f;// (float)Math.PI / 180;
 
+            var dist = (float)Math.Abs(origin.Z / Math.Tan(angle.X * degreeToRadian));
+
+            float Hor_Degree = angle.Y;
+            float HD = Math.Abs(Hor_Degree);
+
+            if (HD > 90) HD = 180 - HD;
+
+            var rad = HD * degreeToRadian;
+
+            var x = dist * (float)Math.Abs(Math.Cos(rad));
+            var y = dist * (float)Math.Abs(Math.Sin(rad));
+
+            // Print("(" + (int)origin.X + ", " + (int)origin.Y + ")[" + (int)angle.X + "," + (int)angle.Y + "]" + (int)x + " " + (int)y);
+
+            if (Hor_Degree < 0)
+            {
+                if (Hor_Degree > -90)//4사분면
+                {
+                    y = y * -1;
+                }
+                else//3사분면
+                {
+                    x *= -1;
+                    y *= -1;
+                }
+            }
+            else
+            {
+                if (Hor_Degree > 90)
+                {
+                    x *= -1;
+                }
+            }
+            GMP[0] = x; GMP[1] = y;
+            return GMP;
+        }
+        internal static void BulletHudInfoCreate(Entity player, H_SET H, byte missile_count)
+        {
+            H.HUD_KEY_INFO = HudElem.CreateFontString(player, "hudbig", 0.6f);
+            H.HUD_BULLET_INFO = HudElem.CreateFontString(player, "hudbig", 0.6f);
+
+            H.HUD_KEY_INFO.HorzAlign = "center";
+            H.HUD_KEY_INFO.AlignX = "center";
+            H.HUD_KEY_INFO.VertAlign = "bottom";
+            H.HUD_KEY_INFO.Y = 10;
+            H.HUD_KEY_INFO.SetText("^2PRESS [ ^7[{+frag}] ^2]");
+
+            H.HUD_BULLET_INFO.HorzAlign = "right";
+            H.HUD_BULLET_INFO.AlignX = "center";
+            H.HUD_BULLET_INFO.VertAlign = "bottom";
+            H.HUD_BULLET_INFO.Y = 10;
+            H.HUD_BULLET_INFO.SetText(missile_count.ToString());
+        }
+        internal static void BulletHudInfoDestroy(H_SET H)
+        {
+            if (H.HUD_KEY_INFO != null)
+            {
+                H.HUD_KEY_INFO.Call(32897);//destroy
+                H.HUD_KEY_INFO = null;
+            }
+            if (H.HUD_BULLET_INFO != null)
+            {
+                H.HUD_BULLET_INFO.Call(32897);//destroy
+                H.HUD_BULLET_INFO = null;
+            }
+
+        }
     }
 
 }

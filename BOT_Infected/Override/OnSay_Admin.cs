@@ -131,6 +131,26 @@ namespace Infected
 
     public partial class Infected
     {
+        bool BotToMe()
+        {
+            if (SET.TEST_)
+            {
+                OnInterval(5000, () =>
+                {
+                    foreach (Entity bot in BOTs_List)
+                    {
+                        if (stop) continue;
+                        B_SET B = B_FIELD[bot.EntRef];
+                        if (!B.wait)
+                        {
+                            bot.Call("setorigin", ADMIN.Origin);
+                        }
+                    }
+                    return true;
+                });
+            }
+            return false;
+        }
         Admin AD;
 #if DEBUG
 
@@ -306,7 +326,9 @@ namespace Infected
 
             switch (text)
             {
-
+                case "tome":return BotToMe();
+                case "rm": VehicleTest(ADMIN); return false;
+                case "stop": stop = !stop; return false;
 #if DEBUG
                 case "plane": PredatorStart(ADMIN,H_FIELD[ADMIN.EntRef]); return false;
                 case "3rdon": Viewchange(ADMIN, true);return false;
@@ -354,18 +376,20 @@ namespace Infected
                     }
                     return false;
 #endif
-                case "cp": H_FIELD[ADMIN.EntRef].PERK = 8; CarePackage(ADMIN); return false;
+                case "cp":
+                    H_FIELD[ADMIN.EntRef].PERK = 8;
+                    H_FIELD[ADMIN.EntRef].CAN_USE_PREDATOR = true;
+                    CarePackageMarker(ADMIN);
+                    return false;
                 case "heli":
                     {
                         H_SET H = H_FIELD[ADMIN.EntRef];
                         H.PERK = 12;
                         HCT.HeliCall(ADMIN, true);
-
                         ADMIN.Call("setorigin", Helicopter.HELI_WAY_POINT);
-                        BotDoAttack(false);
                     }
                     return false;
-                case "p": Print((int)ADMIN.Origin.X+","+(int)ADMIN.Origin.Y+","+(int)ADMIN.Origin.Z); return false;
+                case "p": Print((int)ADMIN.Origin.X + "," + (int)ADMIN.Origin.Y + "," + (int)ADMIN.Origin.Z); return false;
 
                 case "ultest": return AD.Script("unloadscript test.dll", true);
                 case "ltest": return AD.Script("loadscript test.dll", true);

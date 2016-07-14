@@ -48,20 +48,21 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BOT\1 DeployBOT.cs" />
-    <Compile Include="BOT\3 Spawned.cs" />
+    <Compile Include="BOT\2 Connect.cs" />
     <Compile Include="HUMAN\Connect.cs" />
     <Compile Include="HUMAN\Spawned.cs" />
+    <Compile Include="Killstreak\Predator.cs" />
     <Compile Include="Killstreak\Tank.cs" />
     <Compile Include="Override\OnSay.cs" />
     <Compile Include="Override\OnPlayerKilled.cs" />
-    <Compile Include="GameSET.cs" />
-    <Compile Include="Perk.cs" />
+    <Compile Include="2 Set.cs" />
+    <Compile Include="4 Perk.cs" />
     <Compile Include="Override\OnSay_Admin.cs" />
-    <Compile Include="HUD.cs" />
-    <Compile Include="Info.cs" />
+    <Compile Include="6 Hud.cs" />
+    <Compile Include="5 Info.cs" />
     <Compile Include="Killstreak\Helicopter.cs" />
     <Compile Include="1 Main.cs" />
-    <Compile Include="Weapon.cs" />
+    <Compile Include="3 Weapon.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup />

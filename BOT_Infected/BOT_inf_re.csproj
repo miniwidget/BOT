@@ -47,7 +47,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="0 Field.cs" />
     <Compile Include="BOT\B HeliBot.cs" />
     <Compile Include="HUMAN\H CarePackage.cs" />
     <Compile Include="Killstreak\Helicopter.cs" />
@@ -58,6 +57,7 @@
     <Compile Include="HUMAN\H Connect.cs" />
     <Compile Include="HUMAN\H Spawned.cs" />
     <None Include="Killstreak\AC130.cs" />
+    <Compile Include="Killstreak\Vehicles.cs" />
     <Compile Include="Override\OnSay.cs" />
     <Compile Include="Override\OnPlayerKilled.cs" />
     <Compile Include="2 Set.cs" />

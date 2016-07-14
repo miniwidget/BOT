@@ -8,9 +8,8 @@ namespace Infected
 {
     class Predator : Inf
     {
-        internal Entity PLANE, MISSILE, PREDATOR_OWNER;
-        byte MISSILE_COUNT;
-        int FX_GREEN_LIGHT;
+        internal Entity PLANE, PREDATOR_OWNER;
+        int FX_GREEN_LIGHT = -1;
         string weapon;
 
         internal void PredatorEnd(Entity player, H_SET H, bool respawn, string weapon)
@@ -18,61 +17,58 @@ namespace Infected
             if (!respawn)
             {
                 player.Call(32843);//unlink
-                if (MISSILE != null)
-                {
-                    player.Call(33529, MISSILE.Origin);//setorigin
-
-                    if (player.Call<int>(33538) == 0)//Not IsGround
-                    {
-                        player.Call(33529, Helicopter.HELI_WAY_POINT);
-                    }
-                }
-                else player.Call(33529, Helicopter.HELI_WAY_POINT);
-
+                player.Call(33529, Helicopter.HELI_WAY_POINT);
                 player.TakeWeapon("heli_remote_mp");
                 player.GiveWeapon(weapon);
                 player.SwitchToWeaponImmediate(weapon);
                 Common.StartOrEndThermal(player, false);
+
             }
-            H.HUD_KEY_INFO.Call(32897);//destroy
-            H.HUD_BULLET_INFO.Call(32897);//destroy
-            H.USE_PREDATOR = false;
 
-            if (PREDATOR_OWNER != player) return;
+            H.REMOTE_STATE = 0;
+            H.CAN_USE_PREDATOR = false;
 
-            PREDATOR_OWNER = null;
-            Infected.USE_PREDATOR = false;
-            PLANE.Call(32928);//delete
-            PLANE = null;
+            Common.BulletHudInfoDestroy(H);
+
+            if (PREDATOR_OWNER == null || PREDATOR_OWNER == player)
+            {
+                PREDATOR_OWNER = null;
+                Infected.USE_PREDATOR = false;
+
+                if (PLANE != null)
+                {
+                    PLANE.Call(32928);//delete
+                    PLANE = null;
+                }
+            }
         }
-
-        internal void PredatorStart(Entity player, H_SET H)
+        string thermalVision;
+        internal void PredatorStart(Entity player, H_SET H, int height)
         {
+            if (H.REMOTE_STATE != 0) return;
+
             weapon = player.CurrentWeapon;
 
             Infected.USE_PREDATOR = true;
-            MISSILE_COUNT = 0;
+            H.MISSILE_COUNT = 10;
             PREDATOR_OWNER = player;
-            H.USE_PREDATOR = true;
+            H.REMOTE_STATE = 6;
+            H.CAN_USE_PREDATOR = false;
             player.Health = 9999;
             if (PLANE != null) PLANE.Call(32928);//delete
-            if (FX_GREEN_LIGHT == 0) FX_GREEN_LIGHT = Call<int>(303, "misc/aircraft_light_wingtip_green");//"loadfx"
+            if (FX_GREEN_LIGHT == -1) FX_GREEN_LIGHT = Call<int>(303, "misc/aircraft_light_wingtip_green");//"loadfx"
 
-            Vector3 origin = player.Origin; origin.Z += 100;
-
-            PLANE = Call<Entity>(367, player, "script_model", origin, "compass_objpoint_ac130_friendly", "compass_objpoint_ac130_enemy");//spawnPlane
+            PLANE = Call<Entity>(367, player, "script_model", player.Origin, "compass_objpoint_ac130_friendly", "compass_objpoint_ac130_enemy");//spawnPlane
             PLANE.Call(32929, "vehicle_remote_uav");//setModel
 
             player.Call(32841, PLANE, "tag_origin");//linkto
             PLANE.Call(33402, 1500, 7);//movez
-
-
-            H.HUD_KEY_INFO = HudElem.CreateFontString(player, "hudbig", 0.6f);
-            H.HUD_BULLET_INFO = HudElem.CreateFontString(player, "hudbig", 0.6f);
+            player.Call(33466, "PC_1mc_acheive_bomb");//playlocalsound
 
             PLANE.AfterDelay(7000, v =>
             {
-                if (FX_GREEN_LIGHT != 0)
+                if (H.REMOTE_STATE == 0) return;
+                if (FX_GREEN_LIGHT != -1)
                 {
                     Call(305, FX_GREEN_LIGHT, PLANE, "tag_light_tail1");//playFXOnTag
                     Call(305, FX_GREEN_LIGHT, PLANE, "tag_light_nose");//playFXOnTag
@@ -81,99 +77,60 @@ namespace Infected
                 player.Health = 100;
                 player.GiveWeapon("heli_remote_mp");
 
-                H.HUD_KEY_INFO.HorzAlign = "center";
-                H.HUD_KEY_INFO.AlignX = "center";
-                H.HUD_KEY_INFO.VertAlign = "bottom";
-                H.HUD_KEY_INFO.Y = 10;
-                H.HUD_KEY_INFO.SetText("^2PRESS [ ^7[{+frag}] ^2]");
+                Common.BulletHudInfoCreate(player, H, 10);
 
-                H.HUD_BULLET_INFO.HorzAlign = "right";
-                H.HUD_BULLET_INFO.AlignX = "center";
-                H.HUD_BULLET_INFO.VertAlign = "bottom";
-                H.HUD_BULLET_INFO.Y = 10;
                 player.SwitchToWeapon("heli_remote_mp");
-
+                
+                H.CAN_USE_PREDATOR = true;
                 Common.StartOrEndThermal(player, true);
             });
 
-            if (H.PREDATOR_NOTIFIED) return;
-            H.PREDATOR_NOTIFIED = true;
 
+            if (H.PREDATOR_FIRE_NOTIFIED) return;
+            H.PREDATOR_FIRE_NOTIFIED = true;
+            thermalVision = GetThermalVision();
+            bool wait = false;
             player.Call(33445, "MISSILE", "+frag");//notifyonplayercommand
             player.OnNotify("MISSILE", ent =>
             {
-                if (!H.USE_PREDATOR) return;
-                if (MISSILE_COUNT >= 10) return;
-                if (MISSILE != null) return;
+                if (H.REMOTE_STATE != 6 || !H.CAN_USE_PREDATOR) return;
+                if (H.MISSILE_COUNT <= 0) return;
 
-                Vector3 angle = player.Call<Vector3>("getPlayerAngles");
+                if (wait) return;
+                wait = true;
+                Vector3 angle = player.Call<Vector3>(33532);//getPlayerAngles
                 Vector3 Ori = player.Origin;
 
-                float[] GMP = GetMissilePos(angle, Ori);
+                float[] GMP = Common.GetMissilePos(angle, Ori);
                 float x = GMP[0], y = GMP[1];
                 Vector3 targetPos = Common.GetVector(Ori.X + x, Ori.Y + y, 0);
                 Vector3 startPos = Common.GetVector(Ori.X - x, Ori.Y - y, Ori.Z * 4);
-                MISSILE = Call<Entity>(404, "remotemissile_projectile_mp", startPos, targetPos, player);//MagicBullet
-
+                Entity MISSILE = Call<Entity>(404, "remotemissile_projectile_mp", startPos, targetPos, player);//MagicBullet
                 MISSILE.Call(33417, true);//setCanDamage
-                player.Call(33438, "thermalVision", 1f);//VisionSetMissilecamForPlayer
-                player.Call(33221, MISSILE, "tag_origin");//CameraLinkTo
-                player.Call(33251, MISSILE);//ControlsLinkTo
                 MISSILE.OnNotify("death", ms =>
                 {
-                    MISSILE_COUNT++;
-                    H.HUD_BULLET_INFO.SetText((10 - MISSILE_COUNT).ToString());
+                    wait = false;
                     player.Call(33252);//ControlsUnlink
                     player.Call(33222);//CameraUnlink
 
-                    if (MISSILE_COUNT == 10) PredatorEnd(player, H, false, weapon);
+                    H.MISSILE_COUNT--;
+                    H.HUD_BULLET_INFO.SetText(H.MISSILE_COUNT.ToString());
 
-                    MISSILE = null;
+                    if (H.MISSILE_COUNT ==0) PredatorEnd(player, H, false, weapon);
                 });
-
+                player.Call(33438, thermalVision, 1f);//VisionSetMissilecamForPlayer
+                player.Call(33221, MISSILE, "tag_origin");//CameraLinkTo
+                player.Call(33251, MISSILE);//ControlsLinkTo
             });
         }
-        float[] GMP = { 0, 0 };
-        float[] GetMissilePos(Vector3 angle, Vector3 origin)
+
+        private string GetThermalVision()
         {
-            var degreeToRadian = 0.01745f;// (float)Math.PI / 180;
-
-            var dist = (float)Math.Abs(origin.Z / Math.Tan(angle.X * degreeToRadian));
-
-            float Hor_Degree = angle.Y;
-            float HD = Math.Abs(Hor_Degree);
-
-            if (HD > 90) HD = 180 - HD;
-
-            var rad = HD * degreeToRadian;
-
-            var x = dist * (float)Math.Abs(Math.Cos(rad));
-            var y = dist * (float)Math.Abs(Math.Sin(rad));
-
-            // Print("(" + (int)origin.X + ", " + (int)origin.Y + ")[" + (int)angle.X + "," + (int)angle.Y + "]" + (int)x + " " + (int)y);
-
-            if (Hor_Degree < 0)
+            if (Call<string>("getMapCustom", "thermal") == "invert")
             {
-                if (Hor_Degree > -90)//4사분면
-                {
-                    y = y * -1;
-                }
-                else//3사분면
-                {
-                    x *= -1;
-                    y *= -1;
-                }
+                return "thermal_snowlevel_mp";
             }
-            else
-            {
-                if (Hor_Degree > 90)
-                {
-                    x *= -1;
-                }
-            }
-            GMP[0] = x; GMP[1] = y;
-            return GMP;
+            return "thermal_mp";
         }
-
     }
 }

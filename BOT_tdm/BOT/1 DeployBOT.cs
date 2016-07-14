@@ -59,6 +59,13 @@ namespace Tdm
                     {
                         Print("총 불러온 봇 수는 " + i + " 입니다.");
                         addMoreBot(i);
+                        GET_TEAMSTATE_FINISHED = true;
+
+                        foreach (Entity human in human_List)
+                        {
+                            H_FIELD[human.EntRef].HUD_SERVER.Alpha = 0.7f;
+                            H_FIELD[human.EntRef].HUD_RIGHT_INFO.Alpha = 0.7f;
+                        }
                         return false;
                     }
                     if (fail_count > 20)
@@ -75,10 +82,37 @@ namespace Tdm
             }
         }
 
-        //string[] BOTs_CLASS = { "axis_recipe1", "axis_recipe2", "axis_recipe3", "axis_recipe4", "axis_recipe5", "allies_recipe1", "allies_recipe2", "allies_recipe3", "allies_recipe4", "allies_recipe5" };
-        //string[] BOTs_CLASS = { "axis_recipe1", "axis_recipe2", "axis_recipe3", "class0", "class1", "class2", "class4", "class5", "class6", "class6" };
+        string[] BOTs_CLASS =
+        {
+            "class0",//AR g36c 5
+            "axis_recipe2",
+            "class1",//SMG ump45 6
+            "class2",//LMG mk46 7
+            "class4",//SG striker 8
+            "class5",//AR m4 9
+            "class1",//SMG ump45 6
+            "class2",//LMG mk46 7
+            "class6",//SMG mp5 10
+            "class6",//SMG mp5 10
+        };
 
-        string[] BOTs_CLASS = { "class0", "axis_recipe2", "class1", "class2", "class4", "class5", "class1", "class2", "class6", "class6" };
+
+        //internal readonly string[] BOTs_CLASS = {
+        //    "axis_recipe1",//jugg 0
+        //    "axis_recipe2",//rpg 1
+        //    "axis_recipe3",//riot 2
+        //    "axis_recipe3",//heli 3
+        //    "axis_recipe3",//riot 4
+
+        //    "class0",//AR g36c 5
+        //    "class1",//SMG ump45 6
+        //    "class2",//LMG mk46 7
+        //    "class4",//SG striker 8
+        //    "class5",//AR m4 9
+        //    "class6",//SMG mp5 10
+        //    "class3",//sniper 11 Jugg Allies
+        //};
+
         int BOT_AXIS_IDX, BOT_ALLIES_IDX;
         string getClass
         {
@@ -133,7 +167,6 @@ namespace Tdm
                     b.Notify("menuresponse", "changeclass", cls);
                 });
 
-                bot.SpawnedPlayer += () => SpawnBot(bot);
 
                 ADDING_BOT_COUNT++;
 
@@ -141,25 +174,22 @@ namespace Tdm
             return bot;
         }
 
-        private void Bot_Connected(Entity bot)
+
+        bool BotDoAttack(bool attack)
         {
-
-            var i = BOTs_List.Count;
-
-            if (i > BOT_SETTING_NUM)
+            if (attack)
             {
-                Call("kick", bot.EntRef);
-                return;
+                Call(42, "testClients_doCrouch", 0);
+                Call(42, "testClients_doMove", 1);
+                Call(42, "testClients_doAttack", 1);
             }
-            if (i == -1)
+            else
             {
-                Print("■ ■ IMPORTANT Bot_Connected -1 " + bot.Name);
-                Call("kick", bot.EntRef);
-                return;
+                Call(42, "testClients_doCrouch", 1);
+                Call(42, "testClients_doMove", 0);
+                Call(42, "testClients_doAttack", 0);
             }
-
-            BOTs_List.Add(bot);
-
+            return false;
         }
     }
 }

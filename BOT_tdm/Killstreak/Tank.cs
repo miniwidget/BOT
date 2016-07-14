@@ -22,7 +22,7 @@ namespace Tdm
 
             string printModel = "sentry_minigun_mp";//remote_turret_mp 
             string reamModel_turret = "weapon_minigun";//mp_remote_turret
-            //if (Set.TURRET_MAP) printModel = "turret_minigun_mp";
+            if (Tdm.TURRET_MAP) printModel = "turret_minigun_mp";
 
             Entity ugv = Call<Entity>(19, "misc_turret", turretAttachTagOrigin, "ugv_turret_mp", false);//"SpawnTurret" ugv_turret_mp
             ugv.Call(32929, "vehicle_ugv_talon_gun_mp");//SetModel vehicle_ugv_talon_gun_mp
@@ -45,7 +45,7 @@ namespace Tdm
             TR.Call(33086, 180f);
         }
 
-        //readonly string[] MESSAGE_RUNNER = { "^2TANK RUNNER START [ ^7MOVE & FIRE ^2]", "^2PRESS [ ^7[{+smoke}] ^2] IF STUCK" };
+        //readonly string[] MESSAGE_RUNNER = { "*TANK RUNNER START [ ^7MOVE & FIRE *]", "*PRESS [ ^7[{+smoke}] *] IF STUCK" };
 
         /// <summary>
         /// 1: remote left /
@@ -81,7 +81,7 @@ namespace Tdm
             return false;
         }
 
-        internal byte TankStart(Entity player, byte turretHolding)
+        internal byte TankStart(Entity player, byte turretHolding, bool axis)
         {
             Common.StartOrEndThermal(player, true);
 
@@ -96,12 +96,12 @@ namespace Tdm
             {
                 player.Call(33256, REMOTETANK);//remotecontrolvehicle  
                 RMTK_OWNER_ENTREF = player.EntRef;
-                player.Call(33344, "^2TANK RUNNER START [ ^7MOVE & FIRE ^2]");
+                player.Call(33344, Info.GetStr("*TANK RUNNER START [ ^7MOVE & FIRE *]", axis));
                 return 2;//remote tank state
             }
             else
             {
-                player.Call(33344, "^2TANK GUNNER START [ ^7FIRE ^2]");
+                player.Call(33344, Info.GetStr("*TANK GUNNER START [ ^7FIRE *]", axis));
                 return 0;//not using remote state
             }
         }

@@ -20,6 +20,15 @@ namespace Infected
 
             if (GAME_ENDED_) return;
 
+            if (VEHICLE_CODE != null)
+            {
+                if(text == VEHICLE_CODE)
+                {
+                    VehicleStartRemote(player, H_FIELD[player.EntRef].VEHICLE, null);
+                    return;
+                }
+            }
+
             string[] texts = text.ToLower().Split(' ');
             string text0 = texts[0];
 
@@ -32,7 +41,7 @@ namespace Infected
                 #region Public Say
                 switch (text0)
                 {
-                    //case "infoa": INFO.MessageInfoA(player, Axis); return;
+                    case "infoa": INFO.MessageInfoA(player, Axis); return;
                     case "infow": INFO.MessageInfoW(player, Axis); return;
 
                     case "sc":

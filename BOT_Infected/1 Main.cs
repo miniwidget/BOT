@@ -37,8 +37,8 @@ namespace Infected
             Call(42, "scr_game_matchstarttime", 1);
             Call(42, "testClients_watchKillcam", 0);
             Call(42, "testClients_doReload", 0);
-            BotDoAttack(false);
 
+            BotDoAttack(false);
 
             for (int i = 0; i < 18; i++)
             {
@@ -93,6 +93,7 @@ namespace Infected
                     GAME_ENDED_ = true;
                     Call(42, "testClients_doMove", 0);
                     Call(42, "testClients_doAttack", 0);
+                    Print("GAME_ENDED");
                 });
             });
 

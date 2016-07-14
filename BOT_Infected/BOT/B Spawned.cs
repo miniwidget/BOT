@@ -36,8 +36,11 @@ namespace Infected
             }
             else if (i == 8)
             {
-                if (CARE_PACKAGE == null) CarePackage(killer);
-                else killer.Call(33344, "PRESS ^2[ [{+activate}] ] ^7AT THE CARE PACKAGE");
+                H.CAN_USE_PREDATOR = true;
+
+                if (CARE_PACKAGE != null) killer.Call(33344, "PRESS ^2[ [{+activate}] ] ^7AT THE CARE PACKAGE");
+                else killer.Call(33344, "PRESS ^2[ [{+activate}] ] ^7TO CALL PREDATOR");
+
                 string txt = H.PERK_TXT;
                 H.HUD_PERK_COUNT.SetText(H.PERK_TXT = "^1" + txt);
             }
@@ -50,14 +53,17 @@ namespace Infected
             }
         }
 
+        bool stop,LUCKY_BOT_START, BOT_ADD_WATCHED;
         void BotAddWatch()
         {
+            BOT_ADD_WATCHED = true;
+
             List<Entity> BOTS = new List<Entity>();
-            for(int i = 0; i < BOTs_List.Count; i++)
+            for (int i = 0; i < BOTs_List.Count; i++)
             {
                 Entity bot = BOTs_List[i];
                 B_SET B = B_FIELD[bot.EntRef];
-                if (B.ammoClip == 0|| bot == LUCKY_BOT) continue;
+                if (B.ammoClip == 0 || bot == LUCKY_BOT) continue;
                 BOTS.Add(bot);
             }
             OnInterval(2000, () =>
@@ -69,15 +75,17 @@ namespace Infected
                     B_SET B = B_FIELD[bot.EntRef];
                     if (!B.wait) BotSearch(bot, B);
                 }
+                if (LUCKY_BOT_START) BotSearchLucky();
+
                 return true;
             });
         }
-
+        B_SET LUCKY_B;
         void BotSearch(Entity bot, B_SET B)
         {
-            
+
             Vector3 bo = bot.Origin;
-   
+
             if (B.target != null)//이미 타겟을 찾은 경우
             {
                 if (human_List.Contains(B.target))
@@ -105,73 +113,57 @@ namespace Infected
 
                     return;
                 }
+            }
+        }
+        void BotSearchLucky()
+        {
+            if (LUCKY_B.wait) return;
 
+            Vector3 bo = LUCKY_BOT.Origin;
+
+            if (LUCKY_B.target != null)//이미 타겟을 찾은 경우
+            {
+                if (HumanAxis_LIST.Contains(LUCKY_B.target))
+                {
+                    if (LUCKY_B.target.Origin.DistanceTo(bo) < FIRE_DIST)
+                    {
+                        LUCKY_BOT.Call(33468, LUCKY_B.weapon, LUCKY_B.ammoClip);//setweaponammoclip
+                        return;
+                    }
+                }
+
+                LUCKY_B.target = null;
+                LUCKY_BOT.Call(33468, LUCKY_B.weapon, 0);//setweaponammoclip
             }
 
+            foreach (Entity human in HumanAxis_LIST)
+            {
+                if (human.Origin.DistanceTo(bo) < FIRE_DIST)
+                {
+                    LUCKY_B.target = human;
+
+                    LUCKY_BOT.Call(33468, LUCKY_B.weapon, LUCKY_B.ammoClip);//setweaponammoclip
+
+                    if (LUCKY_B.alert != null) if (human.Name != null) human.Call(33466, LUCKY_B.alert);//"playlocalsound" //deny remote tank !important if not deny, server cause crash
+
+                    return;
+                }
+            }
         }
 
-        List<Entity> HumanAxis_LIST = new List<Entity>();
         /// <summary>
         /// Survivor bot starts searching Infected humans
         /// </summary>
         private void BotSerchOn_lucky()
         {
-            Entity bot = LUCKY_BOT;
             BOT_SERCH_ON_LUCKY_FINISHED = true;
-            if (bot.GetField<string>("sessionteam") == "axis") return;
 
-            bot.Call(33220, 1f);//setmovespeedscale
+            if (LUCKY_BOT.GetField<string>("sessionteam") == "axis") return;
 
-            B_SET B = B_FIELD[bot.EntRef];
-            B.wait = false;
-
-            string weapon = B.weapon;
-            bot.Call(33469, weapon, 0);//setweaponammostock
-            bot.Call(33468, weapon, 0);//setweaponammoclip
-
-            foreach (Entity player in Players)
-            {
-                if (player == null || !player.IsPlayer) continue;
-                if (player.Name.StartsWith("bot")) continue;
-                if(H_FIELD[player.EntRef].AXIS) HumanAxis_LIST.Add(player);
-            }
-
-            B.wait = false;
-            bot.OnInterval(2500, b =>
-            {
-                if (B.wait || GAME_ENDED_) return false;
-
-                Vector3 bo = b.Origin;
-
-                if (B.target != null)//이미 타겟을 찾은 경우
-                {
-                    if (HumanAxis_LIST.Contains(B.target))
-                    {
-                        if (B.target.Origin.DistanceTo(bo) < FIRE_DIST)
-                        {
-                            b.Call(33468, weapon, B.ammoClip);//setweaponammoclip
-                            return true;
-                        }
-                    }
-
-                    B.target = null;
-                    b.Call(33468, weapon, 0);//setweaponammoclip
-                }
-
-                foreach (Entity human in HumanAxis_LIST)
-                {
-                    if (human.Origin.DistanceTo(bo) < FIRE_DIST)
-                    {
-                        B.target = human;
-
-                        b.Call(33468, B.weapon, B.ammoClip);//setweaponammoclip
-
-                        return true;
-                    }
-                }
-                return true;
-
-            });
+            LUCKY_B.wait = false;
+            LUCKY_BOT_START = true;
+            LUCKY_BOT.Call(33220, 1f);//setmovespeedscale
+            
         }
     }
 }

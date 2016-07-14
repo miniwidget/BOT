@@ -46,7 +46,7 @@ namespace Infected
         Entity BOT_HELI, BOT_HELI_FLARE;
         string[] MAGICS = { "sam_projectile_mp", "javelin_mp", "ims_projectile_mp", "ac130_40mm_mp", "ac130_105mm_mp", "rpg_mp", "uav_strike_projectile_mp" };
         bool BOT_HELI_INTERVAL_STOP;
-        int FX_EXPLOSION, FX_FLARE_AMBIENT, FX_GREEN_LIGHT;
+        int FX_EXPLOSION, FX_FLARE_AMBIENT;
         byte BOT_HELI_FIRE;
 
         void BotHeliSpawned(Entity bot)
@@ -74,7 +74,6 @@ namespace Infected
 
                 FX_EXPLOSION = Call<int>(303, "explosions/aerial_explosion");//
                 FX_FLARE_AMBIENT = Call<int>(303, "misc/flare_ambient");//"loadfx"
-                FX_GREEN_LIGHT = Call<int>(303, "misc/aircraft_light_wingtip_green");//"loadfx"
             }
 
             B_SET B = B_FIELD[bot.EntRef];

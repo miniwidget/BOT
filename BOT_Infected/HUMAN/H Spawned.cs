@@ -11,26 +11,34 @@ namespace Infected
     public partial class Infected
     {
         bool UNLIMITED_LIEF_ = true;
+        int F_INF_IDX = -1;
+
         /// <summary>
         /// change initial human infected to Allies
         /// </summary>
-        /// <param name="player"></param>
         void CheckInf(Entity player)
         {
-            INITIAL_HUMAN_INF_IDX = human_List.IndexOf(player);
-            BOT_TO_AXIS_COMP = true;
-            HUMAN_FIRST_INF = true;
-            player.Notify("menuresponse", "team_marinesopfor", "allies");
-            player.Notify("menuresponse", "team_marinesopfor", "allies");
-        }
-
-        void HumanAlliesSpawned(Entity player, string name,H_SET H)
-        {
-            if (!BOT_TO_AXIS_COMP)
+            if (player == null)
             {
-                CheckInf(player);
+                if (F_INF_IDX == -1) return;
+                if (F_INF_IDX >= human_List.Count) return;
+
+                player = human_List[F_INF_IDX];
+                if (player == null) return;
+                player.Notify("menu response", "team_marinesopfor", "allies");
+                player.Call("suicide");
                 return;
             }
+
+            F_INF_IDX = human_List.IndexOf(player);
+            BOT_TO_AXIS_COMP = true;
+            player.Notify("menuresponse", "team_marinesopfor", "allies");
+            BOTs_List[0].Call("suicide");
+        }
+  
+        void HumanAlliesSpawned(Entity player, string name, H_SET H)
+        {
+            if (!BOT_TO_AXIS_COMP)  CheckInf(player);
 
             var LIFE = H.LIFE;
             if (LIFE > -1)
@@ -49,7 +57,7 @@ namespace Infected
 
                     if (!human_List.Contains(player)) human_List.Add(player);
 
-                    SetZero_hset(H, false, --H.LIFE, name,false);
+                    SetZero_hset(H, false, --H.LIFE, name, false);
 
                     if (HUMAN_DIED_ALL_) HUMAN_DIED_ALL_ = false;
                 }
@@ -74,7 +82,7 @@ namespace Infected
         }
         void HumanAlliesToAxis(Entity player, string name, H_SET H)
         {
-            SetZero_hset(H, true, 0, name,false);
+            SetZero_hset(H, true, 0, name, false);
 
             player.SetField("sessionteam", "axis");
             human_List.Remove(player);
@@ -89,13 +97,13 @@ namespace Infected
             player.Call(32771, SET.SOUND_ALERTS[rnd.Next(SET.SOUND_ALERTS.Length)], "allies");//playsoundtoteam
 
             if (!BOT_SERCH_ON_LUCKY_FINISHED) BotSerchOn_lucky();
-            if (!HumanAxis_LIST.Contains(player)) HumanAxis_LIST.Add(player);
 
         }
 
         void HumanAxisSpawned(Entity player, string name, H_SET H)
         {
             if (!H.CAN_USE_HELI) H.CAN_USE_HELI = true;
+            if (!HumanAxis_LIST.Contains(player)) HumanAxis_LIST.Add(player);
 
             player.SetPerk("specialty_scavenger", true, false);
             player.SetPerk("specialty_longersprint", true, false);

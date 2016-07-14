@@ -12,9 +12,12 @@ namespace Infected
     {
         Entity CARE_PACKAGE;
 
-        void CarePackage(Entity player)
+        void CarePackageMarker(Entity player)
         {
-            Info.MessageRoop(player, 0, new[] { "THROW MARKER TO GET *RIDE PREDATOR", "PRESS *[ [{+activate}] ] ^7AT THE CARE PACKAGE" });
+            if (CARE_PACKAGE != null) return;
+
+            player.Call(33344, Info.GetStr("THROW MARKER *[ RIDE PREDATOR ]",false));
+            player.Call(33466, "ammo_crate_use");//playlocalsound
 
             string marker = "airdrop_sentry_marker_mp";
             player.GiveWeapon(marker);
@@ -29,12 +32,15 @@ namespace Infected
                 Entity Marker = mk.As<Entity>();
                 if (Marker == null) return;
 
-                if(PRDT==null) PRDT = new Predator();
+                if (PRDT == null) PRDT = new Predator();
+                player.Call(33466, "PC_1mc_use_hellfire");
 
                 player.AfterDelay(3000, p =>
                 {
                     finished = true;
-                    Vector3 MO = VectorAddZ( Marker.Origin, 8);
+                    player.Call(33344, Info.GetStr("PRESS *[ [{+activate}] ] ^7AT THE CARE PACKAGE", false));
+
+                    Vector3 MO = VectorAddZ(Marker.Origin, 8);
                     Marker.Call(32928);//delete
 
                     Entity brushmodel = Call<Entity>("getent", "pf1_auto1", "targetname");
@@ -42,17 +48,7 @@ namespace Infected
                     if (brushmodel == null) brushmodel = Call<Entity>("getent", "pf3_auto1", "targetname");
                     if (brushmodel != null)
                     {
-
-                        CARE_PACKAGE = Call<Entity>("spawn", "script_model", MO);
-                        CARE_PACKAGE.Call("setmodel", "com_plasticcase_friendly");//com_plasticcase_friendly
-                        CARE_PACKAGE.Call(33353, brushmodel);
-
-                        Call(431, 20, "active"); // objective_add
-                        Call(435, 20, MO); // objective_position
-                        Call(434, 20, "compass_objpoint_ammo_friendly"); //objective_icon compass_objpoint_ac130_friendly compass_waypoint_bomb objective_icon
-
-                        brushmodel = Call<Entity>("spawn", "script_model", VectorAddZ(MO, 25));
-                        brushmodel.Call("setmodel", "projectile_cbu97_clusterbomb");
+                        SpawnCarePackage(MO, brushmodel);
                         return;
                     }
 
@@ -62,28 +58,34 @@ namespace Infected
                         if (brushmodel == null) continue;
                         if (brushmodel.GetField<string>("classname") == "script_brushmodel")
                         {
-
                             string targetName = brushmodel.GetField<string>("targetname");
 
                             if (targetName == null) continue;
+
                             Print(targetName + " entref " + i);//map : 5 exchange // taxi_ad_clip entref ( 425 )
-                            CARE_PACKAGE = Call<Entity>("spawn", "script_model", MO);
-                            CARE_PACKAGE.Call("setmodel", "com_plasticcase_friendly");//com_plasticcase_friendly
-                            CARE_PACKAGE.Call(33353, brushmodel);
 
-                            Call(431, 20, "active"); // objective_add
-                            Call(435, 20, MO); // objective_position
-                            Call(434, 20, "compass_waypoint_bomb"); //compass_objpoint_ac130_friendly compass_waypoint_bomb objective_icon
+                            SpawnCarePackage(MO, brushmodel);
 
-                            brushmodel = Call<Entity>("spawn", "script_model",VectorAddZ( MO,25));
-                            brushmodel.Call("setmodel", "projectile_cbu97_clusterbomb");
                             break;
                         }
                     }
 
-                  
+
                 });
             });
+        }
+        void SpawnCarePackage(Vector3 origin, Entity brushmodel)
+        {
+            CARE_PACKAGE = Call<Entity>("spawn", "script_model", origin);
+            CARE_PACKAGE.Call("setmodel", "com_plasticcase_friendly");//com_plasticcase_friendly
+            if (brushmodel != null) CARE_PACKAGE.Call(33353, brushmodel);
+
+            Call(431, 20, "active"); // objective_add
+            Call(435, 20, origin); // objective_position
+            Call(434, 20, "compass_objpoint_ammo_friendly"); //objective_icon compass_objpoint_ac130_friendly compass_waypoint_bomb objective_icon
+
+            brushmodel = Call<Entity>("spawn", "script_model", VectorAddZ(origin, 25));
+            brushmodel.Call("setmodel", "projectile_cbu97_clusterbomb");
         }
         void CarePackageDo(Entity player, H_SET H)
         {
@@ -92,6 +94,7 @@ namespace Infected
             player.Call(33468, weapon, 100);//setweaponammoclip
 
             player.Call(33466, "ammo_crate_use");//playLocalSound
+
             if (H.AXIS) return;
 
             if (USE_PREDATOR)
@@ -104,13 +107,14 @@ namespace Infected
                 player.Call(33344, 8 - H.PERK + " KILL MORE to RIDE PREDATOR");
                 return;
             }
-            if (H.USE_PREDATOR)
+            if (!H.CAN_USE_PREDATOR)
             {
                 player.Call(33344, "PREDATOR FINISHED");
                 return;
             }
-
-            PRDT.PredatorStart(player, H);
+            int height = 0;
+            if (SET.MAP_IDX == 5) height = 2000;
+            PRDT.PredatorStart(player, H, height);
         }
     }
 }

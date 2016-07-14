@@ -10,106 +10,73 @@ namespace Tdm
 {
     public partial class Tdm
     {
-        void tempFire(B_SET B, Entity bot, Entity target)
+        void BotBulletRefill(Entity bot, Entity target, int entref)
         {
+            B_SET B = B_FIELD[entref];
+            if (B.wait) return;
 
-            int i = 0;
-            bot.Call(33468, B.wep, 500);//setweaponammoclip
-            bot.Call(33523, B.wep);//givemaxammo
+            bot.Call(33468, B.weapon, B.ammoClip);//setweaponammoclip
+            if (B.target == null) B.target = target;
 
-            bot.OnInterval(FIRE_TIME, x =>
-            {
-                if (i == 5 || B.target != null)
-                {
-                    return B.temp_fire = false;
-                }
-
-                var TO = target.Origin;
-                var BO = bot.Origin;
-
-                float dx = TO.X - BO.X;
-                float dy = TO.Y - BO.Y;
-                float dz = BO.Z - TO.Z + 50;
-
-                int dist = (int)Math.Sqrt(dx * dx + dy * dy);
-                BO.X = (float)Math.Atan2(dz, dist) * 57.3f;
-                BO.Y = -10 + (float)Math.Atan2(dy, dx) * 57.3f;
-                BO.Z = 0;
-                bot.Call(33531, BO);//SetPlayerAngles
-                i++;
-                return true;
-            });
-
-        }
-        void initBot(B_SET B)
-        {
-            B.target = null;
-            B.fire = false;
-            B.temp_fire = false;
-            B.death += 1;
-            B.wait = true;
         }
 
         public override void OnPlayerDamage(Entity player, Entity inflictor, Entity attacker, int damage, int dFlags, string mod, string weapon, Vector3 point, Vector3 dir, string hitLoc)
         {
-            if (weapon[2] != '5' && weapon[0] != 'r') return;
-
-            if (attacker == player && weapon[0] == 'r')//"rpg_mp")
+            if (mod == "MOD_MELEE")//none
             {
-                player.Health += damage;
+                int pe_ = player.EntRef;
+                if (IsBOT[pe_]) BotBulletRefill(player, attacker, pe_);
+
                 return;
             }
-            if (weapon[0] == 'r' && weapon[1] == 'i') return;
+            if (weapon[2] != '5') if (weapon[1] != 'p') return;//iw5_  rpg
 
-            if (IsBOT[attacker.EntRef])
+            int pe = player.EntRef;
+
+            if (!IsBOT[pe]) return;//player 가 사람인 경우 return
+
+            if (IsBOT[attacker.EntRef])//attacker 가 봇인 경우 return;
             {
-                if (USE_ADMIN_SAFE_)
+                if (weapon =="rpg_mp")//rpg 봇인 경우
                 {
-                    if (ADMIN != null && player == ADMIN) player.Health += damage;
-                    return;
+                    if (attacker == player) player.Health += damage;
                 }
 
                 return;
             }
+            BotBulletRefill(player, attacker, pe);
 
-            int pe = player.EntRef;
-
-            if (IsBOT[pe])
-            {
-                B_SET B = B_FIELD[pe];
-                if (B.wait || B.temp_fire || B.target != null) return;
-                B.temp_fire = true;
-
-                tempFire(B, player, attacker);
-            }
+        }
+        void initBot(int ke)
+        {
+            B_SET B = B_FIELD[ke];
+            B.target = null;
+            B.wait = true;
 
         }
         public override void OnPlayerKilled(Entity killed, Entity inflictor, Entity attacker, int damage, string mod, string weapon, Vector3 dir, string hitLoc)
         {
-
             int ke = killed.EntRef;
 
             bool BotKilled = IsBOT[ke];
 
-            if (BotKilled)//봇이 죽은 경우
+            if (BotKilled)
             {
-                initBot(B_FIELD[ke]);
+                initBot(ke);//봇이 죽은 경우
             }
-            if (weapon[2] != '5' && weapon[0] != 'r') return;
+            else if (killed == attacker) return;//사람이 죽은 경우
+
+            if (weapon[2] != '5') if (weapon[1] != 'p') return; //iw5_ rpg_
 
             if (!IsBOT[attacker.EntRef])//공격자가 사람인 경우, 퍼크 주기
             {
-                if (BotKilled)
-                {
-                    B_FIELD[ke].killer = human_List.IndexOf(attacker);
-                }
+                if (BotKilled) B_FIELD[ke].killer = human_List.IndexOf(attacker);
             }
             else if (!BotKilled)//봇이 사람을 죽인 경우, 봇 사격 중지
             {
-                B_SET B = B_FIELD[attacker.EntRef];
-                B.fire = false;
-                B.target = null;
+                B_FIELD[attacker.EntRef].target = null;
             }
+
         }
 
     }

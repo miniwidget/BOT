@@ -12,8 +12,6 @@ namespace Infected
     public partial class Infected
     {
 
-
-        int BOT_RPG_ENTREF, BOT_LUCKY_ENTREF;
         bool BOT_TO_AXIS_COMP;
 
         #region deplay
@@ -97,13 +95,8 @@ namespace Infected
                 return;
             }
 
-            if (i == SET.BOT_SETTING_NUM - 1)
-            {
-                BotWaitOnFirstInfected();
-            }
-
             B_SET B = B_FIELD[be];
-
+            H_FIELD[be] = null;
             int delay_time = 0;
 
             if (i == 0)
@@ -113,7 +106,6 @@ namespace Infected
             }
             else if (i == 1)
             {
-                BOT_RPG_ENTREF = be;
                 B.alert = "missile_incoming";
                 delay_time = 10000;
             }
@@ -141,6 +133,13 @@ namespace Infected
                 delay_time = 6100;
             }
 
+            BOTs_List.Add(bot);
+            IsBOT[be] = true;
+
+            if (i == SET.BOT_SETTING_NUM - 1)
+            {
+                BotWaitOnFirstInfected();
+            }
             if (i > 11)
             {
                 if (SET.BOT_CLASS_NUM > 11) SET.BOT_CLASS_NUM = 5;
@@ -149,8 +148,6 @@ namespace Infected
             }
 
             bot.Notify("menuresponse", "changeclass", SET.BOTs_CLASS[i]);
-            BOTs_List.Add(bot);
-            IsBOT[be] = true;
 
             if (B.wait) return;
 
@@ -198,7 +195,7 @@ namespace Infected
                 });
 
             };
-            if (be == BOT_RPG_ENTREF)
+            if (B.alert == "missile_incoming")
             {
                 bot.OnNotify("weapon_fired", (p, wp) =>
                 {
@@ -235,49 +232,31 @@ namespace Infected
 
             bot.Call(33531, BO);//SetPlayerAngles
         }
-        bool HUMAN_FIRST_INF = false;
         void BotWaitOnFirstInfected()
         {
 
-            OnInterval(500, () =>
+            OnInterval(1000, () =>
             {
-                foreach (Entity ent in Players)
+                foreach(Entity bot in BOTs_List)
                 {
-                    if (ent == null) continue;
-                    if (ent.GetField<string>("sessionteam") != "axis") continue;
+                    if (bot.GetField<string>("sessionteam") != "axis") continue;
 
                     BOT_TO_AXIS_COMP = true;
 
                     var max = BOTs_List.Count - 1;//11
                     int bot_lucky_idx = max;//11
 
-                    if (ent.Name.StartsWith("bot"))//봇이 감염된 경우
-                    {
-                        if (BOTs_List.IndexOf(ent) == max) bot_lucky_idx -= 1;//10
-                    }
+                    if (BOTs_List.IndexOf(bot) == max) bot_lucky_idx -= 1;//10
                     LUCKY_BOT = BOTs_List[bot_lucky_idx];
                     LUCKY_BOT.Notify("menuresponse", "changeclass", SET.BOTs_CLASS[0]);//Allies bot change to Jugg class
 
-                    int i = 0;
-                    OnInterval(250, () =>
+                    for (int i = 0; i < BOTs_List.Count; i++)
                     {
-                        Entity bot = BOTs_List[i];
-
-                        if (i != bot_lucky_idx)
-                        {
-                            bot.Call(33341);//suicide
-                        }
-                        if (i == max)
-                        {
-                            return GetTeamState(ent.Name, bot_lucky_idx);
-                        }
-
-                        i++;
-                        return true;
-                    });
+                        if (i != bot_lucky_idx) BOTs_List[i].Call(33341);//suicide
+                        if (i == max) return GetTeamState(bot.Name, bot_lucky_idx);
+                    }
 
                     return false;
-
                 }
 
                 return true;
@@ -286,20 +265,6 @@ namespace Infected
 
         bool GetTeamState(string first_inf_name, int bot_lucky_idx)
         {
-            if (HUMAN_FIRST_INF)
-            {
-                HUMAN_FIRST_INF = false;
-                if (INITIAL_HUMAN_INF_IDX < human_List.Count)
-                {
-                    Entity human = human_List[INITIAL_HUMAN_INF_IDX];
-                    if (human != null)
-                    {
-                        human.Call("suicide");
-                        human.Notify("menuresponse", "team_marinesopfor", "allies");
-                    }
-                }
-            }
-
             int alive = 0, max = BOTs_List.Count;
 
             for (int i = 0; i < BOTs_List.Count; i++)
@@ -309,18 +274,19 @@ namespace Infected
                 if (bot.GetField<string>("sessionteam") == "allies") alive++;
                 if (i == bot_lucky_idx)
                 {
-                    BOT_LUCKY_ENTREF = bot.EntRef;
                     TK.SetTank(bot);
-                    B_SET B = B_FIELD[BOT_LUCKY_ENTREF];
+                    bot.AfterDelay(500,x =>
+                    {
+                        LUCKY_B = B_FIELD[bot.EntRef];
 
-                    B.weapon = bot.CurrentWeapon;
-                    bot.Call(33523, B.weapon);//giveMaxaAmmo
-                    B.ammoClip = bot.Call<int>(33460, B.weapon);//getcurrentweaponclipammo
-                    bot.Call(33469, B.weapon, 0);//setweaponammostock
-                    bot.Call(33468, B.weapon, 0);//setweaponammoclip
+                        LUCKY_B.weapon = bot.CurrentWeapon;
+                        LUCKY_B.ammoClip = 100;
+                        bot.Call(33469, LUCKY_B.weapon, 0);//setweaponammostock
+                        bot.Call(33468, LUCKY_B.weapon, 0);//setweaponammoclip
+                        bot.Call(33220, 0f);//setmovespeedscale
 
-                    bot.Call(33220, 0f);
-                    B.wait = true;
+                        LUCKY_B.wait = true;
+                    });
                 }
             }
 
@@ -340,13 +306,9 @@ namespace Infected
                 H_FIELD[human.EntRef].HUD_RIGHT_INFO.Alpha = 0.7f;
             }
 
-            if (!HUMAN_DIED_ALL_)
-            {
-                BotDoAttack(true);
-            }
+            if (!HUMAN_DIED_ALL_) BotDoAttack(true);
 
-            SetTeamName();
-            BotAddWatch();
+            CheckInf(null);
 
             return false;
         }
@@ -355,6 +317,12 @@ namespace Infected
         {
             if (attack)
             {
+                if (!BOT_ADD_WATCHED)
+                {
+                    SetTeamName();
+                    BotAddWatch();
+                }
+
                 Call(42, "testClients_doCrouch", 0);
                 Call(42, "testClients_doMove", 1);
                 Call(42, "testClients_doAttack", 1);

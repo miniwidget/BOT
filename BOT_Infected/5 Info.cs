@@ -7,20 +7,15 @@ using InfinityScript;
 
 namespace Infected
 {
-     class Info
+    class Info
     {
-        //readonly string[] MESSAGES_ALLIES_INFO_A =
-        //{
-        //     "ATTACHMENT INFORMATION",
-        //     "BIND FOLLOWING KEYS  IF SHOW *UNBOUND",
-        //     "Press *ESC ^7and Goto *OPTIONS",
-        //     "Goto *CONTROLS ^7 -> *MOVEMENT",
-        //     "Bind follwing Keys",
-
-        //     "1. *HOLD STRAFE ^7to any key for *AMMO",
-        //     "2. *HOLD CROUCH ^7to any key for *VIEWSCOPE",
-        //     "3. *CHANGE STANCE ^7to any key for *OFFHANDS"
-        //};
+        readonly string[] MESSAGES_KEY_INFO =
+        {
+             "KEY INFORMATION",
+             "1. *[{+smoke}] ^7RIDE VEHICLE TURRET",
+             "2. *[{+actionslot 4}] ^7RIDE PREDATOR",
+             "3. *[{+activate}] ^7HELICOPTER or TANK TURRET"
+        };
         readonly string[] MESSAGES_ALLIES_INFO_W =
         {
             "WEAPON  INFORMATION",
@@ -41,13 +36,10 @@ namespace Infected
             "*[ ^7STINGER *] TO GET STINGER",
         };
 
-        //internal void MessageInfoA(Entity ent, bool Axis)
-        //{
-        //    if (!Axis)
-        //        MessageRoop(ent, 0, MESSAGES_ALLIES_INFO_A);
-        //    else
-        //        ent.Call(33344, "NO FUNCTION. BYE");
-        //}
+        internal void MessageInfoA(Entity ent, bool Axis)
+        {
+            MessageRoop(ent, 0, MESSAGES_KEY_INFO);
+        }
         internal void MessageInfoW(Entity ent, bool Axis)
         {
             if (!Axis)
@@ -61,11 +53,11 @@ namespace Infected
             var H = Infected.H_FIELD[e.EntRef];
             if (i == 0)
             {
-                if(H.ON_MESSAGE) return;
+                if (H.ON_MESSAGE) return;
                 H.ON_MESSAGE = true;
             }
 
-            e.Call(33344, GetStr( lists[i],H.AXIS));
+            e.Call(33344, GetStr(lists[i], H.AXIS));
             i++;
 
             if (i == lists.Length)

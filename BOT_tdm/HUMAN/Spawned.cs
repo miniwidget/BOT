@@ -16,7 +16,7 @@ namespace Tdm
             H_SET H = H_FIELD[player.EntRef];
             H.PERK = 2;
 
-            if (H.Axis)
+            if (H.AXIS)
             {
                 if (H_ALLIES_LIST.Contains(player)) H_ALLIES_LIST.Remove(player);
                 if (!H_AXIS_LIST.Contains(player)) H_AXIS_LIST.Add(player);

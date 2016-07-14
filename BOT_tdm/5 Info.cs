@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Tdm
 {
-    internal class Info
+     class Info
     {
         readonly string[] MESSAGES_ALLIES_INFO_A =
         {
@@ -24,7 +24,9 @@ namespace Tdm
         {
             "WEAPON  INFORMATION",
             "^7TYPE ^2[ ^7FOLLOWING ^2] ^7TO GET WEAPONS",
-            "^2AP ^7| ^2AG ^7| ^2AR ^7| ^2SM ^7| ^2LM ^7| ^2SG ^7| ^2SN",
+            "^2[ ^7RIOT ^2] TO GET RIOTSHIELD",
+            "^2[ ^7STINGER ^2] TO GET STINGER",
+            "^2[ ^7JAVELIN ^2] TO GET JAVELIN",
             "^2[ ^7AP ^2] TO GET AKIMBO PISTOL",
             "^2[ ^7AG ^2] TO GET AKIMBO GUN",
             "^2[ ^7AR ^2] TO GET ASSAULT RIFFLE",
@@ -32,14 +34,7 @@ namespace Tdm
             "^2[ ^7LM ^2] TO GET LIGHT MACHINE GUN",
             "^2[ ^7SG ^2] TO GET SHOT GUN",
             "^2[ ^7SN ^2] TO GET SNIPE GUN",
-      };
-        readonly string[] MESSAGES_AXIS_INFO_W =
-        {
-            "^7TYPE ^2[ ^7FOLLOWING ^2] ^7TO GET WEAPONS",
-            "^2[ ^7RIOT ^2] TO GET RIOTSHIELD",
-            "^2[ ^7STINGER ^2] TO GET STINGER",
         };
-
         internal void MessageInfoA(Entity ent)
         {
             MessageRoop(ent, 0, MESSAGES_ALLIES_INFO_A);
@@ -51,16 +46,19 @@ namespace Tdm
 
         internal static void MessageRoop(Entity e, int i, string[] lists)
         {
-            if (Tdm.H_FIELD[e.EntRef].ON_MESSAGE) return;
+            var H = Tdm.H_FIELD[e.EntRef];
+            if (i == 0)
+            {
+                if (H.ON_MESSAGE) return;
+                H.ON_MESSAGE = true;
+            }
 
-            if (i == 0) Tdm.H_FIELD[e.EntRef].ON_MESSAGE = true;
-
-            e.Call(33344, lists[i]);
+            e.Call(33344, GetStr(lists[i], H.AXIS));
             i++;
 
             if (i == lists.Length)
             {
-                Tdm.H_FIELD[e.EntRef].ON_MESSAGE = false;
+                H.ON_MESSAGE = false;
                 return;
             }
             e.AfterDelay(4000, e1 =>
@@ -68,5 +66,11 @@ namespace Tdm
                 MessageRoop(e, i, lists);
             });
         }
+        internal static string GetStr(string value, bool axis)
+        {
+            if (!axis) return value.Replace("*", "^2");
+            else return value.Replace("*", "^1");
+        }
+
     }
 }

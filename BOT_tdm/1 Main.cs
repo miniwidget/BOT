@@ -18,6 +18,7 @@ namespace Tdm
             Until BOT_INFECTD work finish, I can't mod or edit BOT_TDM codes.
 
         */
+
         Perk PK;
         Info INFO;
         Tank TK;
@@ -68,6 +69,7 @@ namespace Tdm
                             case "BOT_SETTING_NUM": if (int.TryParse(value, out i)) BOT_SETTING_NUM = i; break;
 
                             case "TEST_": if (!TEST_ && bool.TryParse(value, out b)) TEST_ = b; break;
+                            case "MAP_ROTATE_": if (bool.TryParse(value, out b)) MAP_ROTATE_ = b; break;
                             case "DEPLAY_BOT_": if (bool.TryParse(value, out b)) DEPLAY_BOT_ = b; break;
                             case "USE_ADMIN_SAFE_": if (bool.TryParse(value, out b)) USE_ADMIN_SAFE_ = b; break;
 
@@ -85,14 +87,6 @@ namespace Tdm
             INFO = new Info();
             HCT = new Helicopter();
             TK = new Tank();
-
-            Call(42, "scr_game_playerwaittime", 1);
-            Call(42, "scr_game_matchstarttime", 1);
-            Call(42, "testClients_watchKillcam", 0);
-            Call(42, "testClients_doReload", 0);
-            Call(42, "testClients_doCrouch", 1);
-            Call(42, "testClients_doMove", 0);
-            Call(42, "testClients_doAttack", 0);
 
             Server_SetDvar();
 
@@ -139,13 +133,8 @@ namespace Tdm
                 {
                     GAME_ENDED_ = true;
                     SERVER_HUD.Call(32897);
-                    foreach (var v in B_FIELD)
-                    {
-                        v.fire = false;
-                        v.target = null;
-                        v.death += 1;
-                    }
-                    AfterDelay(20000, () => Utilities.ExecuteCommand("map_rotate"));
+                    Call(42, "testClients_doMove", 0);
+                    Call(42, "testClients_doAttack", 0);
                 });
             });
 
