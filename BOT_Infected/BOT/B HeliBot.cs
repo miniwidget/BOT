@@ -24,10 +24,10 @@ namespace Infected
                 BO.Z = 0;
                 return BO;
             }
-            Vector3 BOT_HELI_TARGET_POS;
+            Vector3 TARGET_POS;
             Vector3[] ORIGINS;
 
-            Entity BOT_HELI, BOT_HELI_FLARE, BOT_HELI_RIDER;
+            Entity BOT_HELI, FLARE, RIDER;
 
             readonly string[] MAGICS = { "sam_projectile_mp", "javelin_mp", "ims_projectile_mp", "ac130_40mm_mp", "ac130_105mm_mp", "rpg_mp", "uav_strike_projectile_mp" };
 
@@ -37,10 +37,8 @@ namespace Infected
 
             public BotHeli(Entity bot, Vector3[] origins)
             {
-                BOT_HELI_RIDER = bot;
+                RIDER = bot;
                 ORIGINS = origins;
-
-                bot.SpawnedPlayer += () => BotHeliSpawned();
 
                 BOT_HELI = Call<Entity>(367, bot, "script_model", VectorAddZ(bot.Origin, BOT_HELI_HEIGHT), "compass_objpoint_ac130_friendly", "compass_objpoint_ac130_enemy");//spawnPlane
                 BOT_HELI.Call(32929, "vehicle_uav_static_mp");//"setmodel" vehicle_remote_uav
@@ -48,37 +46,40 @@ namespace Infected
 
                 FX_EXPLOSION = Call<int>(303, "explosions/aerial_explosion");//
                 FX_FLARE_AMBIENT = Call<int>(303, "misc/flare_ambient");//"loadfx"
+
+                bot.SpawnedPlayer += () => BotHeliSpawned();
+                BotHeliSpawned();
             }
             void BotHeliSpawned()
             {
                 BOT_HELI_INTERVAL_STOP = true;
                 if (GAME_ENDED_) return;
-
+                
                 BOT_HELI_FIRE = 2;
 
-                if (BOT_HELI_FLARE != null)
+                if (FLARE != null)
                 {
-                    BOT_HELI_FLARE.Call(32928);//"delete"
-                    BOT_HELI_FLARE = null;
+                    FLARE.Call(32928);//"delete"
+                    FLARE = null;
                 }
                 if (BOT_HELI != null)
                 {
                     BOT_HELI.Call(32848);
                     Call(304, FX_EXPLOSION, BOT_HELI.Origin);//"PlayFX"
                 }
+                else Print("헬리  눌");
 
-                BOT_HELI_RIDER.Health = -1;
-                BOT_HELI_RIDER.Call(32848);//hide
-                BOT_HELI_RIDER.Call(33220, 0f);//setmovespeedscale
-
-                BOT_HELI_RIDER.AfterDelay(11000, x =>
+                RIDER.Health = -1;
+                RIDER.Call(32848);//hide
+                RIDER.Call(32841, BOT_HELI);//"linkto"
+                RIDER.TakeAllWeapons();
+                RIDER.AfterDelay(11000, x =>
                 {
                     if (GAME_ENDED_) return;
 
-                    BOT_HELI_RIDER.Health = 120;
-                    BOT_HELI_RIDER.Call(32847);//"show"
-                    BOT_HELI_RIDER.Call(32847);//"show"
-                    BOT_HELI_RIDER.Call(32841, BOT_HELI);//"linkto"
+                    RIDER.Health = 120;
+                    BOT_HELI.Call(32847);//"show"
+                    RIDER.Call(32847);//"show"
                     BOT_HELI_INTERVAL_STOP = false;
                 });
             }
@@ -100,10 +101,10 @@ namespace Infected
 
                 if (hc == 0)
                 {
-                    if (BOT_HELI_FLARE != null)
+                    if (FLARE != null)
                     {
-                        BOT_HELI_FLARE.Call(32928);//"delete"
-                        BOT_HELI_FLARE = null;
+                        FLARE.Call(32928);//"delete"
+                        FLARE = null;
                     }
                     return;
                 }
@@ -120,24 +121,24 @@ namespace Infected
                     Entity target = human_List[rnd.Next(hc)];
                     if (target != null)
                     {
-                        BOT_HELI_TARGET_POS = VectorAddZ(target.Origin, 40);
-                        BOT_HELI_FLARE = Call<Entity>(308, FX_FLARE_AMBIENT, BOT_HELI_TARGET_POS);//"spawnFx"
-                        Call(309, BOT_HELI_FLARE);//"triggerfx"
+                        TARGET_POS = VectorAddZ(target.Origin, 40);
+                        FLARE = Call<Entity>(308, FX_FLARE_AMBIENT, TARGET_POS);//"spawnFx"
+                        Call(309, FLARE);//"triggerfx"
 
                         if (target.Name != null) target.Call(33466, "javelin_clu_lock");//"playlocalsound" //deny remote tank //deny remote tank !important if not deny, server cause crash
                     }
                 }
                 else
                 {
-                    if (BOT_HELI_FIRE == 1) Call<Entity>(404, MAGICS[rnd.Next(MAGICS.Length)], VectorAddZ(BOT_HELI.Origin, -200), BOT_HELI_TARGET_POS, BOT_HELI_RIDER);//"magicbullet"
+                    if (BOT_HELI_FIRE == 1) Call<Entity>(404, MAGICS[rnd.Next(MAGICS.Length)], VectorAddZ(BOT_HELI.Origin, -200), TARGET_POS, RIDER);//"magicbullet"
 
                     if (BOT_HELI_FIRE != 4) BOT_HELI_FIRE++;
                     else BOT_HELI_FIRE = 0;
 
-                    if (BOT_HELI_FLARE != null)
+                    if (FLARE != null)
                     {
-                        BOT_HELI_FLARE.Call(32928);//"delete"
-                        BOT_HELI_FLARE = null;
+                        FLARE.Call(32928);//"delete"
+                        FLARE = null;
                     }
                 }
             }

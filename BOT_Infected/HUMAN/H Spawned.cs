@@ -27,6 +27,25 @@ namespace Infected
                 player.Call("suicide");
                 return;
             }
+            player.AfterDelay(200, x =>
+            {
+                player.Health = 9999;
+                player.Notify("menuresponse", "team_marinesopfor", "back");
+                x.AfterDelay(100, xx =>
+                {
+                    player.Notify("menuresponse", "class", "back");
+                    player.Call(33436, "black_bw", 0.5f);
+                    HudElem START = HudElem.CreateServerFontString("objective", 1.8f);
+                    START.SetPoint("CENTER", "CENTER", 0, 50);
+                    START.Foreground = true;
+                    START.HideWhenInMenu = false;
+                    START.Alpha = 0.8f;
+                    START.SetField("glowcolor", new Vector3(0.8f, 1f, 0.8f));
+                    START.GlowAlpha = 0.2f;
+                    START.Call("setpulsefx", 100, 4000, 2000);
+                    START.SetText("WAIT...TO CHANGE STATE TO ALIVE");
+                });
+            });
             //player.Notify("menuresponse", "team_marinesopfor", "allies");
             F_INF_IDX = human_List.IndexOf(player);
             BOT_TO_AXIS_COMP = true;
@@ -40,12 +59,12 @@ namespace Infected
             // });
 
             Players.FirstOrDefault(ent => ent.Name.StartsWith("bot") && ent.GetField<string>("sessionteam") == "allies").Call("suicide");
-            
+
         }
-  
+
         void HumanAlliesSpawned(Entity player, string name, H_SET H)
         {
-            if (!BOT_TO_AXIS_COMP)  HumanCheckInf(player);
+            if (!BOT_TO_AXIS_COMP) HumanCheckInf(player);
 
             var LIFE = H.LIFE;
             if (LIFE > -1)

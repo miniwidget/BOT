@@ -16,9 +16,11 @@ namespace Infected
 
         void Human_Connected(Entity player, string name)
         {
+            int pe = player.EntRef;
+
             if (human_List.Count > 6)
             {
-                Utilities.ExecuteCommand("dropclient " + player.EntRef + " \"MAX players count overflow\"");
+                Utilities.ExecuteCommand("dropclient " + pe + " \"MAX players count overflow\"");
                 return;
             }
 
@@ -29,8 +31,8 @@ namespace Infected
 
             if (name == ADMIN_NAME) SET.SetADMIN((ADMIN = player));
 
-            H_FIELD[player.EntRef] = new H_SET();
-            H_SET H = H_FIELD[player.EntRef];
+            if (H_FIELD[pe] ==null) H_FIELD[pe] = new H_SET();
+            H_SET H = H_FIELD[pe];
 
             if (player.GetField<string>("sessionteam") == "allies")
             {
@@ -209,11 +211,10 @@ namespace Infected
 
         void WaitOnCall(Entity player, H_SET H)
         {
-            if (CARE_PACKAGE != null && player.Origin.DistanceTo(CARE_PACKAGE.Origin) < 90)
+            if (CP.CARE_PACKAGE != null && player.Origin.DistanceTo(CP.CARE_PACKAGE_ORIGIN) < 90)
             {
-                player.Call(33344, "OK. CARE PACKAGE");
                 H.WAIT = true;
-                WaitEndCall(player, H, () => CarePackageDo(player, H));
+                WaitEndCall(player, H, () => CP.CarePackageDo(player, H));
                 return;
             }
             if (HCT.HELI == null && H.CAN_USE_HELI)
@@ -222,10 +223,10 @@ namespace Infected
                 WaitEndCall(player, H, () => HCT.HeliCall(player, H.AXIS));
                 return;
             }
-            if (CARE_PACKAGE == null && H.REMOTE_STATE == 0 && H.CAN_USE_PREDATOR)
+            if (CP.CARE_PACKAGE == null && H.REMOTE_STATE == 0 && H.CAN_USE_PREDATOR)
             {
                 H.WAIT = true;
-                WaitEndCall(player, H, () => CarePackageMarker(player));
+                WaitEndCall(player, H, () => CP.CarePackageMarker(player));
                 return;
             }
         }

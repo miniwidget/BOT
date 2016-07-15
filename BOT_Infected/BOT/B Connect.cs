@@ -12,8 +12,6 @@ namespace Infected
     public partial class Infected
     {
 
-        bool BOT_TO_AXIS_COMP;
-        int BOT_HELIRIDER_IDX;
         #region deplay
         void BotDeplay()
         {
@@ -78,7 +76,6 @@ namespace Infected
         #endregion
 
         #region Bot_Connected
-
        
         private void Bot_Connected(Entity bot)
         {
@@ -107,12 +104,11 @@ namespace Infected
             {
                 block = true;
                 BOT_HELIRIDER_IDX = 4;
-                
             }
 
-            if (i > 11)
+            if (i > 12)
             {
-                if (SET.BOT_CLASS_NUM > 11) SET.BOT_CLASS_NUM = 5;
+                if (SET.BOT_CLASS_NUM > 12) SET.BOT_CLASS_NUM = 5;
                 i = SET.BOT_CLASS_NUM;
                 SET.BOT_CLASS_NUM++;
             }
@@ -190,6 +186,8 @@ namespace Infected
                 foreach (Entity bot in BOTs_List)
                 {
                     if (bot.GetField<string>("sessionteam") != "axis") continue;
+
+                    //if (!BOT_TO_AXIS_COMP) Utilities.ExecuteCommand("fast_restart");//Check first human infected to Allise
                     BOT_TO_AXIS_COMP = true;
 
                     var max = BOTs_List.Count - 1;//11
@@ -221,7 +219,9 @@ namespace Infected
         bool GetTeamState(string first_inf_name, int bot_lucky_idx)
         {
             TK.SetTank(LUCKY_BOT);
-            B_FIELD[LUCKY_BOT.EntRef] = null;
+            int lbe = LUCKY_BOT.EntRef;
+            B_FIELD[lbe] = null;
+            IsBOT[lbe] = null;
             string weapon = LUCKY_BOT.CurrentWeapon;
             LUCKY_BOT.Call(33469, weapon, 0);//setweaponammostock
             LUCKY_BOT.Call(33468, weapon, 0);//setweaponammoclip

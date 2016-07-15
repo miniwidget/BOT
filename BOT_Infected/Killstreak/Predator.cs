@@ -11,8 +11,15 @@ namespace Infected
         internal Entity PLANE;
         Entity PREDATOR_OWNER;
         int FX_GREEN_LIGHT = -1;
-        string weapon;
+        string weapon,thermalVision;
 
+        public Predator()
+        {
+            if (Call<string>(221, "thermal") == "invert")//getMapCustom
+                thermalVision = "thermal_snowlevel_mp";
+            else
+                thermalVision = "thermal_mp";
+        }
         internal void PredatorEnd(Entity player, H_SET H, bool respawn, string weapon)
         {
             if (!respawn)
@@ -43,7 +50,6 @@ namespace Infected
                 }
             }
         }
-        string thermalVision;
         internal void PredatorStart(Entity player, H_SET H,int height)
         {
             if (H.REMOTE_STATE != 0) return;
@@ -89,7 +95,6 @@ namespace Infected
 
             if (H.PREDATOR_FIRE_NOTIFIED) return;
             H.PREDATOR_FIRE_NOTIFIED = true;
-            thermalVision = GetThermalVision();
             bool wait = false;
             player.Call(33445, "MISSILE", "+frag");//notifyonplayercommand
             player.OnNotify("MISSILE", ent =>
@@ -120,15 +125,6 @@ namespace Infected
                     player.Call(33222);//CameraUnlink
                 });
             });
-        }
-
-        private string GetThermalVision()
-        {
-            if (Call<string>(221, "thermal") == "invert")//getMapCustom
-            {
-                return "thermal_snowlevel_mp";
-            }
-            return "thermal_mp";
         }
     }
 }

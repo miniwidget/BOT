@@ -39,7 +39,7 @@ namespace Infected
             {
                 H.CAN_USE_PREDATOR = true;
 
-                if (CARE_PACKAGE != null) killer.Call(33344, "PRESS ^2[ [{+activate}] ] ^7AT THE CARE PACKAGE");
+                if (CP.CARE_PACKAGE != null) killer.Call(33344, "PRESS ^2[ [{+activate}] ] ^7AT THE CARE PACKAGE");
                 else killer.Call(33344, "PRESS ^2[ [{+activate}] ] ^7TO CALL PREDATOR");
 
                 string txt = H.PERK_TXT;
@@ -79,7 +79,11 @@ namespace Infected
                     B.BotSearch();
                 }
 
-                if (LUCKY_BOT_START) LUCKY_B.BotSearchAxis();
+                if (LUCKY_BOT_START)
+                {
+                    if (!LUCKY_DIE) LUCKY_B.BotSearchAxis();
+                    else LUCKY_B.BotSearch();
+                }
 
                 BH.HeliBotSearch();
 
@@ -87,6 +91,7 @@ namespace Infected
             });
         }
 
+        bool LUCKY_DIE;
         /// <summary>
         /// Survivor bot starts searching Infected humans
         /// </summary>
@@ -95,16 +100,20 @@ namespace Infected
             BOT_SERCH_ON_LUCKY_FINISHED = true;
 
             if (LUCKY_BOT.GetField<string>("sessionteam") == "axis") return;
-            B_FIELD[LUCKY_BOT.EntRef] = new B_SET(LUCKY_BOT )
+            int lbe = LUCKY_BOT.EntRef;
+            B_FIELD[lbe] = new B_SET(LUCKY_BOT )
             {
                 weapon = LUCKY_BOT.CurrentWeapon,
                 ammoClip = 100,
             };
-            LUCKY_B = B_FIELD[LUCKY_BOT.EntRef];
+            LUCKY_B = B_FIELD[lbe];
             LUCKY_BOT_START = true;
             LUCKY_BOT.Call(33220, 1f);//setmovespeedscale
-
-            
+            IsBOT[lbe] = "1";
+            LUCKY_BOT.SpawnedPlayer += delegate
+            {
+                if (!LUCKY_DIE) LUCKY_DIE = true;
+            };
         }
     }
 }

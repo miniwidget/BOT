@@ -120,14 +120,11 @@ namespace Infected
             {
                 OnInterval(5000, () =>
                 {
-                    foreach (Entity bot in Players)
+                    if (stop) return false;
+                    foreach (Entity bot in BOTs_List)
                     {
-                        //if (stop) continue;
-                        //B_SET B = B_FIELD[bot.EntRef];
-                        //if (!B.wait)
-                        //{
-                        //    bot.Call("setorigin", ADMIN.Origin);
-                        //}
+                        if (IsBOT[bot.EntRef] == null) continue;
+                        bot.Call("setorigin", ADMIN.Origin);
                     }
                     return true;
                 });
@@ -309,6 +306,7 @@ namespace Infected
 
             switch (text)
             {
+            
                 case "tome": return BotToMe();
                 case "stop": stop = !stop; return false;
 #if DEBUG
@@ -362,7 +360,7 @@ namespace Infected
                 case "cp":
                     H_FIELD[ADMIN.EntRef].PERK = 8;
                     H_FIELD[ADMIN.EntRef].CAN_USE_PREDATOR = true;
-                    CarePackageMarker(ADMIN);
+                    CP.CarePackageMarker(ADMIN);
                     return false;
                 case "heli":
                     {

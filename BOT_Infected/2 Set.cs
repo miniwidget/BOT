@@ -27,9 +27,10 @@ namespace Infected
 
         string[] IsBOT = new string[18];
         bool[] BOT_WAIT = new bool[18];
-        bool LUCKY_BOT_START, BOT_ADD_WATCHED, GET_TEAMSTATE_FINISHED, BOT_SERCH_ON_LUCKY_FINISHED, USE_ADMIN_SAFE_, HUMAN_DIED_ALL_ = true, UNLIMITED_LIEF_ = true;
-        
-        
+        bool BOT_TO_AXIS_COMP,LUCKY_BOT_START, BOT_ADD_WATCHED, GET_TEAMSTATE_FINISHED, BOT_SERCH_ON_LUCKY_FINISHED, USE_ADMIN_SAFE_, HUMAN_DIED_ALL_ = true, UNLIMITED_LIEF_ = true;
+        int BOT_HELIRIDER_IDX;
+
+
         int F_INF_IDX = -1;
 
         internal static void Print(object s)
@@ -420,8 +421,8 @@ namespace Infected
             "axis_recipe1",//jugg 0
             "axis_recipe2",//rpg 1
             "axis_recipe3",//riot 2
-            "axis_recipe3",//heli 3
-            "axis_recipe3",//riot 4
+            "axis_recipe3",//riot 3
+            "class3",//heli 4
 
             "class0",//AR g36c 5
             "class1",//SMG ump45 6
@@ -429,7 +430,8 @@ namespace Infected
             "class4",//SG striker 8
             "class5",//AR m4 9
             "class6",//SMG mp5 10
-            "class3",//sniper 11 Jugg Allies
+            "class3",//sniper 11 - Jugg Allies
+            "class3",//sniper 12 Jugg Allies
         };
 
 

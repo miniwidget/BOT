@@ -15,7 +15,7 @@ namespace Infected
 
             internal void VehicleAddTank(Entity player, H_SET H)
             {
-                Entity tank = VehicleSearch("vehicle_ugv_talon_mp", true);
+                Entity tank = VehicleSearch("vehicle_ugv_talon_mp", true,false);
                 if (tank == null) return;
 
                 H.REMOTE_STATE = 3;
@@ -32,19 +32,21 @@ namespace Infected
 
             internal void Vehicles(Entity player, string weapon)
             {
-                if (weapon == "killstreak_helicopter_mp") VehicleStartRemote(player, VehicleSearch("vehicle_cobra_helicopter_fly_low", false), "tag_light_belly");
-                else if (weapon == "mortar_remote_mp") VehicleAdd(player, "vehicle_predator_b", "REMOTE MORTAR");//ok
-                else if (weapon == "heli_remote_mp") VehicleAdd(player, "vehicle_v22_osprey_body_mp", "OSPREY");//ok
+                if (weapon == "killstreak_helicopter_mp") VehicleStartRemote(player, VehicleSearch("vehicle_cobra_helicopter_fly_low", false, false), "tag_light_belly");
+                else
+                {
+                    if (VEHICLE != null) return;
+
+                    if (weapon == "mortar_remote_mp") VehicleAdd(player, "vehicle_predator_b", "REMOTE MORTAR");//ok
+                    else if (weapon == "heli_remote_mp") VehicleAdd(player, "vehicle_v22_osprey_body_mp", "OSPREY");//ok
+                }
             }
 
             void VehicleAdd(Entity player, string vehicleModel, string shortName)
             {
-                if (VEHICLE != null) VEHICLE = null;
-
-                VEHICLE = VehicleSearch(vehicleModel, false);
+                VEHICLE = VehicleSearch(vehicleModel, false,true);
                 if (VEHICLE == null) return;
 
-                VEHICLE_CODE = rnd.Next(10000, 1000000).ToString();
                 VEHICLE_NAME = shortName + "+" + player.EntRef;
 
                 MessageToTeam("TYPE ^2[ " + VEHICLE_CODE + " ] ^7TO RIDE " + shortName, player.EntRef);
@@ -66,16 +68,16 @@ namespace Infected
 
                 if (H.REMOTE_STATE != 0) return;
                 H.VEHICLE = vehicle;
-                string notifyString = null;
+                string weapon = null,notifyString = null;
 
                 bool remoteTurret = true;
-                string weapon = player.CurrentWeapon;
+                
 
                 if (tag == null)
                 {
                     string[] vehs = VEHICLE_NAME.Split('+');
                     if (vehs[1] == player.EntRef.ToString()) return;//자신이 직접 리모트 컨트롤 한 차량의 경우, 차단
-
+                    
                     switch (vehs[0])
                     {
                         case "REMOTE MORTAR": tag = "tag_player"; notifyString = "remote_done"; remoteTurret = false; break;
@@ -84,6 +86,8 @@ namespace Infected
                     }
                     VEHICLE_NAME = null;
                     VEHICLE_CODE = null;
+                    VEHICLE = null;
+                    weapon = player.CurrentWeapon;
                 }
                 else notifyString = "leaving";//choper
 
@@ -224,7 +228,7 @@ namespace Infected
 
             }
 
-            Entity VehicleSearch(string vehicleModel, bool addHumanList)
+            Entity VehicleSearch(string vehicleModel, bool addHumanList,bool endNotify)
             {
                 for (int i = 18; i < 1024; i++)
                 {
@@ -237,12 +241,31 @@ namespace Infected
                         {
                             if (vehicle == TK.REMOTETANK || human_List.Contains(vehicle)) continue;
                         }
+                        else if(endNotify)AddVehicleEndNotify(vehicle, vehicleModel);
                         return vehicle;
                     }
                 }
                 return null;
             }
+            void AddVehicleEndNotify(Entity vehicle, string vehicleModel)
+            {
+                string notifyString = null;
 
+                if (vehicleModel == "vehicle_predator_b") notifyString = "remote_done";
+                
+                else if (vehicleModel == "vehicle_v22_osprey_body_mp") notifyString = "leaving";
+
+                VEHICLE_CODE = rnd.Next(1000, 9999).ToString();
+
+                string vhc = VEHICLE_CODE;
+
+                vehicle.OnNotify(notifyString, e =>
+                {
+                    if (vhc != VEHICLE_CODE) return;
+                    VEHICLE_CODE = null;
+                    VEHICLE = null;
+                });
+            }
             void MessageToTeam(string message, int pe)
             {
                 foreach (Entity player in human_List)

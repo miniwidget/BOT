@@ -20,7 +20,7 @@ namespace Infected
 
         public override void OnPlayerDamage(Entity player, Entity inflictor, Entity attacker, int damage, int dFlags, string mod, string weapon, Vector3 point, Vector3 dir, string hitLoc)
         {
-            if (USE_ADMIN_SAFE_) if (player == ADMIN) player.Health += damage;// damage;
+            if (USE_ADMIN_SAFE_) if (player == ADMIN) { player.Health += damage; return; }// damage;
 
             if (mod[4] == 'M') { DamageModMelee(player, attacker, damage); return; }
 
@@ -33,7 +33,7 @@ namespace Infected
 
             int pe = player.EntRef;
 
-            if (IsBOT[pe] == null || IsBOT[attacker.EntRef] != null) return;
+            if (B_FIELD[pe]==null|| IsBOT[attacker.EntRef] != null) return;
             if (B_FIELD[pe].target == null) B_FIELD[pe].target = attacker;
         }
 

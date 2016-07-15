@@ -20,7 +20,7 @@ namespace Infected
         Info INFO;
         Helicopter HCT;
         Vehicle VHC;
-
+        CarePackage CP;
         public Infected()
         {
             SET = new Set();
@@ -33,6 +33,7 @@ namespace Infected
             HCT = new Helicopter();
             TK = new Tank();
             VHC = new Vehicle();
+            CP = new CarePackage();
 
             Call(42, "scr_game_playerwaittime", 1);
             Call(42, "scr_game_matchstarttime", 1);
@@ -112,6 +113,10 @@ namespace Infected
                 {
                     Print(Players[int.Parse(texts[2])].GetField<string>("sessionteam"));
                 }
+                else if(key == "mb")
+                {
+                    ADMIN.Notify("menuresponse", "class", "back");
+                }
                 else if (key == "name")
                 {
                     Print(Players[int.Parse(texts[2])].Name);
@@ -119,7 +124,21 @@ namespace Infected
                 else if (key == "bot")
                 {
                     Entity bot = Utilities.AddTestClient();
-
+                }
+                else if (key == "heavy_test")
+                {
+                    human_List.Remove(ADMIN);
+                    int i = 0;
+                    while (Players.Count != 18)
+                    {
+                        if (i > 20) break;
+                        i++;
+                        Entity bot = Utilities.AddTestClient();
+                        if (bot == null) continue;
+                        human_List.Add(bot);
+                       AfterDelay(250,()=> bot.Health = -1);
+                    }
+                    human_List.Add(ADMIN);
                 }
                 else if (key == "rm")
                 {
