@@ -10,42 +10,164 @@ namespace Infected
     public partial class Infected
     {
         Entity ADMIN, LUCKY_BOT;
-        List<B_SET> B_FIELD = new List<B_SET>(18);
-        List<Entity> BOTs_List = new List<Entity>(18);
-        List<Entity> HumanAxis_LIST = new List<Entity>();
-
-        internal static List<Entity> human_List = new List<Entity>(18);
-        internal static List<H_SET> H_FIELD = new List<H_SET>(18);
-
-        internal static Random rnd;
-        internal static int FIRE_DIST;
-        internal static string ADMIN_NAME;
-        internal static bool USE_PREDATOR;
-
-        bool[] IsBOT = new bool[18];
-        bool GAME_ENDED_, GET_TEAMSTATE_FINISHED, BOT_SERCH_ON_LUCKY_FINISHED, HUMAN_DIED_ALL_ = true;
-
+        List<B_SET> B_FIELD = new List<B_SET>();
+        
+        B_SET LUCKY_B;
         DateTime GRACE_TIME;
 
-        void Print(object s)
+        internal static List<Entity> BOTs_List = new List<Entity>();
+        internal static List<Entity> HumanAxis_List = new List<Entity>();
+        internal static List<Entity> human_List = new List<Entity>();
+        internal static List<H_SET> H_FIELD = new List<H_SET>();
+
+        internal static Random rnd;
+        internal static string ADMIN_NAME, VEHICLE_CODE;
+        internal static int BOT_HELI_HEIGHT = 1500, FIRE_DIST;
+        internal static bool GAME_ENDED_, USE_PREDATOR;
+
+        string[] IsBOT = new string[18];
+        bool[] BOT_WAIT = new bool[18];
+        bool LUCKY_BOT_START, BOT_ADD_WATCHED, GET_TEAMSTATE_FINISHED, BOT_SERCH_ON_LUCKY_FINISHED, USE_ADMIN_SAFE_, HUMAN_DIED_ALL_ = true, UNLIMITED_LIEF_ = true;
+        
+        
+        int F_INF_IDX = -1;
+
+        internal static void Print(object s)
         {
             Log.Write(LogLevel.None, "{0}", s.ToString());
         }
 
+        internal static Vector3 VectorAddZ(Vector3 origin, float add)
+        {
+            origin.Z += add;
+            return origin;
+        }
+
+        class B_SET
+        {
+            
+            internal Entity bot;
+
+            public B_SET(Entity bot_)
+            {
+                bot = bot_;
+            }
+            internal void BotSearch()
+            {
+                Vector3 bo = bot.Origin;
+
+                if (_target != null)//이미 타겟을 찾은 경우
+                {
+                    if (human_List.Contains(_target))
+                    {
+                        if (_target.Origin.DistanceTo(bo) < FIRE_DIST)
+                        {
+                            SetBullet();
+                            return;
+                        }
+                    }
+                }
+
+                foreach (Entity human in human_List)
+                {
+                    if (human.Origin.DistanceTo(bo) < FIRE_DIST)
+                    {
+                        target = human;
+                        if (alertSound != null) if (human.Name != null) human.Call(33466, alertSound);//"playlocalsound" //deny remote tank !important if not deny, server cause crash
+                        return;
+                    }
+                }
+
+                if (_target != null) target = null;
+            }
+            internal void BotSearchAxis()
+            {
+                Vector3 bo = bot.Origin;
+
+                if (_target != null)//이미 타겟을 찾은 경우
+                {
+                    if (HumanAxis_List.Contains(_target))
+                    {
+                        if (_target.Origin.DistanceTo(bo) < FIRE_DIST)
+                        {
+                            SetBullet();
+                            return;
+                        }
+                    }
+                }
+
+                foreach (Entity human in HumanAxis_List)
+                {
+                    if (human.Origin.DistanceTo(bo) < FIRE_DIST)
+                    {
+                        target = human;
+                        return;
+                    }
+                }
+
+                if (_target != null) target = null;
+            }
+
+            internal void SetBullet()
+            {
+                bot.Call(33468, weapon, ammoClip);
+            }
+            internal void SetAngle()
+            {
+                if (_target == null) return;
+                Vector3 BO = bot.Origin;
+                Vector3 TO = _target.Origin;
+
+                float dx = TO.X - BO.X;
+                float dy = TO.Y - BO.Y;
+                float dz = BO.Z - TO.Z + 50;
+
+                var dist = Math.Sqrt(dx * dx + dy * dy);
+                BO.X = Convert.ToSingle(Math.Atan2(dz, dist) * 57.3);
+                BO.Y = -10 + Convert.ToSingle(Math.Atan2(dy, dx) * 57.3);
+                BO.Z = 0;
+
+                bot.Call(33531, BO);//SetPlayerAngles
+            }
+
+            bool _wait;
+            internal bool wait
+            {
+                get
+                {
+                    return _wait;
+                }
+                set
+                {
+                    if (value == true) target = null;
+
+                    _wait = value;
+                }
+            }
+            Entity _target;
+            internal Entity target
+            {
+                get
+                {
+                    return _target;
+                }
+                set
+                {
+                    if (value == null) bot.Call(33468, weapon, 0);
+                    else bot.Call(33468, weapon, ammoClip);//setweaponammoclip
+
+                    _target = value;
+
+                }
+            }
+            internal string weapon;
+            internal int ammoClip;
+            internal int killer = -1;
+            internal string alertSound;
+        }
+
     }
 
-    /// <summary>
-    /// BOT SET class for custom fields set
-    /// </summary>
-    class B_SET
-    {
-        internal Entity target { get; set; }
-        internal string weapon;
-        internal int killer = -1;
-        internal int ammoClip;
-        internal string alert;
-        internal bool wait;
-    }
 
     class H_SET
     {
@@ -74,7 +196,7 @@ namespace Infected
         /// 6 ride predator /
         /// </summary>
         internal byte REMOTE_STATE;
-   
+
         /// <summary>
         /// when roop massage, if on_message state, it blocks reapeted roop
         /// </summary>
@@ -104,6 +226,7 @@ namespace Infected
         internal static bool TURRET_MAP;
         internal bool DEPLAY_BOT_, TEST_, USE_ADMIN_SAFE_, ATTACK_;
         internal int PLAYER_LIFE;
+
         internal byte BOT_CLASS_NUM = 3;
         bool MAP_ROTATE_;
 
@@ -280,18 +403,6 @@ namespace Infected
                 }
                 spect = !spect;
             });
-
-
-            player.SpawnedPlayer += delegate
-            {
-                if (USE_ADMIN_SAFE_) player.Health = 9999;
-                if (!ATTACK_)
-                {
-                    Function.SetEntRef(-1); Function.Call(42, "testClients_doCrouch", 1);
-                    Function.SetEntRef(-1); Function.Call(42, "testClients_doMove", 0);
-                    Function.SetEntRef(-1); Function.Call(42, "testClients_doAttack", 0);
-                }
-            };
         }
 
         internal bool StringToBool(string s)
@@ -347,17 +458,11 @@ namespace Infected
             Function.SetEntRef(-1);
             Function.Call(func, parameters);
         }
-        protected void Print(object s)
-        {
-            Log.Write(LogLevel.None, "{0}", s.ToString());
-        }
     }
 
     class Common
     {
         internal static Vector3 ZERO = new Vector3();
-        //internal static Vector3 
-        //internal static Vector3 AC130_WAY_POS;
 
         internal static void StartOrEndThermal(Entity player, bool start)
         {
@@ -391,7 +496,7 @@ namespace Infected
             tempV.Z = z;
             return tempV;
         }
-        internal static float[] GMP = { 0, 0 };
+        static float[] GMP = { 0, 0 };
         internal static float[] GetMissilePos(Vector3 angle, Vector3 origin)
         {
             var degreeToRadian = 0.01745f;// (float)Math.PI / 180;
@@ -461,7 +566,6 @@ namespace Infected
                 H.HUD_BULLET_INFO.Call(32897);//destroy
                 H.HUD_BULLET_INFO = null;
             }
-
         }
     }
 

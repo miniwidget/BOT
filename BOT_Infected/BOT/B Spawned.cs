@@ -12,7 +12,6 @@ namespace Infected
 
     public partial class Infected
     {
-        B_SET LUCKY_B;
 
         void BotCheckPerk(int k)
         {
@@ -55,111 +54,37 @@ namespace Infected
             }
         }
 
-        bool LUCKY_BOT_START, BOT_ADD_WATCHED;
         void BotAddWatch()
         {
             BOT_ADD_WATCHED = true;
 
-            List<Entity> BOTS = new List<Entity>();
-            for (int i = 0; i < BOTs_List.Count; i++)
+            List<B_SET> bots_fire = new List<B_SET>();
+            foreach (B_SET B in B_FIELD)
             {
-                Entity bot = BOTs_List[i];
-                B_SET B = B_FIELD[bot.EntRef];
-                if (B.ammoClip == 0 || bot == LUCKY_BOT) continue;
-                BOTS.Add(bot);
+                if (B == null) continue;
+                bots_fire.Add(B);
             }
-            bool pass = true;
-            byte count = 0;
-            OnInterval(2000, () =>
+
+            if (SET.MAP_IDX == 5) BOT_HELI_HEIGHT += 1000;
+
+            BotHeli BH = new BotHeli(BOTs_List[BOT_HELIRIDER_IDX], Players.Select(ent => ent.Origin).ToArray());
+          
+            OnInterval(2500, () =>
             {
                 if (GAME_ENDED_) return false;
 
-                foreach (Entity bot in BOTS)
+                foreach (B_SET B in bots_fire)
                 {
-                    B_SET B = B_FIELD[bot.EntRef];
-                    if (!B.wait) BotSearch(bot, B);
+                    if (B.wait) continue;
+                    B.BotSearch();
                 }
-                if (LUCKY_BOT_START) BotSearchLucky();
-                if (pass)
-                {
-                    pass = false;
-                    BotHeliRide(count++);
-                }
-                else pass = true;
+
+                if (LUCKY_BOT_START) LUCKY_B.BotSearchAxis();
+
+                BH.HeliBotSearch();
 
                 return true;
             });
-        }
-        
-        
-        void BotSearch(Entity bot, B_SET B)
-        {
-
-            Vector3 bo = bot.Origin;
-
-            if (B.target != null)//이미 타겟을 찾은 경우
-            {
-                if (human_List.Contains(B.target))
-                {
-                    if (B.target.Origin.DistanceTo(bo) < FIRE_DIST)
-                    {
-                        bot.Call(33468, B.weapon, B.ammoClip);//setweaponammoclip
-                        return;
-                    }
-                }
-
-                B.target = null;
-                bot.Call(33468, B.weapon, 0);//setweaponammoclip
-            }
-
-            foreach (Entity human in human_List)
-            {
-                if (human.Origin.DistanceTo(bo) < FIRE_DIST)
-                {
-                    B.target = human;
-
-                    bot.Call(33468, B.weapon, B.ammoClip);//setweaponammoclip
-
-                    if (B.alert != null) if (human.Name != null) human.Call(33466, B.alert);//"playlocalsound" //deny remote tank !important if not deny, server cause crash
-
-                    return;
-                }
-            }
-        }
-        void BotSearchLucky()
-        {
-            if (LUCKY_B.wait) return;
-
-            Vector3 bo = LUCKY_BOT.Origin;
-
-            if (LUCKY_B.target != null)//이미 타겟을 찾은 경우
-            {
-                if (HumanAxis_LIST.Contains(LUCKY_B.target))
-                {
-                    if (LUCKY_B.target.Origin.DistanceTo(bo) < FIRE_DIST)
-                    {
-                        LUCKY_BOT.Call(33468, LUCKY_B.weapon, LUCKY_B.ammoClip);//setweaponammoclip
-                        return;
-                    }
-                }
-
-                LUCKY_B.target = null;
-                LUCKY_BOT.Call(33468, LUCKY_B.weapon, 0);//setweaponammoclip
-            }
-
-            foreach (Entity human in HumanAxis_LIST)
-            {
-                if (human.Origin.DistanceTo(bo) < FIRE_DIST)
-                {
-                    LUCKY_B.target = human;
-
-                    LUCKY_BOT.Call(33468, LUCKY_B.weapon, LUCKY_B.ammoClip);//setweaponammoclip
-
-                    if (LUCKY_B.alert != null) if (human.Name != null) human.Call(33466, LUCKY_B.alert);//"playlocalsound" //deny remote tank !important if not deny, server cause crash
-
-                    return;
-                }
-            }
         }
 
         /// <summary>
@@ -170,10 +95,15 @@ namespace Infected
             BOT_SERCH_ON_LUCKY_FINISHED = true;
 
             if (LUCKY_BOT.GetField<string>("sessionteam") == "axis") return;
-
-            LUCKY_B.wait = false;
+            B_FIELD[LUCKY_BOT.EntRef] = new B_SET(LUCKY_BOT )
+            {
+                weapon = LUCKY_BOT.CurrentWeapon,
+                ammoClip = 100,
+            };
+            LUCKY_B = B_FIELD[LUCKY_BOT.EntRef];
             LUCKY_BOT_START = true;
             LUCKY_BOT.Call(33220, 1f);//setmovespeedscale
+
             
         }
     }

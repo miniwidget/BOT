@@ -8,7 +8,8 @@ namespace Infected
 {
     class Predator : Inf
     {
-        internal Entity PLANE, PREDATOR_OWNER;
+        internal Entity PLANE;
+        Entity PREDATOR_OWNER;
         int FX_GREEN_LIGHT = -1;
         string weapon;
 
@@ -95,10 +96,9 @@ namespace Infected
             {
                 if (H.REMOTE_STATE != 6) return;
                 if (!H.CAN_USE_PREDATOR) return;
-                if (H.MISSILE_COUNT <= 0) return;
+                if (H.MISSILE_COUNT <= 0){PredatorEnd(player, H, false, weapon); return;}
+                if (wait) return;wait = true;
 
-                if (wait) return;
-                wait = true;
                 Vector3 angle = player.Call<Vector3>(33532);//getPlayerAngles
                 Vector3 Ori = player.Origin;
 
@@ -107,25 +107,18 @@ namespace Infected
                 Vector3 targetPos = Common.GetVector(Ori.X + x, Ori.Y + y, 0);
                 Vector3 startPos = Common.GetVector(Ori.X - x, Ori.Y - y, Ori.Z * 4);
                 Entity missile = Call<Entity>(404, "remotemissile_projectile_mp", startPos, targetPos, player);//MagicBullet
-                if (missile == null){wait = false;return;}
-
                 missile.Call(33417, true);//setCanDamage
-                missile.OnNotify("death", ms =>
-                {
-                    wait = false;
-                    if (player == null) return;
-
-                    player.Call(33252);//ControlsUnlink
-                    player.Call(33222);//CameraUnlink
-
-                    H.MISSILE_COUNT--;
-                    H.HUD_BULLET_INFO.SetText(H.MISSILE_COUNT.ToString());
-
-                    if (H.MISSILE_COUNT == 0) PredatorEnd(player, H, false, weapon);
-                });
                 player.Call(33438, thermalVision, 1f);//VisionSetMissilecamForPlayer
                 player.Call(33221, missile, "tag_origin");//CameraLinkTo
                 player.Call(33251, missile);//ControlsLinkTo
+                H.MISSILE_COUNT--;
+                H.HUD_BULLET_INFO.SetText(H.MISSILE_COUNT.ToString());
+                missile.OnNotify("death", ms =>
+                {
+                    wait = false;
+                    player.Call(33252);//ControlsUnlink
+                    player.Call(33222);//CameraUnlink
+                });
             });
         }
 

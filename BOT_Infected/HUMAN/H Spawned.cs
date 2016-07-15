@@ -10,13 +10,11 @@ namespace Infected
 {
     public partial class Infected
     {
-        bool UNLIMITED_LIEF_ = true;
-        int F_INF_IDX = -1;
 
         /// <summary>
         /// change initial human infected to Allies
         /// </summary>
-        void CheckInf(Entity player)
+        void HumanCheckInf(Entity player)
         {
             if (player == null)
             {
@@ -29,16 +27,25 @@ namespace Infected
                 player.Call("suicide");
                 return;
             }
-
+            //player.Notify("menuresponse", "team_marinesopfor", "allies");
             F_INF_IDX = human_List.IndexOf(player);
             BOT_TO_AXIS_COMP = true;
-            player.Notify("menuresponse", "team_marinesopfor", "allies");
-            BOTs_List[0].Call("suicide");
+            //player.AfterDelay(100, x =>
+            // {
+            //     player.Notify("menuresponse", "team_marinesopfor", "back");
+            //     player.AfterDelay(100, xx =>
+            //     {
+            //         player.Notify("menuresponse", "class", "back");
+            //     });
+            // });
+
+            Players.FirstOrDefault(ent => ent.Name.StartsWith("bot") && ent.GetField<string>("sessionteam") == "allies").Call("suicide");
+            
         }
   
         void HumanAlliesSpawned(Entity player, string name, H_SET H)
         {
-            if (!BOT_TO_AXIS_COMP)  CheckInf(player);
+            if (!BOT_TO_AXIS_COMP)  HumanCheckInf(player);
 
             var LIFE = H.LIFE;
             if (LIFE > -1)
@@ -102,11 +109,10 @@ namespace Infected
             if (!BOT_SERCH_ON_LUCKY_FINISHED) BotSerchOn_lucky();
 
         }
-
         void HumanAxisSpawned(Entity player, string name, H_SET H)
         {
             if (!H.CAN_USE_HELI) H.CAN_USE_HELI = true;
-            if (!HumanAxis_LIST.Contains(player)) HumanAxis_LIST.Add(player);
+            if (!HumanAxis_List.Contains(player)) HumanAxis_List.Add(player);
 
             player.SetPerk("specialty_scavenger", true, false);
             player.SetPerk("specialty_longersprint", true, false);
@@ -115,7 +121,7 @@ namespace Infected
             H.AX_WEP += 1;
 
             string deadManWeapon = null;
-            deadManWeapon = AxisWeapon(player, H.AX_WEP);
+            deadManWeapon = HumanAxisSpawnedWeapon(player, H.AX_WEP);
 
             H.CAN_USE_HELI = true;
 
@@ -134,7 +140,7 @@ namespace Infected
                 Info.MessageRoop(player, 0, new[] { "*[ ^7" + deadManWeapon + " *] Weapon of the Infected", "*PRESS [^7 [{+activate}] *] AT THE HELI TURRET AREA", "YOU CAN RIDE IN HELICOPTER" });
             }
         }
-        string AxisWeapon(Entity dead, int aw)
+        string HumanAxisSpawnedWeapon(Entity dead, int aw)
         {
             dead.TakeWeapon(dead.CurrentWeapon);
             dead.Health = 70;

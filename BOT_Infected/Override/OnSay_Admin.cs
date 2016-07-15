@@ -43,7 +43,6 @@ namespace Infected
                 if (ent == null) continue;
                 if (ent.Name.Contains(name))
                 {
-
                     ent.Call(33529, o);//"setorigin"
                 }
             }
@@ -102,25 +101,7 @@ namespace Infected
             return false;
         }
 
-        internal bool Status()
-        {
-            string s = null;
 
-            for (int i = 0; i < 18; i++)
-            {
-                Entity p = Entity.GetEntity(i);
-
-                if (p == null) continue;
-                string name = p.Name;
-                if (name.StartsWith("bot"))
-                {
-                    s += "◎" + p.EntRef + p.GetField<string>("sessionteam").Substring(0, 2);
-                }
-                else s += " ◐" + p.EntRef + p.GetField<string>("sessionteam").Substring(0, 2);
-            }
-            Print(s);
-            return false;
-        }
 
         void SayToAdmin(string message)
         {
@@ -139,14 +120,14 @@ namespace Infected
             {
                 OnInterval(5000, () =>
                 {
-                    foreach (Entity bot in BOTs_List)
+                    foreach (Entity bot in Players)
                     {
-                        if (stop) continue;
-                        B_SET B = B_FIELD[bot.EntRef];
-                        if (!B.wait)
-                        {
-                            bot.Call("setorigin", ADMIN.Origin);
-                        }
+                        //if (stop) continue;
+                        //B_SET B = B_FIELD[bot.EntRef];
+                        //if (!B.wait)
+                        //{
+                        //    bot.Call("setorigin", ADMIN.Origin);
+                        //}
                     }
                     return true;
                 });
@@ -397,7 +378,6 @@ namespace Infected
                 case "ltest": return AD.Script("loadscript test.dll", true);
                 case "fr": return AD.Script("fast_restart", false);
                 case "mr": return AD.Script("map_rotate", false);
-                case "status": return AD.Status();
 
                 case "kb": return AD.KickBOTsAll();
                 case "k": return AD.Kick(text);

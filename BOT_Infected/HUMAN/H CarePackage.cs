@@ -16,7 +16,7 @@ namespace Infected
         {
             if (CARE_PACKAGE != null) return;
 
-            player.Call(33344, Info.GetStr("THROW MARKER *[ RIDE PREDATOR ]",false));
+            player.Call(33344, Info.GetStr("THROW MARKER *[ RIDE PREDATOR ]", false));
             player.Call(33466, "ammo_crate_use");//playlocalsound
 
             string marker = "airdrop_sentry_marker_mp";
@@ -48,7 +48,7 @@ namespace Infected
                     if (brushmodel == null) brushmodel = Call<Entity>("getent", "pf3_auto1", "targetname");
                     if (brushmodel != null)
                     {
-                        SpawnCarePackage(MO, brushmodel);
+                        CarePackageSpawn(MO, brushmodel);
                         return;
                     }
 
@@ -64,7 +64,7 @@ namespace Infected
 
                             //Print(targetName + " entref " + i);//map : 5 exchange // taxi_ad_clip entref ( 425 )
 
-                            SpawnCarePackage(MO, brushmodel);
+                            CarePackageSpawn(MO, brushmodel);
 
                             break;
                         }
@@ -74,7 +74,7 @@ namespace Infected
                 });
             });
         }
-        void SpawnCarePackage(Vector3 origin, Entity brushmodel)
+        void CarePackageSpawn(Vector3 origin, Entity brushmodel)
         {
             CARE_PACKAGE = Call<Entity>("spawn", "script_model", origin);
             CARE_PACKAGE.Call("setmodel", "com_plasticcase_friendly");//com_plasticcase_friendly
@@ -112,7 +112,7 @@ namespace Infected
                 player.Call(33344, "PREDATOR FINISHED");
                 return;
             }
-            PRDT.PredatorStart(player, H,BOT_HELI_HEIGHT);
+            PRDT.PredatorStart(player, H, BOT_HELI_HEIGHT);
         }
     }
 }

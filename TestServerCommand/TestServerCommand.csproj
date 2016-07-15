@@ -1,15 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>8.0.30703</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{58054442-E61A-4AFE-9BF0-E8F74A77F623}</ProjectGuid>
+    <ProjectGuid>{DF600E3D-4E5C-498C-9322-2FD0CE1C0814}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Infected</RootNamespace>
-    <AssemblyName>inf</AssemblyName>
+    <RootNamespace>TestServerCommand</RootNamespace>
+    <AssemblyName>TSC</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -18,11 +17,10 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>D:\MW3_SERVER\scripts\</OutputPath>
+    <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -31,7 +29,6 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="InfinityScript, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
@@ -48,34 +45,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BOT\B HeliBot.cs" />
-    <Compile Include="HUMAN\H CarePackage.cs" />
-    <Compile Include="Killstreak\Helicopter.cs" />
-    <Compile Include="Killstreak\Predator.cs" />
-    <Compile Include="Killstreak\Tank.cs" />
-    <Compile Include="BOT\B Spawned.cs" />
-    <Compile Include="BOT\B Connect.cs" />
-    <Compile Include="HUMAN\H Connect.cs" />
-    <Compile Include="HUMAN\H Spawned.cs" />
-    <None Include="Killstreak\AC130.cs" />
-    <Compile Include="Killstreak\Vehicles.cs" />
-    <Compile Include="Override\OnSay.cs" />
-    <Compile Include="Override\OnPlayerKilled.cs" />
-    <Compile Include="2 Set.cs" />
-    <Compile Include="4 Perk.cs" />
-    <Compile Include="Override\OnSay_Admin.cs" />
-    <Compile Include="1 Main.cs" />
-    <Compile Include="5 Info.cs" />
-    <Compile Include="3 Weapon.cs" />
-    <Compile Include="6 Hud.cs" />
+    <Compile Include="TSC.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <PostBuildEvent>
-    </PostBuildEvent>
-  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

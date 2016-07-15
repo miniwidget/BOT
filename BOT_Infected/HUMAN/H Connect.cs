@@ -29,6 +29,7 @@ namespace Infected
 
             if (name == ADMIN_NAME) SET.SetADMIN((ADMIN = player));
 
+            H_FIELD[player.EntRef] = new H_SET();
             H_SET H = H_FIELD[player.EntRef];
 
             if (player.GetField<string>("sessionteam") == "allies")
@@ -138,8 +139,8 @@ namespace Infected
 
                 //uif (SET.TEST_) Print("WEAPON_CHANGE: " + weap);
 
-                if (weap == "killstreak_remote_tank_remote_mp") VehicleAddTank(player, H);
-                else if (vehicles.Contains(weap)) Vehicles(player, weap);
+                if (weap == "killstreak_remote_tank_remote_mp") VHC.VehicleAddTank(player, H);
+                else if (vehicles.Contains(weap)) VHC.Vehicles(player, weap);
             });
 
 
@@ -238,7 +239,6 @@ namespace Infected
                 func.Invoke();
             });
         }
-
         void WaitOnRemote(Entity player, H_SET H)
         {
             player.Call(33436, "black_bw", 0.5f);//VisionSetNakedForPlayer

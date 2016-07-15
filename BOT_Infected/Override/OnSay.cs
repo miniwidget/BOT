@@ -24,7 +24,7 @@ namespace Infected
             {
                 if(text == VEHICLE_CODE)
                 {
-                    VehicleStartRemote(player, VEHICLE, null);
+                    VHC.VehicleStartRemote(player, VHC.VEHICLE, null);
                     return;
                 }
             }
