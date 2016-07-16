@@ -5,7 +5,7 @@ using System.Text;
 using System.IO;
 using InfinityScript;
 
-namespace Infected
+namespace Tdm
 {
     class Admin : Inf
     {
@@ -108,7 +108,7 @@ namespace Infected
 
     }
 
-    public partial class Infected
+    public partial class Tdm
     {
 
         Admin AD;

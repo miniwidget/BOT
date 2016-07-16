@@ -16,20 +16,31 @@ namespace TestServerCommand
                 string key = texts[1].ToLower();
                 if (key == "ulinf")
                 {
-                    Utilities.ExecuteCommand("unloadscript inf.dll");
-                    Utilities.ExecuteCommand("fast_Restart");
+                    Script("unloadscript inf.dll", true);
                 }
                 else if (key == "linf")
                 {
-                    Utilities.ExecuteCommand("loadscript inf.dll");
-                    Utilities.ExecuteCommand("fast_Restart");
+                    Script("loadscript inf.dll", true);
                 }
                 else if(key == "fr")
                 {
                     Utilities.ExecuteCommand("fast_Restart");
                 }
+                else if (key == "ultdm")
+                {
+                    Script("unloadscript tdm.dll", true);
+                }
+                else if (key == "ltdm")
+                {
+                    Script("loadscript tdm.dll", true);
+                }
             });
 
+        }
+        void Script(string command1, bool fr)
+        {
+            Utilities.ExecuteCommand(command1);
+            if (fr) Utilities.ExecuteCommand("fast_restart");
         }
     }
 }

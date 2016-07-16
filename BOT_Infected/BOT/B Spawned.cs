@@ -24,7 +24,7 @@ namespace Infected
             if (H.AXIS) return;
             if (H.PERK > 34) return;
 
-            var i = (H.PERK += 1);
+            var i = H.PERK += 1;
             if (i == 9) H.PERK_TXT = H.PERK_TXT.Replace("^1PRDT", "HELI");
 
             if (H.PERK_TXT.Length != 17) H.HUD_PERK_COUNT.SetText(H.PERK_TXT += "*");

@@ -1,14 +1,18 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.IO;
 using InfinityScript;
-using System.Timers;
 
-namespace Infected
+/*
+
+    Not yet fully tested enough
+    and I'm still making this code.
+
+    Until BOT_INFECTD work finish, I can't mod or edit BOT_TDM codes.
+
+*/
+
+namespace Tdm
 {
-    public partial class Infected : BaseScript
+    public partial class Tdm : BaseScript
     {
         internal static Weapon WP;
         internal static Predator PRDT;
@@ -22,7 +26,8 @@ namespace Infected
         
         Vehicle VHC;
         CarePackage CP;
-        public Infected()
+
+        public Tdm()
         {
             SET = new Set();
             rnd = new Random();
@@ -52,37 +57,57 @@ namespace Infected
 
             PlayerConnecting += player =>
             {
-                string name = player.Name;
-                if (name.StartsWith("bot"))
+                if (player.Name.StartsWith("bot"))
                 {
-                    string state = player.GetField<string>("sessionteam");
-                    if (state == "spectator")
-                    {
-                        Call(286, player.EntRef);//kick
-                        Utilities.AddTestClient();
-                    }
+                    if(!BOTs_List.Contains(player)) Call("kick", player.EntRef);//in case of a bot, he spawn PlayerConnectd and later PlayerConnecting. It differ from Human player's sequence
                 }
             };
 
+            string team = "axis";
+            int botNum = 0;
             PlayerConnected += player =>
             {
                 string name = player.Name;
 
-                if (name.StartsWith("bot")) Bot_Connected(player);
+                if (name.StartsWith("bot"))
+                {
+                    BOTs_List.Add(player);
 
-                else Human_Connected(player, name);
+                    if (team == "axis") team = "allies"; else team = "axis";
+                    player.Notify("menuresponse", "team_marinesopfor", team);
+                    player.AfterDelay(250, p =>
+                    {
+                        player.Notify("menuresponse", "changeclass", SET.BOTs_CLASS[BOTs_List.Count - 1]);
+                        player.AfterDelay(250,pp=> Bot_Connected(player,++botNum));
+                    });
+
+                }
+                else
+                {
+                    human_List.Add(player);
+                    player.Notify("menuresponse", "team_marinesopfor", "autoassign");
+                    player.AfterDelay(100, p =>
+                    {
+                        player.Notify("menuresponse", "changeclass", "class0");
+                        player.AfterDelay(200,pp=> Human_Connected(player, name));
+                    });
+
+                }
+                
 
             };
 
             PlayerDisconnected += player =>
             {
-                if (human_List.Contains(player)) human_List.Remove(player);// 봇 타겟리스트에서 접속 끊은 사람 제거
+                human_List.Remove(player);// 봇 타겟리스트에서 접속 끊은 사람 제거
 
-                else if (HumanAxis_List.Contains(player)) HumanAxis_List.Remove(player);
+                if (Allies_List.Contains(player)) Allies_List.Remove(player);
+
+                else if (Axis_List.Contains(player)) Axis_List.Remove(player);
 
                 if (human_List.Count == 0)
                 {
-                    HUMAN_DIED_ALL_ = true;
+                    HUMAN_ZERO_ = true;
                     BotDoAttack(false);
                 }
             };
@@ -96,7 +121,7 @@ namespace Infected
                 Call(42, "testClients_doAttack", 0);
                 Print("GAME_ENDED");
 
-                if(BotHeli.BOT_HELI!=null) BotHeli.BOT_HELI.Call(32928);//delete ?? for freezing ??
+                if(BOT_HELI!=null) BOT_HELI.Call(32928);//delete ?? for freezing ??
                 AfterDelay(20000, () => Utilities.ExecuteCommand("map_rotate"));//go to next map if server state is freezing
             });
             

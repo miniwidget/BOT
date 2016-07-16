@@ -1,14 +1,15 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{075FE7D0-A421-4004-9E13-E719403313EF}</ProjectGuid>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{E3137A43-A49A-4CCB-8B88-945BC120E444}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>TEST</RootNamespace>
-    <AssemblyName>test</AssemblyName>
+    <RootNamespace>Tdm</RootNamespace>
+    <AssemblyName>tdm</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -21,6 +22,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -29,6 +31,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="InfinityScript, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
@@ -45,23 +48,31 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="FX.cs" />
-    <Compile Include="Marker.cs" />
-    <Compile Include="NONE\ToDo.cs" />
-    <Compile Include="Sound.cs" />
-    <Compile Include="Table.cs" />
-    <Compile Include="GSC Util.cs" />
-    <Compile Include="Vehicle\SentryGun.cs" />
-    <Compile Include="Vehicle\Ospray.cs" />
-    <Compile Include="Vehicle\AC130.cs" />
-    <Compile Include="Vehicle\Tank.cs" />
-    <Compile Include="Vehicle\Vehicle.cs" />
-    <Compile Include="Weapon.cs" />
-    <None Include="NONE\IAM.cs" />
+    <Compile Include="BOT\B HeliBot.cs" />
+    <Compile Include="HUMAN\H CarePackage.cs" />
+    <Compile Include="Killstreak\Helicopter.cs" />
+    <Compile Include="Killstreak\Predator.cs" />
+    <Compile Include="Killstreak\Tank.cs" />
+    <Compile Include="BOT\B Connect.cs" />
+    <Compile Include="HUMAN\H Connect.cs" />
+    <Compile Include="Killstreak\Vehicles.cs" />
+    <Compile Include="Override\OnSay.cs" />
+    <Compile Include="Override\OnPlayerKilled.cs" />
+    <Compile Include="2 Set.cs" />
+    <Compile Include="4 Perk.cs" />
+    <Compile Include="Override\OnSay_Admin.cs" />
     <Compile Include="1 Main.cs" />
+    <Compile Include="5 Info.cs" />
+    <Compile Include="3 Weapon.cs" />
+    <Compile Include="6 Hud.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

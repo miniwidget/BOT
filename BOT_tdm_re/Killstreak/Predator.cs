@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Infected
+namespace Tdm
 {
     class Predator : Inf
     {
@@ -42,7 +42,7 @@ namespace Infected
             if (PREDATOR_OWNER == null || PREDATOR_OWNER == player)
             {
                 PREDATOR_OWNER = null;
-                Infected.USE_PREDATOR = false;
+                Tdm.USE_PREDATOR = false;
 
                 if (PLANE != null)
                 {
@@ -57,8 +57,8 @@ namespace Infected
 
             weapon = player.CurrentWeapon;
             PRDT_POS = player.Origin;
-            Infected.USE_PREDATOR = true;
-            H.MISSILE_COUNT = 10;
+            Tdm.USE_PREDATOR = true;
+            H.MISSILE_COUNT = 6;
             PREDATOR_OWNER = player;
             H.REMOTE_STATE = 6;
             H.CAN_USE_PREDATOR = false;
@@ -85,7 +85,7 @@ namespace Infected
                 player.Health = 100;
                 player.GiveWeapon("heli_remote_mp");
 
-                Common.BulletHudInfoCreate(player, H, 10);
+                Common.BulletHudInfoCreate(player, H, 6);
 
                 player.SwitchToWeapon("heli_remote_mp");
 

@@ -229,7 +229,6 @@ namespace Infected
             LUCKY_BOT.Call(33468, weapon, 0);//setweaponammoclip
             LUCKY_BOT.Call(33220, 0f);//setmovespeedscale
 
-
             Log.Write(LogLevel.None, "■ BOTs:{0} INF:{1} ■ MAP:{2}", BOTs_List.Count, first_inf_name, SET.MAP_IDX);
 
             Call(42, "scr_infect_timelimit", "12");
