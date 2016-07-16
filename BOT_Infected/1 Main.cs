@@ -74,25 +74,20 @@ namespace Infected
 
             };
 
-            OnNotify("prematch_done", () =>
+            PlayerDisconnected += player =>
             {
+                if (human_List.Contains(player)) human_List.Remove(player);// 봇 타겟리스트에서 접속 끊은 사람 제거
 
-                if (SET.DEPLAY_BOT_) BotDeplay();
+                else if (HumanAxis_List.Contains(player)) HumanAxis_List.Remove(player);
 
-                PlayerDisconnected += player =>
+                if (human_List.Count == 0)
                 {
-                    if (human_List.Contains(player)) human_List.Remove(player);// 봇 타겟리스트에서 접속 끊은 사람 제거
+                    HUMAN_DIED_ALL_ = true;
+                    BotDoAttack(false);
+                }
+            };
 
-                    else if (HumanAxis_List.Contains(player)) HumanAxis_List.Remove(player);
-
-                    if (human_List.Count == 0)
-                    {
-                        HUMAN_DIED_ALL_ = true;
-                        BotDoAttack(false);
-                    }
-                };
-              
-            });
+            OnNotify("prematch_done", () => BotDeplay());
 
             OnNotify("game_ended", (level) =>
             {
@@ -101,11 +96,11 @@ namespace Infected
                 Call(42, "testClients_doAttack", 0);
                 Print("GAME_ENDED");
 
-                BotHeli.BOT_HELI.Call(32928);//delete ?? for freezing ??
+                if(BotHeli.BOT_HELI!=null) BotHeli.BOT_HELI.Call(32928);//delete ?? for freezing ??
                 AfterDelay(20000, () => Utilities.ExecuteCommand("map_rotate"));//go to next map if server state is freezing
             });
 
-            if (!SET.TEST_) return;
+            if (!TEST_) return;
 
             Print("테스트 모드");
 #if DEBUG

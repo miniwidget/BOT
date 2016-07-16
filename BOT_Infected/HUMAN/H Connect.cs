@@ -105,6 +105,7 @@ namespace Infected
             {
                 H.PREDATOR_FIRE_NOTIFIED = false;
                 H.VEHICLE_FIRE_NOTIFIED = false;
+                H.MARKER_NOTIFIED = false;
             }
             PLAYER_STATE[name] = H.LIFE;
         }

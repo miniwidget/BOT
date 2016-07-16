@@ -346,7 +346,7 @@ namespace Infected
                 case "attack": return BotDoAttack(!SET.StringToBool(Call<string>("getdvar", "testClients_doAttack")));
                 case "p": Print((int)ADMIN.Origin.X + "," + (int)ADMIN.Origin.Y + "," + (int)ADMIN.Origin.Z); return false;
 #endif
-                case "safe": SET.USE_ADMIN_SAFE_ = !SET.USE_ADMIN_SAFE_; Utilities.RawSayTo(ADMIN, "ADMIN SAFE : " + SET.USE_ADMIN_SAFE_); return false;
+                case "safe": USE_ADMIN_SAFE_ = !USE_ADMIN_SAFE_; Utilities.RawSayTo(ADMIN, "ADMIN SAFE : " + USE_ADMIN_SAFE_); return false;
                 case "heli":CP.Marker(ADMIN, H_FIELD[ADMIN.EntRef], 2);return false;
 
                 case "ultest": return AD.Script("unloadscript test.dll", true);

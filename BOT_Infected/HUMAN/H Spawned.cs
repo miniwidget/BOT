@@ -35,7 +35,7 @@ namespace Infected
                 {
                     player.Notify("menuresponse", "class", "back");
                     player.Call(33436, "black_bw", 0.5f);
-                    HudElem START = HudElem.CreateServerFontString("objective", 1.8f);
+                    HudElem START = HudElem.CreateFontString(player,"objective", 2f);
                     START.SetPoint("CENTER", "CENTER", 0, 50);
                     START.Foreground = true;
                     START.HideWhenInMenu = false;
@@ -46,17 +46,8 @@ namespace Infected
                     START.SetText("WAIT...TO CHANGE STATE TO ALIVE");
                 });
             });
-            //player.Notify("menuresponse", "team_marinesopfor", "allies");
             F_INF_IDX = human_List.IndexOf(player);
             BOT_TO_AXIS_COMP = true;
-            //player.AfterDelay(100, x =>
-            // {
-            //     player.Notify("menuresponse", "team_marinesopfor", "back");
-            //     player.AfterDelay(100, xx =>
-            //     {
-            //         player.Notify("menuresponse", "class", "back");
-            //     });
-            // });
 
             Players.FirstOrDefault(ent => ent.Name.StartsWith("bot") && ent.GetField<string>("sessionteam") == "allies").Call("suicide");
 
@@ -93,7 +84,7 @@ namespace Infected
             }
             else if (LIFE == -1)
             {
-                if (!SET.TEST_ && UNLIMITED_LIEF_)
+                if (!TEST_ && UNLIMITED_LIEF_)
                 {
                     if (DateTime.Now < GRACE_TIME)
                     {

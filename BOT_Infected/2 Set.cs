@@ -11,7 +11,7 @@ namespace Infected
     {
         Entity ADMIN, LUCKY_BOT;
         List<B_SET> B_FIELD = new List<B_SET>();
-        
+
         B_SET LUCKY_B;
         DateTime GRACE_TIME;
 
@@ -23,15 +23,22 @@ namespace Infected
         internal static Random rnd;
         internal static string ADMIN_NAME, VEHICLE_CODE;
         internal static int BOT_HELI_HEIGHT = 1500, FIRE_DIST;
-        internal static bool GAME_ENDED_, USE_PREDATOR;
+        internal static bool GAME_ENDED_, USE_PREDATOR, TEST_, USE_ADMIN_SAFE_;
 
         string[] IsBOT = new string[18];
-        bool[] BOT_WAIT = new bool[18];
-        bool BOT_TO_AXIS_COMP,LUCKY_BOT_START, BOT_ADD_WATCHED, GET_TEAMSTATE_FINISHED, BOT_SERCH_ON_LUCKY_FINISHED, USE_ADMIN_SAFE_, HUMAN_DIED_ALL_ = true, UNLIMITED_LIEF_ = true;
-        int BOT_HELIRIDER_IDX;
+        bool
+            BOT_TO_AXIS_COMP,
+            GET_TEAMSTATE_FINISHED,
+            BOT_ADD_WATCHED,
 
+            LUCKY_BOT_START,
+            BOT_SERCH_ON_LUCKY_FINISHED,
 
-        int F_INF_IDX = -1;
+            
+            HUMAN_DIED_ALL_ = true,
+            UNLIMITED_LIEF_ = true;
+
+        int BOT_HELIRIDER_IDX, F_INF_IDX = -1;
 
         internal static void Print(object s)
         {
@@ -46,7 +53,7 @@ namespace Infected
 
         class B_SET
         {
-            
+
             internal Entity bot;
 
             public B_SET(Entity bot_)
@@ -161,10 +168,8 @@ namespace Infected
 
                 }
             }
-            internal string weapon;
-            internal int ammoClip;
-            internal int killer = -1;
-            internal string alertSound;
+            internal string weapon, alertSound;
+            internal int ammoClip, killer = -1;
         }
 
     }
@@ -173,9 +178,13 @@ namespace Infected
     class H_SET
     {
         /// <summary>
-        /// player life chances before being infected
+        /// player life counts before being infected
         /// </summary>
         internal int LIFE;
+
+        /// <summary>
+        /// block reapted spawn
+        /// </summary>
         internal bool RESPAWN;
 
         /// <summary>
@@ -184,8 +193,6 @@ namespace Infected
         internal int PERK = 2;
         internal string PERK_TXT = "PRDT **";
         internal HudElem HUD_PERK_COUNT, HUD_TOP_INFO, HUD_RIGHT_INFO, HUD_SERVER, HUD_BULLET_INFO, HUD_KEY_INFO;
-
-        internal bool CAN_USE_HELI;
 
         /// <summary>
         /// 0 not using remote /
@@ -203,21 +210,22 @@ namespace Infected
         /// </summary>
         internal bool ON_MESSAGE;
 
-        /// <summary>
-        /// if sessionteam Axis
-        /// </summary>
-        internal bool AXIS;
-        /// <summary>
-        /// Axis weapon state count
-        /// </summary>
-        internal int AX_WEP;
-
         internal bool CAN_USE_PREDATOR;
-        internal bool PREDATOR_FIRE_NOTIFIED;
-        internal bool VEHICLE_FIRE_NOTIFIED;
+        internal bool CAN_USE_HELI;
 
+        /// <summary>
+        /// block repeated activate notify key
+        /// </summary>
         internal bool WAIT;
+
+        /// <summary>
+        /// predator or remote mortar missile count
+        /// </summary>
         internal byte MISSILE_COUNT;
+
+        /// <summary>
+        /// board real killstreak vehicle by type VEHICLE_CODE
+        /// </summary>
         internal Entity VEHICLE;
 
         /// <summary>
@@ -226,18 +234,51 @@ namespace Infected
         /// 2 HELICOPTER /
         /// </summary>
         internal byte MARKER_TYPE;
+
+        /// <summary>
+        /// reapeated notify block
+        /// </summary>
+        internal bool PREDATOR_FIRE_NOTIFIED;
+        internal bool VEHICLE_FIRE_NOTIFIED;
         internal bool MARKER_NOTIFIED;
+
+        /// <summary>
+        /// if player's life consumed all, change to Axis
+        /// </summary>
+        internal bool AXIS;
+        /// <summary>
+        /// Axis gun index
+        /// </summary>
+        internal int AX_WEP;
+
     }
 
     class Set
     {
-        internal readonly int BOT_SETTING_NUM;
         internal static bool TURRET_MAP;
-        internal bool DEPLAY_BOT_, TEST_, USE_ADMIN_SAFE_, ATTACK_;
+        internal bool DEPLAY_BOT_;
         internal int PLAYER_LIFE;
-
-        internal byte BOT_CLASS_NUM = 3;
+        internal byte BOT_SETTING_NUM,BOT_CLASS_NUM = 3, MAP_IDX;
         bool MAP_ROTATE_;
+
+        void SetValue(string keyStr, ref bool result)
+        {
+            bool value_ = false;
+
+            if (bool.TryParse(keyStr, out value_)) result = value_;
+        }
+        void SetValue(string keyStr, ref int result)
+        {
+            int value_ = 0;
+
+            if (int.TryParse(keyStr, out value_)) result = value_;
+        }
+        void SetValue(string keyStr, ref byte result)
+        {
+            byte value_ = 0;
+
+            if (byte.TryParse(keyStr, out value_)) result = value_;
+        }
 
         public Set()
         {
@@ -250,8 +291,7 @@ namespace Infected
             {
                 using (StreamReader set = new StreamReader(setFile))
                 {
-                    bool b;
-                    int num;
+
                     while (!set.EndOfStream)
                     {
                         string line = set.ReadLine();
@@ -260,25 +300,23 @@ namespace Infected
                         string[] split = line.Split('=');
                         if (split.Length < 1) continue;
 
-                        string name = split[0];
+                        string key = split[0];
                         string value = split[1];
                         var comment = value.IndexOf("//");
                         if (comment != -1) value = value.Substring(0, comment);
 
-                        switch (name)
+                        switch (key)
                         {
                             case "ADMIN_NAME": Infected.ADMIN_NAME = value; break;
+                            case "SERVER_NAME": Hud.SERVER_NAME_ = value; break;
 
-                            case "BOT_SETTING_NUM": if (int.TryParse(value, out num)) BOT_SETTING_NUM = num; break;
-                            case "PLAYER_LIFE": if (int.TryParse(value, out num)) PLAYER_LIFE = num; break;
+                            case "BOT_SETTING_NUM": SetValue(value, ref BOT_SETTING_NUM); break;
+                            case "PLAYER_LIFE": SetValue(value, ref PLAYER_LIFE); break;
 
-                            case "DEPLAY_BOT_": if (bool.TryParse(value, out b)) DEPLAY_BOT_ = b; break;
-                            case "USE_ADMIN_SAFE_": if (bool.TryParse(value, out b)) USE_ADMIN_SAFE_ = b; break;
-                            case "MAP_ROTATE_": if (bool.TryParse(value, out b)) MAP_ROTATE_ = b; break;
-                            case "TEST_": if (bool.TryParse(value, out b)) TEST_ = b; break;
-                            case "ATTACK_": if (bool.TryParse(value, out b)) ATTACK_ = b; break;
-
-                            case "SERVER_NAME": if (TEST_) value = "^2TEST ^7SERVER"; Hud.SERVER_NAME_ = value; break;
+                            case "DEPLAY_BOT_": SetValue(value, ref DEPLAY_BOT_); break;
+                            case "USE_ADMIN_SAFE_": SetValue(value, ref Infected.USE_ADMIN_SAFE_); break;
+                            case "MAP_ROTATE_": SetValue(value, ref MAP_ROTATE_); break;
+                            case "TEST_": SetValue(value, ref Infected.TEST_); break;
                         }
                     }
                 }
@@ -291,15 +329,15 @@ namespace Infected
 
             if (assembly.Location.Contains("test"))
             {
-                TEST_ = true;
+                Infected.TEST_ = true;
             }
 
-            if (TEST_) Utilities.ExecuteCommand("sv_hostname TEST");
+            if (Infected.TEST_) Utilities.ExecuteCommand("sv_hostname TEST");
             else Utilities.ExecuteCommand("sv_hostname " + Hud.SERVER_NAME_);
 
             ReadMAP();
         }
-        internal byte MAP_IDX;
+
         void ReadMAP()
         {
             Function.SetEntRef(-1);
@@ -308,13 +346,13 @@ namespace Infected
             var map_list = ENTIRE_MAPLIST.Split('|').ToList();
             int max = map_list.Count - 1;
             MAP_IDX = (byte)map_list.IndexOf(map);
-            //float[] fff = null;
             switch (MAP_IDX)
             {
                 case 01:
                 case 17:
-                case 24: TURRET_MAP = true;break;
+                case 24: TURRET_MAP = true; break;
             }
+            //float[] fff = null;
             //switch (MAP_IDX)
             //{
             //    case 00: fff = new float[3] { -338.2f, 2086.0f, 780.1f }; break;
@@ -354,7 +392,6 @@ namespace Infected
             //    case 34: fff = new float[3] { -838.4f, -1980.2f, 198.3f }; break;
             //    case 35: fff = new float[3] { 1209, -563, 707 }; break;
             //}
-
             //Helicopter.HELI_WAY_POINT = new Vector3(fff[0], fff[1], fff[2] + 150);
 
             if (new byte[] { 23, 24, 25, 26, 28, 29, 30 }.Contains(MAP_IDX))//small map
@@ -382,7 +419,7 @@ namespace Infected
             }
 
 
-            if (TEST_)
+            if (Infected.TEST_)
             {
                 Utilities.ExecuteCommand("seta g_password \"0\"");
             }
@@ -419,11 +456,11 @@ namespace Infected
             });
         }
 
-        internal bool StringToBool(string s)
-        {
-            if (s == "1") return true;
-            else return false;
-        }
+        //internal bool StringToBool(string s)
+        //{
+        //    if (s == "1") return true;
+        //    else return false;
+        //}
 
         internal readonly string[] SOUND_ALERTS =
         {
@@ -500,9 +537,8 @@ namespace Infected
 
             player.Health = 100;
             player.Call(33531, ZERO);
-
-
         }
+
         static Vector3 tempV = new Vector3();
         internal static Vector3 GetVector(float x, float y, float z)
         {

@@ -69,23 +69,23 @@ namespace Infected
 
             BotHeli BH = new BotHeli(BOTs_List[BOT_HELIRIDER_IDX], Players.Select(ent => ent.Origin).ToArray());
           
-            OnInterval(2500, () =>
+            OnInterval(2500, () =>//deny riot bot
             {
                 if (GAME_ENDED_) return false;
 
-                foreach (B_SET B in bots_fire)
+                foreach (B_SET B in bots_fire)//GUN BOT
                 {
                     if (B.wait) continue;
                     B.BotSearch();
                 }
 
-                if (LUCKY_BOT_START)
+                if (LUCKY_BOT_START)//LUCKY BOT
                 {
                     if (!LUCKY_DIE) LUCKY_B.BotSearchAxis();
                     else LUCKY_B.BotSearch();
                 }
 
-                BH.HeliBotSearch();
+                BH.HeliBotSearch();//HELI BOT
 
                 return true;
             });

@@ -22,7 +22,7 @@ namespace Infected
                 
                     message = Info.GetStr("THROW MARKER and GET *[ RIDE PREDATOR ]", false);
                 else
-                    message = Info.GetStr("THROW MARKER and GET *[ HELICOPTER ]", false);
+                    message = Info.GetStr("THROW MARKER and GET *[ HELICOPTER ]", H.AXIS);
                 
                 
                 H.MARKER_TYPE = type;

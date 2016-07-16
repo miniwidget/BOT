@@ -68,7 +68,6 @@ namespace Infected
                     BOT_HELI.Call(32848);
                     Call(304, FX_EXPLOSION, BOT_HELI.Origin);//"PlayFX"
                 }
-                else Print("헬리  눌");
 
                 RIDER.Health = -1;
                 RIDER.Call(32848);//hide

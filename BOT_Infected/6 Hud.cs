@@ -35,6 +35,8 @@ namespace Infected
             if(show) H.HUD_SERVER.Alpha = 0.7f;
             else H.HUD_SERVER.Alpha = 0;
             H.HUD_SERVER.HideWhenInMenu = true;
+
+            if (Infected.TEST_) SERVER_NAME_ = "^2TEST ^7SERVER";
             H.HUD_SERVER.SetText(Info.GetStr(SERVER_NAME_, false));
 
             H.HUD_TOP_INFO = HudElem.CreateFontString(player, "hudbig", 0.4f);
@@ -90,6 +92,7 @@ namespace Infected
             H.HUD_SERVER.SetText(SERVER_NAME_.Replace("^2","^1"));
             H.HUD_TOP_INFO.SetText(Info.GetStr(ALLIES_TOP_HUD_TEXTS, H.AXIS));
             H.HUD_RIGHT_INFO.SetText(Info.GetStr(AXIS_RIGHT_TEXTS, H.AXIS));
+            H.HUD_PERK_COUNT.SetText(H.PERK_TXT = "^1HELI **********");
         }
 
     }

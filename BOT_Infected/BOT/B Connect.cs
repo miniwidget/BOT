@@ -15,6 +15,8 @@ namespace Infected
         #region deplay
         void BotDeplay()
         {
+            if (!SET.DEPLAY_BOT_) return;
+
             #region remove Bot
             List<int> tempStrList = null;
             int botCount = 0;
@@ -76,7 +78,7 @@ namespace Infected
         #endregion
 
         #region Bot_Connected
-       
+
         private void Bot_Connected(Entity bot)
         {
             if (BOT_TO_AXIS_COMP)//If deploy bot after game in the middle time, deny bot setting
@@ -134,8 +136,8 @@ namespace Infected
                 bot.Call(33468, B.weapon, 0);//setweaponammoclip
             });
 
-            if (i == SET.BOT_SETTING_NUM - 1)    BotWaitOnFirstInfected();
-            
+            if (i == SET.BOT_SETTING_NUM - 1) BotWaitOnFirstInfected();
+
             bot.SpawnedPlayer += delegate
             {
                 if (GAME_ENDED_) return;
@@ -156,7 +158,7 @@ namespace Infected
             {
                 bot.OnNotify("weapon_fired", (p, wp) =>
                 {
-                   B.SetAngle();
+                    B.SetAngle();
                 });
                 return;
             }
@@ -171,8 +173,8 @@ namespace Infected
                     fire++;
                     return;
                 }
-                B.SetAngle(); 
-               
+                B.SetAngle();
+
             });
         }
 
@@ -226,7 +228,7 @@ namespace Infected
             LUCKY_BOT.Call(33469, weapon, 0);//setweaponammostock
             LUCKY_BOT.Call(33468, weapon, 0);//setweaponammoclip
             LUCKY_BOT.Call(33220, 0f);//setmovespeedscale
-            
+
 
             Log.Write(LogLevel.None, "■ BOTs:{0} INF:{1} ■ MAP:{2}", BOTs_List.Count, first_inf_name, SET.MAP_IDX);
 
@@ -236,8 +238,6 @@ namespace Infected
 
             GRACE_TIME = DateTime.Now.AddSeconds(166);
 
-            //HCT.SetHeliPort();
-
             foreach (H_SET H in H_FIELD)
             {
                 if (H == null) continue;
@@ -246,7 +246,7 @@ namespace Infected
             }
 
             if (!HUMAN_DIED_ALL_) BotDoAttack(true);
-            if (SET.USE_ADMIN_SAFE_) USE_ADMIN_SAFE_ = true;
+
             HumanCheckInf(null);
 
             return false;
