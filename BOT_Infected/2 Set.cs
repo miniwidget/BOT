@@ -267,7 +267,6 @@ namespace Infected
 
                         switch (name)
                         {
-                            case "SERVER_NAME": Hud.SERVER_NAME_ = value; break;
                             case "ADMIN_NAME": Infected.ADMIN_NAME = value; break;
 
                             case "BOT_SETTING_NUM": if (int.TryParse(value, out num)) BOT_SETTING_NUM = num; break;
@@ -278,6 +277,8 @@ namespace Infected
                             case "MAP_ROTATE_": if (bool.TryParse(value, out b)) MAP_ROTATE_ = b; break;
                             case "TEST_": if (bool.TryParse(value, out b)) TEST_ = b; break;
                             case "ATTACK_": if (bool.TryParse(value, out b)) ATTACK_ = b; break;
+
+                            case "SERVER_NAME": if (TEST_) value = "^2TEST ^7SERVER"; Hud.SERVER_NAME_ = value; break;
                         }
                     }
                 }
