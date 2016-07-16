@@ -126,7 +126,6 @@ namespace Infected
             player.Call(32771, SET.SOUND_ALERTS[rnd.Next(SET.SOUND_ALERTS.Length)], "allies");//playsoundtoteam
 
             if (!BOT_SERCH_ON_LUCKY_FINISHED) BotSerchOn_lucky();
-
         }
         void HumanAxisSpawned(Entity player, string name, H_SET H)
         {
@@ -140,6 +139,7 @@ namespace Infected
             H.AX_WEP += 1;
 
             string deadManWeapon = null;
+
             deadManWeapon = HumanAxisSpawnedWeapon(player, H.AX_WEP);
 
             H.CAN_USE_HELI = true;
@@ -165,7 +165,7 @@ namespace Infected
             dead.Health = 70;
             string deadManWeapon;
             int bullet = 0;
-            if (aw == 3)
+            if (aw <= 3)
             {
                 deadManWeapon = "m320_mp";
                 bullet = 1;

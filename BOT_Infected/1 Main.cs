@@ -91,20 +91,24 @@ namespace Infected
                         BotDoAttack(false);
                     }
                 };
+              
+            });
 
-                OnNotify("game_ended", (level) =>
-                {
-                    GAME_ENDED_ = true;
-                    Call(42, "testClients_doMove", 0);
-                    Call(42, "testClients_doAttack", 0);
-                    Print("GAME_ENDED");
-                });
+            OnNotify("game_ended", (level) =>
+            {
+                GAME_ENDED_ = true;
+                Call(42, "testClients_doMove", 0);
+                Call(42, "testClients_doAttack", 0);
+                Print("GAME_ENDED");
+
+                BotHeli.BOT_HELI.Call(32928);//delete ?? for freezing ??
+                AfterDelay(20000, () => Utilities.ExecuteCommand("map_rotate"));//go to next map if server state is freezing
             });
 
             if (!SET.TEST_) return;
 
             Print("테스트 모드");
-
+#if DEBUG
             OnServerCommand("/", (string[] texts) =>
             {
                 if (texts.Length == 1) return;
@@ -185,7 +189,7 @@ namespace Infected
                     Print(s + "\n총:" + Players.Count + "명");
                 }
             });
-
+#endif
         }
     }
 

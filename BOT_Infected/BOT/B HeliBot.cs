@@ -27,7 +27,8 @@ namespace Infected
             Vector3 TARGET_POS;
             Vector3[] ORIGINS;
 
-            Entity BOT_HELI, FLARE, RIDER;
+            internal static Entity BOT_HELI;
+            Entity FLARE, RIDER;
 
             readonly string[] MAGICS = { "sam_projectile_mp", "javelin_mp", "ims_projectile_mp", "ac130_40mm_mp", "ac130_105mm_mp", "rpg_mp", "uav_strike_projectile_mp" };
 

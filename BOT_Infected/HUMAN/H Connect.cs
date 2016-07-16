@@ -86,7 +86,7 @@ namespace Infected
             {
                 H.LIFE = -2;
                 H.CAN_USE_HELI = true;
-                H.AX_WEP = 1;
+                H.AX_WEP = 2;
                 H.ON_MESSAGE = false;
             }
             else

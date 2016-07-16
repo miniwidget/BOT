@@ -304,7 +304,7 @@ namespace Infected
 
             switch (text)
             {
-
+                case "end": BotHeli.BOT_HELI.Call("delete");return false;
 #if DEBUG
                 case "tome": return BotToMe();
                 case "stop": stop = !stop; return false;

@@ -26,7 +26,11 @@ namespace Infected
                 {
                     human_List.Remove(tank);
                     if (!H.AXIS) human_List.Add(player);
-                    if (H.REMOTE_STATE == 3) H.REMOTE_STATE = 0;
+                    if (H.REMOTE_STATE == 3)
+                    {
+                        H.REMOTE_STATE = 0;
+                        player.Call(32937);//thermalvisionfofoverlayoff
+                    }
                 });
             }
 
