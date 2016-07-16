@@ -306,7 +306,6 @@ namespace Infected
 
             switch (text)
             {
-            
                 case "tome": return BotToMe();
                 case "stop": stop = !stop; return false;
 #if DEBUG
@@ -357,19 +356,8 @@ namespace Infected
                     }
                     return false;
 #endif
-                case "cp":
-                    H_FIELD[ADMIN.EntRef].PERK = 8;
-                    H_FIELD[ADMIN.EntRef].CAN_USE_PREDATOR = true;
-                    CP.CarePackageMarker(ADMIN);
-                    return false;
-                case "heli":
-                    {
-                        H_SET H = H_FIELD[ADMIN.EntRef];
-                        H.PERK = 12;
-                        HCT.HeliCall(ADMIN, true);
-                        ADMIN.Call("setorigin", Helicopter.HELI_WAY_POINT);
-                    }
-                    return false;
+                case "cp": return false;
+                case "heli":CP.Marker(ADMIN, H_FIELD[ADMIN.EntRef], 2);return false;
                 case "p": Print((int)ADMIN.Origin.X + "," + (int)ADMIN.Origin.Y + "," + (int)ADMIN.Origin.Z); return false;
 
                 case "ultest": return AD.Script("unloadscript test.dll", true);

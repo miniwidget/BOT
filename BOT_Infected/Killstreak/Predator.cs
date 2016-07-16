@@ -12,6 +12,7 @@ namespace Infected
         Entity PREDATOR_OWNER;
         int FX_GREEN_LIGHT = -1;
         string weapon,thermalVision;
+        internal Vector3 PRDT_POS;
 
         public Predator()
         {
@@ -25,7 +26,7 @@ namespace Infected
             if (!respawn)
             {
                 player.Call(32843);//unlink
-                player.Call(33529, Helicopter.HELI_WAY_POINT);
+                player.Call(33529, PRDT_POS);
                 player.TakeWeapon("heli_remote_mp");
                 player.GiveWeapon(weapon);
                 player.SwitchToWeaponImmediate(weapon);

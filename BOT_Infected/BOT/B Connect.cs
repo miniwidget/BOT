@@ -236,7 +236,7 @@ namespace Infected
 
             GRACE_TIME = DateTime.Now.AddSeconds(166);
 
-            HCT.SetHeliPort();
+            //HCT.SetHeliPort();
 
             foreach (H_SET H in H_FIELD)
             {

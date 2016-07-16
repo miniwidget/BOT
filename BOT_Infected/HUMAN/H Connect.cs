@@ -10,7 +10,7 @@ namespace Infected
 {
     public partial class Infected
     {
-        readonly string[] vehicles = { "mortar_remote_mp","killstreak_helicopter_mp", "heli_remote_mp" };
+        readonly string[] vehicles = { "mortar_remote_mp", "killstreak_helicopter_mp", "heli_remote_mp" };
 
         Dictionary<string, int> PLAYER_STATE = new Dictionary<string, int>();
 
@@ -31,13 +31,13 @@ namespace Infected
 
             if (name == ADMIN_NAME) SET.SetADMIN((ADMIN = player));
 
-            if (H_FIELD[pe] ==null) H_FIELD[pe] = new H_SET();
+            if (H_FIELD[pe] == null) H_FIELD[pe] = new H_SET();
             H_SET H = H_FIELD[pe];
 
             if (player.GetField<string>("sessionteam") == "allies")
             {
                 Print(name + " connected ♥");
-                SetPlayer(H,player, SET.PLAYER_LIFE, name);
+                SetPlayer(H, player, SET.PLAYER_LIFE, name);
             }
             else
             {
@@ -53,7 +53,7 @@ namespace Infected
                 }
                 else
                 {
-                    SetPlayer(H,player, PLAYER_STATE[name] + 1, name);
+                    SetPlayer(H, player, PLAYER_STATE[name] + 1, name);
                     player.AfterDelay(100, x => player.Call(33341));//"suicide"
                 }
             }
@@ -111,7 +111,7 @@ namespace Infected
         void SetPlayer(H_SET H, Entity player, int life, string name)
         {
             #region H_SET human field
-            player.Notify("menuresponse", "changeclass", "allies_recipe"+ rnd.Next(1, 6));
+            player.Notify("menuresponse", "changeclass", "allies_recipe" + rnd.Next(1, 6));
 
             if (!human_List.Contains(player)) human_List.Add(player);
 
@@ -192,13 +192,13 @@ namespace Infected
 
             if (TK.REMOTETANK != null)
             {
-                if (TK.TL.Origin.DistanceTo2D(handPos) < 9) return 2;
-                if (TK.TR.Origin.DistanceTo2D(handPos) < 9) return 3;
+                if (TK.TL.Origin.DistanceTo2D(handPos) < 11) return 2;
+                if (TK.TR.Origin.DistanceTo2D(handPos) < 11) return 3;
             }
             if (HCT.HELI != null)
             {
-                if (HCT.TL.Origin.DistanceTo2D(handPos) < 9) return 0;
-                if (HCT.TR.Origin.DistanceTo2D(handPos) < 9) return 1;
+                if (HCT.TL.Origin.DistanceTo2D(handPos) < 11) return 0;
+                if (HCT.TR.Origin.DistanceTo2D(handPos) < 11) return 1;
             }
             return 4;
         }
@@ -211,6 +211,12 @@ namespace Infected
 
         void WaitOnCall(Entity player, H_SET H)
         {
+            if (CP.CARE_PACKAGE == null && H.REMOTE_STATE == 0 && H.CAN_USE_PREDATOR)
+            {
+                H.WAIT = true;
+                WaitEndCall(player, H, () => CP.Marker(player,H,1));
+                return;
+            }
             if (CP.CARE_PACKAGE != null && player.Origin.DistanceTo(CP.CARE_PACKAGE_ORIGIN) < 90)
             {
                 H.WAIT = true;
@@ -220,15 +226,15 @@ namespace Infected
             if (HCT.HELI == null && H.CAN_USE_HELI)
             {
                 H.WAIT = true;
-                WaitEndCall(player, H, () => HCT.HeliCall(player, H.AXIS));
+                if (!HCT.HELI_WAY_ENABLED)
+                
+                    WaitEndCall(player, H, () => CP.Marker(player, H, 2));
+                else
+                    WaitEndCall(player, H, () => HCT.HeliCall(player, H.AXIS));
+
                 return;
             }
-            if (CP.CARE_PACKAGE == null && H.REMOTE_STATE == 0 && H.CAN_USE_PREDATOR)
-            {
-                H.WAIT = true;
-                WaitEndCall(player, H, () => CP.CarePackageMarker(player));
-                return;
-            }
+
         }
         void WaitEndCall(Entity player, H_SET H, Action func)
         {
@@ -248,6 +254,7 @@ namespace Infected
             {
                 if (player.Call<int>(33539) == 1)//isUsingTurret
                 {
+                   
                     byte ts = TurretState(player);
 
                     if (ts == 4)//다른 튜렛 붙잡은 경우 종료
@@ -280,7 +287,6 @@ namespace Infected
                 }
                 else
                 {
-
                     byte rms = H.REMOTE_STATE;
                     bool ended = false;
 

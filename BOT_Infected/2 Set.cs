@@ -219,6 +219,14 @@ namespace Infected
         internal bool WAIT;
         internal byte MISSILE_COUNT;
         internal Entity VEHICLE;
+
+        /// <summary>
+        /// 0 NONE /
+        /// 1 PREDATOR /
+        /// 2 HELICOPTER /
+        /// </summary>
+        internal byte MARKER_TYPE;
+        internal bool MARKER_NOTIFIED;
     }
 
     class Set
@@ -299,49 +307,54 @@ namespace Infected
             var map_list = ENTIRE_MAPLIST.Split('|').ToList();
             int max = map_list.Count - 1;
             MAP_IDX = (byte)map_list.IndexOf(map);
-            float[] fff = null;
-
+            //float[] fff = null;
             switch (MAP_IDX)
             {
-                case 00: fff = new float[3] { -338.2f, 2086.0f, 780.1f }; break;
-                case 01: fff = new float[3] { -528.8f, 3310.0f, 96.1f }; TURRET_MAP = true; break;
-                case 02: fff = new float[3] { 990.2f, 1219.3f, -87.8f }; break;
-                case 03: fff = new float[3] { -1587.4f, -4330.3f, 3862.0f }; break;
-                case 04: fff = new float[3] { 574.9f, -562.5f, -348.6f }; break;
-                case 05: fff = new float[3] { 2458.2f, 1552.0f, 148.4f }; break;
-                case 06: fff = new float[3] { 1262, 2668, -272 }; break;
-                case 07: fff = new float[3] { 1903, -1220, 380 }; break;
-                case 08: fff = new float[3] { 2535, -573, 100 }; break;
-                case 09: fff = new float[3] { 839.8f, -397.5f, -5.5f }; break;
-                case 10: fff = new float[3] { -1826.2f, 637.1f, 1049.1f }; break;
-                case 11: fff = new float[3] { -3441, -660, 1162 }; break;
-                case 12: fff = new float[3] { 662, -952, 112 }; break;
-                case 13: fff = new float[3] { -1515.3f, 1060.3f, 50.3f }; break;
-                case 14: fff = new float[3] { -45.6f, -926.9f, 0.1f }; break;
-                case 15: fff = new float[3] { -253.9f, -1614.1f, 352.1f }; break;
-                case 16: fff = new float[3] { -389.8f, -1498.5f, 686.7f }; break;
-                case 17: fff = new float[3] { 970.2f, -2889.9f, 124.2f }; TURRET_MAP = true; break;
-                case 18: fff = new float[3] { 806.4f, 2471.3f, 12752.6f }; break;
-                case 19: fff = new float[3] { -175.7f, -0.0f, 907.1f }; break;
-                case 20: fff = new float[3] { 1434.7f, -348.4f, 337.4f }; break;
-                case 21: fff = new float[3] { 2362, 1607, 220 }; break;
-                case 22: fff = new float[3] { 1880, -469, 1574 }; break;
-                case 23: fff = new float[3] { 53.6f, 639.6f, 2171.1f }; break;
-                case 24: fff = new float[3] { 131.7f, 1357.1f, 1800.1f }; TURRET_MAP = true; break;
-                case 25: fff = new float[3] { 404.5f, 725.2f, 452.8f }; break;
-                case 26: fff = new float[3] { 1012.7f, 398.3f, 168.1f }; break;
-                case 27: fff = new float[3] { 1362.4f, 3537.7f, 112.1f }; break;
-                case 28: fff = new float[3] { -1523.3f, -276.3f, 166.6f }; break;
-                case 29: fff = new float[3] { -4.1f, -142.9f, 34.5f }; break;
-                case 30: fff = new float[3] { 724.9f, -1579.8f, 186.1f }; break;
-                case 31: fff = new float[3] { -1808.4f, 619.3f, 240.2f }; break;
-                case 32: fff = new float[3] { -1542.8f, -626.9f, 117.1f }; break;
-                case 33: fff = new float[3] { -918, -261, 966 }; break;
-                case 34: fff = new float[3] { -838.4f, -1980.2f, 198.3f }; break;
-                case 35: fff = new float[3] { 1209, -563, 707 }; break;
+                case 01:
+                case 17:
+                case 24: TURRET_MAP = true;break;
             }
+            //switch (MAP_IDX)
+            //{
+            //    case 00: fff = new float[3] { -338.2f, 2086.0f, 780.1f }; break;
+            //    case 01: fff = new float[3] { -528.8f, 3310.0f, 96.1f }; TURRET_MAP = true; break;
+            //    case 02: fff = new float[3] { 990.2f, 1219.3f, -87.8f }; break;
+            //    case 03: fff = new float[3] { -1587.4f, -4330.3f, 3862.0f }; break;
+            //    case 04: fff = new float[3] { 574.9f, -562.5f, -348.6f }; break;
+            //    case 05: fff = new float[3] { 2458.2f, 1552.0f, 148.4f }; break;
+            //    case 06: fff = new float[3] { 1262, 2668, -272 }; break;
+            //    case 07: fff = new float[3] { 1903, -1220, 380 }; break;
+            //    case 08: fff = new float[3] { 2535, -573, 100 }; break;
+            //    case 09: fff = new float[3] { 839.8f, -397.5f, -5.5f }; break;
+            //    case 10: fff = new float[3] { -1826.2f, 637.1f, 1049.1f }; break;
+            //    case 11: fff = new float[3] { -3441, -660, 1162 }; break;
+            //    case 12: fff = new float[3] { 662, -952, 112 }; break;
+            //    case 13: fff = new float[3] { -1515.3f, 1060.3f, 50.3f }; break;
+            //    case 14: fff = new float[3] { -45.6f, -926.9f, 0.1f }; break;
+            //    case 15: fff = new float[3] { -253.9f, -1614.1f, 352.1f }; break;
+            //    case 16: fff = new float[3] { -389.8f, -1498.5f, 686.7f }; break;
+            //    case 17: fff = new float[3] { 970.2f, -2889.9f, 124.2f }; TURRET_MAP = true; break;
+            //    case 18: fff = new float[3] { 806.4f, 2471.3f, 12752.6f }; break;
+            //    case 19: fff = new float[3] { -175.7f, -0.0f, 907.1f }; break;
+            //    case 20: fff = new float[3] { 1434.7f, -348.4f, 337.4f }; break;
+            //    case 21: fff = new float[3] { 2362, 1607, 220 }; break;
+            //    case 22: fff = new float[3] { 1880, -469, 1574 }; break;
+            //    case 23: fff = new float[3] { 53.6f, 639.6f, 2171.1f }; break;
+            //    case 24: fff = new float[3] { 131.7f, 1357.1f, 1800.1f }; TURRET_MAP = true; break;
+            //    case 25: fff = new float[3] { 404.5f, 725.2f, 452.8f }; break;
+            //    case 26: fff = new float[3] { 1012.7f, 398.3f, 168.1f }; break;
+            //    case 27: fff = new float[3] { 1362.4f, 3537.7f, 112.1f }; break;
+            //    case 28: fff = new float[3] { -1523.3f, -276.3f, 166.6f }; break;
+            //    case 29: fff = new float[3] { -4.1f, -142.9f, 34.5f }; break;
+            //    case 30: fff = new float[3] { 724.9f, -1579.8f, 186.1f }; break;
+            //    case 31: fff = new float[3] { -1808.4f, 619.3f, 240.2f }; break;
+            //    case 32: fff = new float[3] { -1542.8f, -626.9f, 117.1f }; break;
+            //    case 33: fff = new float[3] { -918, -261, 966 }; break;
+            //    case 34: fff = new float[3] { -838.4f, -1980.2f, 198.3f }; break;
+            //    case 35: fff = new float[3] { 1209, -563, 707 }; break;
+            //}
 
-            Helicopter.HELI_WAY_POINT = new Vector3(fff[0], fff[1], fff[2] + 150);
+            //Helicopter.HELI_WAY_POINT = new Vector3(fff[0], fff[1], fff[2] + 150);
 
             if (new byte[] { 23, 24, 25, 26, 28, 29, 30 }.Contains(MAP_IDX))//small map
             {
@@ -363,8 +376,7 @@ namespace Infected
             }
             else
             {
-                MAP_IDX++;
-                map = map_list[MAP_IDX];
+                map = map_list[++MAP_IDX];
                 MAP_IDX--;
             }
 

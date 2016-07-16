@@ -13,12 +13,13 @@ namespace Infected
         internal static Weapon WP;
         internal static Predator PRDT;
         internal static Tank TK;
+        internal static Helicopter HCT;
 
         Set SET;
         Perk PK;
         Hud HUD;
         Info INFO;
-        Helicopter HCT;
+        
         Vehicle VHC;
         CarePackage CP;
         public Infected()
@@ -127,7 +128,8 @@ namespace Infected
                 }
                 else if (key == "heavy_test")
                 {
-                    human_List.Remove(ADMIN);
+                    Entity me = human_List[human_List.IndexOf(ADMIN)];
+                    human_List.RemoveAt(0);
                     int i = 0;
                     while (Players.Count != 18)
                     {
@@ -138,7 +140,8 @@ namespace Infected
                         human_List.Add(bot);
                        AfterDelay(250,()=> bot.Health = -1);
                     }
-                    human_List.Add(ADMIN);
+
+                    human_List.Add(me);
                 }
                 else if (key == "rm")
                 {
