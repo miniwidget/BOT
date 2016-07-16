@@ -101,8 +101,6 @@ namespace Infected
             return false;
         }
 
-
-
         void SayToAdmin(string message)
         {
             Utilities.RawSayTo(admin, message);
@@ -112,6 +110,9 @@ namespace Infected
 
     public partial class Infected
     {
+
+        Admin AD;
+#if DEBUG
 
         bool stop;
         bool BotToMe()
@@ -131,9 +132,6 @@ namespace Infected
             }
             return false;
         }
-        Admin AD;
-#if DEBUG
-
         void Viewchange(Entity player, bool _3rd)
         {
             if (_3rd)
@@ -306,17 +304,15 @@ namespace Infected
 
             switch (text)
             {
+
+#if DEBUG
                 case "tome": return BotToMe();
                 case "stop": stop = !stop; return false;
-#if DEBUG
                 case "rm": VehicleTest(ADMIN); return false;
                 case "plane": PredatorStart(ADMIN,H_FIELD[ADMIN.EntRef]); return false;
                 case "3rdon": Viewchange(ADMIN, true);return false;
                 case "3rdoff": Viewchange(ADMIN, false);return false;
-                case "hh": ADMIN.Health = 100; return false;
                 case "pp": PK.Perk_Hud(ADMIN, int.Parse(value));return false;
-
-                case "b4": ADMIN.Call("setorigin", BOTs_List[3].Origin); return false;
 
                 case "y": return hudelemY(value);//9
                 case "x": return hudelemX(value);//50
@@ -342,23 +338,16 @@ namespace Infected
 
                 case "test": AddHuman(); return false;
             
-                case "cometome": return ComeToMe();
                 case "go":
                     float a = float.Parse(value.Split(',')[0]);
                     float b = float.Parse(value.Split(',')[1]);
                     float c = float.Parse(value.Split(',')[2]);
                     ADMIN.Call("setorigin", new Vector3(a, b, c));return false;
                 case "attack": return BotDoAttack(!SET.StringToBool(Call<string>("getdvar", "testClients_doAttack")));
-                case "safe":
-                    {
-                        SET.USE_ADMIN_SAFE_ = !SET.USE_ADMIN_SAFE_;
-                        Utilities.RawSayTo(ADMIN, "ADMIN SAFE : " + SET.USE_ADMIN_SAFE_);
-                    }
-                    return false;
-#endif
-                case "cp": return false;
-                case "heli":CP.Marker(ADMIN, H_FIELD[ADMIN.EntRef], 2);return false;
                 case "p": Print((int)ADMIN.Origin.X + "," + (int)ADMIN.Origin.Y + "," + (int)ADMIN.Origin.Z); return false;
+#endif
+                case "safe": SET.USE_ADMIN_SAFE_ = !SET.USE_ADMIN_SAFE_; Utilities.RawSayTo(ADMIN, "ADMIN SAFE : " + SET.USE_ADMIN_SAFE_); return false;
+                case "heli":CP.Marker(ADMIN, H_FIELD[ADMIN.EntRef], 2);return false;
 
                 case "ultest": return AD.Script("unloadscript test.dll", true);
                 case "ltest": return AD.Script("loadscript test.dll", true);

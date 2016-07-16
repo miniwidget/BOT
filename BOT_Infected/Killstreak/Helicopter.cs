@@ -76,7 +76,7 @@ namespace Infected
                 if (human.EntRef > 17) continue;
                 if (human == player) continue;
                 if (Axis) Utilities.RawSayTo(human, "^1[ ^7" + player.Name + " ^1] CALLED HELICOPTER. WATCH OUT");
-                else Utilities.RawSayTo(player, "HELICOPTER ENABLED. GO TO THE AREA");
+                else Utilities.RawSayTo(human, "HELICOPTER ENABLED. GO TO THE AREA");
             }
         }
         internal void HeliSetup(Entity player)

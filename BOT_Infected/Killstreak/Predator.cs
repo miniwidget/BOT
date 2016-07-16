@@ -12,7 +12,7 @@ namespace Infected
         Entity PREDATOR_OWNER;
         int FX_GREEN_LIGHT = -1;
         string weapon,thermalVision;
-        internal Vector3 PRDT_POS;
+        Vector3 PRDT_POS;
 
         public Predator()
         {
@@ -56,7 +56,7 @@ namespace Infected
             if (H.REMOTE_STATE != 0) return;
 
             weapon = player.CurrentWeapon;
-
+            PRDT_POS = player.Origin;
             Infected.USE_PREDATOR = true;
             H.MISSILE_COUNT = 10;
             PREDATOR_OWNER = player;

@@ -114,8 +114,6 @@ namespace Infected
 
                 brushmodel = Call<Entity>("spawn", "script_model", VectorAddZ(CARE_PACKAGE_ORIGIN, 25));
                 brushmodel.Call("setmodel", "projectile_cbu97_clusterbomb");
-
-                PRDT.PRDT_POS = CARE_PACKAGE_ORIGIN;
             }
             internal void CarePackageDo(Entity player, H_SET H)
             {
