@@ -11,18 +11,12 @@ namespace Tdm
     public partial class Tdm
     {
 
-        void DamageModMelee(Entity player, Entity attacker, int damage)
-        {
-            int pe = player.EntRef;
-            if (H_FIELD[pe] == null) return;
-            if (!H_FIELD[pe].AXIS) player.Health += damage;
-        }
 
         public override void OnPlayerDamage(Entity player, Entity inflictor, Entity attacker, int damage, int dFlags, string mod, string weapon, Vector3 point, Vector3 dir, string hitLoc)
         {
             if (USE_ADMIN_SAFE_) if (player == ADMIN) { player.Health += damage; return; }// damage;
 
-            if (mod[4] == 'M') { DamageModMelee(player, attacker, damage); return; }
+            if (mod[4] == 'M')  return;
 
             if (weapon[2] != '5')//iw5_
             {
@@ -33,7 +27,7 @@ namespace Tdm
 
             int pe = player.EntRef;
 
-            if (B_FIELD[pe]==null|| IsBOT[attacker.EntRef] != null) return;
+            if (!IsBOT[pe] ) return;
             if (B_FIELD[pe].target == null) B_FIELD[pe].target = attacker;
         }
 
@@ -41,13 +35,13 @@ namespace Tdm
         {
             int ke = killed.EntRef;
 
-            bool BotKilled = IsBOT[ke] != null;
+            bool BotKilled = IsBOT[ke];
 
             if (BotKilled)  B_FIELD[ke].wait = true;//봇이 죽은 경우
             
             if (weapon[2] != '5') if (weapon != "rpg_mp") return; //iw5_ rpg_ //deny all killstreak weapon
 
-            if (IsBOT[attacker.EntRef] == null)//공격자가 사람인 경우, 퍼크 주기
+            if (!IsBOT[attacker.EntRef])//공격자가 사람인 경우, 퍼크 주기
             {
                 if (BotKilled) B_FIELD[ke].killer = human_List.IndexOf(attacker);
             }

@@ -52,7 +52,6 @@ namespace Tdm
             {
                 B_FIELD.Add(null);
                 H_FIELD.Add(null);
-                IsBOT[i] = null;
             }
 
             PlayerConnecting += player =>

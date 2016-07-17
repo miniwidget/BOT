@@ -71,7 +71,7 @@ namespace Tdm
                 weapon = wp,
                 ammoClip = bot.Call<int>(33460, wp)
             };
-            IsBOT[be] = "1";
+            IsBOT[be] = true;
 
             B_SET B = B_FIELD[be];
 

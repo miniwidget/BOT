@@ -22,7 +22,7 @@ namespace Tdm
         internal static string ADMIN_NAME, VEHICLE_CODE;
         internal static int BOT_HELI_HEIGHT = 1500, FIRE_DIST;
         internal static bool GAME_ENDED_, USE_PREDATOR, TEST_, USE_ADMIN_SAFE_;
-        string[] IsBOT = new string[18];
+        bool [] IsBOT = new bool [18];
 
         bool
             GET_TEAMSTATE_FINISHED,

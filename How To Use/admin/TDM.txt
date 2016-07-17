@@ -1,4 +1,4 @@
-SERVER_NAME=^2BOT  ^7TDM  SERVER//server name
+SERVER_NAME=^2BOT ^7TDM SERVER//server name
 ADMIN_NAME=kwnav//server admin name 
 
 BOT_SETTING_NUM=12//
@@ -7,4 +7,4 @@ DEPLAY_BOT_=true//
 USE_ADMIN_SAFE_=false//
 MAP_ROTATE_=true//
 
-TEST_=true//
+TEST_=false//
