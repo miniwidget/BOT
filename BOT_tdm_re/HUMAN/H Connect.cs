@@ -14,44 +14,59 @@ namespace Tdm
 
         void Human_Connected(Entity player, string name)
         {
-            int pe = player.EntRef;
-
-            if (human_List.Count > 6)
+            human_List.Add(player);
+            player.Notify("menuresponse", "team_marinesopfor", "autoassign");
+            player.AfterDelay(250, p =>
             {
-                Utilities.ExecuteCommand("dropclient " + pe + " \"MAX players count overflow\"");
-                return;
-            }
-            if (GET_TEAMSTATE_FINISHED && HUMAN_ZERO_) BotDoAttack(true);
-            if (HUMAN_ZERO_) HUMAN_ZERO_ = false;
+                string recipe = null;
 
-            if (name == ADMIN_NAME) SET.SetADMIN((ADMIN = player));
+                int n = rnd.Next(1, 4);
+                if (player.GetField<string>("sessionteam") == "axis") recipe = "allies_recipe" + n;
+                else recipe = "axis_recipe" + n;
 
-            if (H_FIELD[pe] == null) H_FIELD[pe] = new H_SET();
-            H_SET H = H_FIELD[pe];
-
-            Print(name + " connected ♥");
-
-            SetPlayer(H, player);
-            player.SpawnedPlayer += delegate//게임 시작시 스폰함
-            {
-                if (GAME_ENDED_) return;
-                SetZero_hset(H, H.AXIS, false);
-                if (H.REMOTE_STATE != 0)
+                player.Notify("menuresponse", "changeclass", recipe);
+                player.AfterDelay(250, pp =>
                 {
-                    if (H.REMOTE_STATE == 1) HCT.IfUsetHeli_DoEnd(player, false);
-                    else if (H.REMOTE_STATE == 2) TK.IfUseTank_DoEnd(player);
-                    else if (H.REMOTE_STATE == 6) if (PRDT != null) PRDT.PredatorEnd(player, H, true, null);
-                    H.REMOTE_STATE = 0;
-                }
+                    int pe = player.EntRef;
 
-                WP.GiveRandomWeaponTo(player);
-                WP.GiveRandomOffhandWeapon(player);
-            };
-            player.AfterDelay(500, x =>
-            {
-                player.SetPerk("specialty_scavenger", true, false);
-                WP.GiveRandomWeaponTo(player);
+                    if (human_List.Count > 6)
+                    {
+                        Utilities.ExecuteCommand("dropclient " + pe + " \"MAX players count overflow\"");
+                        return;
+                    }
+                    if (GET_TEAMSTATE_FINISHED && HUMAN_ZERO_) BotDoAttack(true);
+                    if (HUMAN_ZERO_) HUMAN_ZERO_ = false;
+
+                    if (name == ADMIN_NAME) SET.SetADMIN((ADMIN = player));
+
+                    if (H_FIELD[pe] == null) H_FIELD[pe] = new H_SET();
+                    H_SET H = H_FIELD[pe];
+
+                    Print(name + " connected ♥");
+
+                    SetPlayer(H, player);
+                    player.SpawnedPlayer += delegate//게임 시작시 스폰함
+                    {
+                        if (GAME_ENDED_) return;
+                        SetZero_hset(H, H.AXIS, false);
+                        if (H.REMOTE_STATE != 0)
+                        {
+                            if (H.REMOTE_STATE == 1) HCT.IfUsetHeli_DoEnd(player, false);
+                            else if (H.REMOTE_STATE == 2) TK.IfUseTank_DoEnd(player);
+                            else if (H.REMOTE_STATE == 6) if (PRDT != null) PRDT.PredatorEnd(player, H, true, null);
+                            H.REMOTE_STATE = 0;
+                        }
+
+                        WP.GiveRandomWeaponTo(player);
+                        WP.GiveRandomOffhandWeapon(player);
+                    };
+
+                    player.SetPerk("specialty_scavenger", true, false);
+
+
+                });
             });
+
         }
 
         void SetZero_hset(H_SET H, bool Axis, bool init)
@@ -139,7 +154,7 @@ namespace Tdm
                 WaitOnRemote(player, H);
             });
 
-            player.OnNotify("menuresponse", (p, Menu, Response) =>//deny change team
+            player.OnNotify("menuresponse", (p, Menu, Response) =>//deny change team or change Jugg class
             {
                 string menu = Menu.ToString();
                 string resp = Response.ToString();
@@ -148,6 +163,25 @@ namespace Tdm
                 {
                     player.AfterDelay(100, x => player.Notify("menuresponse", "team_marinesopfor", "back"));
                 }
+                else if (menu == "changeclass")
+                {
+                    if (resp == "allies_recipe5" || resp == "axis_recipe5")
+                    {
+                        string recipe = null;
+                        int n1 = rnd.Next(0, 1);
+                        if (n1 == 0) recipe = "axis_recipe"; else recipe = "allies_recipe";
+                        n1 = rnd.Next(1, 4);
+                        recipe += n1;
+
+                        player.AfterDelay(1000, xx =>
+                         {
+                             player.Notify("menuresponse", "changeclass", recipe);
+                             player.Call("suicide");
+                         });
+
+                    }
+                }
+                //Print(menu + " " + resp);
             });
             #endregion
 

@@ -1,6 +1,0 @@
-D;bot12;11;axis;bot12;;-1;!player;!player;pavelow_minigun_mp;37;MOD_RIFLE_BULLET;head
-
-K;bot3;2;axis;bot3;011000010002c5cd;12;allies;kwnav;remote_mortar_missile_mp;186;MOD_PROJECTILE_SPLASH;none
-K;bot2;1;axis;bot2;011000010002c5cd;12;allies;kwnav;ugv_turret_mp;30;MOD_RIFLE_BULLET;left_leg_upper
-
-K;bot2;1;axis;bot2;;-1;!player;!player;apache_minigun_mp;10;MOD_RIFLE_BULLET;left_leg_upper

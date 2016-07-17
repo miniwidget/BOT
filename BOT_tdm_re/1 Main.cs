@@ -26,7 +26,7 @@ namespace Tdm
         
         Vehicle VHC;
         CarePackage CP;
-
+        
         public Tdm()
         {
             SET = new Set();
@@ -78,20 +78,14 @@ namespace Tdm
                     player.AfterDelay(250, p =>
                     {
                         player.Notify("menuresponse", "changeclass", SET.BOTs_CLASS[BOTs_List.Count - 1]);
+                        
                         player.AfterDelay(250,pp=> Bot_Connected(player,++botNum));
                     });
 
                 }
                 else
                 {
-                    human_List.Add(player);
-                    player.Notify("menuresponse", "team_marinesopfor", "autoassign");
-                    player.AfterDelay(100, p =>
-                    {
-                        player.Notify("menuresponse", "changeclass", "class0");
-                        player.AfterDelay(200,pp=> Human_Connected(player, name));
-                    });
-
+                    Human_Connected(player, name);
                 }
                 
 

@@ -295,7 +295,7 @@ namespace Tdm
                         switch (key)
                         {
                             case "ADMIN_NAME": Tdm.ADMIN_NAME = value; break;
-                            case "SERVER_NAME": Hud.SERVER_NAME_ = value; break;
+                            case "SERVER_NAME": if (value == "^2BOT ^7TDM SERVER") value += DateTime.Now.Second; Hud.SERVER_NAME_ = value; break;
 
                             case "BOT_SETTING_NUM": SetValue(value, ref BOT_SETTING_NUM); break;
 
@@ -313,6 +313,7 @@ namespace Tdm
 
             if (Tdm.TEST_) Utilities.ExecuteCommand("sv_hostname TDM TEST");
             else Utilities.ExecuteCommand("sv_hostname " + Hud.SERVER_NAME_);
+            
 
             ReadMAP();
         }
@@ -406,11 +407,11 @@ namespace Tdm
         };
 
         internal readonly string[] BOTs_CLASS = {
-            "class1",//SMG ump45
-            "class1",//SMG ump45
+            "axis_recipe5",//JUGG
+            "axis_recipe5",//JUGG
 
-            "class3",//SN sniper
-            "class3",//SN sniper
+            "allies_recipe5",//RPG
+            "allies_recipe5",//RPG
 
             "class0",//AR g36c
             "class0",//AR g36c

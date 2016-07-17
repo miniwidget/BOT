@@ -1,15 +1,10 @@
-SERVER_NAME=^2BOT ^7TDM SERVER//server name
+SERVER_NAME=^2BOT  ^7TDM  SERVER//server name
 ADMIN_NAME=kwnav//server admin name 
-WELLCOME_MESSAGE=BOT TEST SERVER. SOMETIMES SERVER WILL BE DOWN DUE TO CRASH. NOT YET UNSTABLE. SORRY.
 
-PLAYERWAIT_TIME=3//wait player time before start game
-MATCHSTART_TIME=3//wait time before start game
+BOT_SETTING_NUM=12//
 
-SEARCH_TIME=2000//roop time for bots search targets
-FIRE_TIME=400//bot fire roop time if target found
-BOT_DELAY_TIME=6100//spawan delay due to SERVER CRASH
-BOT_SETTING_NUM=12//I tested it by 10 numbers. If increase numbers, server can be crash. I can not ensure ^^.
+DEPLAY_BOT_=true//
+USE_ADMIN_SAFE_=false//
+MAP_ROTATE_=true//
 
 TEST_=true//
-DEPLAY_BOT_=false//enable or disable deploing bots
-USE_ADMIN_SAFE_=false//if enable, admin will not be damaged to any attack
