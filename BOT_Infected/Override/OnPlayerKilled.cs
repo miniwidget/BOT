@@ -45,13 +45,6 @@ namespace Infected
 
             if (BotKilled)  B_FIELD[ke].wait = true;//봇이 죽은 경우
             
-            //else if (killed == attacker)//사람이 죽은 경우
-            //{
-            //    if (!BotKilled) if (H_FIELD[ke].AXIS) H_FIELD[ke].AX_WEP = 2;//자살로 죽음
-
-            //    return;
-            //}
-
             if (weapon[2] != '5') if (weapon != "rpg_mp") return; //iw5_ rpg_ //deny all killstreak weapon
 
             if (IsBOT[attacker.EntRef] == null)//공격자가 사람인 경우, 퍼크 주기

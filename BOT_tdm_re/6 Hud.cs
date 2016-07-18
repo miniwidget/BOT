@@ -66,8 +66,8 @@ namespace Tdm
 *SN ^76 SNIPE GUN
 
 *SC ^7 SUICIDE
-*AMMO ^7GET AMMO
-*SCOPE ^7VIEW SCOPE";
+*VS ^7VIEW SCOPE
+*AMMO ^7GET AMMO";
 
     }
 }

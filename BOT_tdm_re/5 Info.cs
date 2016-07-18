@@ -13,16 +13,16 @@ namespace Tdm
         {
             "KILLSTREAKS  INFORMATION",
             "1. IF PRDT APPEARS LEFT BOTTOM,",
-            "PRESS [ *[{+activate}] ^7] TO GET RIDE PREDATOR",
+            "PRESS *[  ^7[{+activate}]  *] ^7TO GET RIDE PREDATOR",
             "2. IF HELI APPEARS LEFT BOTTOM,",
-            "PRESS [ *[{+activate}] ^7] TO AT THE HELICOPTER AREA",
+            "PRESS *[  ^7[{+activate}]  *] ^7 TO AT THE HELICOPTER AREA",
             "3. IF KEY CODE MESSAGE APPEARS,",
             "TYPE KEY CODE IMMEDIATLY TO GET RIDE VEHICLES"
         };
         readonly string[] MESSAGES_ALLIES_INFO_W =
         {
             "WEAPON  INFORMATION",
-            "TYPE [ *FOLLOWING ^7] 7TO GET WEAPONS",
+            "TYPE *[  ^7FOLLOWING  *] ^7TO GET WEAPONS",
             "[ *AP ^7] TO GET AKIMBO PISTOL",
             "[ *AG ^7] TO GET AKIMBO GUN",
             "[ *AR ^7] TO GET ASSAULT RIFFLE",

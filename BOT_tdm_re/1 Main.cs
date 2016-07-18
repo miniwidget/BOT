@@ -23,10 +23,11 @@ namespace Tdm
         Perk PK;
         Hud HUD;
         Info INFO;
-        
+
         Vehicle VHC;
         CarePackage CP;
-        
+
+
         public Tdm()
         {
             SET = new Set();
@@ -41,29 +42,31 @@ namespace Tdm
             VHC = new Vehicle();
             CP = new CarePackage();
 
-            Call(42, "scr_game_playerwaittime", 1);
-            Call(42, "scr_game_matchstarttime", 1);
+            Call(42, "scr_game_playerwaittime", 2);//Before prematch, times for kicking bots when map rotate or restart, not fast_restart
+            Call(42, "scr_game_matchstarttime", 5);//After prematch_done, times for starting match, in this priod, bot will be deployed
             Call(42, "testClients_watchKillcam", 0);
             Call(42, "testClients_doReload", 0);
 
             BotDoAttack(false);
 
+            //Utilities.SetDropItemEnabled(false);
+
             for (int i = 0; i < 18; i++)
             {
                 B_FIELD.Add(null);
                 H_FIELD.Add(null);
+                KILLER_ENTREF.Add(i, -1);
             }
 
             PlayerConnecting += player =>
             {
+               
                 if (player.Name.StartsWith("bot"))
                 {
-                    if(!BOTs_List.Contains(player)) Call("kick", player.EntRef);//in case of a bot, he spawn PlayerConnectd and later PlayerConnecting. It differ from Human player's sequence
+                    if (!BOTs_List.Contains(player)) Call(286, player.EntRef);//"kick" //in case of a bot, he spawn PlayerConnectd and later PlayerConnecting. It differ from Human player's sequence
                 }
             };
-
-            string team = "axis";
-            int botNum = 0;
+            
             PlayerConnected += player =>
             {
                 string name = player.Name;
@@ -71,22 +74,43 @@ namespace Tdm
                 if (name.StartsWith("bot"))
                 {
                     BOTs_List.Add(player);
-
-                    if (team == "axis") team = "allies"; else team = "axis";
-                    player.Notify("menuresponse", "team_marinesopfor", team);
-                    player.AfterDelay(250, p =>
+                    
+                    if (BOTs_List.Count == SET.BOT_SETTING_NUM)
                     {
-                        player.Notify("menuresponse", "changeclass", SET.BOTs_CLASS[BOTs_List.Count - 1]);
-                        
-                        player.AfterDelay(250,pp=> Bot_Connected(player,++botNum));
-                    });
+                        int max = SET.BOT_SETTING_NUM - 1;
+                        bool toAxis = false;
+                        string team = null;
 
+                        for (int i = 0; i < BOTs_List.Count; i++)
+                        {
+                            Entity bot = BOTs_List[i];
+                            
+                            if (toAxis) team = "axis";
+                            else team = "allies";
+
+                            Bot_Connected(bot, SET.BOTs_CLASS[i], team);
+                            toAxis = !toAxis;
+                            if (i == max)
+                            {
+                                AfterDelay(1000, () =>
+                                {
+                                    GetTeamState();
+                                    //foreach (Entity b in BOTs_List)
+                                    //{
+                                    //    Print("r:" + b.Name + " " + b.CurrentWeapon + " " + b.GetField<string>("sessionteam"));
+                                    //}
+                                });
+                                return;
+                            }
+                        }
+                    
+                    }
                 }
                 else
                 {
                     Human_Connected(player, name);
                 }
-                
+
 
             };
 
@@ -94,15 +118,13 @@ namespace Tdm
             {
                 human_List.Remove(player);// 봇 타겟리스트에서 접속 끊은 사람 제거
 
-                if (Allies_List.Contains(player)) Allies_List.Remove(player);
+                if (Allies_List.Contains(player)) Allies_List.Remove(player); else if (Axis_List.Contains(player)) Axis_List.Remove(player);
 
-                else if (Axis_List.Contains(player)) Axis_List.Remove(player);
+                int hlc = human_List.Count;
 
-                if (human_List.Count == 0)
-                {
-                    HUMAN_ZERO_ = true;
-                    BotDoAttack(false);
-                }
+                if (hlc == 0) BotDoAttack(false);
+                else if (hlc == 1) BotTeamBalanceEnable(false, false, null, hlc);
+                else HumanTeamBalance();
             };
 
             OnNotify("prematch_done", () => BotDeplay());
@@ -114,18 +136,95 @@ namespace Tdm
                 Call(42, "testClients_doAttack", 0);
                 Print("GAME_ENDED");
 
-                if(BOT_HELI!=null) BOT_HELI.Call(32928);//delete ?? for freezing ??
+                if (BOT_HELI != null) BOT_HELI.Call(32928);//delete ?? for freezing ??
                 AfterDelay(20000, () => Utilities.ExecuteCommand("map_rotate"));//go to next map if server state is freezing
             });
-            
+
             if (!TEST_) return;
 
             Print("테스트 모드");
+
 #if DEBUG
             OnServerCommand("/", (string[] texts) =>
             {
                 if (texts.Length == 1) return;
                 string key = texts[1].ToLower();
+
+                Print(key);
+
+                switch (key)
+                {
+                    case "change1":
+                        {
+                            Entity bot = BOTs_List[0];
+
+                            bot.Notify("menuresponse", "team_marinesopfor", texts[2]);/*important. match team and team class such as 'axis & axis_recipe', not 'axis & allies_recipe  */
+                            bot.AfterDelay(100, b =>//important
+                            {
+                                bot.Notify("menuresponse", "changeclass", texts[3]);//important. If don't do change class, bot doesn't have a gun
+                                AfterDelay(500, () => Print(bot.CurrentWeapon + " " + GetPlayerTeam(bot)));
+                            });
+                        }
+                        break;
+                    case "toaxis":
+                        {
+                            int fail_count = 0;
+
+                            OnInterval(300, () =>
+                            {
+                                if (Axis_List.Count <= 4) return false;
+
+                                if (fail_count == 18) return false;
+
+                                Entity bot = GetBotByTeam(false);
+
+                                BotChangeTeamToAxis(bot, true);
+                                fail_count++;
+                                return true;
+                            });
+                        }
+                        break;
+                    case "toallies":
+                        {
+                            int fail_count = 0;
+
+                            OnInterval(300, () =>
+                            {
+                                if (Allies_List.Count <= 4) return false;
+
+                                if (fail_count == 18) return false;
+
+                                Entity bot = GetBotByTeam(true);
+
+                                BotChangeTeamToAxis(bot, false);
+                                fail_count++;
+                                return true;
+                            });
+                        }
+                        break;
+                    case "balance":
+                        {
+                            Allies_List.Clear(); Axis_List.Clear();
+
+                            bool toAxis = true;
+                            int max = BOTs_List.Count - 1;
+                            for (int i = 0; i < BOTs_List.Count; i++)
+                            {
+                                Entity bot = BOTs_List[i];
+                                BotChangeTeamToAxis(bot, toAxis = !toAxis);
+                            }
+                        }
+                        break;
+                    case "state":
+                        {
+                            foreach(Entity ent in Players)
+                            {
+                                Print(ent.Name + " " + GetPlayerTeam(ent) + " " + ent.CurrentWeapon);
+                            }
+                        }
+                        break;
+                }
+
 
                 if (key == "team")
                 {
@@ -171,8 +270,6 @@ namespace Tdm
                         if (testHuman == null) Print("testHuman 눌");
                         else Print(testHuman.Name + "^__^");
                     });
-
-
                 }
                 else if (key == "status")
                 {
@@ -201,6 +298,7 @@ namespace Tdm
                     }
                     Print(s + "\n총:" + Players.Count + "명");
                 }
+
             });
 #endif
         }

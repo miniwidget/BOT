@@ -78,7 +78,7 @@ namespace Tdm
             return false;
         }
 
-        internal byte TankStart(Entity player, byte turretHolding, bool axis)
+        internal State TankStart(Entity player, byte turretHolding, bool axis)
         {
             Common.StartOrEndThermal(player, true);
 
@@ -94,12 +94,12 @@ namespace Tdm
                 player.Call(33256, REMOTETANK);//remotecontrolvehicle  
                 RMTK_OWNER_ENTREF = player.EntRef;
                 player.Call(33344, Info.GetStr("*TANK RUNNER START [ ^7MOVE & FIRE *]", axis)); 
-                return 2;//remote tank state
+                return State.remote_turretTank;//remote tank state
             }
             else
             {
                 player.Call(33344, Info.GetStr("*TANK GUNNER START [ ^7FIRE *]",axis));
-                return 0;//not using remote state
+                return State.remote_not_using;//not using remote state
             }
         }
         bool CheckDist(int entref,byte type)

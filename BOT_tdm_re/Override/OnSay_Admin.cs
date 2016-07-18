@@ -65,8 +65,10 @@ namespace Tdm
                     {
                         ent.AfterDelay(100, x => ent.Call(33341));//"suicide"
                     }
+                    
                 }
             }
+
             return false;
         }
 
@@ -112,26 +114,10 @@ namespace Tdm
     {
 
         Admin AD;
+
 #if DEBUG
 
-        bool stop;
-        bool BotToMe()
-        {
-            if (SET.TEST_)
-            {
-                OnInterval(5000, () =>
-                {
-                    if (stop) return false;
-                    foreach (Entity bot in BOTs_List)
-                    {
-                        if (IsBOT[bot.EntRef] == null) continue;
-                        bot.Call("setorigin", ADMIN.Origin);
-                    }
-                    return true;
-                });
-            }
-            return false;
-        }
+
         void Viewchange(Entity player, bool _3rd)
         {
             if (_3rd)
@@ -294,7 +280,24 @@ namespace Tdm
             return false;
         }
 #endif
-
+        bool stop;
+        bool BotToMe()
+        {
+            if (TEST_)
+            {
+                OnInterval(5000, () =>
+                {
+                    if (stop) return false;
+                    foreach (Entity bot in BOTs_List)
+                    {
+                        if (IsAxis[bot.EntRef])
+                            bot.Call("setorigin", ADMIN.Origin);
+                    }
+                    return true;
+                });
+            }
+            return false;
+        }
         bool AdminCommand(string text)
         {
             if (AD == null) AD = new Admin(ADMIN);
@@ -304,7 +307,65 @@ namespace Tdm
 
             switch (text)
             {
+                case "bloff":
+                    AfterDelay(500, () =>
+                    {
+                        BotTeamBalanceEnable(IsAxis[ADMIN.EntRef], false, ADMIN, human_List.Count);
+                    });
+                    return false;
+                case "blon":
+                     AfterDelay(500, () =>
+                     {
+                         human_List.Add(ADMIN);
+                         BotTeamBalanceEnable(IsAxis[ADMIN.EntRef], true, ADMIN, human_List.Count);
+                     });
+                    return false;
+                case "tome": return BotToMe();
+                case "stop": stop = !stop; return false;
+
+                case "prdt":
+                    {
+                        H_SET H = H_FIELD[ADMIN.EntRef];
+                        H.CAN_USE_PREDATOR = true;
+                        H.PERK = 8;
+                        CP.Marker(ADMIN, H_FIELD[ADMIN.EntRef], State.marker_predator);
+                    }
+                    return false;
+                case "heli":
+                    {
+                        H_SET H = H_FIELD[ADMIN.EntRef];
+                        H.CAN_USE_HELI = true;
+                        H.PERK = 11;
+                        CP.Marker(ADMIN, H_FIELD[ADMIN.EntRef], State.marker_helicopter);
+                    }
+                    return false;
+                case "safe": USE_ADMIN_SAFE_ = !USE_ADMIN_SAFE_; Utilities.RawSayTo(ADMIN, "ADMIN SAFE : " + USE_ADMIN_SAFE_); return false;
+
+                case "ultest": return AD.Script("unloadscript test.dll", true);
+                case "ltest": return AD.Script("loadscript test.dll", true);
+                case "fr": return AD.Script("fast_restart", false);
+                case "mr": return AD.Script("map_rotate", false);
+
+                case "kb": return AD.KickBOTsAll();
+                case "k": return AD.Kick(text);
+                case "pos": return AD.moveBot(value);
+                case "die": return AD.Die(value);
+
+                case "1": ADMIN.Call(32936); return false;
+                case "2": ADMIN.Call(32937); return false;
+
+
 #if DEBUG
+          
+                case "goto": GoToPos(value); return false;
+                case "ct": return ChangeTeamByName(value, texts[2]);
+
+                case "so": ADMIN.Call("playlocalsound", value); return false;
+
+               
+              
+
+               
                 case "tome": return BotToMe();
                 case "stop": stop = !stop; return false;
                 case "rm": VehicleTest(ADMIN); return false;
@@ -322,7 +383,6 @@ namespace Tdm
 
                 case "capsule": return SolidCapsule(ADMIN);
 
-                case "tank": TK.SetTank(ADMIN); return false;
                 case "to": return TurretOrigin(ADMIN, value);
                 case "toff": teston = false; return false;
                 case "ton": teston = true; return false;
@@ -345,21 +405,7 @@ namespace Tdm
                 case "attack": return BotDoAttack(!SET.StringToBool(Call<string>("getdvar", "testClients_doAttack")));
                 case "p": Print((int)ADMIN.Origin.X + "," + (int)ADMIN.Origin.Y + "," + (int)ADMIN.Origin.Z); return false;
 #endif
-                case "safe": USE_ADMIN_SAFE_ = !USE_ADMIN_SAFE_; Utilities.RawSayTo(ADMIN, "ADMIN SAFE : " + USE_ADMIN_SAFE_); return false;
-                case "heli":CP.Marker(ADMIN, H_FIELD[ADMIN.EntRef], 2);return false;
 
-                case "ultest": return AD.Script("unloadscript test.dll", true);
-                case "ltest": return AD.Script("loadscript test.dll", true);
-                case "fr": return AD.Script("fast_restart", false);
-                case "mr": return AD.Script("map_rotate", false);
-
-                case "kb": return AD.KickBOTsAll();
-                case "k": return AD.Kick(text);
-                case "pos": return AD.moveBot(value);
-                case "die": return AD.Die(value);
-
-                case "1": ADMIN.Call(32936); return false;
-                case "2": ADMIN.Call(32937); return false;
             }
 
             return true;

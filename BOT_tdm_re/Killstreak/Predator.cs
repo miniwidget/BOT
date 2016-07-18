@@ -21,46 +21,16 @@ namespace Tdm
             else
                 thermalVision = "thermal_mp";
         }
-        internal void PredatorEnd(Entity player, H_SET H, bool respawn, string weapon)
-        {
-            if (!respawn)
-            {
-                player.Call(32843);//unlink
-                player.Call(33529, PRDT_POS);
-                player.TakeWeapon("heli_remote_mp");
-                player.GiveWeapon(weapon);
-                player.SwitchToWeaponImmediate(weapon);
-                Common.StartOrEndThermal(player, false);
-
-            }
-
-            H.REMOTE_STATE = 0;
-            H.CAN_USE_PREDATOR = false;
-
-            Common.BulletHudInfoDestroy(H);
-
-            if (PREDATOR_OWNER == null || PREDATOR_OWNER == player)
-            {
-                PREDATOR_OWNER = null;
-                Tdm.USE_PREDATOR = false;
-
-                if (PLANE != null)
-                {
-                    PLANE.Call(32928);//delete
-                    PLANE = null;
-                }
-            }
-        }
         internal void PredatorStart(Entity player, H_SET H,int height)
         {
-            if (H.REMOTE_STATE != 0) return;
+            if (H.REMOTE_STATE != State.remote_not_using) return;
 
             weapon = player.CurrentWeapon;
             PRDT_POS = player.Origin;
             Tdm.USE_PREDATOR = true;
             H.MISSILE_COUNT = 6;
             PREDATOR_OWNER = player;
-            H.REMOTE_STATE = 6;
+            H.REMOTE_STATE = State.remote_predator;
             H.CAN_USE_PREDATOR = false;
             player.Health = 9999;
             if (PLANE != null) PLANE.Call(32928);//delete
@@ -71,11 +41,12 @@ namespace Tdm
 
             player.Call(32841, PLANE, "tag_origin");//linkto
             PLANE.Call(33402, height, 7);//movez
-            player.Call(33466, "PC_1mc_acheive_bomb");//playlocalsound
+
+            Tdm.PlayDialog(player, H.AXIS, 11);
 
             PLANE.AfterDelay(7000, v =>
             {
-                if (H.REMOTE_STATE != 6) return;
+                if (H.REMOTE_STATE != State.remote_predator) return;
                 if (FX_GREEN_LIGHT != -1)
                 {
                     Call(305, FX_GREEN_LIGHT, PLANE, "tag_light_tail1");//playFXOnTag
@@ -100,7 +71,7 @@ namespace Tdm
             player.Call(33445, "MISSILE", "+frag");//notifyonplayercommand
             player.OnNotify("MISSILE", ent =>
             {
-                if (H.REMOTE_STATE != 6) return;
+                if (H.REMOTE_STATE != State.remote_predator ) return;
                 if (!H.CAN_USE_PREDATOR) return;
                 if (H.MISSILE_COUNT <= 0){PredatorEnd(player, H, false, weapon); return;}
                 if (wait) return;wait = true;
@@ -127,5 +98,36 @@ namespace Tdm
                 });
             });
         }
+        internal void PredatorEnd(Entity player, H_SET H, bool respawn, string weapon)
+        {
+            if (!respawn)
+            {
+                player.Call(32843);//unlink
+                player.Call(33529, PRDT_POS);
+                player.TakeWeapon("heli_remote_mp");
+                player.GiveWeapon(weapon);
+                player.SwitchToWeaponImmediate(weapon);
+                Common.StartOrEndThermal(player, false);
+
+            }
+
+            H.REMOTE_STATE = State.remote_not_using;
+            H.CAN_USE_PREDATOR = false;
+
+            Common.BulletHudInfoDestroy(H);
+
+            if (PREDATOR_OWNER == null || PREDATOR_OWNER == player)
+            {
+                PREDATOR_OWNER = null;
+                Tdm.USE_PREDATOR = false;
+
+                if (PLANE != null)
+                {
+                    PLANE.Call(32928);//delete
+                    PLANE = null;
+                }
+            }
+        }
+
     }
 }

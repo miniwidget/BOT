@@ -26,54 +26,91 @@ namespace Tdm
         Vector3 TARGET_POS;
         Vector3[] ORIGINS;
 
-        Entity BOT_HELI, RIDER, FLARE, TARGET;
+        Entity BOT_HELI, RIDER, FLARE, TARGET,JUGG_BOT_ALLIES,JUGG_BOT_AXIS;
 
         readonly string[] MAGICS = { "sam_projectile_mp", "javelin_mp", "ims_projectile_mp", "ac130_40mm_mp", "ac130_105mm_mp", "rpg_mp", "uav_strike_projectile_mp" };
 
         bool OVER, BOT_HELI_INTERVAL_STOP = true;
-        int FX_EXPLOSION, FX_FLARE_AMBIENT, FX_GREEN_LIGHT = -1;
+        int FX_FLARE_AMBIENT, FX_GREEN_LIGHT = -1, FX_RED_LIGHT = -1;
+        internal static int FX_EXPLOSION;
         byte BH_COUNT, BOT_HELI_FIRE;
-        string RIDER_TEAM;
         #endregion
 
-
-        void SetRider(Entity bot, B_SET B)
+        void BotAddWatch()
         {
-            B.wait = true;
-            RIDER = bot;
+            BOT_ADD_WATCH_FINISHED = true;
 
-            RIDER_TEAM = bot.GetField<string>("sessionteam");
+            List<B_SET> bots_fire = new List<B_SET>();
+            foreach (B_SET B in B_FIELD)
+            {
+                if (B == null) continue;
+                bots_fire.Add(B);
+            }
+
+            ORIGINS = Players.Select(ent => ent.Origin).ToArray();
+            FX_EXPLOSION = Call<int>(303, "explosions/aerial_explosion");//loadfx
+            FX_FLARE_AMBIENT = Call<int>(303, "misc/flare_ambient");//"loadfx"
+            FX_GREEN_LIGHT = Call<int>(303, "misc/aircraft_light_wingtip_green");//"loadfx"
+            FX_RED_LIGHT = Call<int>(303, "misc/aircraft_light_wingtip_red");//"loadfx"
+
+            SetRider(BOTs_List[SET.MAP_IDX % 2]);
+
+            OnInterval(2500, () =>
+            {
+                if (GAME_ENDED_) return false;
+                if (HUMAN_ZERO_) return true;
+
+                foreach (B_SET B in bots_fire) B.Search();
+
+                HeliBotSearch();
+
+                return true;
+            });
+        }
+
+
+        void SetRider(Entity bot)
+        {
+            RIDER = bot;
 
             BOT_HELI = Call<Entity>(367, bot, "script_model", VectorAddZ(bot.Origin, BOT_HELI_HEIGHT), "compass_objpoint_ac130_friendly", "compass_objpoint_ac130_enemy");//spawnPlane
             BOT_HELI.Call(32929, "vehicle_remote_uav");//"setmodel" 
-            
+
             if (FX_GREEN_LIGHT != -1)
             {
                 AfterDelay(500, () =>
                 {
-                    Call(305, FX_GREEN_LIGHT, BOT_HELI, "tag_light_tail1");//playFXOnTag
-                    Call(305, FX_GREEN_LIGHT, BOT_HELI, "tag_light_nose");//playFXOnTag
+                    int light = 0;
+                    if (IsAxis[bot.EntRef]) light = FX_RED_LIGHT; else light = FX_GREEN_LIGHT;
+                    Call(305, light, BOT_HELI, "tag_light_tail1");//playFXOnTag
+                    Call(305, light, BOT_HELI, "tag_light_nose");//playFXOnTag
                 });
-                
+
             }
-            RIDER.Call(32841, BOT_HELI);//"linkto"
-            RIDER.TakeAllWeapons();
+            bot.Call("setorigin", BOT_HELI.Origin);//setorigin
+            bot.Call(32841, BOT_HELI);//"linkto"
+            bot.TakeAllWeapons();
 
             BOT_HELI_INTERVAL_STOP = false;
-            if (B.RiderState == 0)
+
+            B_SET B = B_FIELD[bot.EntRef];
+            B.WAIT = true;
+
+            if (B.RIDER_STATE == 0)
             {
                 bot.SpawnedPlayer += delegate
                 {
-                    if (B.RiderState == 1)
+                    if (B.RIDER_STATE == 1)
                     {
-                        B.RiderState = 2;
-                        EndRider(B);
+                        B.RIDER_STATE = 2;
+                        B.WAIT = false;
+                        EndRider();
                     }
                 };
             }
-            B.RiderState = 1;
+            B.RIDER_STATE = 1;
         }
-        void EndRider(B_SET B)
+        void EndRider()
         {
             BOT_HELI_INTERVAL_STOP = true;
             if (GAME_ENDED_) return;
@@ -88,14 +125,19 @@ namespace Tdm
             if (BOT_HELI != null)
             {
                 Call(304, FX_EXPLOSION, BOT_HELI.Origin);//"PlayFX"
-                BOT_HELI.Call("delete");
+                BOT_HELI.Call(32928);//delete
                 BOT_HELI = null;
             }
 
             RIDER.AfterDelay(10000, r =>
             {
-                if (RIDER_TEAM == "allies") SetRider(BOTs_List[1],B);
-                else SetRider(BOTs_List[0],B);
+                Entity bot = null;
+
+                if (BALANCE_STATE == State.balance_off) bot = RIDER;
+                
+                else if (IsAxis[RIDER.EntRef]) bot = JUGG_BOT_ALLIES; else bot = JUGG_BOT_AXIS;
+
+                SetRider(bot);
             });
 
         }
@@ -132,14 +174,14 @@ namespace Tdm
             {
                 BOT_HELI_FIRE = 1;
 
-                if (RIDER_TEAM == "allies") TARGET = Axis_List[rnd.Next(Axis_List.Count)];
+                if (IsAxis[RIDER.EntRef]) TARGET = Axis_List[rnd.Next(Axis_List.Count)];
                 else TARGET = Allies_List[rnd.Next(Allies_List.Count)];
 
                 TARGET_POS = VectorAddZ(TARGET.Origin, 40);
                 FLARE = Call<Entity>(308, FX_FLARE_AMBIENT, TARGET_POS);//"spawnFx"
                 Call(309, FLARE);//"triggerfx"
 
-                if (TARGET.Name != null) TARGET.Call(33466, "javelin_clu_lock");//"playlocalsound" //deny remote tank //deny remote tank !important if not deny, server cause crash
+                if (TARGET.EntRef < 18) TARGET.Call(33466, "javelin_clu_lock");//"playlocalsound" //deny remote tank //deny remote tank !important if not deny, server cause crash
             }
             else
             {

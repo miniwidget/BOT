@@ -14,21 +14,23 @@ namespace Tdm
         {
             internal Entity CARE_PACKAGE;
             internal Vector3 CARE_PACKAGE_ORIGIN;
-            internal void Marker(Entity player,H_SET H,byte type)
+
+            internal void Marker(Entity player, H_SET H, State type)
             {
                 string message = null;
 
-                if (type == 1)
-                
+                if (type == State.marker_predator)
+                {
                     message = Info.GetStr("*THROW MARKER and GET [ ^7RIDE PREDATOR *]", H.AXIS);
-                else
+                }
+                else //if (type == State.marker_helicopter)
+                {
                     message = Info.GetStr("*THROW MARKER and GET [ ^7HELICOPTER *]", H.AXIS);
-                
-                
-                H.MARKER_TYPE = type;
+                }
 
+                H.MARKER_TYPE = type;
                 player.Call(33344, message);
-                player.Call(33466, "ammo_crate_use");//playlocalsound
+                PlayDialog(player, H.AXIS, 16);
 
                 string marker = "airdrop_sentry_marker_mp";
                 player.GiveWeapon(marker);
@@ -38,72 +40,75 @@ namespace Tdm
 
                 player.OnNotify("grenade_fire", (Entity owner, Parameter mk, Parameter weaponName) =>
                 {
-                    if (H.MARKER_TYPE == 0) return;
+                    if (H.MARKER_TYPE == State.marker_none) return;
 
                     if (weaponName.ToString() != "airdrop_sentry_marker_mp") return;
 
                     Entity Marker = mk.As<Entity>();
                     if (Marker == null) return;
 
-                    if (H.MARKER_TYPE == 1) PredatorMarker(player, Marker,H.AXIS);
-                    else HelicopterMarker(player, Marker,H.AXIS);
+                    if (H.MARKER_TYPE ==State.marker_helicopter) PlayDialog(player, H.AXIS, 13);
+                    else Marker.Call(32915, "mp_vest_deployed_ui");//playSound
 
-                    H.MARKER_TYPE = 0;
+                    player.AfterDelay(3000, x =>
+                    {
+                        Marker.Call(32915, "cobra_helicopter_crash");//playSound
+
+                        if (FX_EXPLOSION != -1) Call(304, FX_EXPLOSION, Marker.Origin);//"PlayFX"
+
+                        if (H.MARKER_TYPE == State.marker_predator) PredatorMarker(player, Marker.Origin, H.AXIS);
+                        else if (H.MARKER_TYPE == State.marker_helicopter) HelicopterMarker(player, Marker.Origin, H.AXIS);
+
+                        H.MARKER_TYPE = State.marker_none;
+                        Marker.Call(32928);//delete
+                    });
+
+                  
                 });
             }
-            internal void HelicopterMarker(Entity player,Entity Marker, bool Axis)
+            internal void PredatorMarker(Entity player, Vector3 dest, bool Axis)
             {
-                player.Call(33466, "PC_1mc_use_ah6guard");
-
-                player.AfterDelay(3000, p =>
-                {
-                    player.Call(33344, Info.GetStr("*PRESS [  ^7[{+activate}]  *] AT THE HELI TURRET", Axis));
-                    HCT.SetHeliPort(Marker.Origin);
-                    HCT.HeliCall(player, Axis);
-                    Marker.Call(32928);//delete
-                });
-            }
-            internal void PredatorMarker(Entity player, Entity Marker,bool Axis)
-            {
+                PlayDialog(player, Axis, 15);
                 if (PRDT == null) PRDT = new Predator();
-                player.Call(33466, "PC_1mc_use_hellfire");
 
-                player.AfterDelay(3000, p =>
+                player.Call(33344, Info.GetStr("PRESS *[  [{+activate}]  ] ^7AT THE CARE PACKAGE", Axis));
+
+                CARE_PACKAGE_ORIGIN = VectorAddZ(dest, 8);
+
+                Entity brushmodel = Call<Entity>("getent", "pf1_auto1", "targetname");
+
+                if (brushmodel == null) brushmodel = Call<Entity>("getent", "pf3_auto1", "targetname");
+                if (brushmodel != null)
                 {
-                    player.Call(33344, Info.GetStr("*PRESS [  ^7[{+activate}]  *] AT THE CARE PACKAGE", Axis));
+                    CarePackageSpawn(brushmodel);
+                    return;
+                }
 
-                    CARE_PACKAGE_ORIGIN = VectorAddZ(Marker.Origin, 8);
-                    Marker.Call(32928);//delete
-
-                    Entity brushmodel = Call<Entity>("getent", "pf1_auto1", "targetname");
-
-                    if (brushmodel == null) brushmodel = Call<Entity>("getent", "pf3_auto1", "targetname");
-                    if (brushmodel != null)
+                for (int i = 18; i < 1024; i++)
+                {
+                    brushmodel = Entity.GetEntity(i);
+                    if (brushmodel == null) continue;
+                    if (brushmodel.GetField<string>("classname") == "script_brushmodel")
                     {
+                        string targetName = brushmodel.GetField<string>("targetname");
+
+                        if (targetName == null) continue;
+
                         CarePackageSpawn(brushmodel);
-                        return;
+                        break;
                     }
-
-                    for (int i = 18; i < 1024; i++)
-                    {
-                        brushmodel = Entity.GetEntity(i);
-                        if (brushmodel == null) continue;
-                        if (brushmodel.GetField<string>("classname") == "script_brushmodel")
-                        {
-                            string targetName = brushmodel.GetField<string>("targetname");
-
-                            if (targetName == null) continue;
-
-                            CarePackageSpawn(brushmodel);
-
-                            break;
-                        }
-                    }
-                });
+                }
+                CarePackageSpawn(null);
             }
+            internal void HelicopterMarker(Entity player, Vector3 dest, bool Axis)
+            {
+                player.Call(33344, Info.GetStr("PRESS *[  ^7[{+activate}]  ] ^7AT THE HELI TURRET", Axis));
+                HCT.SetHeliPort(dest);
+                HCT.HeliCall(player, Axis);
+            }
+
             void CarePackageSpawn(Entity brushmodel)
             {
-
                 CARE_PACKAGE = Call<Entity>("spawn", "script_model", CARE_PACKAGE_ORIGIN);
                 CARE_PACKAGE.Call("setmodel", "com_plasticcase_friendly");//com_plasticcase_friendly
                 if (brushmodel != null) CARE_PACKAGE.Call(33353, brushmodel);

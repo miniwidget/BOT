@@ -8,11 +8,11 @@ namespace Tdm
 {
     class Helicopter : Inf
     {
-        internal readonly string[] MESSAGE_ALERT = { "YOU ARE NOT IN THE HELI AREA", "GO TO HELI AREA AND", "PRESS *[ [{+activate}] ] ^7AT THE HELI AREA" };
+        internal readonly string[] MESSAGE_ALERT = { "YOU ARE NOT IN THE HELI AREA", "GO TO HELI AREA AND", "PRESS *[  [{+activate}]  ] ^7AT THE HELI AREA" };
         internal readonly string[] MESSAGE_WAIT_PLAYER = { "YOU CAN RIDE HELLI", "IF ANOTHER PLAYER ONBOARD" };
-        readonly string[] MESSAGE_KEY_INFO = { "HELICOPTER CONTROL INFO", "MOVE DOWN *[ [{+breath_sprint}] ]", "MOVE UP *[ [{+gostand}] ]" };
-        internal readonly string[] MESSAGE_ACTIVATE = { "PRESS *[ [{+activate}] ] ^7AT THE HELI TURRET AREA", "YOU CAN RIDE IN HELICOPTER" };
-        internal readonly string MESSAGE_CALL = "*PRESS *[ [{+activate}] ] ^7TO CALL HELI TURRET";
+        readonly string[] MESSAGE_KEY_INFO = { "HELICOPTER CONTROL INFO", "MOVE DOWN *[  [{+breath_sprint}]  ]", "MOVE UP *[  [{+gostand}]  ]" };
+        internal readonly string[] MESSAGE_ACTIVATE = { "PRESS *[  [{+activate}]  ] ^7AT THE HELI TURRET AREA", "YOU CAN RIDE IN HELICOPTER" };
+        internal readonly string MESSAGE_CALL = "PRESS *[  [{+activate}]  ] ^7TO CALL HELI TURRET";
         internal Entity HELI, TL, TR, HELI_OWNER, HELI_GUNNER;
         Vector3 HELI_WAY_POINT;
         internal bool HELI_WAY_ENABLED;
@@ -59,7 +59,8 @@ namespace Tdm
             HeliSetup(player);
             player.AfterDelay(500, p =>
             {
-                player.Call(33466, "US_1mc_KS_lbd_inposition");//playlocalsound
+                Tdm.PlayDialog(player, Axis, 14);
+
                 player.AfterDelay(500, x =>
                 {
                     player.TakeWeapon(kh);
@@ -71,15 +72,7 @@ namespace Tdm
 
             Info.MessageRoop(player, 0, MESSAGE_ACTIVATE);
 
-            foreach (Entity human in Tdm.human_List)
-            {
-                int he = human.EntRef;
-                if (he > 17) continue;
-                if (human == player) continue;
-
-                if (Tdm.H_FIELD[he].AXIS == Axis) Utilities.RawSayTo(human, "HELICOPTER ENABLED. GO TO THE AREA");
-                else Utilities.RawSayTo(human, Info.GetStr("^1[ ^7" + player.Name + " ^1] CALLED HELICOPTER. WATCH OUT", !Axis));
-            }
+            AlertToTeam(Axis, player.EntRef, "HELICOPTER ENABLED. GO TO THE AREA", Info.GetStr("*[ ^7" + player.Name + " *] CALLED HELICOPTER. WATCH OUT", Axis), -1, false);
         }
         internal void HeliSetup(Entity player)
         {
@@ -128,16 +121,34 @@ namespace Tdm
 
         #endregion
 
+        void AlertToTeam(bool Axis, int ownerEntref, string messageToAllies, string messageToAxis, int soundIdx, bool soundToOtherTeam)
+        {
+            for (int i = 0; i < Tdm.human_List.Count; i++)
+            {
+                Entity human = Tdm.human_List[i];
+                int he = human.EntRef;
+                if (he > 17) continue;
+                if (he== ownerEntref)
+                {
+                    if (soundIdx == -1) continue;
+                    Tdm.PlayDialogToTeam(human, Axis, soundIdx, soundToOtherTeam);
+                    continue;
+                }
+                if (Tdm.H_FIELD[he].AXIS == Axis) Utilities.RawSayTo(human, messageToAllies);
+                else Utilities.RawSayTo(human, messageToAxis);
+            }
+        }
+
         #region board heli
         internal bool HELI_ON_USE_;
         byte helicount;
-        internal byte HeliStart(Entity player, bool Axis)
+        internal State HeliStart(Entity player, bool Axis)
         {
             Common.StartOrEndThermal(player, true);
             if (HELI_ON_USE_)
             {
                 HELI_GUNNER = player;
-                return 0;
+                return State.remote_not_using;
             }
 
             helicount++;
@@ -152,20 +163,7 @@ namespace Tdm
 
             int time = 80000;
 
-            foreach (Entity human in Tdm.human_List)
-            {
-                if (human.EntRef > 17) continue;
-                Utilities.RawSayTo(human, "^1ENEMY HELICOPTER INBOUND");
-            }
-            string team = "allies";
-            if (Axis) team = "axis";
-            foreach (Entity human in Tdm.human_List)
-            {
-                int he = human.EntRef;
-                if (he > 17) continue;
-                if (human == player){player.Call(32771, "PC_1mc_enemy_ah6guard", team); continue;}//playsoundtoteam
-                if (Tdm.H_FIELD[he].AXIS != Axis) Utilities.RawSayTo(human, "^1ENEMY HELICOPTER INBOUND");
-            }
+            AlertToTeam(Axis, player.EntRef, Info.GetStr("*FRIENDLY HELICOPTER INBOUND", Axis), Info.GetStr("*ENEMEY HELICOPTER INBOUND", Axis), 12,true);
 
             Info.MessageRoop(player, 0, MESSAGE_KEY_INFO);
 
@@ -179,7 +177,7 @@ namespace Tdm
                     HeliEndUse(player, true);
                 }
             });
-            return 1;
+            return State.remote_helicopter;
         }
         #endregion
 

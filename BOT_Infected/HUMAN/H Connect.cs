@@ -63,9 +63,6 @@ namespace Infected
             {
                 if (GAME_ENDED_) return;
 
-                if (!H.AXIS) HumanAlliesSpawned(player, name, H);
-                else HumanAxisSpawned(player, name, H);
-
                 if (H.REMOTE_STATE != 0)
                 {
                     if (H.REMOTE_STATE == 1) HCT.IfUsetHeli_DoEnd(player, false);
@@ -73,6 +70,10 @@ namespace Infected
                     else if (H.REMOTE_STATE == 6) if (PRDT != null) PRDT.PredatorEnd(player, H, true, null);
                     H.REMOTE_STATE = 0;
                 }
+
+                if (!H.AXIS) HumanAlliesSpawned(player, name, H);
+                else HumanAxisSpawned(player, name, H);
+
             };
 
         }

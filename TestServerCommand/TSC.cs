@@ -14,25 +14,27 @@ namespace TestServerCommand
             OnServerCommand("/", (string[] texts) =>
             {
                 string key = texts[1].ToLower();
-                if (key == "ulinf")
+                switch (key)
                 {
-                    Script("unloadscript inf.dll", true);
-                }
-                else if (key == "linf")
-                {
-                    Script("loadscript inf.dll", true);
-                }
-                else if(key == "fr")
-                {
-                    Utilities.ExecuteCommand("fast_Restart");
-                }
-                else if (key == "ultdm")
-                {
-                    Script("unloadscript tdm.dll", true);
-                }
-                else if (key == "ltdm")
-                {
-                    Script("loadscript tdm.dll", true);
+                    case "fr": Script("fast_Restart inf.dll", false); return;
+                    case "mr": Script("map_rotate inf.dll", false); return;
+
+                    case "ulinf": Script("unloadscript inf.dll", true); return;
+                    case "linf": Script("loadscript inf.dll", true); return;
+                    case "ultdm": Script("unloadscript tdm.dll", true); return;
+                    case "ltdm": Script("loadscript tdm.dll", true); return;
+
+                    //case "dialog":
+                    //    {
+                    //        string res = null;
+                    //        for (int i = 0; i < 1024; i++)
+                    //        {
+                    //            res += " " + Call<string>("tableLookup", "mp/killstreakTable.csv", 0, i, 8);
+                    //        }
+
+                    //        Log.Write(LogLevel.None, res);
+                    //    }
+                    //    return;
                 }
             });
 

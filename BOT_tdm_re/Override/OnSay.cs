@@ -57,7 +57,7 @@ namespace Tdm
                     case "sg": WP.GiveWeaponTo(player, 5); return;
                     case "sn": WP.GiveWeaponTo(player, 6); return;
 
-                    case "scope": WP.GiveAttachScope(player); return;
+                    case "vs": WP.GiveAttachScope(player); return;
                     case "ammo": 
                         player.Call(33523, player.CurrentWeapon);//givemaxammo = full stock & not clip
                         player.Call(33468, player.CurrentWeapon, 100);//setweaponammoclip
