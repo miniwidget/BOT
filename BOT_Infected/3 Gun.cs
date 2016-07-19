@@ -7,7 +7,7 @@ using InfinityScript;
 
 namespace Infected
 {
-    internal class Weapon
+    internal class Gun
     {
         Random rnd = Infected.rnd;
 

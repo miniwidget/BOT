@@ -13,9 +13,9 @@ namespace Tdm
         {
             "KILLSTREAKS  INFORMATION",
             "1. IF PRDT APPEARS LEFT BOTTOM,",
-            "PRESS *[  ^7[{+activate}]  *] ^7TO GET RIDE PREDATOR",
+            "PRESS *[  [{+activate}]  ] ^7TO GET RIDE PREDATOR",
             "2. IF HELI APPEARS LEFT BOTTOM,",
-            "PRESS *[  ^7[{+activate}]  *] ^7 TO AT THE HELICOPTER AREA",
+            "PRESS *[  [{+activate}]  ] ^7 TO AT THE HELICOPTER AREA",
             "3. IF KEY CODE MESSAGE APPEARS,",
             "TYPE KEY CODE IMMEDIATLY TO GET RIDE VEHICLES"
         };

@@ -35,7 +35,7 @@ namespace Infected
                 {
                     player.Notify("menuresponse", "class", "back");
                     player.Call(33436, "black_bw", 0.5f);
-                    HudElem START = HudElem.CreateFontString(player,"objective", 2f);
+                    HudElem START = HudElem.CreateFontString(player, "objective", 2f);
                     START.SetPoint("CENTER", "CENTER", 0, 50);
                     START.Foreground = true;
                     START.HideWhenInMenu = false;
@@ -69,17 +69,16 @@ namespace Infected
                 }
                 else
                 {
-                    WP.GiveRandomWeaponTo(player);
+                    WP.GiveWeaponTo(player, H.GUN);
                     WP.GiveRandomOffhandWeapon(player);
 
-                    if (!human_List.Contains(player)) human_List.Add(player);
+                    if (!Allies_List.Contains(player)) Allies_List.Add(player);
 
                     SetZero_hset(H, false, --H.LIFE, name, false);
 
                     if (HUMAN_DIED_ALL_) HUMAN_DIED_ALL_ = false;
 
                     player.SetPerk("specialty_scavenger", true, false);
-
                 }
             }
             else if (LIFE == -1)
@@ -104,13 +103,12 @@ namespace Infected
         {
             SetZero_hset(H, true, 0, name, false);
 
-            player.SetField("sessionteam", "axis");
-            human_List.Remove(player);
+            Allies_List.Remove(player);
             player.Call(33341);//suicde
             player.Notify("menuresponse", "changeclass", "axis_recipe4");
             Print(name + " : Infected ⊙..⊙");
 
-            if (human_List.Count == 0) HUMAN_DIED_ALL_ = true;
+            if (Allies_List.Count == 0) HUMAN_DIED_ALL_ = true;
 
             Utilities.RawSayTo(player, Info.GetStr("*[ ^7DISABLED *] Melee of the Infected", true));
             HUD.AxisHud(player);
@@ -121,7 +119,7 @@ namespace Infected
         void HumanAxisSpawned(Entity player, string name, H_SET H)
         {
             if (!H.CAN_USE_HELI) H.CAN_USE_HELI = true;
-            if (!HumanAxis_List.Contains(player)) HumanAxis_List.Add(player);
+            if (!Axis_List.Contains(player)) Axis_List.Add(player);
 
             player.SetPerk("specialty_scavenger", true, false);
             player.SetPerk("specialty_longersprint", true, false);
@@ -129,103 +127,56 @@ namespace Infected
 
             H.AX_WEP += 1;
 
-            string deadManWeapon = null;
-
-            deadManWeapon = HumanAxisSpawnedWeapon(player, H.AX_WEP);
+            string deadManWeapon = HumanAxisWeapon(player, H.AX_WEP);
 
             H.CAN_USE_HELI = true;
 
             if (H.AX_WEP > 3)
             {
-                player.Call(33344, Info.GetStr("*[ ^7" + deadManWeapon + " *] Weapon of the Infected", true));
+                player.Call(33344, Info.GetStr("*[ ^7" + deadManWeapon + " *]  Weapon of the Infected", true));
                 return;
             }
 
             if (HCT.HELI == null)
             {
-                Info.MessageRoop(player, 0, new[] { "*[ ^7" + deadManWeapon + " *] Weapon of the Infected", "*PRESS[^7 [{+activate}] *] TO CALL HELI TURRET" });
+                Info.MessageRoop(player, 0, new[] { "*[ ^7" + deadManWeapon + " *]  Weapon of the Infected", "*PRESS  [  ^7[{+activate}]  *]  TO CALL HELI TURRET" });
             }
             else if (!HCT.HELI_ON_USE_)
             {
-                Info.MessageRoop(player, 0, new[] { "*[ ^7" + deadManWeapon + " *] Weapon of the Infected", "*PRESS [^7 [{+activate}] *] AT THE HELI TURRET AREA", "YOU CAN RIDE IN HELICOPTER" });
+                Info.MessageRoop(player, 0, new[] { "*[ ^7" + deadManWeapon + " *]  Weapon of the Infected", "*PRESS  [  ^7[{+activate}]  *]  AT THE HELI TURRET AREA"});
             }
         }
-        string HumanAxisSpawnedWeapon(Entity dead, int aw)
+        string HumanAxisWeapon(Entity dead, int aw)
         {
             dead.TakeWeapon(dead.CurrentWeapon);
             dead.Health = 70;
             string deadManWeapon;
             int bullet = 0;
-            if (aw <= 3)
-            {
-                deadManWeapon = "m320_mp";
-                bullet = 1;
-            }
-            else if (aw == 4)
-            {
-                deadManWeapon = "xm25_mp";
-                bullet = 1;
-            }
-            else if (aw == 5)
-            {
-                deadManWeapon = "iw5_mp412_mp";
-                bullet = 1;
-            }
-            else if (aw == 6)
-            {
-                deadManWeapon = "iw5_44magnum_mp";
-                bullet = 2;
-            }
-            else if (aw == 7)
-            {
-                deadManWeapon = "iw5_msr_mp_msrscopevz_xmags";
-                bullet = 1;
-            }
-            else if (aw == 8)
-            {
-                deadManWeapon = "iw5_mp412_mp";
-                bullet = 2;
-            }
-            else if (aw == 9)
-            {
-                deadManWeapon = "iw5_as50_mp_as50scopevz_xmags";
-                bullet = 1;
-            }
-            else if (aw == 10)
-            {
-                deadManWeapon = "iw5_44magnum_mp";
-                bullet = 2;
-            }
-            else if (aw == 11)
-            {
-                deadManWeapon = "iw5_l96a1_mp_l96a1scopevz_xmags";
-                bullet = 1;
-            }
-            else if (aw == 12)
-            {
-                deadManWeapon = "m320_mp";
-                bullet = 1;
-            }
+            bullet = 2;
+
+            if (aw <= 3) deadManWeapon = "m320_mp";
+            else if (aw == 4) deadManWeapon = "xm25_mp";
+            else if (aw == 5) deadManWeapon = "iw5_mp412_mp";
+            else if (aw == 6) deadManWeapon = "iw5_44magnum_mp";
+            else if (aw == 7) deadManWeapon = "iw5_msr_mp_msrscopevz_xmags";
+            else if (aw == 8) deadManWeapon = "iw5_mp412_mp";
+            else if (aw == 9) deadManWeapon = "iw5_as50_mp_as50scopevz_xmags";
+            else if (aw == 10) deadManWeapon = "iw5_44magnum_mp";
+            else if (aw == 11) deadManWeapon = "iw5_l96a1_mp_l96a1scopevz_xmags";
+            else if (aw == 12) deadManWeapon = "m320_mp";
             else if (aw == 13)
             {
-
-                deadManWeapon = "iw5_ak47_mp_gp25";//10
-                bullet = 6;
+                deadManWeapon = "iw5_ak47_mp_gp25"; bullet = 6;
             }
             else if (aw == 14)
             {
-                deadManWeapon = "iw5_pecheneg_mp_grip";//10
-                bullet = 6;
+                deadManWeapon = "iw5_pecheneg_mp_grip"; bullet = 6;
             }
-            else if (aw == 15)
-            {
-                deadManWeapon = "iw5_44magnum_mp";
-                bullet = 2;
-            }
+            else if (aw == 15) deadManWeapon = "iw5_44magnum_mp";
+
             else
             {
-                deadManWeapon = "iw5_ak47_mp_gp25";//10
-                bullet = 6;
+                deadManWeapon = "iw5_ak47_mp_gp25"; bullet = 6;
             }
 
             dead.GiveWeapon(deadManWeapon);

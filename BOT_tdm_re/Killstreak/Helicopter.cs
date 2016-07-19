@@ -8,11 +8,11 @@ namespace Tdm
 {
     class Helicopter : Inf
     {
-        internal readonly string[] MESSAGE_ALERT = { "YOU ARE NOT IN THE HELI AREA", "GO TO HELI AREA AND", "PRESS *[  [{+activate}]  ] ^7AT THE HELI AREA" };
+        internal readonly string[] MESSAGE_ALERT = { "YOU ARE NOT IN THE HELI AREA", "GO TO HELI AREA AND", "PRESS  *[  [{+activate}]  ]  ^7AT THE HELI AREA" };
         internal readonly string[] MESSAGE_WAIT_PLAYER = { "YOU CAN RIDE HELLI", "IF ANOTHER PLAYER ONBOARD" };
-        readonly string[] MESSAGE_KEY_INFO = { "HELICOPTER CONTROL INFO", "MOVE DOWN *[  [{+breath_sprint}]  ]", "MOVE UP *[  [{+gostand}]  ]" };
-        internal readonly string[] MESSAGE_ACTIVATE = { "PRESS *[  [{+activate}]  ] ^7AT THE HELI TURRET AREA", "YOU CAN RIDE IN HELICOPTER" };
-        internal readonly string MESSAGE_CALL = "PRESS *[  [{+activate}]  ] ^7TO CALL HELI TURRET";
+        readonly string[] MESSAGE_KEY_INFO = { "HELICOPTER CONTROL INFO", "PRESS  *[  [{+breath_sprint}]  ] ^7TO MOVE DOWN", "PRESS  *[  [{+gostand}]  ]  ^7TO MOVE UP" };
+        internal readonly string[] MESSAGE_ACTIVATE = { "PRESS  *[  [{+activate}]  ]  ^7AT THE HELI TURRET AREA", "YOU CAN RIDE IN HELICOPTER" };
+        internal readonly string MESSAGE_CALL = "PRESS  *[  [{+activate}]  ]  ^7TO CALL HELI TURRET";
         internal Entity HELI, TL, TR, HELI_OWNER, HELI_GUNNER;
         Vector3 HELI_WAY_POINT;
         internal bool HELI_WAY_ENABLED;
@@ -134,7 +134,7 @@ namespace Tdm
                     Tdm.PlayDialogToTeam(human, Axis, soundIdx, soundToOtherTeam);
                     continue;
                 }
-                if (Tdm.H_FIELD[he].AXIS == Axis) Utilities.RawSayTo(human, messageToAllies);
+                if (Tdm.IsAxis[he] == Axis) Utilities.RawSayTo(human, messageToAllies);
                 else Utilities.RawSayTo(human, messageToAxis);
             }
         }

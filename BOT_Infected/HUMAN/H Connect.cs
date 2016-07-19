@@ -10,9 +10,7 @@ namespace Infected
 {
     public partial class Infected
     {
-        readonly string[] vehicles = { "mortar_remote_mp", "killstreak_helicopter_mp", "heli_remote_mp" };
 
-        Dictionary<string, int> PLAYER_STATE = new Dictionary<string, int>();
 
         void Human_Connected(Entity player, string name)
         {
@@ -27,17 +25,19 @@ namespace Infected
             if (GET_TEAMSTATE_FINISHED && HUMAN_DIED_ALL_) BotDoAttack(true);
             if (HUMAN_DIED_ALL_) HUMAN_DIED_ALL_ = false;
 
-            if (!PLAYER_STATE.ContainsKey(name)) PLAYER_STATE.Add(name, SET.PLAYER_LIFE);
-
             if (name == ADMIN_NAME) SET.SetADMIN((ADMIN = player));
 
             if (H_FIELD[pe] == null) H_FIELD[pe] = new H_SET();
             H_SET H = H_FIELD[pe];
+            if (!human_List.Contains(player)) human_List.Add(player);
 
-            if (player.GetField<string>("sessionteam") == "allies")
+            if (!PLAYER_STATE.ContainsKey(name)) 
             {
                 Print(name + " connected ♥");
-                SetPlayer(H, player, SET.PLAYER_LIFE, name);
+                PLAYER_STATE.Add(name, SET.PLAYER_LIFE);
+
+                SetZero_hset(H, false, SET.PLAYER_LIFE, name, true);
+                SetPlayer(H, player);
             }
             else
             {
@@ -47,13 +47,13 @@ namespace Infected
 
                     Print("AXIS connected ☜");
                     player.Notify("menuresponse", "changeclass", "axis_recipe4");
-
                     player.AfterDelay(100, x => player.Call(33341));//"suicide"
-
                 }
                 else
                 {
-                    SetPlayer(H, player, PLAYER_STATE[name] + 1, name);
+                    SetZero_hset(H, false, PLAYER_STATE[name] + 1, name, true);
+                    SetPlayer(H, player);
+
                     player.AfterDelay(100, x => player.Call(33341));//"suicide"
                 }
             }
@@ -63,12 +63,11 @@ namespace Infected
             {
                 if (GAME_ENDED_) return;
 
-                if (H.REMOTE_STATE != 0)
+                if (H.REMOTE_STATE != State.remote_not_using)
                 {
-                    if (H.REMOTE_STATE == 1) HCT.IfUsetHeli_DoEnd(player, false);
-                    else if (H.REMOTE_STATE == 2) TK.IfUseTank_DoEnd(player);
-                    else if (H.REMOTE_STATE == 6) if (PRDT != null) PRDT.PredatorEnd(player, H, true, null);
-                    H.REMOTE_STATE = 0;
+                    if (H.REMOTE_STATE == State.remote_helicopter) HCT.IfUsetHeli_DoEnd(player, false);
+                    else if (H.REMOTE_STATE == State.remote_turretTank) TK.IfUseTank_DoEnd(player);
+                    else if (H.REMOTE_STATE == State.remote_predator) if (PRDT != null) PRDT.PredatorEnd(player, H, true);
                 }
 
                 if (!H.AXIS) HumanAlliesSpawned(player, name, H);
@@ -81,7 +80,8 @@ namespace Infected
         void SetZero_hset(H_SET H, bool Axis, int life, string name, bool init)
         {
             H.AXIS = Axis;
-            H.REMOTE_STATE = 0;
+            H.REMOTE_STATE = State.remote_not_using;
+            H.MARKER_TYPE = State.marker_none;
 
             if (Axis)
             {
@@ -110,16 +110,12 @@ namespace Infected
             }
             PLAYER_STATE[name] = H.LIFE;
         }
-        void SetPlayer(H_SET H, Entity player, int life, string name)
+        void SetPlayer(H_SET H, Entity player)
         {
-            #region H_SET human field
+            if (!Allies_List.Contains(player)) Allies_List.Add(player);
+            if (Axis_List.Contains(player)) Axis_List.Remove(player);
+
             player.Notify("menuresponse", "changeclass", "allies_recipe" + rnd.Next(1, 6));
-
-            if (!human_List.Contains(player)) human_List.Add(player);
-
-            B_FIELD[player.EntRef] = null;
-            SetZero_hset(H, false, life, name, true);
-            #endregion
 
             #region SetClientDvar
 
@@ -138,7 +134,11 @@ namespace Infected
             player.OnNotify("weapon_change", (Entity ent, Parameter newWeap) =>
             {
                 string weap = newWeap.ToString();
-                if (weap[2] == '5') return;
+                if (weap[2] == '5')
+                {
+                    H.GUN = weap;
+                    return;
+                }
                 if (weap == "none") return;
 
                 //uif (SET.TEST_) Print("WEAPON_CHANGE: " + weap);
@@ -146,7 +146,6 @@ namespace Infected
                 if (weap == "killstreak_remote_tank_remote_mp") VHC.VehicleAddTank(player, H);
                 else if (vehicles.Contains(weap)) VHC.Vehicles(player, weap);
             });
-
 
             //HELICOPTER or TURRET TANK or RIDE PREDATOR
             player.Call(33445, "ACTIVATE", "+activate");//"notifyonplayercommand"
@@ -213,10 +212,10 @@ namespace Infected
 
         void WaitOnCall(Entity player, H_SET H)
         {
-            if (CP.CARE_PACKAGE == null && H.REMOTE_STATE == 0 && H.CAN_USE_PREDATOR)
+            if (CP.CARE_PACKAGE == null && H.REMOTE_STATE == State.remote_not_using && H.CAN_USE_PREDATOR)
             {
                 H.WAIT = true;
-                WaitEndCall(player, H, () => CP.Marker(player,H,1));
+                WaitEndCall(player, H, () => CP.Marker(player, H, State.marker_predator));
                 return;
             }
             if (CP.CARE_PACKAGE != null && player.Origin.DistanceTo(CP.CARE_PACKAGE_ORIGIN) < 90)
@@ -229,8 +228,8 @@ namespace Infected
             {
                 H.WAIT = true;
                 if (!HCT.HELI_WAY_ENABLED)
-                
-                    WaitEndCall(player, H, () => CP.Marker(player, H, 2));
+
+                    WaitEndCall(player, H, () => CP.Marker(player, H, State.marker_helicopter));
                 else
                     WaitEndCall(player, H, () => HCT.HeliCall(player, H.AXIS));
 
@@ -262,22 +261,22 @@ namespace Infected
                     if (ts == 4)//다른 튜렛 붙잡은 경우 종료
                     {
                         player.Call(33436, "", 0f);//VisionSetNakedForPlayer
-                        H.REMOTE_STATE = 0;
+                        H.REMOTE_STATE = State.remote_not_using;
                         return;
                     }
                     if (ts > 1)//탱크 튜렛을 붙잡은 경우
                     {
-                        H.REMOTE_STATE = TK.TankStart(player, ts, H.AXIS);//state 0 or 2
+                        H.REMOTE_STATE = TK.TankStart(player, ts, H.AXIS);
                         return;
                     }
 
                     if (H.CAN_USE_HELI)
                     {
-                        H.REMOTE_STATE = HCT.HeliStart(player, H.AXIS);//state 0 or 1
+                        H.REMOTE_STATE = HCT.HeliStart(player, H.AXIS);
                     }
                     else //헬리를 탈 자격이 안 되는 상태에서, owner가 도착하지 않은 경우
                     {
-                        H.REMOTE_STATE = 0;//state 0 or 1
+                        H.REMOTE_STATE = State.remote_not_using;
                         HCT.HELI_GUNNER = player;
 
                         if (H.PERK < 10) Info.MessageRoop(player, 0, new[] { "*" + (11 - H.PERK) + " KILL MORE ^7TO RIDE HELI", "YOU CAN RIDE HELI IF ANOTHER PLAYER ONBOARD" });
@@ -289,16 +288,15 @@ namespace Infected
                 }
                 else
                 {
-                    byte rms = H.REMOTE_STATE;
                     bool ended = false;
 
-                    if (rms == 1) ended = HCT.IfUsetHeli_DoEnd(player, true);
+                    if (H.REMOTE_STATE == State.remote_helicopter) ended = HCT.IfUsetHeli_DoEnd(player, true);
 
-                    else if (rms == 2) ended = TK.IfUseTank_DoEnd(player);
+                    else if (H.REMOTE_STATE == State.remote_turretTank) ended = TK.IfUseTank_DoEnd(player);
 
                     if (!ended) Common.StartOrEndThermal(player, false);
 
-                    H.REMOTE_STATE = 0;
+                    H.REMOTE_STATE = State.remote_not_using;
                 }
 
             });

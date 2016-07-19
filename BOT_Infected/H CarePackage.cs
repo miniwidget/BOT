@@ -6,15 +6,14 @@ using System.IO;
 using InfinityScript;
 using System.Timers;
 
-namespace Tdm
+namespace Infected
 {
-    public partial class Tdm
+    public partial class Infected
     {
         class CarePackage : Inf
         {
             internal Entity CARE_PACKAGE;
             internal Vector3 CARE_PACKAGE_ORIGIN;
-
             internal void Marker(Entity player, H_SET H, State type)
             {
                 string message = null;
@@ -47,14 +46,14 @@ namespace Tdm
                     Entity Marker = mk.As<Entity>();
                     if (Marker == null) return;
 
-                    if (H.MARKER_TYPE ==State.marker_helicopter) PlayDialog(player, H.AXIS, 13);
+                    if (H.MARKER_TYPE == State.marker_helicopter) PlayDialog(player, H.AXIS, 13);
                     else Marker.Call(32915, "mp_vest_deployed_ui");//playSound
 
-                    player.AfterDelay(3000, x =>
+                    player.AfterDelay(2500, x =>
                     {
                         Marker.Call(32915, "cobra_helicopter_crash");//playSound
 
-                        if (FX_EXPLOSION != -1) Call(304, FX_EXPLOSION, Marker.Origin);//"PlayFX"
+                        if (BotHeli.FX_EXPLOSION != -1) Call(304, BotHeli.FX_EXPLOSION, Marker.Origin);//"PlayFX"
 
                         if (H.MARKER_TYPE == State.marker_predator) PredatorMarker(player, Marker.Origin, H.AXIS);
                         else if (H.MARKER_TYPE == State.marker_helicopter) HelicopterMarker(player, Marker.Origin, H.AXIS);
@@ -63,7 +62,7 @@ namespace Tdm
                         Marker.Call(32928);//delete
                     });
 
-                  
+
                 });
             }
             internal void PredatorMarker(Entity player, Vector3 dest, bool Axis)
@@ -71,7 +70,7 @@ namespace Tdm
                 PlayDialog(player, Axis, 15);
                 if (PRDT == null) PRDT = new Predator();
 
-                player.Call(33344, Info.GetStr("PRESS  *[  [{+activate}]  ] ^7AT THE CARE PACKAGE", Axis));
+                player.Call(33344, Info.GetStr("PRESS  *[  [{+activate}]  ]  ^7AT THE CARE PACKAGE", Axis));
 
                 CARE_PACKAGE_ORIGIN = VectorAddZ(dest, 8);
 

@@ -8,11 +8,11 @@ namespace Infected
 {
     class Helicopter : Inf
     {
-        internal readonly string[] MESSAGE_ALERT = { "YOU ARE NOT IN THE HELI AREA", "GO TO HELI AREA AND", "PRESS *[ [{+activate}] ] ^7AT THE HELI AREA" };
+        internal readonly string[] MESSAGE_ALERT = { "YOU ARE NOT IN THE HELI AREA", "GO TO HELI AREA AND", "PRESS  *[  [{+activate}]  ]  ^7AT THE HELI AREA" };
         internal readonly string[] MESSAGE_WAIT_PLAYER = { "YOU CAN RIDE HELLI", "IF ANOTHER PLAYER ONBOARD" };
-        readonly string[] MESSAGE_KEY_INFO = { "HELICOPTER CONTROL INFO", "MOVE DOWN *[ [{+breath_sprint}] ]", "MOVE UP *[ [{+gostand}] ]" };
-        internal readonly string[] MESSAGE_ACTIVATE = { "PRESS *[ [{+activate}] ] ^7AT THE HELI TURRET AREA", "YOU CAN RIDE IN HELICOPTER" };
-        internal readonly string MESSAGE_CALL = "*PRESS *[ [{+activate}] ] ^7TO CALL HELI TURRET";
+        readonly string[] MESSAGE_KEY_INFO = { "HELICOPTER CONTROL INFO", "PRESS  *[  [{+breath_sprint}]  ] ^7TO MOVE DOWN", "PRESS  *[  [{+gostand}]  ]  ^7TO MOVE UP" };
+        internal readonly string[] MESSAGE_ACTIVATE = { "PRESS  *[  [{+activate}]  ]  ^7AT THE HELI TURRET AREA", "YOU CAN RIDE IN HELICOPTER" };
+        internal readonly string MESSAGE_CALL = "PRESS  *[  [{+activate}]  ]  ^7TO CALL HELI TURRET";
         internal Entity HELI, TL, TR, HELI_OWNER, HELI_GUNNER;
         Vector3 HELI_WAY_POINT;
         internal bool HELI_WAY_ENABLED;
@@ -33,7 +33,7 @@ namespace Infected
 
             if (HELI == null)
             {
-                player.Call(33344, Info.GetStr(MESSAGE_CALL, Infected.H_FIELD[player.EntRef].AXIS));
+                player.Call(33344, Info.GetStr(MESSAGE_CALL, Infected.IsAxis[player.EntRef]));
             }
             else
             {
@@ -46,6 +46,8 @@ namespace Infected
 
         #region Call heli
 
+        string HELI_WAITOR = "killstreak_helicopter_mp";
+
         internal void HeliCall(Entity player, bool Axis)
         {
             if (HELI != null) return;
@@ -53,16 +55,15 @@ namespace Infected
 
             var w = player.CurrentWeapon;
             player.TakeWeapon(w);
-            string kh = "killstreak_helicopter_mp";
-            player.GiveWeapon(kh);
-            player.SwitchToWeaponImmediate(kh);
+            player.GiveWeapon(HELI_WAITOR);
+            player.SwitchToWeaponImmediate(HELI_WAITOR);
             HeliSetup(player);
             player.AfterDelay(500, p =>
             {
                 player.Call(33466, "US_1mc_KS_lbd_inposition");//playlocalsound
                 player.AfterDelay(500, x =>
                 {
-                    player.TakeWeapon(kh);
+                    player.TakeWeapon(HELI_WAITOR);
                     player.GiveWeapon(w);
                     player.Call(33523, w); //givemaxammo
                     player.SwitchToWeaponImmediate(w);
@@ -71,13 +72,12 @@ namespace Infected
 
             Info.MessageRoop(player, 0, MESSAGE_ACTIVATE);
 
-            foreach (Entity human in Infected.human_List)
-            {
-                if (human.EntRef > 17) continue;
-                if (human == player) continue;
-                if (Axis) Utilities.RawSayTo(human, "^1[ ^7" + player.Name + " ^1] CALLED HELICOPTER. WATCH OUT");
-                else Utilities.RawSayTo(human, "HELICOPTER ENABLED. GO TO THE AREA");
-            }
+            string name = "*[ ^7" + player.Name;
+
+            AlertToTeam(Axis, player.EntRef, 
+                Info.GetStr(name + " *] HELICOPTER ENABLED. GO TO THE AREA", Axis),
+                Info.GetStr(name + " *] CALLED HELICOPTER. WATCH OUT", !Axis), 
+                -1, false);
         }
         internal void HeliSetup(Entity player)
         {
@@ -129,13 +129,13 @@ namespace Infected
         #region board heli
         internal bool HELI_ON_USE_;
         byte helicount;
-        internal byte HeliStart(Entity player, bool axis)
+        internal State HeliStart(Entity player, bool Axis)
         {
             Common.StartOrEndThermal(player, true);
             if (HELI_ON_USE_)
             {
                 HELI_GUNNER = player;
-                return 0;
+                return State.remote_not_using;
             }
 
             helicount++;
@@ -148,18 +148,9 @@ namespace Infected
 
             if (HELI_GUNNER == player) HELI_GUNNER = null;
 
-            int time = 80000;
+            int time = 80000; if (Axis) time = 60000;
 
-            if (axis)
-            {
-                time = 60000;
-                foreach (Entity human in Infected.human_List)
-                {
-                    if (human.EntRef > 17) continue;
-                    Utilities.RawSayTo(human, "^1ENEMY HELICOPTER INBOUND");
-                }
-                player.Call(32771, "PC_1mc_enemy_ah6guard", "allies");//playsoundtoteam
-            }
+            AlertToTeam(Axis, player.EntRef, Info.GetStr("*FRIENDLY HELICOPTER INBOUND", Axis), Info.GetStr("*ENEMEY HELICOPTER INBOUND", Axis), 12, true);
 
             Info.MessageRoop(player, 0, MESSAGE_KEY_INFO);
 
@@ -173,9 +164,27 @@ namespace Infected
                     HeliEndUse(player, true);
                 }
             });
-            return 1;
+            return State.remote_helicopter;
         }
         #endregion
+
+        void AlertToTeam(bool Axis, int ownerEntref, string messageToAllies, string messageToAxis, int soundIdx, bool soundToOtherTeam)
+        {
+            for (int i = 0; i < Infected.human_List.Count; i++)
+            {
+                Entity human = Infected.human_List[i];
+                int he = human.EntRef;
+                if (he > 17) continue;
+                if (he == ownerEntref)
+                {
+                    if (soundIdx == -1) continue;
+                    Infected.PlayDialogToTeam(human, Axis, soundIdx, soundToOtherTeam);
+                    continue;
+                }
+                if (Infected.IsAxis[he] == Axis) Utilities.RawSayTo(human, messageToAllies);
+                else Utilities.RawSayTo(human, messageToAxis);
+            }
+        }
 
         #region end heli
         internal void HeliEndGunner()
@@ -191,7 +200,7 @@ namespace Infected
         {
             Infected.H_FIELD[player.EntRef].CAN_USE_HELI = false;
 
-            if (unlink && Infected.human_List.Contains(player))
+            if (unlink && Infected.Allies_List.Contains(player))
             {
                 player.Call(32843);//unlink
                 player.Call(33257);//remotecontrolvehicleoff
@@ -209,7 +218,6 @@ namespace Infected
             TR.Call(32928);
             HELI.Call(32928);
             HELI = null;
-
 
         }
         internal bool IfUsetHeli_DoEnd(Entity player, bool unlink)
@@ -229,13 +237,4 @@ namespace Infected
         #endregion
     }
 
-    //class RemoteUAV
-    //{
-    //    void StartRemoteUAV(Entity player)
-    //    {
-    //        player.GiveWeapon("uav_remote_mp");
-    //        player.SwitchToWeaponImmediate("uav_remote_mp");
-    //        player.Call("VisionSetNakedForPlayer", "black_bw", 0f);
-    //    }
-    //}
 }

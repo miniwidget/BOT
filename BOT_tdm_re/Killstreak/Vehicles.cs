@@ -57,7 +57,7 @@ namespace Tdm
 
                 VEHICLE_NAME = shortName + "+" + player.EntRef;
 
-                MessageToHuman("TYPE ^2[ " + VEHICLE_CODE + " ] ^7TO RIDE " + shortName, player.EntRef);
+                MessageToHuman("TYPE *[  ^7" + VEHICLE_CODE + "  *] ^7TO RIDE " + shortName, player.EntRef);
             }
 #if DEBUG
         void VehicleTest(Entity player)
@@ -80,7 +80,6 @@ namespace Tdm
 
                 bool remoteTurret = true;
                 
-
                 if (tag == null)
                 {
                     string[] vehs = VEHICLE_NAME.Split('+');
@@ -289,9 +288,11 @@ namespace Tdm
             {
                 foreach (Entity player in human_List)
                 {
-                    if (player.EntRef == pe) continue;
-                    if (player.EntRef > 17) continue;
-                    player.Call(33344, message);
+                    int entref = player.EntRef;
+
+                    if (entref == pe) continue;
+                    if (entref > 17) continue;
+                    player.Call(33344, Info.GetStr(message,IsAxis[entref]));
                 }
             }
         }

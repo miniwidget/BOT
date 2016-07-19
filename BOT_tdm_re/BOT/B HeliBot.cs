@@ -40,11 +40,11 @@ namespace Tdm
         {
             BOT_ADD_WATCH_FINISHED = true;
 
-            List<B_SET> bots_fire = new List<B_SET>();
-            foreach (B_SET B in B_FIELD)
+            int num = SET.MAP_IDX % 2;
+            if (num >= BOTs_List.Count)
             {
-                if (B == null) continue;
-                bots_fire.Add(B);
+                AfterDelay(10000, () => BotAddWatch());
+                return;
             }
 
             ORIGINS = Players.Select(ent => ent.Origin).ToArray();
@@ -53,7 +53,14 @@ namespace Tdm
             FX_GREEN_LIGHT = Call<int>(303, "misc/aircraft_light_wingtip_green");//"loadfx"
             FX_RED_LIGHT = Call<int>(303, "misc/aircraft_light_wingtip_red");//"loadfx"
 
-            SetRider(BOTs_List[SET.MAP_IDX % 2]);
+            SetRider(BOTs_List[num]);
+
+            List<B_SET> bots_fire = new List<B_SET>();
+            foreach (B_SET B in B_FIELD)
+            {
+                if (B == null) continue;
+                bots_fire.Add(B);
+            }
 
             OnInterval(2500, () =>
             {

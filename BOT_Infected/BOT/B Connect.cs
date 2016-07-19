@@ -49,25 +49,18 @@ namespace Infected
             #endregion
 
             #region deploy bot
-            i = BOTs_List.Count;
-            if (botCount < SET.BOT_SETTING_NUM || i < SET.BOT_SETTING_NUM)
+            if (botCount < SET.BOT_SETTING_NUM || BOTs_List.Count < SET.BOT_SETTING_NUM)
             {
-                i = SET.BOT_SETTING_NUM - i;
-
-                int fail_count = 0, max = SET.BOT_SETTING_NUM - 1;
+                int fail_count = 0, max = SET.BOT_SETTING_NUM;
                 OnInterval(250, () =>
                 {
-                    if (BOTs_List.Count > max || Players.Count == 18)
+                    if (BOTs_List.Count == max || Players.Count == 18 || fail_count > 20)
                     {
-                        return false;
-                    }
-                    if (fail_count > 20)
-                    {
+                        //Print("BLC:"+BOTs_List.Count + " PC:" + Players.Count + " FC:" + fail_count);
                         return false;
                     }
 
-                    Entity bot = Utilities.AddTestClient();
-                    if (bot == null) fail_count++;
+                    Entity bot = Utilities.AddTestClient(); if (bot == null) fail_count++;
 
                     return true;
                 });
@@ -78,108 +71,82 @@ namespace Infected
         #endregion
 
         #region Bot_Connected
-
         private void Bot_Connected(Entity bot)
         {
-            if (BOT_TO_AXIS_COMP)//If deploy bot after game in the middle time, deny bot setting
-            {
-                //bot.Call(33341);//"suicide"
-                return;
-            }
-
-            var i = BOTs_List.Count;
-            int be = bot.EntRef;
-            if (be == -1 || i > SET.BOT_SETTING_NUM)
-            {
-                Call(286, be);//kick
-                return;
-            }
-
-            bool block = false;
-
-            if (i == 2 || i == 3)
-            {
-                block = true;
-                bot.SpawnedPlayer += () => bot.Call(33220, 2f);
-            }
-            else if (i == 4)
-            {
-                block = true;
-                BOT_HELIRIDER_IDX = 4;
-            }
-
-            if (i > 12)
-            {
-                if (SET.BOT_CLASS_NUM > 12) SET.BOT_CLASS_NUM = 5;
-                i = SET.BOT_CLASS_NUM;
-                SET.BOT_CLASS_NUM++;
-            }
-            bot.Notify("menuresponse", "changeclass", SET.BOTs_CLASS[i]);
-
             BOTs_List.Add(bot);
+
+            if (BOT_TO_AXIS_COMP) return;//If deploy bot after game in the middle time, deny bot setting
+
+            int blc = BOTs_List.Count;
+            if (blc == SET.BOT_SETTING_NUM)
+            {
+                if (blc < 2) return;
+
+                int bot1_num, bot2_num;
+                if (!int.TryParse(BOTs_List[0].Name.Substring(3), out bot1_num)) return;
+                if (!int.TryParse(BOTs_List[1].Name.Substring(3), out bot2_num)) return;
+
+                if (bot1_num > bot2_num) BOTs_List.Reverse();//when fast_restart executed, Players are reversed. So, it need to be reversed again due to change class properly.
+
+                for (int i = 0; i < blc; i++)
+                {
+                    Entity BOT = BOTs_List[i];
+                    BOT.Notify("menuresponse", "changeclass", SET.BOTs_CLASS[i]);
+                    int num = i;
+                    bot.AfterDelay(100, x => Bot_Connected2(BOT, num));//important. must be delayed due to get changed class weapon
+                }
+            }
+        }
+        private void Bot_Connected2(Entity bot, int i)
+        {
+            int be = bot.EntRef;
+            bool block = false;
+            string weapon = bot.CurrentWeapon;
+            string alert_sound = null;
+
+            if (i == 0) alert_sound = "AF_victory_music";//jugg bot
+            else if (i == 1) alert_sound = "missile_incoming";//rpg bot
+            else if (i == 4) { block = true; BOT_HELIRIDER_IDX = i; }//heli bot
+            else if (weapon == "riotshield_mp") { block = true; bot.SpawnedPlayer += () => bot.Call(33220, 2f); }//riot bot
+
+            IsAxis[be] = true;
+
+            //Print(i + weapon + " " + alert_sound + " " + SET.BOT_SETTING_NUM);
+
             if (block) return;
 
-            B_FIELD[be] = new B_SET(bot);
-            IsBOT[be] = "1";
+            bot.Call(33523, weapon);//giveMaxaAmmo
 
-            B_SET B = B_FIELD[be];
-
-            if (i == 0) B.alertSound = "AF_victory_music";
-            if (i == 1) B.alertSound = "missile_incoming";
-
-            bot.AfterDelay(250, b =>
+            B_FIELD[be] = new B_SET(bot, alert_sound)
             {
-                B.weapon = bot.CurrentWeapon;
-                bot.Call(33523, B.weapon);//giveMaxaAmmo
-                B.ammoClip = bot.Call<int>(33460, B.weapon);//getcurrentweaponclipammo
-                bot.Call(33469, B.weapon, 0);//setweaponammostock
-                bot.Call(33468, B.weapon, 0);//setweaponammoclip
-            });
+                WEAPON = weapon,
+                AMMO_CLIP = bot.Call<int>(33460, weapon)
+            };
 
-            if (i == SET.BOT_SETTING_NUM - 1) BotWaitOnFirstInfected();
+            bot.Call(33469, weapon, 0);//setweaponammostock
+            bot.Call(33468, weapon, 0);//setweaponammoclip
+            IsBOT[be] = true;
+            B_SET B = B_FIELD[be];
 
             bot.SpawnedPlayer += delegate
             {
                 if (GAME_ENDED_) return;
-                bot.Call(33469, B.weapon, 0);//setweaponammostock
-                bot.Call(33468, B.weapon, 0);//setweaponammoclip
+                bot.Call(33469, weapon, 0);//setweaponammostock
+                bot.Call(33468, weapon, 0);//setweaponammoclip
 
-                int k = B.killer;
+                int k = B.KILLER;
                 if (k != -1)
                 {
-                    BotCheckPerk(k);
-                    B.killer = -1;
+                    BotGivePerkToKiller(k); B.KILLER = -1;
                 }
 
-                B.wait = false;
+                B.WAIT = false;
             };
 
-            if (B.alertSound == "missile_incoming")
-            {
-                bot.OnNotify("weapon_fired", (p, wp) =>
-                {
-                    B.SetAngle();
-                });
-                return;
-            }
-
-            byte fire = 1;
-            bot.OnNotify("weapon_fired", (p, wp) =>
-            {
-                if (fire == 1) fire = 2;
-                else
-                {
-                    if (fire == 3) fire = 0;
-                    fire++;
-                    return;
-                }
-                B.SetAngle();
-
-            });
+            if (i == SET.BOT_SETTING_NUM - 1) BotWaitOnFirstInfected();
         }
 
         #endregion
-
         void BotWaitOnFirstInfected()
         {
 
@@ -193,22 +160,51 @@ namespace Infected
                     BOT_TO_AXIS_COMP = true;
 
                     var max = BOTs_List.Count - 1;//11
-                    int bot_lucky_idx = max;//11
+                    BOT_LUCKY_IDX = max;//11
 
-                    if (BOTs_List.IndexOf(bot) == max) bot_lucky_idx -= 1;//10
-                    LUCKY_BOT = BOTs_List[bot_lucky_idx];
-                    LUCKY_BOT.Notify("menuresponse", "changeclass", SET.BOTs_CLASS[0]);//Allies bot change to Jugg class
+                    if (BOTs_List.IndexOf(bot) == max) BOT_LUCKY_IDX -= 1;//10
+
+                    Entity lucky_bot = BOTs_List[BOT_LUCKY_IDX];
+                    lucky_bot.Notify("menuresponse", "changeclass", SET.BOTs_CLASS[0]);//Allies bot change to Jugg class
+                    lucky_bot.AfterDelay(100, lb =>
+                    {
+                        TK.SetTank(lucky_bot);
+                        int lbe = lucky_bot.EntRef;
+                        B_SET B = B_FIELD[lbe];//
+                        if (B != null)
+                        {
+                            IsAxis[lbe] = B.AXIS = false;
+                            B.WAIT = true;
+                            B.ALERT_SOUND = "AF_victory_music";
+                            B.WEAPON = lucky_bot.CurrentWeapon;
+                            B.AMMO_CLIP = 100;
+                            lucky_bot.Call(33469, B.WEAPON, 0);//setweaponammostock
+                            lucky_bot.Call(33468, B.WEAPON, 0);//setweaponammoclip
+                            lucky_bot.Call(33220, 0f);//setmovespeedscale
+
+                            lucky_bot.SpawnedPlayer += delegate
+                            {
+                                if (!B.AXIS)
+                                {
+                                    B.AXIS = true;
+                                    IsAxis[lbe] = true;
+                                }
+                            };
+                        }
+                        else
+                        {
+                            Print("B_SET 눌");
+                        }
+
+                    });
 
                     int i = 0;
                     OnInterval(250, () =>
                     {
-                        if (i != bot_lucky_idx) BOTs_List[i].Call(33341);//suicide
-                        if (i == max)
-                        {
-                            return GetTeamState(bot.Name, bot_lucky_idx);
-                        }
-                        i++;
-                        return true;
+                        if (i != BOT_LUCKY_IDX) BOTs_List[i].Call(33341);//suicide
+                        if (i == max) return GetTeamState(bot.Name);
+
+                        i++; return true;
                     });
 
                     return false;
@@ -218,22 +214,12 @@ namespace Infected
             });
         }
 
-        bool GetTeamState(string first_inf_name, int bot_lucky_idx)
+        bool GetTeamState(string first_inf_name)
         {
-            TK.SetTank(LUCKY_BOT);
-            int lbe = LUCKY_BOT.EntRef;
-            B_FIELD[lbe] = null;
-            IsBOT[lbe] = null;
-            string weapon = LUCKY_BOT.CurrentWeapon;
-            LUCKY_BOT.Call(33469, weapon, 0);//setweaponammostock
-            LUCKY_BOT.Call(33468, weapon, 0);//setweaponammoclip
-            LUCKY_BOT.Call(33220, 0f);//setmovespeedscale
 
             Log.Write(LogLevel.None, "■ BOTs:{0} INF:{1} ■ MAP:{2}", BOTs_List.Count, first_inf_name, SET.MAP_IDX);
 
             Call(42, "scr_infect_timelimit", "12");
-
-            GET_TEAMSTATE_FINISHED = true;
 
             GRACE_TIME = DateTime.Now.AddSeconds(166);
 
@@ -244,15 +230,68 @@ namespace Infected
                 H.HUD_RIGHT_INFO.Alpha = 0.7f;
             }
 
+            GET_TEAMSTATE_FINISHED = true;
+
             if (!HUMAN_DIED_ALL_) BotDoAttack(true);
 
             HumanCheckInf(null);
+
+            string alliesCharSet = Call<string>(221, "allieschar");//getMapCustom
+            if (alliesCharSet == null) alliesCharSet = "sas_urban";
+
+            string axisCharSet = Call<string>(221, "axischar");//getMapCustom
+            if (axisCharSet == null) axisCharSet = "opforce_henchmen";
+
+            switch (alliesCharSet)
+            {
+                case "delta_multicam": alliesCharSet = "US"; break;
+                case "sas_urban": alliesCharSet = "UK"; break;
+                case "gign_paris": alliesCharSet = "FR"; break;
+                case "pmc_africa": alliesCharSet = "PC"; break;
+                default: alliesCharSet = "PC"; break;
+            }
+            switch (axisCharSet)
+            {
+                case "opforce_air":
+                case "opforce_snow":
+                case "opforce_urban":
+                case "opforce_woodland": axisCharSet = "RU"; break;
+                case "opforce_africa": axisCharSet = "AF"; break;
+                case "opforce_henchmen": axisCharSet = "IC"; break;
+                default: axisCharSet = "RU"; break;
+            }
+
+            DIALOG_AXIS = new string[DIALOG_ALLIES.Length];
+            int sal = SET.SOUND_ALERTS.Length;
+            for (int i = 0; i < DIALOG_ALLIES.Length; i++)
+            {
+                DIALOG_AXIS[i] = DIALOG_ALLIES[i].Insert(0, axisCharSet);
+                DIALOG_ALLIES[i] = DIALOG_ALLIES[i].Insert(0, alliesCharSet);
+                if (i < sal) SET.SOUND_ALERTS[i] = SET.SOUND_ALERTS[i].Insert(0, alliesCharSet);
+            }
+            //AfterDelay(2000, () =>
+            //{
+            //    foreach (Entity bot in BOTs_List)
+            //    {
+            //        B_SET B = B_FIELD[bot.EntRef];
+            //        if (B == null)
+            //        {
+            //            Print("NA: " + bot.Name + " " + bot.CurrentWeapon);
+            //        }
+            //        else
+            //        {
+            //            Print("AP: " + bot.Name + " gun:" + B.WEAPON + " isAxis:" + B.AXIS + " sound:" + B.ALERT_SOUND + " wait:" + B.WAIT);
+            //        }
+            //    }
+            //});
 
             return false;
         }
 
         bool BotDoAttack(bool attack)
         {
+            HUMAN_DIED_ALL_ = !attack;
+
             if (attack)
             {
                 if (!BOT_ADD_WATCHED)
@@ -274,7 +313,45 @@ namespace Infected
             return false;
         }
 
+        void BotAddWatch()
+        {
+            BOT_ADD_WATCHED = true;
 
+            List<B_SET> bots_fire = new List<B_SET>();
+            foreach (B_SET B in B_FIELD)
+            {
+                if (B == null) continue;
+                bots_fire.Add(B);
+            }
+
+            BotHeli BH = new BotHeli(BOTs_List[BOT_HELIRIDER_IDX], Players.Select(ent => ent.Origin).ToArray());
+
+            OnInterval(2500, () =>//deny riot bot
+            {
+                if (GAME_ENDED_) return false;
+
+                foreach (B_SET B in bots_fire) B.Search();
+
+                BH.HeliBotSearch();//HELI BOT
+
+                return true;
+            });
+        }
+
+        /// <summary>
+        /// Survivor bot starts searching Infected humans
+        /// </summary>
+        private void BotSerchOn_lucky()
+        {
+            BOT_SERCH_ON_LUCKY_FINISHED = true;
+
+            Entity lucky_bot = BOTs_List[BOT_LUCKY_IDX];
+
+            if (lucky_bot.GetField<string>("sessionteam") == "axis") return;
+            B_FIELD[lucky_bot.EntRef].WAIT = false;
+            lucky_bot.Call(33220, 1f);//setmovespeedscale
+            //IsBOT[lbe] = "1";
+        }
     }
 
 }

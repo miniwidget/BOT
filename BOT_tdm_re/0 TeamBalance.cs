@@ -13,7 +13,9 @@ namespace Tdm
         {
             if (!enabled)
             {
+
                 #region team unbalance
+
 
                 if (hlc > 1)
                 {
@@ -30,6 +32,8 @@ namespace Tdm
                     }
                     else return;
                 }
+
+                if (BALANCE_STATE != State.balance_on) return;
 
                 BALANCE_STATE = State.balance_off_wait; BotDoAttack(false);
 
@@ -60,13 +64,12 @@ namespace Tdm
                 });
 
 
-
                 return;
                 #endregion
             }
 
             #region team balance
-            if (BALANCE_STATE == State.balance_on_wait) return;
+            if (BALANCE_STATE != State.balance_off) return;
 
             BALANCE_STATE = State.balance_on_wait;
             BotDoAttack(false);

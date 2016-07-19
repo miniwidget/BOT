@@ -15,8 +15,7 @@ namespace Infected
 
         internal void SetTank(Entity player)
         {
-            Function.SetEntRef(-1);
-            REMOTETANK = Function.Call<Entity>(449, "vehicle_ugv_talon_mp", "remote_tank", "remote_ugv_mp", player.Origin, Common.ZERO, player);//"SpawnVehicle"
+            REMOTETANK = Call<Entity>(449, "vehicle_ugv_talon_mp", "remote_tank", "remote_ugv_mp", player.Origin, Common.ZERO, player);//"SpawnVehicle"
 
             Vector3 turretAttachTagOrigin = REMOTETANK.Call<Vector3>(33128, "tag_turret_attach");//"GetTagOrigin"
 
@@ -44,8 +43,6 @@ namespace Infected
             TR.Call(33083, 180f);
             TR.Call(33086, 180f);
         }
-
-        //readonly string[] MESSAGE_RUNNER = { "*TANK RUNNER START [ ^7MOVE & FIRE *]", "*PRESS [ ^7[{+smoke}] *] IF STUCK" };
 
         /// <summary>
         /// 1: remote left /
@@ -81,13 +78,13 @@ namespace Infected
             return false;
         }
 
-        internal byte TankStart(Entity player, byte turretHolding, bool axis)
+        internal State TankStart(Entity player, byte turretHolding, bool axis)
         {
             Common.StartOrEndThermal(player, true);
 
-            if (!CheckDist(RMTK_OWNER_ENTREF,0)) RMTK_OWNER_ENTREF = -1;
-            if (!CheckDist(TL_LEFT_USER_ENTREF,1)) TL_LEFT_USER_ENTREF = -1;
-            if (!CheckDist(TL_RIGHT_USER_ENTREF,2)) TL_RIGHT_USER_ENTREF = -1;
+            if (!CheckDist(RMTK_OWNER_ENTREF, 0)) RMTK_OWNER_ENTREF = -1;
+            if (!CheckDist(TL_LEFT_USER_ENTREF, 1)) TL_LEFT_USER_ENTREF = -1;
+            if (!CheckDist(TL_RIGHT_USER_ENTREF, 2)) TL_RIGHT_USER_ENTREF = -1;
 
             if (turretHolding == 2) TL_LEFT_USER_ENTREF = player.EntRef;
             else TL_RIGHT_USER_ENTREF = player.EntRef;
@@ -96,13 +93,13 @@ namespace Infected
             {
                 player.Call(33256, REMOTETANK);//remotecontrolvehicle  
                 RMTK_OWNER_ENTREF = player.EntRef;
-                player.Call(33344, Info.GetStr("*TANK RUNNER START [ ^7MOVE & FIRE *]", axis)); 
-                return 2;//remote tank state
+                player.Call(33344, Info.GetStr("*TANK RUNNER START MOVE !!!", axis));
+                return State.remote_turretTank;//remote tank state
             }
             else
             {
-                player.Call(33344, Info.GetStr("*TANK GUNNER START [ ^7FIRE *]",axis));
-                return 0;//not using remote state
+                player.Call(33344, Info.GetStr("*TANK GUNNER START FIRE !!!", axis));
+                return State.remote_not_using;//not using remote state
             }
         }
         bool CheckDist(int entref,byte type)

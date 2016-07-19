@@ -347,8 +347,7 @@ namespace Tdm
             }
             set
             {
-                _axis = value;
-                Tdm.IsAxis[ENTREF] = value;
+                Tdm.IsAxis[ENTREF]= _axis = value;
             }
         }
 
@@ -660,7 +659,7 @@ namespace Tdm
             H.HUD_KEY_INFO.AlignX = "center";
             H.HUD_KEY_INFO.VertAlign = "bottom";
             H.HUD_KEY_INFO.Y = 10;
-            H.HUD_KEY_INFO.SetText("^2PRESS [ ^7[{+frag}] ^2]");
+            H.HUD_KEY_INFO.SetText(Info.GetStr("*PRESS  [ ^7[{+frag}]  *]", H.AXIS));
 
             H.HUD_BULLET_INFO.HorzAlign = "right";
             H.HUD_BULLET_INFO.AlignX = "center";

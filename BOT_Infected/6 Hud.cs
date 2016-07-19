@@ -90,8 +90,8 @@ namespace Infected
             if (H.HUD_SERVER == null) AlliesHud(player, true);
 
             H.HUD_SERVER.SetText(SERVER_NAME_.Replace("^2","^1"));
-            H.HUD_TOP_INFO.SetText(Info.GetStr(ALLIES_TOP_HUD_TEXTS, H.AXIS));
-            H.HUD_RIGHT_INFO.SetText(Info.GetStr(AXIS_RIGHT_TEXTS, H.AXIS));
+            H.HUD_TOP_INFO.SetText(Info.GetStr(ALLIES_TOP_HUD_TEXTS, true));
+            H.HUD_RIGHT_INFO.SetText(Info.GetStr(AXIS_RIGHT_TEXTS, true));
             H.HUD_PERK_COUNT.SetText(H.PERK_TXT = "^1HELI **********");
         }
 

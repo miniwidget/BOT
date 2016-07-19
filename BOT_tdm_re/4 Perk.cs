@@ -43,8 +43,8 @@ namespace Tdm
             {
                 H.CAN_USE_PREDATOR = true;
 
-                if (CP.CARE_PACKAGE != null) killer.Call(33344, Info.GetStr("PRESS *[ [{+activate}] ] ^7AT THE CARE PACKAGE", H.AXIS));
-                else killer.Call(33344, Info.GetStr("PRESS *[ [{+activate}] ] ^7TO CALL PREDATOR", H.AXIS));
+                if (CP.CARE_PACKAGE != null) killer.Call(33344, Info.GetStr("PRESS  *[  [{+activate}]  ]  ^7AT THE CARE PACKAGE", H.AXIS));
+                else killer.Call(33344, Info.GetStr("PRESS  *[  [{+activate}]  ]  ^7TO CALL PREDATOR", H.AXIS));
 
                 string txt = H.PERK_TXT;
                 H.HUD_PERK_COUNT.SetText(H.PERK_TXT = "^1" + txt);

@@ -33,7 +33,8 @@ namespace Infected
             readonly string[] MAGICS = { "sam_projectile_mp", "javelin_mp", "ims_projectile_mp", "ac130_40mm_mp", "ac130_105mm_mp", "rpg_mp", "uav_strike_projectile_mp" };
 
             bool BOT_HELI_INTERVAL_STOP = true;
-            int FX_EXPLOSION, FX_FLARE_AMBIENT;
+            int FX_FLARE_AMBIENT;
+            internal static int FX_EXPLOSION;
             byte BOT_HELI_FIRE;
 
             public BotHeli(Entity bot, Vector3[] origins)

@@ -32,7 +32,7 @@ namespace Infected
             string[] texts = text.ToLower().Split(' ');
             string text0 = texts[0];
 
-            bool Axis = H_FIELD[player.EntRef].AXIS;
+            bool Axis = IsAxis[player.EntRef];
 
             int length = texts.Length;
 
@@ -45,7 +45,7 @@ namespace Infected
                     case "infow": INFO.MessageInfoW(player, Axis); return;
 
                     case "sc":
-                        if (H_FIELD[player.EntRef].AXIS) H_FIELD[player.EntRef].AX_WEP = 2;//자살로 죽음
+                        if (Axis) H_FIELD[player.EntRef].AX_WEP = 2;//자살로 죽음
                         AfterDelay(100, () => player.Call(33341));//"suicide"
                         return;
 

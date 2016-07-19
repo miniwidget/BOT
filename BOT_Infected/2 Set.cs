@@ -7,16 +7,23 @@ using InfinityScript;
 
 namespace Infected
 {
+    enum State
+    {
+        remote_not_using, remote_helicopter, remote_turretTank, remote_assaultDrone, remote_mortar, remote_predator, remote_vehicleTurret,
+        marker_none, marker_predator, marker_helicopter
+    }
+
     public partial class Infected
     {
-        Entity ADMIN, LUCKY_BOT;
+        Entity ADMIN;
         List<B_SET> B_FIELD = new List<B_SET>();
+        Dictionary<string, int> PLAYER_STATE = new Dictionary<string, int>();
 
-        B_SET LUCKY_B;
         DateTime GRACE_TIME;
 
         internal static List<Entity> BOTs_List = new List<Entity>();
-        internal static List<Entity> HumanAxis_List = new List<Entity>();
+        internal static List<Entity> Axis_List = new List<Entity>();
+        internal static List<Entity> Allies_List = new List<Entity>();
         internal static List<Entity> human_List = new List<Entity>();
         internal static List<H_SET> H_FIELD = new List<H_SET>();
 
@@ -25,20 +32,21 @@ namespace Infected
         internal static int BOT_HELI_HEIGHT = 1500, FIRE_DIST;
         internal static bool GAME_ENDED_, USE_PREDATOR, TEST_, USE_ADMIN_SAFE_;
 
-        string[] IsBOT = new string[18];
+        bool[] IsBOT = new bool[18];
+        internal static bool[] IsAxis = new bool[18];
+
         bool
             BOT_TO_AXIS_COMP,
             GET_TEAMSTATE_FINISHED,
             BOT_ADD_WATCHED,
 
-            LUCKY_BOT_START,
             BOT_SERCH_ON_LUCKY_FINISHED,
 
-            
+
             HUMAN_DIED_ALL_ = true,
             UNLIMITED_LIEF_ = true;
 
-        int BOT_HELIRIDER_IDX, F_INF_IDX = -1;
+        int BOT_HELIRIDER_IDX, BOT_LUCKY_IDX, F_INF_IDX = -1;
 
         internal static void Print(object s)
         {
@@ -50,43 +58,127 @@ namespace Infected
             origin.Z += add;
             return origin;
         }
+        readonly string[] vehicles = { "mortar_remote_mp", "killstreak_helicopter_mp", "heli_remote_mp" };
+        static string[] DIALOG_AXIS;
+        static string[] DIALOG_ALLIES =
+         {
+            "_1mc_achieve_sleightofhand",//0
+            "_1mc_achieve_quickdraw",//1
+            "_1mc_achieve_extremeconditioning",//2
+            "_1mc_achieve_stalker",//3
+            "_1mc_achieve_scavenger",//4
+            "_1mc_achieve_steadyaim",//5
+            "_1mc_achieve_deadsilence",//6
+            "_1mc_achieve_blindeye",//7
+            "_1mc_achieve_assassin",//8
+            "_1mc_achieve_blastshield",//9
+            "_1mc_achieve_hardline",//10
+            
+            "_1mc_acheive_bomb",//11
+            "_1mc_enemy_ah6guard",//12
+            "_1mc_use_ah6guard",//13
+            "_1mc_KS_lbd_inposition",//14
+            "_1mc_achieve_hellfire",//15
+            "_1mc_achieve_carepackage",//16
+       };
+
+
+        /// <summary>
+        /// 11 acheive_bomb
+        /// 12 enemy_ah6guard
+        /// 13 use_ah6guard
+        /// 14 KS_lbd_inposition
+        /// 15 achieve_hellfire
+        /// 16 achieve_carepackage
+        /// </summary>
+        internal static void PlayDialog(Entity player, bool axis, int idx)
+        {
+            if (axis) player.Call(33466, DIALOG_AXIS[idx]);//playlocalsound
+            else player.Call(33466, DIALOG_ALLIES[idx]);
+        }
+
+        /// <summary>
+        /// 11 acheive_bomb
+        /// 12 enemy_ah6guard
+        /// 13 use_ah6guard
+        /// 14 KS_lbd_inposition
+        /// 15 achieve_hellfire
+        /// 16 achieve_carepackage
+        /// </summary>
+        internal static void PlayDialogToTeam(Entity player, bool axis, int idx, bool toOtherTeam)
+        {
+            if (toOtherTeam) axis = !axis;
+
+            if (axis) player.Call(32771, DIALOG_AXIS[idx], "axis");//playsoundtoteam
+            else player.Call(32771, DIALOG_ALLIES[idx], "allies");
+        }
 
         class B_SET
         {
 
+            internal string WEAPON, ALERT_SOUND;
+            internal int AMMO_CLIP;
+            internal int KILLER = -1;
             Entity bot;
 
-            public B_SET(Entity bot_)
+
+            public B_SET(Entity bot,string alert_sound)
             {
-                bot = bot_;
+                this.bot = bot;
+                AXIS = true;
+
+                if (alert_sound == "missile_incoming")
+                {
+                    bot.OnNotify("weapon_fired", (p, w) => SetAngle());
+                    return;
+                }
+
+                byte fire = 1;
+                bot.OnNotify("weapon_fired", (p, w) =>
+                {
+                    if (fire == 1) fire = 2;
+                    else
+                    {
+                        if (fire == 3) fire = 0;
+                        fire++;
+                        return;
+                    }
+                    SetAngle();
+                });
             }
-            internal void BotSearch()
+            internal void Search()
+            {
+                if (WAIT) return;
+                if (AXIS) BotSearchAllies(); else BotSearchAxis();
+            }
+            internal void BotSearchAllies()
             {
                 Vector3 bo = bot.Origin;
 
                 if (_target != null)//이미 타겟을 찾은 경우
                 {
-                    if (human_List.Contains(_target))
+                    if (Allies_List.Contains(_target))
                     {
                         if (_target.Origin.DistanceTo(bo) < FIRE_DIST)
                         {
+                            //Print(bot.Name + " " + bot.GetField<string>("sessionteam") + " " + WEAPON + " " + _target.Name+ " "+_target.GetField<string>("sessionteam"));
                             SetBullet();
                             return;
                         }
                     }
                 }
 
-                foreach (Entity human in human_List)
+                foreach (Entity human in Allies_List)
                 {
                     if (human.Origin.DistanceTo(bo) < FIRE_DIST)
                     {
-                        target = human;
-                        if (alertSound != null) if (human.Name != null) human.Call(33466, alertSound);//"playlocalsound" //deny remote tank !important if not deny, server cause crash
+                        TARGET = human;
+                        if (ALERT_SOUND != null) if (human.EntRef < 18) human.Call(33466, ALERT_SOUND);//"playlocalsound" //deny remote tank !important if not deny, server cause crash
                         return;
                     }
                 }
 
-                if (_target != null) target = null;
+                if (_target != null) TARGET = null;
             }
             internal void BotSearchAxis()
             {
@@ -94,31 +186,32 @@ namespace Infected
 
                 if (_target != null)//이미 타겟을 찾은 경우
                 {
-                    if (HumanAxis_List.Contains(_target))
+                    if (Axis_List.Contains(_target))
                     {
                         if (_target.Origin.DistanceTo(bo) < FIRE_DIST)
                         {
+                            //Print(bot.Name + " " + bot.GetField<string>("sessionteam") + " " + WEAPON + " " + _target.Name + " " + _target.GetField<string>("sessionteam"));
                             SetBullet();
                             return;
                         }
                     }
                 }
 
-                foreach (Entity human in HumanAxis_List)
+                foreach (Entity human in Axis_List)
                 {
                     if (human.Origin.DistanceTo(bo) < FIRE_DIST)
                     {
-                        target = human;
+                        TARGET = human;
+                        if (ALERT_SOUND != null) if (human.EntRef < 18) human.Call(33466, ALERT_SOUND);//"playlocalsound" //deny remote tank !important if not deny, server cause crash
                         return;
                     }
                 }
 
-                if (_target != null) target = null;
+                if (_target != null) TARGET = null;
             }
-
-            internal void SetBullet()
+            void SetBullet()
             {
-                bot.Call(33468, weapon, ammoClip);
+                bot.Call(33468, WEAPON, AMMO_CLIP);
             }
             internal void SetAngle()
             {
@@ -138,8 +231,9 @@ namespace Infected
                 bot.Call(33531, BO);//SetPlayerAngles
             }
 
+            internal bool AXIS;
             bool _wait;
-            internal bool wait
+            internal bool WAIT
             {
                 get
                 {
@@ -147,13 +241,13 @@ namespace Infected
                 }
                 set
                 {
-                    if (value == true) target = null;
+                    if (value == true) TARGET = null;
 
                     _wait = value;
                 }
             }
             Entity _target;
-            internal Entity target
+            internal Entity TARGET
             {
                 get
                 {
@@ -161,15 +255,14 @@ namespace Infected
                 }
                 set
                 {
-                    if (value == null) bot.Call(33468, weapon, 0);
-                    else bot.Call(33468, weapon, ammoClip);//setweaponammoclip
+                    if (value == null) bot.Call(33468, WEAPON, 0);
+                    else bot.Call(33468, WEAPON, AMMO_CLIP);//setweaponammoclip
 
                     _target = value;
 
                 }
             }
-            internal string weapon, alertSound;
-            internal int ammoClip, killer = -1;
+
         }
 
     }
@@ -189,20 +282,12 @@ namespace Infected
         /// <summary>
         /// perk count
         /// </summary>
-        internal int PERK = 2;
+        internal int PERK = 2,ENTREF;
         internal string PERK_TXT = "PRDT **";
         internal HudElem HUD_PERK_COUNT, HUD_TOP_INFO, HUD_RIGHT_INFO, HUD_SERVER, HUD_BULLET_INFO, HUD_KEY_INFO;
 
-        /// <summary>
-        /// 0 not using remote /
-        /// 1 remote helicopter /
-        /// 2 remote turret tank /
-        /// 3 killstreak remote tank /
-        /// 4 vehicle turret /
-        /// 5 remote mortar /
-        /// 6 ride predator /
-        /// </summary>
-        internal byte REMOTE_STATE;
+        internal State REMOTE_STATE = State.remote_not_using;
+        internal State MARKER_TYPE = State.marker_none;
 
         /// <summary>
         /// when roop massage, if on_message state, it blocks reapeted roop
@@ -228,13 +313,6 @@ namespace Infected
         internal Entity VEHICLE;
 
         /// <summary>
-        /// 0 NONE /
-        /// 1 PREDATOR /
-        /// 2 HELICOPTER /
-        /// </summary>
-        internal byte MARKER_TYPE;
-
-        /// <summary>
         /// reapeated notify block
         /// </summary>
         internal bool PREDATOR_FIRE_NOTIFIED;
@@ -244,11 +322,22 @@ namespace Infected
         /// <summary>
         /// if player's life consumed all, change to Axis
         /// </summary>
-        internal bool AXIS;
+        bool _axis;
+        internal bool AXIS {
+            get
+            {
+                return _axis;
+            }
+            set
+            {
+                Infected.IsAxis[ENTREF] = _axis = value;
+            }
+        }
         /// <summary>
         /// Axis gun index
         /// </summary>
         internal int AX_WEP;
+        internal string GUN;
 
     }
 
@@ -257,7 +346,7 @@ namespace Infected
         internal static bool TURRET_MAP;
         internal bool DEPLAY_BOT_;
         internal int PLAYER_LIFE;
-        internal byte BOT_SETTING_NUM,BOT_CLASS_NUM = 3, MAP_IDX;
+        internal byte BOT_SETTING_NUM, BOT_CLASS_NUM = 3, MAP_IDX;
         bool MAP_ROTATE_;
 
         void SetValue(string keyStr, ref bool result)
@@ -331,7 +420,7 @@ namespace Infected
                 Infected.TEST_ = true;
             }
 
-            if (Infected.TEST_) Utilities.ExecuteCommand("sv_hostname TEST");
+            if (Infected.TEST_) Utilities.ExecuteCommand("sv_hostname TEST INF");
             else Utilities.ExecuteCommand("sv_hostname " + Hud.SERVER_NAME_);
 
             ReadMAP();
@@ -350,6 +439,7 @@ namespace Infected
                 case 01:
                 case 17:
                 case 24: TURRET_MAP = true; break;
+                case 5: Infected.BOT_HELI_HEIGHT += 1000; break;
             }
             //float[] fff = null;
             //switch (MAP_IDX)
@@ -455,15 +545,9 @@ namespace Infected
             });
         }
 
-        //internal bool StringToBool(string s)
-        //{
-        //    if (s == "1") return true;
-        //    else return false;
-        //}
-
-        internal readonly string[] SOUND_ALERTS =
+        internal string[] SOUND_ALERTS =
         {
-            "AF_1mc_losing_fight", "AF_1mc_lead_lost", "PC_1mc_losing_fight", "PC_1mc_take_positions", "PC_1mc_positions_lock"
+            "_1mc_losing_fight", "_1mc_lead_lost", "_1mc_losing_fight", "_1mc_take_positions", "_1mc_positions_lock"
         };
 
         internal readonly string[] BOTs_CLASS = {
@@ -471,7 +555,7 @@ namespace Infected
             "axis_recipe2",//rpg 1
             "axis_recipe3",//riot 2
             "axis_recipe3",//riot 3
-            "class3",//heli 4
+            "class3",//heli - sniper - 4
 
             "class0",//AR g36c 5
             "class1",//SMG ump45 6
@@ -480,8 +564,14 @@ namespace Infected
             "class5",//AR m4 9
             "class6",//SMG mp5 10
             "class3",//sniper 11 - Jugg Allies
-            "class3",//sniper 12 Jugg Allies
-        };
+
+            "class0",//AR g36c 12
+            "class1",//SMG ump45 13
+            "class2",//LMG mk46 14
+            "class4",//SG striker 15
+            "class5",//AR m4 16
+            "class6",//SMG mp5 17
+       };
 
 
     }
@@ -518,7 +608,7 @@ namespace Infected
         internal static void StartOrEndThermal(Entity player, bool start)
         {
             player.Call(33436, "", 0);//VisionSetNakedForPlayer
-            bool Axis = Infected.H_FIELD[player.EntRef].AXIS;
+            bool Axis = Infected.IsAxis[player.EntRef];
 
             if (start)
             {
@@ -596,7 +686,7 @@ namespace Infected
             H.HUD_KEY_INFO.AlignX = "center";
             H.HUD_KEY_INFO.VertAlign = "bottom";
             H.HUD_KEY_INFO.Y = 10;
-            H.HUD_KEY_INFO.SetText("^2PRESS [ ^7[{+frag}] ^2]");
+            H.HUD_KEY_INFO.SetText(Info.GetStr("*PRESS  [ ^7[{+frag}]  *]",H.AXIS));
 
             H.HUD_BULLET_INFO.HorzAlign = "right";
             H.HUD_BULLET_INFO.AlignX = "center";

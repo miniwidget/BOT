@@ -7,19 +7,64 @@ using InfinityScript;
 
 namespace Infected
 {
-    internal class Perk
+
+    public partial class Infected
+    {
+
+        void BotGivePerkToKiller(int k)
+        {
+            if (human_List.Count <= k) return;
+
+            Entity killer = human_List[k];
+            if (killer.EntRef > 17) return;//deny tank
+
+            H_SET H = H_FIELD[killer.EntRef];
+            if (H.AXIS) return;
+            if (H.PERK > 34) return;
+
+            var i = H.PERK += 1;
+            if (i == 9) H.PERK_TXT = H.PERK_TXT.Replace("^1PRDT", "HELI");
+
+            if (H.PERK_TXT.Length != 17) H.HUD_PERK_COUNT.SetText(H.PERK_TXT += "*");
+
+            if (i > 2 && i % 3 == 0)
+            {
+                i = i / 3; if (i > 10) return;
+                PK.Perk_Hud(killer, i);
+                killer.Call(33466, "mp_killstreak_radar");
+            }
+            else if (i == 8)
+            {
+                H.CAN_USE_PREDATOR = true;
+
+                if (CP.CARE_PACKAGE != null) killer.Call(33344, Info.GetStr("PRESS  *[  [{+activate}]  ]  ^7AT THE CARE PACKAGE",H.AXIS));
+                else killer.Call(33344, Info.GetStr("PRESS  *[  [{+activate}]  ]  ^7TO CALL PREDATOR",H.AXIS));
+
+                string txt = H.PERK_TXT;
+                H.HUD_PERK_COUNT.SetText(H.PERK_TXT = "^1" + txt);
+            }
+            else if (i == 11)
+            {
+                H.HUD_PERK_COUNT.SetText(H.PERK_TXT = "^1HELI **********");
+
+                H.CAN_USE_HELI = true;
+                HCT.HeliAttachFlagTag(killer);
+            }
+        }
+    }
+    class Perk
     {
         #region Perk
 
         int
-            X2 = -100, X2_ = -80, X2__ = -30, 
+            X2 = -100, X2_ = -80, X2__ = -30,
             Y2 = 250,
             jm = 80, jm_ = 120;
 
         float
-            alp = 0.1f, 
+            alp = 0.1f,
             alp_2 = 0.2f,
-            alp_ = 0.8f, 
+            alp_ = 0.8f,
             alp__ = 0.5f;
 
         internal void Perk_Hud(Entity player, int i)
@@ -54,6 +99,15 @@ namespace Infected
             CH.SetShader(PL[i] + "_upgrade", jm, jm);
             CH.Call(32895, 0.25f); CH.X = X2_;
 
+            string
+
+                perk1 = null,
+                perk2 = null,
+                perk3 = null,
+                perk4 = null,
+                perk5 = null,
+                say = null;
+
             player.AfterDelay(1000, p =>
             {
                 PH.Call(32897);
@@ -64,92 +118,101 @@ namespace Infected
                 CH.Call(32895, 0.25f); CH.X = X2;
 
                 player.AfterDelay(1000, pp => CH.Call(32897));
+                Infected.PlayDialog(player, false, i);
             });
-          
-
-            string
-                say = null,
-                perk1 = null,
-                perk2 = null,
-                perk3 = null,
-                perk4 = null,
-                perk5 = null;
 
             if (i == 0)
             {
+                //specialty_fastreload
                 perk1 = "specialty_quickswap";
-                perk2 = "specialty_twoprimaries";
-                perk3 = "specialty_overkillpro";
-                perk4 = CL[i];
+                perk2 = "specialty_longerrange";
+                perk3 = "specialty_twoprimaries";
+                perk4 = "specialty_overkillpro";
                 say = " ^2] SLEIGHT_OF_HAND PRO";
             }
             else if (i == 1)
             {
+                //specialty_quickdraw
                 perk1 = "specialty_fastoffhand";
-                perk2 = "specialty_autospot";
-                perk3 = "specialty_holdbreathwhileads";
-                perk4 = CL[i];
+                perk2 = "specialty_reducedsway";
                 say = " ^2] QUICKDRAW PRO";
             }
             else if (i == 2)
             {
+                //specialty_longersprint
                 perk1 = "specialty_fastmantle";
-                perk2 = CL[i];
-                perk3 = "specialty_bulletaccuracy";
-                perk4 = "specialty_steadyaimpro";
-                perk5 = "specialty_fastsprintrecovery";
+                perk2 = "specialty_lightweight";
+                perk3 = "specialty_fastsprintrecovery";
                 say = " ^2] LONGERSPRINT PRO";
             }
             else if (i == 3)
             {
+                //specialty_stalker
                 perk1 = "specialty_delaymine";
                 perk2 = "specialty_marksman";
-                perk3 = CL[i];
-                perk4 = "specialty_fastermelee";
-                perk5 = "specialty_ironlungs";
+                perk3 = "specialty_ironlungs";
                 say = " ^2] STALKER PRO";
             }
             else if (i == 4)
             {
+                //specialty_scavenger
                 perk1 = "specialty_extraammo";
-                perk2 = CL[i];
-                perk3 = "specialty_detectexplosive";
-                perk4 = "specialty_selectivehearing";
+                perk2 = "specialty_bulletpenetration";
+                perk3 = "specialty_moredamage";
+                perk4 = "specialty_bulletaccuracy";
+
                 say = " ^2] SCAVENGER PRO";
             }
             else if (i == 5)
             {
+                //specialty_paint
                 perk1 = "specialty_paint_pro";
-                perk2 = CL[i];
-                say = " ^2] PAINT PRO";
+                perk2 = "specialty_sharp_focus";
+                perk3 = "specialty_steadyaimpro";
+                perk4 = "specialty_holdbreathwhileads";
+
+                say = " ^2] STEADYAIM PRO";
             }
             else if (i == 6)
             {
+                //specialty_quieter
                 perk1 = "specialty_bulletdamage";
+                perk2 = "specialty_detectexplosive";
+                perk3 = "specialty_selectivehearing";
+
                 say = " ^2] DEADSILENCE PRO";
             }
             else if (i == 7)
             {
+                //specialty_blindeye
                 perk1 = "specialty_fasterlockon";
                 perk2 = "specialty_armorpiercing";
+                perk3 = "specialty_autospot";
+
                 say = " ^2] BLINDEYE PRO";
             }
             else if (i == 8)
             {
+                //specialty_coldblooded
                 perk1 = "specialty_heartbreaker";
                 perk2 = "specialty_spygame";
                 perk3 = "specialty_empimmune";
+
                 say = " ^2] ASSASSIN PRO";
             }
             else if (i == 9)
             {
+                //specialty_blastshield
                 perk1 = "specialty_stun_resistance";
+
                 say = " ^2] BLASTSHIELD PRO";
             }
             else if (i == 10)
             {
+                //specialty_hardline
                 perk1 = "specialty_rollover";
                 perk2 = "specialty_assists";
+
                 say = " ^2] 1HARDLINE PRO";
             }
 
@@ -165,8 +228,8 @@ namespace Infected
         }
         #endregion
 
-         readonly string[] PL =
-        {
+        readonly string[] PL =
+       {
             "specialty_fastreload",
             "specialty_quickdraw",
             "specialty_longersprint",
@@ -179,25 +242,6 @@ namespace Infected
             "specialty_blastshield",
             "specialty_hardline"
         };
-
-        readonly string[] DL =
-        {
-            "specialty_ironlungs",
-            "specialty_steadyaim",
-            "specialty_bombsquad",
-            "specialty_twoprimaries",
-
-        };
-        readonly string[] CL =
-        {
-            "specialty_longerrange",
-            "specialty_reducedsway",
-            "specialty_lightweight",
-            "specialty_sharp_focus",
-            "specialty_bulletpenetration",
-            "specialty_moredamage"
-         };
-
     }
 
 }

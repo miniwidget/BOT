@@ -10,7 +10,7 @@ namespace Infected
 {
     public partial class Infected : BaseScript
     {
-        internal static Weapon WP;
+        internal static Gun WP;
         internal static Predator PRDT;
         internal static Tank TK;
         internal static Helicopter HCT;
@@ -19,14 +19,16 @@ namespace Infected
         Perk PK;
         Hud HUD;
         Info INFO;
-        
+
         Vehicle VHC;
         CarePackage CP;
+
+
         public Infected()
         {
             SET = new Set();
             rnd = new Random();
-            WP = new Weapon();
+            WP = new Gun();
             PK = new Perk();
             HUD = new Hud();
             INFO = new Info();
@@ -47,23 +49,23 @@ namespace Infected
             {
                 B_FIELD.Add(null);
                 H_FIELD.Add(null);
-                IsBOT[i] = null;
             }
 
             PlayerConnecting += player =>
             {
                 string name = player.Name;
-                if (name.StartsWith("bot"))
+                if (!name.StartsWith("bot")) return;
+                if (player.GetField<string>("sessionteam") == "spectator")
                 {
-                    string state = player.GetField<string>("sessionteam");
-                    if (state == "spectator")
-                    {
-                        Call(286, player.EntRef);//kick
-                        Utilities.AddTestClient();
-                    }
+                    Print(player.Name + " kicked");
+                    Call(286, player.EntRef);//kick
+                    //if (BOTs_List.Count == SET.BOT_SETTING_NUM) return;
+                    
+                    Utilities.AddTestClient();
                 }
             };
 
+            
             PlayerConnected += player =>
             {
                 string name = player.Name;
@@ -71,20 +73,15 @@ namespace Infected
                 if (name.StartsWith("bot")) Bot_Connected(player);
 
                 else Human_Connected(player, name);
-
             };
 
             PlayerDisconnected += player =>
             {
-                if (human_List.Contains(player)) human_List.Remove(player);// 봇 타겟리스트에서 접속 끊은 사람 제거
+                human_List.Remove(player);// 봇 타겟리스트에서 접속 끊은 사람 제거
 
-                else if (HumanAxis_List.Contains(player)) HumanAxis_List.Remove(player);
+                if (Allies_List.Contains(player)) Allies_List.Remove(player); else if (Axis_List.Contains(player)) Axis_List.Remove(player);
 
-                if (human_List.Count == 0)
-                {
-                    HUMAN_DIED_ALL_ = true;
-                    BotDoAttack(false);
-                }
+                if (human_List.Count == 0) BotDoAttack(false);
             };
 
             OnNotify("prematch_done", () => BotDeplay());
@@ -96,10 +93,10 @@ namespace Infected
                 Call(42, "testClients_doAttack", 0);
                 Print("GAME_ENDED");
 
-                if(BotHeli.BOT_HELI!=null) BotHeli.BOT_HELI.Call(32928);//delete ?? for freezing ??
+                if (BotHeli.BOT_HELI != null) BotHeli.BOT_HELI.Call(32928);//delete ?? for freezing ??
                 AfterDelay(20000, () => Utilities.ExecuteCommand("map_rotate"));//go to next map if server state is freezing
             });
-            
+
             if (!TEST_) return;
 
             Print("테스트 모드");

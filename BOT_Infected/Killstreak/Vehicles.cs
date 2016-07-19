@@ -15,28 +15,34 @@ namespace Infected
 
             internal void VehicleAddTank(Entity player, H_SET H)
             {
-                Entity tank = VehicleSearch("vehicle_ugv_talon_mp", true,false);
+                Entity tank = VehicleSearch("vehicle_ugv_talon_mp", true, false);
                 if (tank == null) return;
 
-                H.REMOTE_STATE = 3;
+                H.REMOTE_STATE = State.remote_assaultDrone;
                 player.Call(32936);//thermalvisionfofoverlayon
-                human_List.Add(tank);
-                human_List.Remove(player);
+
+                Allies_List.Add(tank);
+                Allies_List.Remove(player);
                 tank.OnNotify("death", e =>
                 {
-                    human_List.Remove(tank);
-                    if (!H.AXIS) human_List.Add(player);
-                    if (H.REMOTE_STATE == 3)
+                    Allies_List.Remove(tank);
+                    if (!H.AXIS) Allies_List.Add(player);
+                    if (H.REMOTE_STATE == State.remote_assaultDrone)
                     {
-                        H.REMOTE_STATE = 0;
+                        H.REMOTE_STATE = State.remote_not_using;
                         player.Call(32937);//thermalvisionfofoverlayoff
                     }
                 });
             }
 
+            string[] HELI_MODELS =
+            {
+                "vehicle_cobra_helicopter_fly_low", "vehicle_mi24p_hind_mp", "vehicle_pavelow","vehicle_pavelow_opfor"
+            };
             internal void Vehicles(Entity player, string weapon)
             {
-                if (weapon == "killstreak_helicopter_mp") VehicleStartRemote(player, VehicleSearch("vehicle_cobra_helicopter_fly_low", false, false), "tag_light_belly");
+                if (weapon == "killstreak_helicopter_mp") VehicleStartRemote(player, VehicleSearch(HELI_MODELS), "tag_light_belly");
+
                 else
                 {
                     if (VEHICLE != null) return;
@@ -48,12 +54,12 @@ namespace Infected
 
             void VehicleAdd(Entity player, string vehicleModel, string shortName)
             {
-                VEHICLE = VehicleSearch(vehicleModel, false,true);
+                VEHICLE = VehicleSearch(vehicleModel, false, true);
                 if (VEHICLE == null) return;
 
                 VEHICLE_NAME = shortName + "+" + player.EntRef;
 
-                MessageToTeam("TYPE ^2[ " + VEHICLE_CODE + " ] ^7TO RIDE " + shortName, player.EntRef);
+                MessageToHuman("TYPE *[  ^7" + VEHICLE_CODE + "  *]  ^7TO RIDE " + shortName, player.EntRef);
             }
 #if DEBUG
         void VehicleTest(Entity player)
@@ -64,24 +70,23 @@ namespace Infected
             VehicleStartRemote(player, vehicle, null);
         }
 #endif
-           internal void VehicleStartRemote(Entity player, Entity vehicle, string tag)
+            internal void VehicleStartRemote(Entity player, Entity vehicle, string tag)
             {
                 if (vehicle == null) return;
 
                 H_SET H = H_FIELD[player.EntRef];
 
-                if (H.REMOTE_STATE != 0) return;
+                if (H.REMOTE_STATE != State.remote_not_using) return;
                 H.VEHICLE = vehicle;
-                string weapon = null,notifyString = null;
+                string notifyString = null;
 
                 bool remoteTurret = true;
-                
 
                 if (tag == null)
                 {
                     string[] vehs = VEHICLE_NAME.Split('+');
                     if (vehs[1] == player.EntRef.ToString()) return;//자신이 직접 리모트 컨트롤 한 차량의 경우, 차단
-                    
+
                     switch (vehs[0])
                     {
                         case "REMOTE MORTAR": tag = "tag_player"; notifyString = "remote_done"; remoteTurret = false; break;
@@ -91,7 +96,7 @@ namespace Infected
                     VEHICLE_NAME = null;
                     VEHICLE_CODE = null;
                     VEHICLE = null;
-                    weapon = player.CurrentWeapon;
+                    H.GUN = player.CurrentWeapon;
                 }
                 else notifyString = "leaving";//choper
 
@@ -120,7 +125,7 @@ namespace Infected
                         });
                     });
 
-                    H.REMOTE_STATE = 4;
+                    H.REMOTE_STATE = State.remote_vehicleTurret;
 
                     vehicle.OnNotify(notifyString, e =>
                     {
@@ -135,9 +140,9 @@ namespace Infected
                             player.Call(33504);//enableOffhandWeapons
                             Common.StartOrEndThermal(player, false);
 
-                            WP.GiveRandomWeaponTo(player);
+                            WP.GiveWeaponTo(player, H.GUN);
 
-                            if (H.REMOTE_STATE == 4) H.REMOTE_STATE = 0;
+                            if (H.REMOTE_STATE == State.remote_vehicleTurret) H.REMOTE_STATE = State.remote_not_using;
                         }
 
                         if (turret != null) turret.Call("delete");//delete
@@ -159,14 +164,14 @@ namespace Infected
                         player.Call(32887, vehicle, tag, 1, 180, 180, 180, 180);//PlayerLinkWeaponviewToDelta
                         player.Call(33531, vehicle.Call<Vector3>("getTagAngles", "tag_player"));//setPlayerAngles
 
-                        H.REMOTE_STATE = 5;
+                        H.REMOTE_STATE = State.remote_mortar;
                         H.MISSILE_COUNT = 10;
 
                         Common.BulletHudInfoCreate(player, H, H.MISSILE_COUNT);
 
                         vehicle.OnNotify(notifyString, e =>
                         {
-                            if (death == player.GetField<int>("deaths")) VehicleEndMissile(player, weapon, H);
+                            if (death == player.GetField<int>("deaths")) VehicleEndMissile(player, H);
                         });
                     });
 
@@ -176,10 +181,10 @@ namespace Infected
                     player.Call(33445, "VEHICLE_MISSILE", "+frag");//notifyonplayercommand
                     player.OnNotify("VEHICLE_MISSILE", e =>
                     {
-                        if (H.REMOTE_STATE != 5) return;
+                        if (H.REMOTE_STATE != State.remote_mortar) return;
                         if (H.MISSILE_COUNT <= 0 || H.VEHICLE == null)
                         {
-                            VehicleEndMissile(player, weapon, H);
+                            VehicleEndMissile(player, H);
                             return;
                         }
                         H.MISSILE_COUNT--;
@@ -190,7 +195,7 @@ namespace Infected
                     player.Call(33445, "RMBC", "+toggleads_throw");//notifyonplayercommand
                     player.OnNotify("RMBC", e =>
                     {
-                        if (H.REMOTE_STATE != 5) return;
+                        if (H.REMOTE_STATE != State.remote_mortar) return;
 
                         string cw = player.CurrentWeapon;
                         if (cw == "mortar_remote_mp") player.SwitchToWeapon("mortar_remote_zoom_mp");
@@ -208,7 +213,7 @@ namespace Infected
                 Vector3 startPos = Common.GetVector(sp.X - x, sp.Y - y, sp.Z);
                 Entity rocket = Call<Entity>(404, "remote_tank_projectile_mp", startPos, targetPos, player);//MagicBullet
             }
-            void VehicleEndMissile(Entity player, string weapon, H_SET H)
+            void VehicleEndMissile(Entity player, H_SET H)
             {
                 Common.BulletHudInfoDestroy(H);
 
@@ -224,15 +229,15 @@ namespace Infected
                 player.Call(33504);//enableOffhandWeapons
                 player.Call(33513, false);//freezeControls
 
-                player.GiveWeapon(weapon);
-                player.SwitchToWeapon(weapon);
+                player.GiveWeapon(H.GUN);
+                player.SwitchToWeapon(H.GUN);
 
                 Common.StartOrEndThermal(player, false);
-                if (H.REMOTE_STATE == 5) H.REMOTE_STATE = 0;
+                if (H.REMOTE_STATE == State.remote_mortar) H.REMOTE_STATE = State.remote_not_using;
 
             }
 
-            Entity VehicleSearch(string vehicleModel, bool addHumanList,bool endNotify)
+            Entity VehicleSearch(string vehicleModel, bool addHumanList, bool endNotify)
             {
                 for (int i = 18; i < 1024; i++)
                 {
@@ -245,9 +250,20 @@ namespace Infected
                         {
                             if (vehicle == TK.REMOTETANK || human_List.Contains(vehicle)) continue;
                         }
-                        else if(endNotify)AddVehicleEndNotify(vehicle, vehicleModel);
+                        else if (endNotify) AddVehicleEndNotify(vehicle, vehicleModel);
                         return vehicle;
                     }
+                }
+                return null;
+            }
+            Entity VehicleSearch(string[] vehicleModels)
+            {
+                for (int i = 18; i < 1024; i++)
+                {
+                    Entity vehicle = Entity.GetEntity(i);
+                    if (vehicle == null) continue;
+                    var model = vehicle.GetField<string>("model");
+                    if (vehicleModels.Contains(model)) return vehicle;
                 }
                 return null;
             }
@@ -256,7 +272,7 @@ namespace Infected
                 string notifyString = null;
 
                 if (vehicleModel == "vehicle_predator_b") notifyString = "remote_done";
-                
+
                 else if (vehicleModel == "vehicle_v22_osprey_body_mp") notifyString = "leaving";
 
                 VEHICLE_CODE = rnd.Next(1000, 9999).ToString();
@@ -270,13 +286,15 @@ namespace Infected
                     VEHICLE = null;
                 });
             }
-            void MessageToTeam(string message, int pe)
+            void MessageToHuman(string message, int pe)
             {
                 foreach (Entity player in human_List)
                 {
-                    if (player.EntRef == pe) continue;
-                    if (player.EntRef > 17) continue;
-                    player.Call(33344, message);
+                    int entref = player.EntRef;
+
+                    if (entref == pe) continue;
+                    if (entref > 17) continue;
+                    player.Call(33344, Info.GetStr(message, IsAxis[entref]));
                 }
             }
         }
