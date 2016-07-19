@@ -30,7 +30,7 @@ namespace Tdm
                     }
                     else return;
                 }
-                
+
                 BALANCE_STATE = State.balance_off_wait; BotDoAttack(false);
 
                 //Print("axis:" + Axis_List.Count + " allies:" + Allies_List.Count + "BOTs:" + BOTs_List.Count + " isAxis: " + isAxis);
@@ -66,7 +66,7 @@ namespace Tdm
             }
 
             #region team balance
-            if (BALANCE_STATE == State.balance_on_wait ) return;
+            if (BALANCE_STATE == State.balance_on_wait) return;
 
             BALANCE_STATE = State.balance_on_wait;
             BotDoAttack(false);
@@ -144,6 +144,10 @@ namespace Tdm
             int alliesCount = 0;
             foreach (Entity human in human_List)
             {
+                if (human.EntRef > 17)
+                {
+                    if (IsHumanTankRemoterAxis()) axisCount++; else alliesCount++; continue;
+                }
                 if (IsAxis[human.EntRef]) axisCount++; else alliesCount++;
             }
             if (axisCount == alliesCount) return;
@@ -153,7 +157,7 @@ namespace Tdm
             int i = 0;
 
             int small = 0, big = 0;
-            string team = "allies";
+            string AddTeam = "allies";
             bool axis = false;
 
             if (axisCount > alliesCount)
@@ -166,7 +170,7 @@ namespace Tdm
             {
                 big = alliesCount;
                 small = axisCount;
-                team = "axis";
+                AddTeam = "axis";
             }
 
             bool stop = false;
@@ -178,14 +182,28 @@ namespace Tdm
                     BotDoAttack(true);
                     return false;
                 }
+                if (++failCount > hlc) stop = true;
 
                 Entity human = human_List[i];
+                if (human.EntRef > 17)
+                {
+                    if (IsHumanTankRemoterAxis())
+                    {
+                        if (AddTeam == "axis") small++;
+                    }
+                    else
+                    {
+                        if (AddTeam == "allies") small++;
+                    }
+                    i++;
+                    return true;
+                }
                 if (IsAxis[human.EntRef] == axis)
                 {
                     HumanChangeTeamToAxis(human, !axis);
                     human.AfterDelay(200, x =>
                     {
-                        if (GetPlayerTeam(human) == team) big--;
+                        if (GetPlayerTeam(human) == AddTeam) big--;
                         if (big - small < 2) stop = true;
                         if (++failCount > hlc) stop = true;
                     });
@@ -231,7 +249,7 @@ namespace Tdm
                     }
                     HUD.ChangeHud(human, GET_TEAMSTATE_FINISHED);
                 });
-               
+
             });
         }
 
@@ -245,11 +263,28 @@ namespace Tdm
             int alliesCount = 0;
             foreach (Entity human in human_List)
             {
+                if (human.EntRef > 17)
+                {
+                    if (IsHumanTankRemoterAxis()) axisCount++; else alliesCount++; continue;
+                }
                 if (IsAxis[human.EntRef]) axisCount++; else alliesCount++;
             }
             if (axisCount == alliesCount) return "autoassign";
             if (axisCount > alliesCount) return "allies";
             return "axis";
+        }
+        bool IsHumanTankRemoterAxis()
+        {
+            foreach (Entity player in Players)
+            {
+                if (player.Name.StartsWith("bot")) continue;
+                if (human_List.IndexOf(player) == -1)
+                {
+                    if (GetPlayerTeam(player) == "axis") return true;
+                    else return false;
+                }
+            }
+            return false;
         }
         string GetPlayerTeam(Entity player)
         {

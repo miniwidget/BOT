@@ -25,7 +25,7 @@ namespace Tdm
                 tank.OnNotify("death", e =>
                 {
                     human_List.Remove(tank);
-                    if (!H.AXIS) human_List.Add(player);
+                    human_List.Add(player);
                     if (H.REMOTE_STATE == State.remote_assaultDrone )
                     {
                         H.REMOTE_STATE = State.remote_not_using;
