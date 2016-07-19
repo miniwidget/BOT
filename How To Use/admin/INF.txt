@@ -5,7 +5,7 @@ BOT_SETTING_NUM=12//
 PLAYER_LIFE=4//
 
 DEPLAY_BOT_=true//
-USE_ADMIN_SAFE_=false//
 MAP_ROTATE_=true//
 
+USE_ADMIN_SAFE_=false//
 TEST_=false//

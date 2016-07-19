@@ -8,6 +8,15 @@ namespace Tdm
 {
     class Hud
     {
+        internal void ChangeHud(Entity player,bool show)
+        {
+            H_SET H = Tdm.H_FIELD[player.EntRef];
+
+            H.HUD_TOP_INFO.SetText(Info.GetStr(PLAYERS_TOP_HUD_TEXTS, H.AXIS));
+            H.HUD_RIGHT_INFO.SetText(Info.GetStr(PLAYERS_RIGHT_TEXTS, H.AXIS));
+
+            if (H.AXIS) H.HUD_SERVER.SetText(SERVER_NAME_.Replace("^2", "^1")); else H.HUD_SERVER.SetText(SERVER_NAME_);
+        }
         internal void PlayersHud(Entity player, H_SET H , bool show)
         {
             H.HUD_SERVER = HudElem.CreateFontString(player, "hudbig", 0.8f);
@@ -17,8 +26,7 @@ namespace Tdm
             else H.HUD_SERVER.Alpha = 0;
             H.HUD_SERVER.HideWhenInMenu = true;
             if (Tdm.TEST_) SERVER_NAME_ = "^2TEST ^7SERVER";
-            if(H.AXIS)SERVER_NAME_ = SERVER_NAME_.Replace("^2","^1");
-            H.HUD_SERVER.SetText(SERVER_NAME_);
+            if (H.AXIS) H.HUD_SERVER.SetText(SERVER_NAME_.Replace("^2", "^1")); else H.HUD_SERVER.SetText(SERVER_NAME_);
 
             H.HUD_TOP_INFO = HudElem.CreateFontString(player, "hudbig", 0.4f);
             H.HUD_TOP_INFO.Alpha = 0.8f;

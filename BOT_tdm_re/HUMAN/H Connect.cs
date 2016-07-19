@@ -29,23 +29,28 @@ namespace Tdm
 
             if (name == ADMIN_NAME) SET.SetADMIN((ADMIN = player));
 
-            player.AfterDelay(250, p =>
+            player.AfterDelay(100, p =>
             {
                 string recipe = null; int n = rnd.Next(1, 4);
 
                 if (GetPlayerTeam(player) == "axis")
                 {
                     H.AXIS = true; recipe = "axis_recipe" + n;
+                    if (!Axis_List.Contains(player)) Axis_List.Add(player);
+                    if (Allies_List.Contains(player)) Allies_List.Remove(player);
                 }
                 else
                 {
                     H.AXIS = false; recipe = "allies_recipe" + n;
+                    if (!Allies_List.Contains(player)) Allies_List.Add(player);
+                    if (Axis_List.Contains(player)) Axis_List.Remove(player);
                 }
 
+                SetZero_hset(H, true);
                 SetPlayer(H, player);
 
                 player.Notify("menuresponse", "changeclass", recipe);
-                player.AfterDelay(250, pp =>
+                player.AfterDelay(100, pp =>
                 {
                     player.SpawnedPlayer += delegate
                     {
@@ -74,24 +79,8 @@ namespace Tdm
 
         void SetPlayer(H_SET H, Entity player)
         {
-            #region H_SET human field
-
-            if (H.AXIS)
-            {
-                if (!Axis_List.Contains(player)) Axis_List.Add(player);
-                if (Allies_List.Contains(player)) Allies_List.Remove(player);
-            }
-            else
-            {
-                if (!Allies_List.Contains(player)) Allies_List.Add(player);
-                if (Axis_List.Contains(player)) Axis_List.Remove(player);
-            }
-
-            SetZero_hset(H, true);
 
             if (GET_TEAMSTATE_FINISHED) CheckTeamState(player, H.AXIS);
-
-            #endregion
 
             #region SetClientDvar
 
@@ -117,7 +106,7 @@ namespace Tdm
                 }
                 if (weap == "none") return;
 
-                if (TEST_) Print("WEAPON_CHANGE: " + weap);
+                //if (TEST_) Print("WEAPON_CHANGE: " + weap);
 
                 if (weap == "killstreak_remote_tank_remote_mp") VHC.VehicleAddTank(player, H);
                 else if (vehicles.Contains(weap)) VHC.Vehicles(player, weap);

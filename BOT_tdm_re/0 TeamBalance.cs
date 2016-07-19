@@ -14,9 +14,11 @@ namespace Tdm
             if (!enabled)
             {
                 #region team unbalance
+
                 if (hlc > 1)
                 {
                     BALANCE_STATE = State.balance_on; BotDoAttack(true);
+                    //Print("HC return: " + hlc);
                     return;
                 }
                 if (player == null)
@@ -28,31 +30,43 @@ namespace Tdm
                     }
                     else return;
                 }
-
+                
                 BALANCE_STATE = State.balance_off_wait; BotDoAttack(false);
 
                 //Print("axis:" + Axis_List.Count + " allies:" + Allies_List.Count + "BOTs:" + BOTs_List.Count + " isAxis: " + isAxis);
 
-                List<Entity> temp; if (isAxis) temp = Axis_List; else temp = Allies_List;
-
                 OnInterval(300, () =>
                 {
-                    if (temp.Count <= 4 || BOT_TEAM_CHANGE_DENIED)
+                    if (isAxis)
                     {
-                        BALANCE_STATE = State.balance_off; BotDoAttack(true); temp = null;
-                        return BOT_TEAM_CHANGE_DENIED = false;
+                        if (Axis_List.Count <= 4 || BOT_TEAM_CHANGE_DENIED)
+                        {
+                            BALANCE_STATE = State.balance_off; BotDoAttack(true);
+                            return BOT_TEAM_CHANGE_DENIED = false;
+                        }
+                    }
+                    else
+                    {
+                        if (Allies_List.Count <= 4 || BOT_TEAM_CHANGE_DENIED)
+                        {
+                            BALANCE_STATE = State.balance_off; BotDoAttack(true);
+                            return BOT_TEAM_CHANGE_DENIED = false;
+                        }
+
                     }
 
                     BotChangeTeamToAxis(GetBotByTeam(isAxis), !isAxis);
                     return true;
                 });
 
+
+
                 return;
                 #endregion
             }
 
             #region team balance
-            if (BALANCE_STATE == State.balance_on_wait || hlc < 2) return;
+            if (BALANCE_STATE == State.balance_on_wait ) return;
 
             BALANCE_STATE = State.balance_on_wait;
             BotDoAttack(false);
@@ -63,7 +77,12 @@ namespace Tdm
             int max = BOTs_List.Count - 1;
             for (int i = 0; i < BOTs_List.Count; i++)
             {
-                if (BOT_TEAM_CHANGE_DENIED) { BOT_TEAM_CHANGE_DENIED = false; break; }
+                if (BOT_TEAM_CHANGE_DENIED)
+                {
+                    BOT_TEAM_CHANGE_DENIED = false;
+                    HumanTeamBalance();
+                    break;
+                }
 
                 BotChangeTeamToAxis(BOTs_List[i], toAxis = !toAxis);
 
@@ -96,7 +115,7 @@ namespace Tdm
                     {
                         if (B.CLASS.Contains("recipe")) B.CLASS = B.CLASS.Replace(Team, OtherTeam);
                         bot.Notify("menuresponse", "changeclass", B.CLASS);
-                        Print("Bot denied");
+                        //Print("Bot denied");
                         BOT_TEAM_CHANGE_DENIED = true;
                         return;
                     }
@@ -110,8 +129,8 @@ namespace Tdm
                     }
                     else
                     {
-                        if (Axis_List.Contains(bot)) Axis_List.Remove(bot);
                         if (!Allies_List.Contains(bot)) Allies_List.Add(bot);
+                        if (Axis_List.Contains(bot)) Axis_List.Remove(bot);
                     }
 
                     //Print(bot.Name + " " + bot.CurrentWeapon + " " + GetPlayerTeam(bot));
@@ -195,21 +214,24 @@ namespace Tdm
                     if (GetPlayerTeam(human) == OtherTeam)
                     {
                         human.Notify("menuresponse", "changeclass", OtherTeam + "_recipe" + rnd.Next(1, 4));
-                        Print("Human denied");
+                        //Print("Human denied");
                         return;
                     }
+
+                    H_FIELD[human.EntRef].AXIS = toAxis;
+                    if (toAxis)
+                    {
+                        if (!Axis_List.Contains(human)) Axis_List.Add(human);
+                        if (Allies_List.Contains(human)) Allies_List.Remove(human);
+                    }
+                    else
+                    {
+                        if (!Allies_List.Contains(human)) Allies_List.Add(human);
+                        if (Axis_List.Contains(human)) Axis_List.Remove(human);
+                    }
+                    HUD.ChangeHud(human, GET_TEAMSTATE_FINISHED);
                 });
-                H_FIELD[human.EntRef].AXIS = toAxis;
-                if (toAxis)
-                {
-                    if (!Axis_List.Contains(human)) Axis_List.Add(human);
-                    if (Allies_List.Contains(human)) Allies_List.Remove(human);
-                }
-                else
-                {
-                    if (!Allies_List.Contains(human)) Allies_List.Add(human);
-                    if (Axis_List.Contains(human)) Axis_List.Remove(human);
-                }
+               
             });
         }
 
@@ -257,12 +279,12 @@ namespace Tdm
             {
                 player.OnInterval(1000, x =>
                 {
+                    hlc = human_List.Count;
+                    if (hlc == 0 || hlc > 1) return false;
                     if (BALANCE_COUNT == 0)
                     {
                         BALANCE_COUNT = 10;
-                        hlc = human_List.Count;
-                        if (hlc == 0 || hlc > 1) return false;
-                        player.Call(33344, "BOT balance start");
+                        player.Call(33344, "Until Human Connected, Balance OFF");
                         BotTeamBalanceEnable(isAxis, false, player, hlc);
                         return false;
                     }

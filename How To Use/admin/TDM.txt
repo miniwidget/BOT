@@ -4,7 +4,7 @@ ADMIN_NAME=kwnav//server admin name
 BOT_SETTING_NUM=12//
 
 DEPLAY_BOT_=true//
-USE_ADMIN_SAFE_=false//
 MAP_ROTATE_=true//
 
+USE_ADMIN_SAFE_=false//
 TEST_=false//

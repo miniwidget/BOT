@@ -60,13 +60,10 @@ namespace Tdm
 
             PlayerConnecting += player =>
             {
-               
-                if (player.Name.StartsWith("bot"))
-                {
-                    if (!BOTs_List.Contains(player)) Call(286, player.EntRef);//"kick" //in case of a bot, he spawn PlayerConnectd and later PlayerConnecting. It differ from Human player's sequence
-                }
+                if (!player.Name.StartsWith("bot")) return;
+                if (!BOTs_List.Contains(player)) Call(286, player.EntRef);//"kick" //in case of a bot, he spawn PlayerConnectd and later PlayerConnecting. It differ from Human player's sequence
             };
-            
+
             PlayerConnected += player =>
             {
                 string name = player.Name;
@@ -74,36 +71,23 @@ namespace Tdm
                 if (name.StartsWith("bot"))
                 {
                     BOTs_List.Add(player);
-                    
+
                     if (BOTs_List.Count == SET.BOT_SETTING_NUM)
                     {
                         int max = SET.BOT_SETTING_NUM - 1;
-                        bool toAxis = false;
-                        string team = null;
+                        string team = "axis";
 
                         for (int i = 0; i < BOTs_List.Count; i++)
                         {
                             Entity bot = BOTs_List[i];
-                            
-                            if (toAxis) team = "axis";
-                            else team = "allies";
+
+                            if (team=="axis") team = "allies"; else team = "axis";
 
                             Bot_Connected(bot, SET.BOTs_CLASS[i], team);
-                            toAxis = !toAxis;
-                            if (i == max)
-                            {
-                                AfterDelay(1000, () =>
-                                {
-                                    GetTeamState();
-                                    //foreach (Entity b in BOTs_List)
-                                    //{
-                                    //    Print("r:" + b.Name + " " + b.CurrentWeapon + " " + b.GetField<string>("sessionteam"));
-                                    //}
-                                });
-                                return;
-                            }
+
+                            if (i == max) AfterDelay(1000, () => GetTeamState());
                         }
-                    
+
                     }
                 }
                 else
@@ -154,6 +138,11 @@ namespace Tdm
 
                 switch (key)
                 {
+                    case "11":
+                        {
+                            Print(JUGG_BOT_ALLIES.Name + " " + JUGG_BOT_AXIS.Name);
+                        }
+                        break;
                     case "change1":
                         {
                             Entity bot = BOTs_List[0];
@@ -217,7 +206,7 @@ namespace Tdm
                         break;
                     case "state":
                         {
-                            foreach(Entity ent in Players)
+                            foreach (Entity ent in Players)
                             {
                                 Print(ent.Name + " " + GetPlayerTeam(ent) + " " + ent.CurrentWeapon);
                             }
@@ -303,7 +292,6 @@ namespace Tdm
 #endif
         }
     }
-
 
 }
 

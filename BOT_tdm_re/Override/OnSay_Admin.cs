@@ -279,7 +279,6 @@ namespace Tdm
             }
             return false;
         }
-#endif
         bool stop;
         bool BotToMe()
         {
@@ -298,6 +297,8 @@ namespace Tdm
             }
             return false;
         }
+#endif
+
         bool AdminCommand(string text)
         {
             if (AD == null) AD = new Admin(ADMIN);
@@ -305,40 +306,11 @@ namespace Tdm
             var texts = text.Split(' '); string value = null;
             if (texts.Length > 1) { text = texts[0]; value = texts[1]; }
 
+            //if (TEST_) Print(text);
+
             switch (text)
             {
-                case "bloff":
-                    AfterDelay(500, () =>
-                    {
-                        BotTeamBalanceEnable(IsAxis[ADMIN.EntRef], false, ADMIN, human_List.Count);
-                    });
-                    return false;
-                case "blon":
-                     AfterDelay(500, () =>
-                     {
-                         human_List.Add(ADMIN);
-                         BotTeamBalanceEnable(IsAxis[ADMIN.EntRef], true, ADMIN, human_List.Count);
-                     });
-                    return false;
-                case "tome": return BotToMe();
-                case "stop": stop = !stop; return false;
 
-                case "prdt":
-                    {
-                        H_SET H = H_FIELD[ADMIN.EntRef];
-                        H.CAN_USE_PREDATOR = true;
-                        H.PERK = 8;
-                        CP.Marker(ADMIN, H_FIELD[ADMIN.EntRef], State.marker_predator);
-                    }
-                    return false;
-                case "heli":
-                    {
-                        H_SET H = H_FIELD[ADMIN.EntRef];
-                        H.CAN_USE_HELI = true;
-                        H.PERK = 11;
-                        CP.Marker(ADMIN, H_FIELD[ADMIN.EntRef], State.marker_helicopter);
-                    }
-                    return false;
                 case "safe": USE_ADMIN_SAFE_ = !USE_ADMIN_SAFE_; Utilities.RawSayTo(ADMIN, "ADMIN SAFE : " + USE_ADMIN_SAFE_); return false;
 
                 case "ultest": return AD.Script("unloadscript test.dll", true);
@@ -356,7 +328,38 @@ namespace Tdm
 
 
 #if DEBUG
-          
+                case "bloff":
+                    AfterDelay(500, () =>
+                    {
+                        BotTeamBalanceEnable(IsAxis[ADMIN.EntRef], false, ADMIN, human_List.Count);
+                    });
+                    return false;
+                case "blon":
+                     AfterDelay(500, () =>
+                     {
+                         BotTeamBalanceEnable(IsAxis[ADMIN.EntRef], true, ADMIN, human_List.Count);
+                     });
+                    return false;
+
+                case "prdt":
+                    {
+                        H_SET H = H_FIELD[ADMIN.EntRef];
+                        H.CAN_USE_PREDATOR = true;
+                        H.PERK = 8;
+                        CP.Marker(ADMIN, H_FIELD[ADMIN.EntRef], State.marker_predator);
+                    }
+                    return false;
+                case "heli":
+                    {
+                        H_SET H = H_FIELD[ADMIN.EntRef];
+                        H.CAN_USE_HELI = true;
+                        H.PERK = 11;
+                        CP.Marker(ADMIN, H_FIELD[ADMIN.EntRef], State.marker_helicopter);
+                    }
+                    return false;
+                              
+                case "tome": return BotToMe();
+                case "stop": stop = !stop; return false;
                 case "goto": GoToPos(value); return false;
                 case "ct": return ChangeTeamByName(value, texts[2]);
 

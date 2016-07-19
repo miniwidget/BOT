@@ -131,13 +131,12 @@ namespace Tdm
 
             RIDER.AfterDelay(10000, r =>
             {
-                Entity bot = null;
+                if (BALANCE_STATE == State.balance_off) SetRider(RIDER);
 
-                if (BALANCE_STATE == State.balance_off) bot = RIDER;
-                
-                else if (IsAxis[RIDER.EntRef]) bot = JUGG_BOT_ALLIES; else bot = JUGG_BOT_AXIS;
-
-                SetRider(bot);
+                else
+                {
+                    if (IsAxis[RIDER.EntRef]) SetRider(JUGG_BOT_ALLIES); else SetRider(JUGG_BOT_AXIS);
+                }
             });
 
         }
