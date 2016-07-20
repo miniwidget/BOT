@@ -57,10 +57,7 @@ namespace Infected
                 if (!name.StartsWith("bot")) return;
                 if (player.GetField<string>("sessionteam") == "spectator")
                 {
-                    //Print(player.Name + " kicked");
                     Call(286, player.EntRef);//kick
-                                 
-                    //if (BOTs_List.Count == SET.BOT_SETTING_NUM) return;
 
                     Utilities.AddTestClient();
                 }

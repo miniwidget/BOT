@@ -50,7 +50,7 @@ namespace Tdm
                 case "sg": wep = SG(i); return;
                 case "sn": wep = SN(i); return;
             }
-            if (wep != "ap" || wep != "ag") wep += GetCamo;
+
             GiveWeaponTo(player, wep);
         }
         internal void GiveWeaponBy(Entity player, string wep)
@@ -65,7 +65,7 @@ namespace Tdm
                 case "sg": wep = SG(RandomInt(5)); break;
                 case "sn": wep = SN(RandomInt(6)); break;
             }
-            if (wep != "ap" || wep != "ag") wep += GetCamo;
+
             GiveWeaponTo(player, wep);
         }
         internal void GiveWeaponTo(Entity player, int i)
@@ -78,8 +78,6 @@ namespace Tdm
             else if (i == 4) wep = LM(RandomInt(4));
             else if (i == 5) wep = SG(RandomInt(5));
             else wep = SN(RandomInt(6));
-
-            if (i > 1) wep += GetCamo;
 
             GiveWeaponTo(player, wep);
         }
@@ -103,11 +101,11 @@ namespace Tdm
 
         string AP(int i) { if (i > 3) i = 0; return AP_LIST[i]; }
         string AG(int i) { if (i > 5) i = 0; return AG_LIST[i]; }
-        string AR(int i) { if (i > 9) i = 0; return AR_LIST[i]; }
-        string SM(int i) { if (i > 5) i = 0; return SM_LIST[i]; }
-        string LM(int i) { if (i > 4) i = 0; return LM_LIST[i]; }
-        string SG(int i) { if (i > 5) i = 0; return SG_LIST[i]; }
-        string SN(int i) { if (i > 5) i = 0; return SN_LIST[i]; }
+        string AR(int i) { if (i > 9) i = 0; return AR_LIST[i]+ GetCamo; }
+        string SM(int i) { if (i > 5) i = 0; return SM_LIST[i] + GetCamo; }
+        string LM(int i) { if (i > 4) i = 0; return LM_LIST[i] + GetCamo; }
+        string SG(int i) { if (i > 5) i = 0; return SG_LIST[i] + GetCamo; }
+        string SN(int i) { if (i > 5) i = 0; return SN_LIST[i] + GetCamo; }
 
         string[] AP_LIST = new string[4] { "iw5_fmg9_mp_akimbo", "iw5_skorpion_mp_akimbo", "iw5_mp9_mp_akimbo", "iw5_g18_mp_akimbo", };
         string[] AG_LIST = new string[6] { "iw5_mp412_mp_akimbo", "iw5_p99_mp_akimbo", "iw5_44magnum_mp_akimbo", "iw5_usp45_mp_akimbo", "iw5_fnfiveseven_mp_akimbo", "iw5_deserteagle_mp_akimbo" };
@@ -116,8 +114,6 @@ namespace Tdm
         string[] LM_LIST = new string[5] { "iw5_m60_mp", "iw5_mk46_mp", "iw5_pecheneg_mp", "iw5_sa80_mp", "iw5_mg36_mp" };
         string[] SG_LIST = new string[6] { "iw5_ksg_mp", "iw5_spas12_mp", "iw5_aa12_mp", "iw5_striker_mp", "iw5_1887_mp", "iw5_usas12_mp", };
         string[] SN_LIST = new string[6] { "iw5_dragunov_mp_dragunovscope", "iw5_msr_mp_msrscope", "iw5_barrett_mp_barrettscope", "iw5_rsass_mp_rsassscope", "iw5_as50_mp_as50scope", "iw5_l96a1_mp_l96a1scope", };
-
-        //string[] LAUNCHER_LIST = new string [4] { "stinger_mp", "m320_mp", "xm25_mp", "javelin_mp", };
 
         //string[] CAMO_LIST = new string[11] { "_camo01", "_camo02", "_camo03", "_camo04", "_camo05", "_camo06", "_camo07", "_camo08", "_camo09", "_camo10", "_camo11" };
 
