@@ -14,7 +14,7 @@ namespace Tdm
 {
     public partial class Tdm : BaseScript
     {
-        internal static Weapon WP;
+        internal static Gun GUN;
         internal static Predator PRDT;
         internal static Tank TK;
         internal static Helicopter HCT;
@@ -32,7 +32,7 @@ namespace Tdm
         {
             SET = new Set();
             rnd = new Random();
-            WP = new Weapon();
+            GUN = new Gun(new int[] { rnd.Next(4), rnd.Next(6), rnd.Next(10), rnd.Next(6), rnd.Next(5), rnd.Next(5), rnd.Next(6), rnd.Next(7) });
             PK = new Perk();
             HUD = new Hud();
             INFO = new Info();

@@ -7,7 +7,7 @@ using InfinityScript;
 
 namespace Tdm
 {
-    class Admin : Inf
+    class Admin : Infinity
     {
         Entity admin;
         public Admin(Entity adm)

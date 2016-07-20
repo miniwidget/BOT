@@ -55,8 +55,9 @@ namespace Infected
 
         void HumanAlliesSpawned(Entity player, string name, H_SET H)
         {
+            if (!SET.DEPLAY_BOT_) return;
             if (!BOT_TO_AXIS_COMP) HumanCheckInf(player);
-
+            
             var LIFE = H.LIFE;
             if (LIFE > -1)
             {
@@ -65,12 +66,12 @@ namespace Infected
                     H.RESPAWN = true;
                     player.Call(33466, "mp_last_stand");// playlocalsound
                     player.Notify("menuresponse", "team_marinesopfor", "allies");
+                    
                     player.Call(33344, Info.GetStr("*[ ^7" + (LIFE + 1) + " LIFE *] MORE", false));
                 }
                 else
                 {
-                    WP.GiveWeaponTo(player, H.GUN);
-                    WP.GiveRandomOffhandWeapon(player);
+                    player.AfterDelay(250,x=>GUN.GiveRandomWeaponTo(player));
 
                     if (!Allies_List.Contains(player)) Allies_List.Add(player);
 

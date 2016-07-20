@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Infected
 {
-    class Predator : Inf
+    class Predator : Infinity
     {
         internal Entity PLANE;
         Entity PREDATOR_OWNER;
@@ -28,6 +28,7 @@ namespace Infected
             PRDT_POS = player.Origin;
             Infected.USE_PREDATOR = true;
             H.MISSILE_COUNT = 8;
+            H.GUN = player.CurrentWeapon;
             PREDATOR_OWNER = player;
             H.REMOTE_STATE = State.remote_predator;
             H.CAN_USE_PREDATOR = false;

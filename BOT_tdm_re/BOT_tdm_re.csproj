@@ -64,7 +64,7 @@
     <Compile Include="Override\OnSay_Admin.cs" />
     <Compile Include="1 Main.cs" />
     <Compile Include="5 Info.cs" />
-    <Compile Include="3 Weapon.cs" />
+    <Compile Include="3 Gun.cs" />
     <Compile Include="6 Hud.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

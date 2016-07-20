@@ -88,13 +88,19 @@ namespace Infected
 
                 if (bot1_num > bot2_num) BOTs_List.Reverse();//when fast_restart executed, Players are reversed. So, it need to be reversed again due to change class properly.
 
-                for (int i = 0; i < blc; i++)
+                int i = 0;
+
+                OnInterval(150, () =>
                 {
+                    if (i == blc) return false;
                     Entity BOT = BOTs_List[i];
                     BOT.Notify("menuresponse", "changeclass", SET.BOTs_CLASS[i]);
                     int num = i;
                     bot.AfterDelay(100, x => Bot_Connected2(BOT, num));//important. must be delayed due to get changed class weapon
-                }
+                    i++;
+                    return true;
+                });
+                    
             }
         }
         private void Bot_Connected2(Entity bot, int i)

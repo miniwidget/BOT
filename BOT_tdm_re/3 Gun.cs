@@ -5,7 +5,7 @@ using System.Text;
 using System.IO;
 using InfinityScript;
 
-namespace Infected
+namespace Tdm
 {
     internal class Gun
     {
@@ -510,5 +510,6 @@ namespace Infected
         #endregion
 
     }
+
 }
 

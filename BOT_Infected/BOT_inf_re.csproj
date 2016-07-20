@@ -49,7 +49,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BOT\B HeliBot.cs" />
-    <Compile Include="H CarePackage.cs" />
+    <Compile Include="7 CarePackage.cs" />
     <Compile Include="Killstreak\Helicopter.cs" />
     <Compile Include="Killstreak\Predator.cs" />
     <Compile Include="Killstreak\Tank.cs" />

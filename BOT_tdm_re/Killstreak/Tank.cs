@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Tdm
 {
-    class Tank : Inf
+    class Tank : Infinity
     {
         internal int TL_LEFT_USER_ENTREF = -1;
         internal int TL_RIGHT_USER_ENTREF = -1;
@@ -93,12 +93,12 @@ namespace Tdm
             {
                 player.Call(33256, REMOTETANK);//remotecontrolvehicle  
                 RMTK_OWNER_ENTREF = player.EntRef;
-                player.Call(33344, Info.GetStr("*TANK RUNNER START [ ^7MOVE & FIRE *]", axis)); 
+                player.Call(33344, Info.GetStr("*[  ^7TANK RUNNER  *]  START MOVE !!!", axis));
                 return State.remote_turretTank;//remote tank state
             }
             else
             {
-                player.Call(33344, Info.GetStr("*TANK GUNNER START [ ^7FIRE *]",axis));
+                player.Call(33344, Info.GetStr("*[  ^7TANK GUNNER  *]  START FIRE !!!", axis));
                 return State.remote_not_using;//not using remote state
             }
         }

@@ -8,7 +8,7 @@ namespace Tdm
 {
     public partial class Tdm
     {
-        class Vehicle : Inf
+        class Vehicle : Infinity
         {
             internal Entity VEHICLE;
             string VEHICLE_NAME;
@@ -102,48 +102,53 @@ namespace Tdm
 
                 if (remoteTurret)
                 {
+                    H.REMOTE_STATE = State.remote_vehicleTurret;
+
                     Entity turret = Call<Entity>(19, "misc_turret", vehicle.Call<Vector3>(33128, "tag_origin"), "pavelow_minigun_mp", false);//spawnturret
                     turret.Call(32929, "mp_remote_turret");//setmodel
                     turret.Call(32841, vehicle, tag, Common.GetVector(30f, 30f, -50f), vehicle.Call<Vector3>("getTagAngles", tag));//linkto
                     turret.Call(33084, 180f);
                     turret.Call(33083, 180f);
                     turret.Call(33086, 180f);
+
                     player.AfterDelay(1500, xx =>
                     {
+                        if (H.REMOTE_STATE != State.remote_vehicleTurret) return;
+
                         player.TakeWeapon("killstreak_helicopter_mp");
                         player.GiveWeapon("killstreak_remote_turret_laptop_mp");
                         player.SwitchToWeapon("killstreak_remote_turret_laptop_mp");
-
+                        Print(H.REMOTE_STATE + " " + 6);
                         player.AfterDelay(2500, x =>
                         {
+                            if (H.REMOTE_STATE != State.remote_vehicleTurret) return;
+                            Print(H.REMOTE_STATE + " " + 7);
                             Common.StartOrEndThermal(player, true);
                             player.GiveWeapon("killstreak_remote_turret_remote_mp");
                             player.SwitchToWeapon("killstreak_remote_turret_remote_mp");
                             player.Call("RemoteControlTurret", turret);//RemoteControlTurret
+
+                            vehicle.OnNotify(notifyString, e =>//important. 
+                            {
+                                if (H.REMOTE_STATE == State.remote_vehicleTurret && death == player.GetField<int>("deaths"))
+                                {
+                                    player.Call(32980, turret);//RemoteControlTurretOff
+                                    player.Call(32843);//unlink
+
+                                    player.TakeWeapon("killstreak_remote_turret_remote_mp");
+                                    player.TakeWeapon("killstreak_remote_turret_laptop_mp");
+
+                                    player.Call(33504);//enableOffhandWeapons
+                                    Common.StartOrEndThermal(player, false);
+
+                                    GUN.GiveRandomWeaponTo(player);
+
+                                    H.REMOTE_STATE = State.remote_not_using;
+                                }
+
+                                turret.Call("delete");//delete
+                            });
                         });
-                    });
-
-                    H.REMOTE_STATE = State.remote_vehicleTurret;
-
-                    vehicle.OnNotify(notifyString, e =>
-                    {
-                        if (death == player.GetField<int>("deaths"))
-                        {
-                            player.Call(32980, turret);//RemoteControlTurretOff
-                            player.Call(32843);//unlink
-
-                            player.TakeWeapon("killstreak_remote_turret_remote_mp");
-                            player.TakeWeapon("killstreak_remote_turret_laptop_mp");
-
-                            player.Call(33504);//enableOffhandWeapons
-                            Common.StartOrEndThermal(player, false);
-
-                            WP.GiveWeaponTo(player, H.GUN);
-
-                            if (H.REMOTE_STATE == State.remote_vehicleTurret) H.REMOTE_STATE = State.remote_not_using;
-                        }
-
-                        if (turret != null) turret.Call("delete");//delete
                     });
 
                 }

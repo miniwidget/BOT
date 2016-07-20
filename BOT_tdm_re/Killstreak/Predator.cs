@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Tdm
 {
-    class Predator : Inf
+    class Predator : Infinity
     {
         internal Entity PLANE;
         Entity PREDATOR_OWNER;

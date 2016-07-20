@@ -6,12 +6,12 @@ using System.Text;
 
 namespace Tdm
 {
-    class Helicopter : Inf
+    class Helicopter : Infinity
     {
         internal readonly string[] MESSAGE_ALERT = { "YOU ARE NOT IN THE HELI AREA", "GO TO HELI AREA AND", "PRESS  *[  [{+activate}]  ]  ^7AT THE HELI AREA" };
         internal readonly string[] MESSAGE_WAIT_PLAYER = { "YOU CAN RIDE HELLI", "IF ANOTHER PLAYER ONBOARD" };
         readonly string[] MESSAGE_KEY_INFO = { "HELICOPTER CONTROL INFO", "PRESS  *[  [{+breath_sprint}]  ] ^7TO MOVE DOWN", "PRESS  *[  [{+gostand}]  ]  ^7TO MOVE UP" };
-        internal readonly string[] MESSAGE_ACTIVATE = { "PRESS  *[  [{+activate}]  ]  ^7AT THE HELI TURRET AREA", "YOU CAN RIDE IN HELICOPTER" };
+        internal readonly string[] MESSAGE_ACTIVATE = { "YOU CAN RIDE IN HELICOPTER", "PRESS  *[  [{+activate}]  ]  ^7AT THE HELI TURRET AREA" };
         internal readonly string MESSAGE_CALL = "PRESS  *[  [{+activate}]  ]  ^7TO CALL HELI TURRET";
         internal Entity HELI, TL, TR, HELI_OWNER, HELI_GUNNER;
         Vector3 HELI_WAY_POINT;

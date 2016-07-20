@@ -10,7 +10,7 @@ namespace Infected
 {
     public partial class Infected : BaseScript
     {
-        internal static Gun WP;
+        internal static Gun GUN;
         internal static Predator PRDT;
         internal static Tank TK;
         internal static Helicopter HCT;
@@ -28,7 +28,7 @@ namespace Infected
         {
             SET = new Set();
             rnd = new Random();
-            WP = new Gun();
+            GUN = new Gun(new int[] { rnd.Next(4), rnd.Next(6), rnd.Next(10),rnd.Next(6),rnd.Next(5),rnd.Next(5), rnd.Next(6),rnd.Next(7)});
             PK = new Perk();
             HUD = new Hud();
             INFO = new Info();
@@ -57,15 +57,16 @@ namespace Infected
                 if (!name.StartsWith("bot")) return;
                 if (player.GetField<string>("sessionteam") == "spectator")
                 {
-                    Print(player.Name + " kicked");
+                    //Print(player.Name + " kicked");
                     Call(286, player.EntRef);//kick
+                                 
                     //if (BOTs_List.Count == SET.BOT_SETTING_NUM) return;
-                    
+
                     Utilities.AddTestClient();
                 }
             };
 
-            
+
             PlayerConnected += player =>
             {
                 string name = player.Name;
@@ -84,7 +85,11 @@ namespace Infected
                 if (human_List.Count == 0) BotDoAttack(false);
             };
 
-            OnNotify("prematch_done", () => BotDeplay());
+            OnNotify("prematch_done", () =>
+            {
+                //Call(42, "scr_infect_timelimit", "40");
+                BotDeplay();
+            });
 
             OnNotify("game_ended", (level) =>
             {
@@ -100,88 +105,29 @@ namespace Infected
             if (!TEST_) return;
 
             Print("테스트 모드");
-#if DEBUG
-            OnServerCommand("/", (string[] texts) =>
-            {
-                if (texts.Length == 1) return;
-                string key = texts[1].ToLower();
+          
 
-                if (key == "team")
-                {
-                    Print(Players[int.Parse(texts[2])].GetField<string>("sessionteam"));
-                }
-                else if(key == "mb")
-                {
-                    ADMIN.Notify("menuresponse", "class", "back");
-                }
-                else if (key == "name")
-                {
-                    Print(Players[int.Parse(texts[2])].Name);
-                }
-                else if (key == "bot")
-                {
-                    Entity bot = Utilities.AddTestClient();
-                }
-                else if (key == "heavy_test")
-                {
-                    Entity me = human_List[human_List.IndexOf(ADMIN)];
-                    human_List.RemoveAt(0);
-                    int i = 0;
-                    while (Players.Count != 18)
-                    {
-                        if (i > 20) break;
-                        i++;
-                        Entity bot = Utilities.AddTestClient();
-                        if (bot == null) continue;
-                        human_List.Add(bot);
-                       AfterDelay(250,()=> bot.Health = -1);
-                    }
+            //OnServerCommand("/", (string[] texts) =>
+            //{
+            //    if (texts.Length == 1) return;
+            //    string key = texts[1].ToLower();
 
-                    human_List.Add(me);
-                }
-                else if (key == "rm")
-                {
-                    Entity testHuman = human_List[rnd.Next(human_List.Count)];
-                    int entref = testHuman.EntRef;
-                    Call("kick", entref);
-
-                    AfterDelay(500, () =>
-                    {
-                        if (testHuman == null) Print("testHuman 눌");
-                        else Print(testHuman.Name + "^__^");
-                    });
-
-
-                }
-                else if (key == "status")
-                {
-                    string s = null;
-                    foreach (Entity p in Players)
-                    {
-                        if (p == null)
-                        {
-                            Print("STATUS 눌");
-                            continue;
-                        }
-
-                        string sessionteam = p.GetField<string>("sessionteam").Substring(0, 2);
-                        string name = p.Name;
-
-                        if (sessionteam == "no")
-                        {
-                            s += " NONE";
-                        }
-                        else if (name.StartsWith("bot"))
-                        {
-                            if (human_List.Contains(p)) s += " ◆" + name + "(" + p.EntRef + ")" + sessionteam;
-                            else s += " ◎" + name + "(" + p.EntRef + ")" + sessionteam;
-                        }
-                        else s += " ◐" + p.EntRef + sessionteam;
-                    }
-                    Print(s + "\n총:" + Players.Count + "명");
-                }
-            });
-#endif
+            //    //Print("TYPED: "+key);
+            //    switch (key)
+            //    {
+            //        case "w":
+            //            {
+            //                ADMIN.TakeWeapon(ADMIN.CurrentWeapon);
+            //                ADMIN.GiveWeapon(texts[2]);
+            //                ADMIN.SwitchToWeaponImmediate(texts[2]);
+            //                AfterDelay(1000, () =>
+            //                {
+            //                    Print("RESULT: "+ADMIN.CurrentWeapon);
+            //                });
+            //            }
+            //            break;
+            //    }
+            //});
         }
     }
 

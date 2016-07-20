@@ -10,7 +10,7 @@ namespace Infected
 {
     public partial class Infected
     {
-        class CarePackage : Inf
+        class CarePackage : Infinity
         {
             internal Entity CARE_PACKAGE;
             internal Vector3 CARE_PACKAGE_ORIGIN;
@@ -20,11 +20,11 @@ namespace Infected
 
                 if (type == State.marker_predator)
                 {
-                    message = Info.GetStr("*THROW MARKER and GET [ ^7RIDE PREDATOR *]", H.AXIS);
+                    message = Info.GetStr("*[ ^7RIDE PREDATOR *]  THROW MARKER TO RIDE", H.AXIS);
                 }
                 else //if (type == State.marker_helicopter)
                 {
-                    message = Info.GetStr("*THROW MARKER and GET [ ^7HELICOPTER *]", H.AXIS);
+                    message = Info.GetStr("*[ ^7HELICOPTER *]  THROW MARKER TO RIDE", H.AXIS);
                 }
 
                 H.MARKER_TYPE = type;

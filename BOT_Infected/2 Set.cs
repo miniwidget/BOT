@@ -121,6 +121,7 @@ namespace Infected
             internal int KILLER = -1;
             Entity bot;
 
+            byte _fire = 1;
 
             public B_SET(Entity bot,string alert_sound)
             {
@@ -132,15 +133,14 @@ namespace Infected
                     bot.OnNotify("weapon_fired", (p, w) => SetAngle());
                     return;
                 }
-
-                byte fire = 1;
+               
                 bot.OnNotify("weapon_fired", (p, w) =>
                 {
-                    if (fire == 1) fire = 2;
+                    if (_fire == 1) _fire = 2;
                     else
                     {
-                        if (fire == 3) fire = 0;
-                        fire++;
+                        if (_fire == 3) _fire = 0;
+                        _fire++;
                         return;
                     }
                     SetAngle();
@@ -244,6 +244,7 @@ namespace Infected
                     if (value == true) TARGET = null;
 
                     _wait = value;
+                    _fire = 1;
                 }
             }
             Entity _target;
@@ -576,7 +577,7 @@ namespace Infected
 
     }
 
-    class Inf
+    class Infinity
     {
         protected TReturn Call<TReturn>(string func, params Parameter[] parameters)
         {
@@ -622,7 +623,7 @@ namespace Infected
 
                 return;
             }
-            if (!Axis) player.Call(32937);//thermalvisionfofoverlayoff
+            player.Call(32937);//thermalvisionfofoverlayoff
 
             player.Health = 100;
             player.Call(33531, ZERO);

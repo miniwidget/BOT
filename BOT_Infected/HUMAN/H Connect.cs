@@ -31,7 +31,7 @@ namespace Infected
             H_SET H = H_FIELD[pe];
             if (!human_List.Contains(player)) human_List.Add(player);
 
-            if (!PLAYER_STATE.ContainsKey(name)) 
+            if (!PLAYER_STATE.ContainsKey(name))
             {
                 Print(name + " connected ♥");
                 PLAYER_STATE.Add(name, SET.PLAYER_LIFE);
@@ -58,7 +58,6 @@ namespace Infected
                 }
             }
 
-
             player.SpawnedPlayer += delegate
             {
                 if (GAME_ENDED_) return;
@@ -71,6 +70,7 @@ namespace Infected
                 }
 
                 if (!H.AXIS) HumanAlliesSpawned(player, name, H);
+
                 else HumanAxisSpawned(player, name, H);
 
             };
@@ -115,7 +115,8 @@ namespace Infected
             if (!Allies_List.Contains(player)) Allies_List.Add(player);
             if (Axis_List.Contains(player)) Axis_List.Remove(player);
 
-            player.Notify("menuresponse", "changeclass", "allies_recipe" + rnd.Next(1, 6));
+            //player.Notify("menuresponse", "changeclass", "allies_recipe" + rnd.Next(1, 6));
+            player.Notify("menuresponse", "changeclass", "allies_recipe1");
 
             #region SetClientDvar
 
@@ -139,6 +140,7 @@ namespace Infected
                     H.GUN = weap;
                     return;
                 }
+
                 if (weap == "none") return;
 
                 //uif (SET.TEST_) Print("WEAPON_CHANGE: " + weap);
@@ -172,8 +174,7 @@ namespace Infected
 
             player.AfterDelay(200, x =>
             {
-                WP.GiveRandomWeaponTo(player);
-                WP.GiveRandomOffhandWeapon(player);
+                GUN.GiveRandomWeaponTo(player);
 
                 player.SetPerk("specialty_scavenger", true, false);
             });
@@ -255,7 +256,7 @@ namespace Infected
             {
                 if (player.Call<int>(33539) == 1)//isUsingTurret
                 {
-                   
+
                     byte ts = TurretState(player);
 
                     if (ts == 4)//다른 튜렛 붙잡은 경우 종료

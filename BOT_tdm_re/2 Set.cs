@@ -551,7 +551,7 @@ namespace Tdm
         #endregion
     }
 
-    class Inf
+    class Infinity
     {
         protected TReturn Call<TReturn>(string func, params Parameter[] parameters)
         {

@@ -12,7 +12,7 @@ namespace Infected
 
     public partial class Infected
     {
-        class BotHeli : Inf
+        class BotHeli : Infinity
         {
             Vector3 VectorToAngleY(Vector3 TO, Vector3 BO)
             {

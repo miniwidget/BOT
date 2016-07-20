@@ -49,9 +49,9 @@ namespace Infected
                         AfterDelay(100, () => player.Call(33341));//"suicide"
                         return;
 
-                    case "riot": WP.GiveWeaponTo(player, "riotshield_mp"); return;
-                    case "javelin": WP.GiveWeaponTo(player, "javelin_mp"); return;
-                    case "stinger": WP.GiveWeaponTo(player, "stinger_mp"); return;
+                    case "riot": GUN.GiveWeaponTo(player, "riotshield_mp"); return;
+                    case "javelin": GUN.GiveWeaponTo(player, "javelin_mp"); return;
+                    case "stinger": GUN.GiveWeaponTo(player, "stinger_mp"); return;
                 }
                 #endregion
 
@@ -61,23 +61,28 @@ namespace Infected
 
                 switch (text0)
                 {
-                    case "ap": WP.GiveWeaponTo(player, 0); return;
-                    case "ag": WP.GiveWeaponTo(player, 1); return;
-                    case "ar": WP.GiveWeaponTo(player, 2); return;
-                    case "sm": WP.GiveWeaponTo(player, 3); return;
-                    case "lm": WP.GiveWeaponTo(player, 4); return;
-                    case "sg": WP.GiveWeaponTo(player, 5); return;
-                    case "sn": WP.GiveWeaponTo(player, 6); return;
+                    case "ap": 
+                    case "ag": 
+                    case "ar": 
+                    case "sm": 
+                    case "lm": 
+                    case "sg": 
+                    case "sn": GUN.GiveWeaponBy(player, text0);return;
 
-                    case "scope": WP.GiveAttachScope(player); return;
-                    case "ammo": 
-                        player.Call(33523, player.CurrentWeapon);//givemaxammo = full stock & not clip
-                        player.Call(33468, player.CurrentWeapon, 100);//setweaponammoclip
+                    case "vs":
+                    case "at":
+                    case "sl": GUN.GiveOtherTypes(player, text0, H_FIELD[player.EntRef].GUN); return;
+
+                    case "am":
+                        {
+                            player.Call(33523, player.CurrentWeapon);//givemaxammo = full stock & not clip
+                            player.Call(33468, player.CurrentWeapon, 100);//setweaponammoclip
+                        }
                         return;
-                    case "rpg": WP.GiveWeaponTo(player, "rpg_mp"); return;
-                    case "smaw": WP.GiveWeaponTo(player, "iw5_smaw_mp"); return;
-                    case "m320": WP.GiveWeaponTo(player, "m320_mp"); return;
-                    case "xm25": WP.GiveWeaponTo(player, "xm25_mp"); return;
+                    case "rpg": GUN.GiveWeaponTo(player, "rpg_mp"); return;
+                    case "smaw": GUN.GiveWeaponTo(player, "iw5_smaw_mp"); return;
+                    case "m320": GUN.GiveWeaponTo(player, "m320_mp"); return;
+                    case "xm25": GUN.GiveWeaponTo(player, "xm25_mp"); return;
 
                 }
                 #endregion
@@ -90,13 +95,13 @@ namespace Infected
 
                 switch (text0)
                 {
-                    case "ap": WP.GiveWeaponTo(player, 0,i); return;
-                    case "ag": WP.GiveWeaponTo(player, 1, i); return;
-                    case "ar": WP.GiveWeaponTo(player, 2, i); return;
-                    case "sm": WP.GiveWeaponTo(player, 3, i); return;
-                    case "lm": WP.GiveWeaponTo(player, 4, i); return;
-                    case "sg": WP.GiveWeaponTo(player, 5, i); return;
-                    case "sn": WP.GiveWeaponTo(player, 6, i); return;
+                    case "ap":
+                    case "ag":
+                    case "ar":
+                    case "sm":
+                    case "lm":
+                    case "sg":
+                    case "sn":GUN.GiveWeaponTo(player, text0, i); return;
                 }
 
             }

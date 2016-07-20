@@ -8,7 +8,7 @@ namespace Infected
 {
     public partial class Infected
     {
-        class Vehicle : Inf
+        class Vehicle : Infinity
         {
             internal Entity VEHICLE;
             string VEHICLE_NAME;
@@ -35,10 +35,8 @@ namespace Infected
                 });
             }
 
-            string[] HELI_MODELS =
-            {
-                "vehicle_cobra_helicopter_fly_low", "vehicle_mi24p_hind_mp", "vehicle_pavelow","vehicle_pavelow_opfor"
-            };
+            string[] HELI_MODELS = { "vehicle_cobra_helicopter_fly_low", "vehicle_mi24p_hind_mp", "vehicle_pavelow","vehicle_pavelow_opfor" };
+
             internal void Vehicles(Entity player, string weapon)
             {
                 if (weapon == "killstreak_helicopter_mp") VehicleStartRemote(player, VehicleSearch(HELI_MODELS), "tag_light_belly");
@@ -104,6 +102,7 @@ namespace Infected
 
                 if (remoteTurret)
                 {
+                    H.REMOTE_STATE = State.remote_vehicleTurret;
                     Entity turret = Call<Entity>(19, "misc_turret", vehicle.Call<Vector3>(33128, "tag_origin"), "pavelow_minigun_mp", false);//spawnturret
                     turret.Call(32929, "mp_remote_turret");//setmodel
                     turret.Call(32841, vehicle, tag, Common.GetVector(30f, 30f, -50f), vehicle.Call<Vector3>("getTagAngles", tag));//linkto
@@ -112,51 +111,59 @@ namespace Infected
                     turret.Call(33086, 180f);
                     player.AfterDelay(1500, xx =>
                     {
+                        if (H.REMOTE_STATE != State.remote_vehicleTurret) return;
+
                         player.TakeWeapon("killstreak_helicopter_mp");
                         player.GiveWeapon("killstreak_remote_turret_laptop_mp");
                         player.SwitchToWeapon("killstreak_remote_turret_laptop_mp");
-
+                        Print(H.REMOTE_STATE + " " + 6);
                         player.AfterDelay(2500, x =>
                         {
+                            if (H.REMOTE_STATE != State.remote_vehicleTurret) return;
+                            Print(H.REMOTE_STATE + " " + 7);
                             Common.StartOrEndThermal(player, true);
                             player.GiveWeapon("killstreak_remote_turret_remote_mp");
                             player.SwitchToWeapon("killstreak_remote_turret_remote_mp");
                             player.Call("RemoteControlTurret", turret);//RemoteControlTurret
+
+                            vehicle.OnNotify(notifyString, e =>//important. 
+                            {
+                                if (H.REMOTE_STATE == State.remote_vehicleTurret && death == player.GetField<int>("deaths"))
+                                {
+                                    player.Call(32980, turret);//RemoteControlTurretOff
+                                    player.Call(32843);//unlink
+
+                                    player.TakeWeapon("killstreak_remote_turret_remote_mp");
+                                    player.TakeWeapon("killstreak_remote_turret_laptop_mp");
+
+                                    player.Call(33504);//enableOffhandWeapons
+                                    Common.StartOrEndThermal(player, false);
+
+                                    GUN.GiveRandomWeaponTo(player);
+
+                                    H.REMOTE_STATE = State.remote_not_using;
+                                }
+
+                                turret.Call("delete");//delete
+                            });
                         });
                     });
 
-                    H.REMOTE_STATE = State.remote_vehicleTurret;
 
-                    vehicle.OnNotify(notifyString, e =>
-                    {
-                        if (death == player.GetField<int>("deaths"))
-                        {
-                            player.Call(32980, turret);//RemoteControlTurretOff
-                            player.Call(32843);//unlink
-
-                            player.TakeWeapon("killstreak_remote_turret_remote_mp");
-                            player.TakeWeapon("killstreak_remote_turret_laptop_mp");
-
-                            player.Call(33504);//enableOffhandWeapons
-                            Common.StartOrEndThermal(player, false);
-
-                            WP.GiveWeaponTo(player, H.GUN);
-
-                            if (H.REMOTE_STATE == State.remote_vehicleTurret) H.REMOTE_STATE = State.remote_not_using;
-                        }
-
-                        if (turret != null) turret.Call("delete");//delete
-                    });
+                 
 
                 }
                 else
                 {
+                    H.REMOTE_STATE = State.remote_mortar;
                     Common.StartOrEndThermal(player, true);
 
                     player.GiveWeapon("killstreak_ac130_mp");
                     player.SwitchToWeapon("killstreak_ac130_mp");
                     player.AfterDelay(2000, x =>
                     {
+                        if (H.REMOTE_STATE != State.remote_mortar) return;
+
                         player.GiveWeapon("mortar_remote_mp");//zoom_
                         player.GiveWeapon("mortar_remote_zoom_mp");//zoom_
                         player.SwitchToWeapon("mortar_remote_mp");//zoom_
@@ -164,7 +171,6 @@ namespace Infected
                         player.Call(32887, vehicle, tag, 1, 180, 180, 180, 180);//PlayerLinkWeaponviewToDelta
                         player.Call(33531, vehicle.Call<Vector3>("getTagAngles", "tag_player"));//setPlayerAngles
 
-                        H.REMOTE_STATE = State.remote_mortar;
                         H.MISSILE_COUNT = 10;
 
                         Common.BulletHudInfoCreate(player, H, H.MISSILE_COUNT);
@@ -173,6 +179,7 @@ namespace Infected
                         {
                             if (death == player.GetField<int>("deaths")) VehicleEndMissile(player, H);
                         });
+
                     });
 
                     if (H.VEHICLE_FIRE_NOTIFIED) return;
@@ -201,6 +208,7 @@ namespace Infected
                         if (cw == "mortar_remote_mp") player.SwitchToWeapon("mortar_remote_zoom_mp");
                         else if (cw == "mortar_remote_zoom_mp") player.SwitchToWeapon("mortar_remote_mp");
                     });
+
                 }
             }
             void VehicleFireMissile(Entity player, Vector3 sp)

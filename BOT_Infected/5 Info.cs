@@ -12,31 +12,35 @@ namespace Infected
         readonly string[] MESSAGES_KILLSTREAKS =
         {
             "KILLSTREAKS  INFORMATION",
-            "1. IF PRDT APPEARS LEFT BOTTOM,",
+            "1. IF  ^1[ PRDT ]  ^7APPEARS LEFT BOTTOM,",
             "PRESS  *[  [{+activate}]  ]  ^7TO GET RIDE PREDATOR",
-            "2. IF HELI APPEARS LEFT BOTTOM,",
+            "2. IF  ^1[ HELI ]  ^7APPEARS LEFT BOTTOM,",
             "PRESS  *[  [{+activate}]  ]  ^7TO AT THE HELICOPTER AREA",
-            "3. IF KEY CODE MESSAGE APPEARS,",
+            "3. IF  ^2[  KEY CODE  ]  ^7MESSAGE APPEARS,",
             "TYPE KEY CODE IMMEDIATLY TO GET RIDE VEHICLES"
         };
         readonly string[] MESSAGES_ALLIES_INFO_W =
         {
             "WEAPON  INFORMATION",
-            "TYPE [  *FOLLOWING  ^7] 7TO GET WEAPONS",
-            "[  *AP  ^7]  TO GET AKIMBO PISTOL",
-            "[  *AG  ^7]  TO GET AKIMBO GUN",
-            "[  *AR  ^7]  TO GET ASSAULT RIFFLE",
-            "[  *SM  ^7]  TO GET SUB MACHINE GUN",
-            "[  *LM  ^7]  TO GET LIGHT MACHINE GUN",
-            "[  *SG  ^7]  TO GET SHOT GUN",
-            "[  *SN  ^7]  TO GET SNIPE GUN",
+            "*TYPE [  ^7FOLLOWING  *] 7TO GET attachment",
+            "*[  ^7VS  *]  TO GET VIEW SCOPE",
+            "*[  ^7AT  *]  TO GET ATTACHMENT",
+            "*[  ^7SL  *]  TO GET SIRENCER",
+            "*TYPE [  ^7FOLLOWING  *] 7TO GET WEAPONS",
+            "*[  ^7AP  *]  TO GET AKIMBO PISTOL",
+            "*[  ^7AG  *]  TO GET AKIMBO GUN",
+            "*[  ^7AR  *]  TO GET ASSAULT RIFFLE",
+            "*[  ^7SM  *]  TO GET SUB MACHINE GUN",
+            "*[  ^7LM  *]  TO GET LIGHT MACHINE GUN",
+            "*[  ^7SG  *]  TO GET SHOT GUN",
+            "*[  ^7SN  *]  TO GET SNIPE GUN",
       };
         readonly string[] MESSAGES_AXIS_INFO_W =
         {
-            "TYPE [  *FOLLOWING  ^7] TO GET WEAPONS",
-            "[  *RIOT  ^7] TO GET RIOTSHIELD",
-            "[  *STINGER  ^7] TO GET STINGER",
-            "[  *JAVELIN  ^7] TO GET JAVELIN",
+            "*TYPE [  ^7FOLLOWING  *] TO GET WEAPONS",
+            "*[  ^7RIOT  *] TO GET RIOTSHIELD",
+            "*[  ^7STINGER  *] TO GET STINGER",
+            "*[  ^7JAVELIN  *] TO GET JAVELIN",
         };
         internal void MessageInfoK(Entity ent, bool Axis)
         {

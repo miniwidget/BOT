@@ -65,8 +65,7 @@ namespace Tdm
 
                         SetZero_hset(H, false);
 
-                        WP.GiveRandomWeaponTo(player);
-                        WP.GiveRandomOffhandWeapon(player);
+                        GUN.GiveRandomWeaponTo(player);
 
                         GivePerkToHumanKiller(pe);
                     };
