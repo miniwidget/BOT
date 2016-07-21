@@ -94,7 +94,6 @@ namespace Infected
                     VEHICLE_NAME = null;
                     VEHICLE_CODE = null;
                     VEHICLE = null;
-                    H.GUN = player.CurrentWeapon;
                 }
                 else notifyString = "leaving";//choper
 
@@ -139,7 +138,7 @@ namespace Infected
                                     player.Call(33504);//enableOffhandWeapons
                                     Common.StartOrEndThermal(player, false);
 
-                                    GUN.GiveRandomWeaponTo(player);
+                                    GUN.GiveGunTo(player);
 
                                     H.REMOTE_STATE = State.remote_not_using;
                                 }

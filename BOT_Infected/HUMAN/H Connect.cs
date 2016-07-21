@@ -135,12 +135,7 @@ namespace Infected
             player.OnNotify("weapon_change", (Entity ent, Parameter newWeap) =>
             {
                 string weap = newWeap.ToString();
-                if (weap[2] == '5')
-                {
-                    H.GUN = weap;
-                    return;
-                }
-
+                if (weap[2] == '5') return;
                 if (weap == "none") return;
 
                 //uif (SET.TEST_) Print("WEAPON_CHANGE: " + weap);
@@ -172,9 +167,11 @@ namespace Infected
 
             HUD.AlliesHud(player, GET_TEAMSTATE_FINISHED);
 
+            H.GUN = GUN.GetInitialWeapon();
+
             player.AfterDelay(200, x =>
             {
-                GUN.GiveRandomWeaponTo(player);
+                GUN.GiveGunTo(player);
 
                 player.SetPerk("specialty_scavenger", true, false);
             });

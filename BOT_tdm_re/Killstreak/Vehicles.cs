@@ -141,7 +141,7 @@ namespace Tdm
                                     player.Call(33504);//enableOffhandWeapons
                                     Common.StartOrEndThermal(player, false);
 
-                                    GUN.GiveRandomWeaponTo(player);
+                                    GUN.GiveGunTo(player);
 
                                     H.REMOTE_STATE = State.remote_not_using;
                                 }

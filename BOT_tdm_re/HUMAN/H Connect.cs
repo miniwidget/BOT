@@ -48,10 +48,12 @@ namespace Tdm
 
                 SetZero_hset(H, true);
                 SetPlayer(H, player);
+                H.GUN = GUN.GetInitialWeapon();
 
                 player.Notify("menuresponse", "changeclass", recipe);
                 player.AfterDelay(100, pp =>
                 {
+                    
                     player.SpawnedPlayer += delegate
                     {
                         if (GAME_ENDED_) return;
@@ -64,8 +66,8 @@ namespace Tdm
                         }
 
                         SetZero_hset(H, false);
-
-                        GUN.GiveRandomWeaponTo(player);
+                        
+                        GUN.GiveGunTo(player);
 
                         GivePerkToHumanKiller(pe);
                     };
@@ -98,11 +100,8 @@ namespace Tdm
             player.OnNotify("weapon_change", (Entity ent, Parameter newWeap) =>
             {
                 string weap = newWeap.ToString();
-                if (weap[2] == '5')
-                {
-                    H.GUN = weap;
-                    return;
-                }
+                if (weap[2] == '5') return;
+                
                 if (weap == "none") return;
 
                 //if (TEST_) Print("WEAPON_CHANGE: " + weap);

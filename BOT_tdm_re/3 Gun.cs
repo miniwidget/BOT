@@ -9,135 +9,130 @@ namespace Tdm
 {
     internal class Gun
     {
-        //Random rnd = Infected.rnd;
 
         #region primary
-        int[] RANDOM_MAX = new[] { 3, 5, 9, 5, 4, 4, 5, 6 };
+        readonly List<string> TYPES = new List<string>() { "ap", "ag", "ar", "sm", "lm", "sg", "sn" };
+        int[] RANDOM_MAX = new[] { 3, 5, 9, 5, 4, 5, 5, 6 };
         int[] RANDOM_INT = new[] { 0, 0, 0, 0, 0, 0, 0, 0 };
 
         public Gun(int[] rnd_int)
         {
             RANDOM_INT = rnd_int;
         }
-        int RandomInt(byte idx)
+
+        int RandomInt(int idx)
         {
-            if (RANDOM_INT[idx] != RANDOM_MAX[idx]) return RANDOM_INT[idx]++;
-            else return RANDOM_INT[idx] = 0;
+            if (RANDOM_INT[idx] != RANDOM_MAX[idx]) return ++RANDOM_INT[idx];
+
+            return RANDOM_INT[idx] = 0;
         }
-        int _camo;
-        string GetCamo
+
+        internal void GiveWeaponByType(Entity player, string wep)
         {
-            get
-            {
-                if (_camo == 12) _camo = 0;
-
-                _camo++;
-
-                if (_camo < 10) return "_camo0" + _camo;
-
-                else return "_camo" + _camo;
-            }
+            int i = TYPES.IndexOf(wep);
+            GiveWeaponTo(player, BaseGunByType(i, RandomInt(i)));
         }
-        internal void GiveWeaponTo(Entity player, string wep, int i)
+        string BaseGunByType(int j, int i)
         {
-            switch (wep)
-            {
-                case "ap": wep = AP(i); return;
-                case "ag": wep = AG(i); return;
-                case "ar": wep = AR(i); return;
-                case "sm": wep = SM(i); return;
-                case "lm": wep = LM(i); return;
-                case "sg": wep = SG(i); return;
-                case "sn": wep = SN(i); return;
-            }
+            if (j == 0) return AP_LIST[i];
+            if (j == 1) return AG_LIST[i];
+            if (j == 2) return AR_LIST[i] + GetCamo;
+            if (j == 3) return SM_LIST[i] + GetCamo;
+            if (j == 4) return LM_LIST[i] + GetCamo;
+            if (j == 5) return SG_LIST[i] + GetCamo;
 
-            GiveWeaponTo(player, wep);
+            return SN_LIST[i] + GetCamo;
         }
-        internal void GiveWeaponBy(Entity player, string wep)
+
+        internal void GiveWeaponByNum(Entity player, string gunType, int num)
         {
-            switch (wep)
-            {
-                case "ap": wep = AP(RandomInt(0)); break;
-                case "ag": wep = AG(RandomInt(1)); break;
-                case "ar": wep = AR(RandomInt(2)); break;
-                case "sm": wep = SM(RandomInt(3)); break;
-                case "lm": wep = LM(RandomInt(4)); break;
-                case "sg": wep = SG(RandomInt(5)); break;
-                case "sn": wep = SN(RandomInt(6)); break;
-            }
-
-            GiveWeaponTo(player, wep);
+            GiveWeaponTo(player, BaseGunByNum(TYPES.IndexOf(gunType), num));
         }
-        internal void GiveWeaponTo(Entity player, int i)
+        string BaseGunByNum(int j, int i)
         {
-            string wep = null;
-            if (i == 0) wep = AP(RandomInt(0));
-            else if (i == 1) wep = AG(RandomInt(1));
-            else if (i == 2) wep = AR(RandomInt(2));
-            else if (i == 3) wep = SM(RandomInt(3));
-            else if (i == 4) wep = LM(RandomInt(4));
-            else if (i == 5) wep = SG(RandomInt(5));
-            else wep = SN(RandomInt(6));
+            if (j == 0) { if (i > 3) i = 0; return AP_LIST[i]; }
+            if (j == 1) { if (i > 5) i = 0; return AG_LIST[i]; }
+            if (j == 2) { if (i > 9) i = 0; return AR_LIST[i] + GetCamo; }
+            if (j == 3) { if (i > 5) i = 0; return SM_LIST[i] + GetCamo; }
+            if (j == 4) { if (i > 4) i = 0; return LM_LIST[i] + GetCamo; }
+            if (j == 5) { if (i > 5) i = 0; return SG_LIST[i] + GetCamo; }
 
-            GiveWeaponTo(player, wep);
+            if (i > 5) i = 0; return SN_LIST[i] + GetCamo;
         }
+
         internal void GiveWeaponTo(Entity player, string weapon)
         {
             player.TakeWeapon(player.CurrentWeapon);
             player.GiveWeapon(weapon);
             player.Call(33523, weapon);//givemaxammo
-            //player.AfterDelay(100, x =>
             player.SwitchToWeaponImmediate(weapon);
-            //);
-        }
-        internal void GiveRandomWeaponTo(Entity player)
-        {
-            GiveWeaponTo(player, RandomInt(7));
-        }
 
+            Tdm.H_FIELD[player.EntRef].GUN = weapon;
+        }
+        internal void GiveGunTo(Entity player)
+        {
+            string weapon = Tdm.H_FIELD[player.EntRef].GUN;
+            player.TakeWeapon(player.CurrentWeapon);
+            player.GiveWeapon(weapon);
+            player.Call(33523, weapon);//givemaxammo
+            player.SwitchToWeaponImmediate(weapon);
+        }
+        internal string GetInitialWeapon()
+        {
+            int i = RandomInt(7);
+
+            return BaseGunByType(i, RandomInt(i));
+        }
         #endregion
 
         #region weapon list
 
-        string AP(int i) { if (i > 3) i = 0; return AP_LIST[i]; }
-        string AG(int i) { if (i > 5) i = 0; return AG_LIST[i]; }
-        string AR(int i) { if (i > 9) i = 0; return AR_LIST[i]+ GetCamo; }
-        string SM(int i) { if (i > 5) i = 0; return SM_LIST[i] + GetCamo; }
-        string LM(int i) { if (i > 4) i = 0; return LM_LIST[i] + GetCamo; }
-        string SG(int i) { if (i > 5) i = 0; return SG_LIST[i] + GetCamo; }
-        string SN(int i) { if (i > 5) i = 0; return SN_LIST[i] + GetCamo; }
+        int _camo;
+        string GetCamo
+        {
+            get
+            {
+                _camo++;
 
-        string[] AP_LIST = new string[4] { "iw5_fmg9_mp_akimbo", "iw5_skorpion_mp_akimbo", "iw5_mp9_mp_akimbo", "iw5_g18_mp_akimbo", };
-        string[] AG_LIST = new string[6] { "iw5_mp412_mp_akimbo", "iw5_p99_mp_akimbo", "iw5_44magnum_mp_akimbo", "iw5_usp45_mp_akimbo", "iw5_fnfiveseven_mp_akimbo", "iw5_deserteagle_mp_akimbo" };
-        string[] AR_LIST = new string[10] { "iw5_ak47_mp_gp25", "iw5_m16_mp_gl", "iw5_m4_mp_gl", "iw5_fad_mp_m320", "iw5_acr_mp_m320", "iw5_type95_mp_m320", "iw5_mk14_mp_m320", "iw5_scar_mp_m320", "iw5_g36c_mp_m320", "iw5_cm901_mp_m320", };
-        string[] SM_LIST = new string[6] { "iw5_mp5_mp", "iw5_m9_mp", "iw5_p90_mp", "iw5_pp90m1_mp", "iw5_ump45_mp", "iw5_mp7_mp", };
-        string[] LM_LIST = new string[5] { "iw5_m60_mp", "iw5_mk46_mp", "iw5_pecheneg_mp", "iw5_sa80_mp", "iw5_mg36_mp" };
-        string[] SG_LIST = new string[6] { "iw5_ksg_mp", "iw5_spas12_mp", "iw5_aa12_mp", "iw5_striker_mp", "iw5_1887_mp", "iw5_usas12_mp", };
-        string[] SN_LIST = new string[6] { "iw5_dragunov_mp_dragunovscope", "iw5_msr_mp_msrscope", "iw5_barrett_mp_barrettscope", "iw5_rsass_mp_rsassscope", "iw5_as50_mp_as50scope", "iw5_l96a1_mp_l96a1scope", };
+                if (_camo == 12) _camo = 1;
+
+                if (_camo < 10) return "_camo0" + _camo;
+
+                return "_camo" + _camo;
+            }
+        }
+
+        readonly string[] AP_LIST = new string[4] { "iw5_fmg9_mp_akimbo", "iw5_skorpion_mp_akimbo", "iw5_mp9_mp_akimbo", "iw5_g18_mp_akimbo", };
+        readonly string[] AG_LIST = new string[6] { "iw5_mp412_mp_akimbo", "iw5_p99_mp_akimbo", "iw5_44magnum_mp_akimbo", "iw5_usp45_mp_akimbo", "iw5_fnfiveseven_mp_akimbo", "iw5_deserteagle_mp_akimbo" };
+        readonly string[] AR_LIST = new string[10] { "iw5_ak47_mp_gp25", "iw5_m16_mp_gl", "iw5_m4_mp_gl", "iw5_fad_mp_m320", "iw5_acr_mp_m320", "iw5_type95_mp_m320", "iw5_mk14_mp_m320", "iw5_scar_mp_m320", "iw5_g36c_mp_m320", "iw5_cm901_mp_m320", };
+        readonly string[] SM_LIST = new string[6] { "iw5_mp5_mp", "iw5_m9_mp", "iw5_p90_mp", "iw5_pp90m1_mp", "iw5_ump45_mp", "iw5_mp7_mp", };
+        readonly string[] LM_LIST = new string[5] { "iw5_m60_mp", "iw5_mk46_mp", "iw5_pecheneg_mp", "iw5_sa80_mp", "iw5_mg36_mp" };
+        readonly string[] SG_LIST = new string[6] { "iw5_ksg_mp", "iw5_spas12_mp", "iw5_aa12_mp", "iw5_striker_mp", "iw5_1887_mp", "iw5_usas12_mp", };
+        readonly string[] SN_LIST = new string[6] { "iw5_dragunov_mp_dragunovscope", "iw5_msr_mp_msrscope", "iw5_barrett_mp_barrettscope", "iw5_rsass_mp_rsassscope", "iw5_as50_mp_as50scope", "iw5_l96a1_mp_l96a1scope", };
 
         //string[] CAMO_LIST = new string[11] { "_camo01", "_camo02", "_camo03", "_camo04", "_camo05", "_camo06", "_camo07", "_camo08", "_camo09", "_camo10", "_camo11" };
 
-        List<string[]> VIEWS_List = new List<string[]>()
+        readonly List<string[]> VIEWS_List = new List<string[]>()
         {
-            null,
-            null,
-            new []{"", "reflex", "acog","thermal","eotech","hybrid" },
-            new [] { "", "reflexsmg", "eotechsmg", "hamrhybrid"},
-            new [] { "", "reflexlmg","eotechlmg","acog","thermal"},
-            new [] { "", "reflex","eotech"},
-            new [] { "", "", "acog","thermal"}
+            null,//ap
+            null,//ag
+            new []{"", "reflex", "acog","thermal","eotech","hybrid" },//ar
+            new [] { "", "reflexsmg", "eotechsmg", "hamrhybrid"},//sm
+            new [] { "", "reflexlmg","eotechlmg","acog","thermal"},//lm
+            new [] { "", "reflex","eotech"},//sg
+            new [] { "", "", "acog","thermal"}//sn
         };
         List<string[]> ATTACHES = new List<string[]>()
         {
-            new [] {"akimbo", "silencer02","xmags"},
-            new [] { "akimbo","xmags"},
-            new [] { "heartbeat","launcher","xmags",},//"m320","gp25","gl"
-            new [] { "rof","xmags",},
-            new [] {  "rof","grip","heartbeat","xmags"},
-            new [] { "xmags" },
-            new [] {"heartbeat","xmags"},
+            new [] {"akimbo", "silencer02","xmags"},//ap
+            new [] { "akimbo","xmags"},//ag
+            new [] { "heartbeat","launcher","xmags",},//ar "m320","gp25","gl"
+            new [] { "rof","xmags",},//sm
+            new [] {  "rof","grip","heartbeat","xmags"},//lm
+            new [] { "xmags" },//sg
+            new [] {"heartbeat","xmags"},//sn
         };
-        string[] ALL_GUN_NAME =
+        readonly string[] ALL_GUN_NAME =
         {
             "fmg9", "skorpion", "mp9", "g18",//AP 0~3
             "mp412", "p99", "44magnum", "usp45", "fnfiveseven", "deserteagle", //AG 4~9
@@ -145,15 +140,17 @@ namespace Tdm
             "mp5", "m9", "p90", "pp90m1", "ump45", "mp7",//SM 20~25
             "m60", "mk46", "pecheneg", "sa80", "mg36",//LM 26~30
             "ksg","spas12", "aa12", "striker", "1887", "usas12",//SG 31~36
-            "dragunov", "msr", "barrett", "rsass", "as50", "l96a1",//SN 37~41
+            "dragunov", "msr", "barrett", "rsass", "as50", "l96a1",//SN 37~42
         };
-        string[] SILENCERS = new string[] { "silencer02", null, "silencer", "silencer", "silencer", "silencer03", "silencer03" };
+        readonly string[] SILENCERS = { "silencer02", null, "silencer", "silencer", "silencer", "silencer03", "silencer03" };
 
         #endregion
 
         #region attachment
         internal void GiveOtherTypes(Entity player, string type, string gun)
         {
+            if (gun[2] != '5') return;
+
             if (type == "vs") GiveViewscope(player, gun);
             else if (type == "at") GiveAttachment(player, gun);
             else GiveSilencer(player, gun);
@@ -239,7 +236,6 @@ namespace Tdm
         }
         void GiveAttachment(Entity player, string gun)
         {
-            if (gun[2] != '5') return;
 
             string baseGun = gun.Split('_')[1];
             int type = GetGunType(baseGun);
@@ -345,15 +341,12 @@ namespace Tdm
                 //Console.WriteLine("첨가물이 없는 상태입니다. NEWATT는 " + newAtt + " 입니다");
             }
 
-            int rc = results.Count;
-
-            if (rc < 3)//etc 삽입
+            if (results.Count < 3)//etc 삽입
             {
                 if (!results.Contains(newAtt)) results.Add(newAtt);
-                else
-                {
-                    results.Add(ATTS.FirstOrDefault(s => !results.Contains(s)));
-                }
+
+                else results.Add(ATTS.FirstOrDefault(s => !results.Contains(s)));
+
                 //Console.WriteLine("첨가물이 3보다 작습니다. 총 첨가물은 " + string.Join("_", results) + " 입니다");
             }
             else//etc 삽입
@@ -382,7 +375,6 @@ namespace Tdm
         }
         void GiveSilencer(Entity player, string gun)
         {
-            if (gun[2] != '5') return;
 
             string baseGun = gun.Split('_')[1];
             int type = GetGunType(baseGun);
@@ -439,14 +431,17 @@ namespace Tdm
 
         string BuildGunName(string gun, string attachment)
         {
-            if (attachment.Length != 0)
-            {
-                if (attachment[0] != '_') attachment = attachment.Insert(0, "_");
-                if (attachment.EndsWith("_")) attachment = attachment.Remove(attachment.Length - 1, 1);
-                gun += attachment;
-            }
+            if (attachment.Length == 0) return gun;
 
-            if (gun.Contains("__")) gun = gun.Replace("__", "");
+            if (attachment[0] != '_') attachment = attachment.Insert(0, "_");
+
+            if (attachment.EndsWith("_")) attachment = attachment.Remove(attachment.Length - 1, 1);
+
+            if (attachment.Contains("__")) attachment = attachment.Replace("__", "");
+
+            gun += attachment;
+
+
 
             return gun;
         }
@@ -469,7 +464,7 @@ namespace Tdm
             string[] views = VIEWS_List[type];
             foreach (string att in attaches)
             {
-                Console.WriteLine("찾는 중: " + att);
+                //Console.WriteLine("찾는 중: " + att);
                 if (views.Contains(att))
                 {
                     return att;

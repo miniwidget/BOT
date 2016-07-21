@@ -32,7 +32,7 @@ namespace Tdm
         {
             SET = new Set();
             rnd = new Random();
-            GUN = new Gun(new int[] { rnd.Next(4), rnd.Next(6), rnd.Next(10), rnd.Next(6), rnd.Next(5), rnd.Next(5), rnd.Next(6), rnd.Next(7) });
+            GUN = new Gun(new int[] { rnd.Next(4), rnd.Next(6), rnd.Next(10), rnd.Next(6), rnd.Next(5), rnd.Next(6), rnd.Next(6), rnd.Next(7) });
             PK = new Perk();
             HUD = new Hud();
             INFO = new Info();

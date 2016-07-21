@@ -55,7 +55,7 @@ namespace Tdm
                     case "sm":
                     case "lm":
                     case "sg":
-                    case "sn": GUN.GiveWeaponBy(player, text0); return;
+                    case "sn": GUN.GiveWeaponByType(player, text0); return;
 
                     case "vs":
                     case "at":
@@ -88,7 +88,7 @@ namespace Tdm
                     case "sm":
                     case "lm":
                     case "sg":
-                    case "sn": GUN.GiveWeaponTo(player, text0, i); return;
+                    case "sn": GUN.GiveWeaponByNum(player, text0, i); return;
                 }
             }
         }
