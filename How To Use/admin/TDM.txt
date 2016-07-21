@@ -1,5 +1,5 @@
 SERVER_NAME=^2BOT ^7TDM SERVER//server name
-ADMIN_NAME=kwnav//server admin name 
+ADMIN_NAME=your_name//server admin name 
 
 BOT_SETTING_NUM=12//
 

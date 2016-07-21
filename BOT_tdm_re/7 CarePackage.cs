@@ -50,7 +50,7 @@ namespace Tdm
                     if (H.MARKER_TYPE ==State.marker_helicopter) PlayDialog(player, H.AXIS, 13);
                     else Marker.Call(32915, "mp_vest_deployed_ui");//playSound
 
-                    player.AfterDelay(3000, x =>
+                    player.AfterDelay(2500, x =>
                     {
                         Marker.Call(32915, "cobra_helicopter_crash");//playSound
 

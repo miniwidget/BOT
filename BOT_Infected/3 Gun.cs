@@ -15,9 +15,13 @@ namespace Infected
         int[] RANDOM_MAX = new[] { 3, 5, 9, 5, 4, 5, 5, 6 };
         int[] RANDOM_INT = new[] { 0, 0, 0, 0, 0, 0, 0, 0 };
 
-        public Gun(int[] rnd_int)
+        public Gun()
         {
-            RANDOM_INT = rnd_int;
+            Random r = Infected.rnd;
+            for(int i = 0; i < RANDOM_MAX.Length; i++)
+            {
+                RANDOM_INT[i] = r.Next(RANDOM_MAX[i] + 1);
+            }
         }
 
         int RandomInt(int idx)
