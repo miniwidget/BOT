@@ -67,12 +67,13 @@ namespace Tdm
 
                         SetZero_hset(H, false);
                         
-                        GUN.GiveGunTo(player);
+                        player.AfterDelay(150,x=>GUN.GiveGunTo(player));
 
                         GivePerkToHumanKiller(pe);
                     };
 
                     player.SetPerk("specialty_scavenger", true, false);
+                    GUN.GiveGunTo(player);
 
                 });
             });

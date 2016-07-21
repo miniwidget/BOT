@@ -71,7 +71,7 @@ namespace Infected
                 }
                 else
                 {
-                    player.AfterDelay(250, x => GUN.GiveGunTo(player));
+                    player.AfterDelay(150, x => GUN.GiveGunTo(player));
 
                     if (!Allies_List.Contains(player)) Allies_List.Add(player);
 

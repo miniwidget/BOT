@@ -107,7 +107,7 @@ namespace Tdm
 
             Log.Write(LogLevel.None, "■ BOTs:{0} ■ MAP:{1}", BOTs_List.Count, SET.MAP_IDX);
 
-            Call(42, "scr_infect_timelimit", "20");
+            //Call(42, "scr_infect_timelimit", "20");
 
             string alliesCharSet = Call<string>(221, "allieschar");//getMapCustom
             if (alliesCharSet == null) alliesCharSet = "sas_urban";
